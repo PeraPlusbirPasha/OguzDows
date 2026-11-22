@@ -13,7 +13,7 @@ import gi
 
 gi.require_version('Gtk', '3.0')
 gi.require_version('Gdk', '3.0')
-from gi.repository import Gdk, GLib, Gtk
+from gi.repository import Gdk, Gio, GLib, Gtk
 from support import load
 
 
@@ -33,6 +33,10 @@ def main():
     sys.excepthook = error_hook
     with tempfile.TemporaryDirectory(prefix='oguzdows-tools-ui-') as directory:
         os.environ.update(XDG_CONFIG_HOME=directory, XDG_STATE_HOME=directory, OGUZDOWS_TESTING='1')
+        Gio.bus_get_sync(Gio.BusType.SESSION, None).call_sync(
+            'org.freedesktop.DBus', '/org/freedesktop/DBus', 'org.freedesktop.DBus',
+            'UpdateActivationEnvironment', GLib.Variant('(a{ss})', ({'XDG_CONFIG_HOME': directory, 'XDG_STATE_HOME': directory},)),
+            None, Gio.DBusCallFlags.NONE, 5000, None)
         Gtk.Settings.get_default().set_property('gtk-theme-name', 'OguzDows')
         if args.component == 'updater':
             profiles = load('tools_smoke_profiles', 'system/usr/lib/oguzdows/profiles.py')

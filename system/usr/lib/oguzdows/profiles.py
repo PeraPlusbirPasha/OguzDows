@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import fcntl
 import json
+import math
 import os
 import re
 import subprocess
@@ -144,6 +145,13 @@ def atomic_text(path, text):
         temporary.unlink(missing_ok=True)
 
 
+def decimal_value(value):
+    number = float(value)
+    if not math.isfinite(number):
+        raise ValueError('Xfce sayısal ayarı sonlu değil.')
+    return format(number, '.12g')
+
+
 def read_property(channel, path, kind, execute):
     result = execute(['xfconf-query', '-c', channel, '-p', path])
     if result.returncode:
@@ -156,8 +164,9 @@ def read_property(channel, path, kind, execute):
         values = [line.strip() for line in lines[1:] if line.strip()]
         if len(values) != int(lines[0].split()[5]) or not 0 < len(values) <= 128:
             raise ValueError('Xfce dizi ayarının boyutu geçersiz: ' + path)
-        return values
-    return value
+        # xfconf-query 4.18 double değerlerini %f ile (altı ondalık) yazar.
+        return [decimal_value(item) for item in values] if kind == 'double-array' else values
+    return decimal_value(value) if kind == 'double' else value
 
 
 def set_property(channel, path, kind, value, execute):
@@ -227,7 +236,7 @@ def transaction(choices, directory, execute, metadata, layout=False):
             for row in choices:
                 if previous_by_key.get(row[:2]) == row[3]:
                     continue
-                changed.append(row[:3])
+                changed.append(row[:2])
                 set_property(*row, execute)
             for name, value in metadata.items():
                 if value is None:
@@ -236,7 +245,7 @@ def transaction(choices, directory, execute, metadata, layout=False):
                     atomic_text(directory / name, value)
         except (OSError, ValueError, RuntimeError, subprocess.SubprocessError):
             for row in reversed(previous):
-                if row[:3] in changed:
+                if row[:2] in changed:
                     try:
                         set_property(*row, execute)
                     except (OSError, RuntimeError, subprocess.SubprocessError):

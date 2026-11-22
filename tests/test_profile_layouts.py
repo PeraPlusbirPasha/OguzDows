@@ -1,5 +1,7 @@
 """İki panel / simge iskelesi için tür, geri alma ve kişisel ayar sınırları."""
 import json
+import os
+import sys
 import subprocess
 import tempfile
 import unittest
@@ -160,6 +162,41 @@ class LayoutTests(unittest.TestCase):
             execute = lambda command: subprocess.CompletedProcess(command, 0, text, '')
             with self.assertRaises(ValueError):
                 profiles.read_property('xfce4-panel', '/panels', 'int-array', execute)
+
+    def test_real_xfconf_six_decimal_output_is_normalized_and_nonfinite_rejected(self):
+        execute = lambda command: subprocess.CompletedProcess(command, 0, '100.000000\n', '')
+        self.assertEqual(profiles.read_property('xfce4-panel', '/panels/panel-1/length', 'double', execute), '100')
+        execute = lambda command: subprocess.CompletedProcess(command, 0, 'Value is an array with 4 items:\n\n0.090000\n0.160000\n0.250000\n1.000000\n', '')
+        self.assertEqual(profiles.read_property('xfce4-panel', '/color', 'double-array', execute), ['0.09', '0.16', '0.25', '1'])
+        for value in ('nan', 'inf', '-inf', '0,94'):
+            with self.subTest(value=value), self.assertRaises(ValueError):
+                profiles.decimal_value(value)
+
+    def test_failed_legacy_restore_rolls_back_same_property_despite_old_uint_type(self):
+        xfconf = Xfconf(profiles.settings('oguzdows'))
+        original = dict(xfconf.values)
+        def execute(command):
+            if len(command) > 5 and command[4] == '/Net/ThemeName' and command[-1] == 'fail':
+                return subprocess.CompletedProcess(command, 1, '', '')
+            return xfconf(command)
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            values = [['xfce4-panel', '/panels/panel-1/length', 'uint', '77'],
+                      ['xsettings', '/Net/ThemeName', 'string', 'fail']]
+            (root / 'before-first-change.json').write_text(json.dumps(values))
+            with self.assertRaises(RuntimeError):
+                profiles.restore(root, execute)
+            self.assertEqual(xfconf.values, original)
+
+    def test_real_panel_smoke_rejects_non_ci_or_missing_private_bus_before_work(self):
+        for env in ({'CI': 'false', 'DBUS_SESSION_BUS_ADDRESS': 'fake'}, {'CI': 'true'}):
+            with self.subTest(env=env), tempfile.TemporaryDirectory() as temporary:
+                output = Path(temporary) / 'must-not-exist'
+                result = subprocess.run([sys.executable, str(ROOT / 'tests/smoke-profiles.py'), '--output', str(output)],
+                                        env={**env, 'PATH': os.environ.get('PATH', '')}, capture_output=True, text=True, timeout=10)
+                self.assertNotEqual(result.returncode, 0)
+                self.assertIn('tek kullanımlık CI', result.stderr)
+                self.assertFalse(output.exists())
 
     def test_explicit_reload_is_separate_and_never_uses_kill_or_root(self):
         commands = []

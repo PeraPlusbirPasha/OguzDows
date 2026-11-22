@@ -43,7 +43,7 @@ jobs:
     if: github.event.inputs.target != 'raspberrypi' && github.event.inputs.target != 'pc-diagnostics' && github.event.inputs.target != 'pc-release'
     name: Yapılandırma ve GTK · ${{ matrix.suite }}
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 20
     strategy:
       fail-fast: false
       matrix:
@@ -64,7 +64,8 @@ jobs:
           apt-get install -y --no-install-recommends python3 python3-yaml python3-pil \
             python3-gi gir1.2-gtk-3.0 shellcheck fonts-inter fonts-noto-core \
             fonts-dejavu-core adwaita-icon-theme xauth xvfb dbus-x11 pciutils usbutils rfkill \
-            calamares x11-utils xfconf xfwm4 libxcursor1 python3-apt python3-xlib \
+            calamares x11-utils xfconf xfwm4 xfce4-panel xfce4-settings xfce4-whiskermenu-plugin \
+            xfce4-pulseaudio-plugin xfce4-power-manager libxcursor1 python3-apt python3-xlib \
             gpgv ca-certificates flatpak gnome-software gnome-software-plugin-flatpak libglib2.0-bin \
             librsvg2-common shared-mime-info iso-codes gdb \
             build-essential pkg-config libgtk-3-dev libjson-glib-dev gir1.2-flatpak-1.0
@@ -140,6 +141,15 @@ jobs:
               xvfb-run -a -s '-screen 0 1024x768x24' dbus-run-session -- \
               python3 tests/smoke-maintenance-ui.py --component "$component" --output test-results
           done
+
+      - name: Gerçek Xfce üst çubuk ve iskele geometrisi (özel host oturumu)
+        run: |
+          for app in browser files store terminal; do
+            cp "system/usr/share/applications/oguzdows-$app.desktop" /usr/share/applications/
+          done
+          python3 scripts/ci-run.py --title 'Beş gerçek Xfce panel düzeni' -- \
+            xvfb-run -a -s '-screen 0 1280x900x24 -nolisten tcp' dbus-run-session -- \
+            python3 tests/smoke-profiles.py --output test-results/profiles
 
       - name: Gerçek mağaza küçültme, açık tam çıkış ve D-Bus süreç ömrü
         if: ${{ !cancelled() }}
