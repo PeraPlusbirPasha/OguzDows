@@ -241,7 +241,12 @@ class IsoTargetSmokeContractTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory) / 'target-evidence/amd64'
             root.mkdir(parents=True)
-            (root / 'target-os-result.json').write_text(json.dumps({'arch': 'amd64', 'source_revision': 'a' * 40}))
+            target = root / 'target-os-result.json'
+            initramfs = {'6.12.fixture': {'size': '190000000', 'mtime_ns': '1234'}}
+            target.write_text(json.dumps({'arch': 'amd64', 'source_revision': 'a' * 40,
+                                          'initramfs': initramfs, 'error': 'long failure\\%\n' * 300}))
+            serial = root / 'target-os-bios.serial.log'
+            serial.write_text('PRIVATE-NOT-RELAYED\n[1] Memory: 123K\n[2] Kernel panic - not syncing: memory\n')
             sample = {'used_bytes': 650_000_000, 'graphical_xfce': True, 'desktop_user': 1000,
                       'desktop_processes': ['xfce4-panel', 'xfce4-session', 'xfdesktop', 'xfwm4'],
                       'known_foreground_or_package_work': [], 'cpu_total_ticks': 1000, 'cpu_idle_ticks': 990,
@@ -257,6 +262,16 @@ class IsoTargetSmokeContractTests(unittest.TestCase):
             path.write_bytes(original)
             result = subprocess.run(['bash', '-c', script], cwd=directory, capture_output=True, text=True)
             self.assertEqual(result.returncode, 0, result.stderr)
+            target_prefix = '::notice title=Önceki hedef sistem kanıtı::'
+            target_note = next(line for line in result.stdout.splitlines() if line.startswith(target_prefix))
+            target_data = json.loads(target_note[len(target_prefix):].replace('%25', '%'))
+            self.assertEqual(target_data['initramfs'], initramfs)
+            self.assertEqual(target_data['report_sha256'], hashlib.sha256(target.read_bytes()).hexdigest())
+            self.assertEqual(len(target_data['error_tail']), 1400)
+            memory_prefix = '::notice title=Önceki erken açılış belleği::'
+            memory_note = next(line for line in result.stdout.splitlines() if line.startswith(memory_prefix))
+            self.assertEqual(json.loads(memory_note[len(memory_prefix):])['boot_memory_lines'],
+                             ['[1] Memory: 123K', '[2] Kernel panic - not syncing: memory'])
             prefix = '::notice title=Önceki tam Xfce RAM örnekleri::'
             annotation = next(line for line in result.stdout.splitlines() if line.startswith(prefix))
             self.assertLess(len(annotation), 4096)

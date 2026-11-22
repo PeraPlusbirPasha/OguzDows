@@ -9,7 +9,7 @@ on:
         options: [pc, pc-tests, pc-diagnostics, pc-release, raspberrypi]
         default: pc
       evidence_run:
-        description: pc-diagnostics / pc-release için başarıyla tamamlanmış PC çalışması
+        description: pc-diagnostics için tamamlanmış; pc-release için başarılı PC çalışması
         type: string
         default: ""
       release_tag:
@@ -355,9 +355,22 @@ jobs:
               raise SystemExit('İstenen çalışmada hedef sistem test raporu bulunamadı.')
           for path in reports:
               data = json.loads(path.read_text())
-              selected = {k: data.get(k) for k in ('arch', 'source_revision', 'build', 'modes', 'error')}
-              text = json.dumps(selected, ensure_ascii=False)
-              print('::notice title=Önceki hedef sistem kanıtı::' + text[-3500:].replace('%', '%25'))
+              selected = {k: data.get(k) for k in ('arch', 'source_revision', 'build', 'modes', 'initramfs')}
+              selected['error_tail'] = str(data.get('error', ''))[-1400:]
+              selected['report_sha256'] = hashlib.sha256(path.read_bytes()).hexdigest()
+              text = json.dumps(selected, ensure_ascii=False, separators=(',', ':'))
+              if len(text) > 3500:
+                  raise SystemExit('Hedef kanıtı kontrol notu sınırını aştı; kesilmiş JSON yayımlanmadı.')
+              print('::notice title=Önceki hedef sistem kanıtı::' + text.replace('%', '%25'))
+          for path in sorted(Path('target-evidence').rglob('*.serial.log')):
+              lines = [line for line in path.read_text(errors='replace').splitlines()
+                  if any(term in line for term in ('Memory:', 'RAMDISK:', 'unpack rootfs',
+                      'Freeing initrd memory', 'Kernel panic - not syncing', 'Out of memory and no killable processes'))]
+              selected = {'log': str(path.relative_to('target-evidence')), 'boot_memory_lines': lines[:12]}
+              text = json.dumps(selected, ensure_ascii=False, separators=(',', ':'))
+              if len(text) > 3500:
+                  raise SystemExit('UART bellek kanıtı kontrol notu sınırını aştı.')
+              print('::notice title=Önceki erken açılış belleği::' + text.replace('%', '%25'))
           for path in sorted([*Path('target-evidence').rglob('desktop-idle.json'), *Path('target-evidence').rglob('low-ram-idle.json')]):
               data = json.loads(path.read_text())
               selected = {k: data.get(k) for k in ('build', 'method', 'vm_ram_mib', 'target_bytes', 'settled_seconds',
