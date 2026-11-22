@@ -12,7 +12,8 @@ CATEGORIES = ('Tümü', 'İnternet', 'Ofis', 'Görsel', 'Ses ve video', 'Gelişt
 
 def app(identifier, name, summary, category, packages, flatpak='', icon='application-x-executable'):
     return {'id': identifier, 'name': name, 'summary': summary, 'category': category,
-            'packages': tuple(packages.split()), 'flatpak': flatpak, 'icon': icon}
+            'packages': tuple(packages.split()), 'flatpak': flatpak, 'icon': icon,
+            'fallback_icon': 'oguzdows-app-' + identifier}
 
 
 APPS = (
@@ -45,6 +46,24 @@ APPS = (
     app('wine', 'Windows Uyumluluğu', 'Wine ile uygun EXE dosyaları; güvenlik alanı değildir.', 'Araçlar', 'wine', '', 'application-x-ms-dos-executable'),
 )
 BY_ID = {item['id']: item for item in APPS}
+# Yalnızca sabit, sistem paketinin sağladığı masaüstü dosyaları. Bir uygulama
+# motorunun (Wine) dosyasız çalıştırılacağı varsayılmaz; EXE inceleyici ayrıdır.
+DESKTOP_IDS = {
+    'firefox': ('firefox-esr.desktop', 'firefox.desktop'),
+    'thunderbird': ('thunderbird.desktop',), 'transmission': ('transmission-gtk.desktop',),
+    'filezilla': ('filezilla.desktop',), 'remmina': ('org.remmina.Remmina.desktop',),
+    'libreoffice': ('libreoffice-startcenter.desktop', 'libreoffice-writer.desktop'),
+    'evince': ('org.gnome.Evince.desktop',), 'xournalpp': ('com.github.xournalpp.xournalpp.desktop',),
+    'gimp': ('gimp.desktop',), 'inkscape': ('org.inkscape.Inkscape.desktop', 'inkscape.desktop'),
+    'krita': ('org.kde.krita.desktop',), 'blender': ('blender.desktop',), 'vlc': ('vlc.desktop',),
+    'audacity': ('audacity.desktop',), 'kdenlive': ('org.kde.kdenlive.desktop',),
+    'obs': ('com.obsproject.Studio.desktop',), 'handbrake': ('fr.handbrake.ghb.desktop',),
+    'geany': ('geany.desktop',), 'builder': ('org.gnome.Builder.desktop',), 'gitg': ('org.gnome.gitg.desktop',),
+    'supertuxkart': ('supertuxkart.desktop',), 'supertux': ('supertux2.desktop', 'supertux.desktop'),
+    'aisleriot': ('sol.desktop', 'org.gnome.Aisleriot.desktop'), 'keepassxc': ('org.keepassxc.KeePassXC.desktop',),
+    'baobab': ('org.gnome.baobab.desktop',), 'bleachbit': ('bleachbit.desktop',),
+}
+
 
 
 def get(identifier):

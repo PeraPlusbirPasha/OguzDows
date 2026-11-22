@@ -128,6 +128,8 @@ def main():
                 forbidden={'PIL','cairo','rifki_scene','rifki_motion','rifki_pet'}
                 assert not forbidden.intersection(sys.modules), str(forbidden.intersection(sys.modules))
                 if args.component=='welcome':
+                    assert app.loaded_pages == {'welcome', 'hardware'}
+                    metrics['initial_loaded_pages'] = sorted(app.loaded_pages)
                     assert app.rifki is None and 'rifki' not in sys.modules
                     assert len(app.wallpaper_buttons)==0, 'Galeri başta decode edilmemeli'
                 elif args.component=='rifki':

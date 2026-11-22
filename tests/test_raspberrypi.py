@@ -197,16 +197,22 @@ class PiConfigurationTests(unittest.TestCase):
     def test_browser_selects_netsurf_only_for_armv6_and_never_interprets_options(self):
         for legacy, expected in ((True, "/usr/bin/netsurf-gtk"), (False, "/usr/bin/firefox-esr")):
             with patch.object(pi, "armv6", return_value=legacy), patch.object(os, "execv") as execute, patch("sys.argv", ["oguzdows-browser", "https://example.org/"]):
-                load("oguzdows_browser_test", "raspberrypi/system/usr/local/bin/oguzdows-browser")
+                load("oguzdows_browser_test", "system/usr/lib/oguzdows/browser.py").main()
                 execute.assert_called_once_with(expected, [expected, "https://example.org/"])
         with patch.object(os, "execv") as execute, patch("sys.argv", ["oguzdows-browser", "--private-window"]):
             with self.assertRaises(SystemExit):
-                load("oguzdows_browser_test_rejected", "raspberrypi/system/usr/local/bin/oguzdows-browser")
+                load("oguzdows_browser_test_rejected", "system/usr/lib/oguzdows/browser.py").main()
             execute.assert_not_called()
 
+    def test_pc_and_pi_browser_launchers_share_the_same_isolated_module(self):
+        common = (ROOT / 'system/usr/local/bin/oguzdows-browser').read_text()
+        self.assertEqual(common, (ROOT / 'raspberrypi/system/usr/local/bin/oguzdows-browser').read_text())
+        self.assertIn('/usr/bin/python3 -I /usr/lib/oguzdows/browser.py "$@"', common)
+
     def test_new_privileged_python_never_uses_a_shell(self):
-        for path in (ROOT / "raspberrypi/system").rglob("*"):
-            if path.is_file() and (path.suffix == ".py" or path.name == "oguzdows-browser"):
+        paths = list((ROOT / "raspberrypi/system").rglob("*")) + [ROOT / "system/usr/lib/oguzdows/browser.py"]
+        for path in paths:
+            if path.is_file() and path.suffix == ".py":
                 for node in ast.walk(ast.parse(path.read_text())):
                     if isinstance(node, ast.Call):
                         self.assertFalse(any(keyword.arg == "shell" and getattr(keyword.value, "value", None) is True for keyword in node.keywords))

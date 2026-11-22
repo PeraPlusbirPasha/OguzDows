@@ -40,8 +40,8 @@ def main():
             for name in profiles.PROFILES:
                 profiles.apply(name)
                 for channel, path, _kind, expected in profiles.settings(name):
-                    result = subprocess.run(['xfconf-query', '-c', channel, '-p', path], capture_output=True, text=True, check=True)
-                    assert result.stdout.strip() == expected, (name, path, result.stdout)
+                    value = profiles.read_property(channel, path, _kind, profiles.run)
+                    assert value == expected, (name, path, value, expected)
             profiles.restore()
         module = load('tools_smoke_' + args.component, 'system/usr/lib/oguzdows/' + args.component + '.py')
         app = {'updater': lambda: module.Updater(), 'culture': lambda: module.Culture(),

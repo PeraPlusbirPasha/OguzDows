@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Name=Web Tarayıcısı
+Exec=/usr/local/bin/oguzdows-browser
+Icon=web-browser
+Terminal=false
+NoDisplay=true
+Categories=Utility;

@@ -1,0 +1,13 @@
+@import url("../../OguzDows/gtk-3.0/gtk.css");
+/* Bu bir shell / global menü değil, özgün hafif Xfce temasıdır. */
+@define-color theme_selected_bg_color #aa4623;
+@define-color selected_bg_color #aa4623;
+headerbar, headerbar:backdrop { background-image: none; background-color: #292733; color: #ffffff; border-bottom: 1px solid #54535e; opacity: 1; }
+headerbar label:backdrop { color: #ffffff; }
+button.suggested-action { background-color: #aa4623; border-color: #aa4623; color: #ffffff; }
+selection { background-color: #aa4623; color: #ffffff; }
+.xfce4-panel.background { background-color: #292733; color: #ffffff; background-image: none; border: 0; opacity: 1; }
+.xfce4-panel button, .xfce4-panel label { color: #ffffff; }
+.xfce4-panel button { border-radius: 5px; }
+.xfce4-panel button:checked { background-color: #474855; border-bottom: 2px solid #ec935b; }
+.xfce4-panel button:hover { background-color: #45434e; }

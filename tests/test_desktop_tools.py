@@ -13,6 +13,7 @@ from types import SimpleNamespace as NS
 from unittest.mock import Mock, patch
 
 from support import ROOT, load
+from xfconf_fixture import Xfconf
 
 profiles = load('profiles_test', 'system/usr/lib/oguzdows/profiles.py')
 culture = load('culture_core_test', 'system/usr/lib/oguzdows/culture_core.py')
@@ -34,10 +35,8 @@ class ProfileTests(unittest.TestCase):
             profiles.settings('kde; sudo something')
 
     def test_apply_backs_up_once_and_restore_only_accepts_known_properties(self):
-        calls = []
-        def execute(command):
-            calls.append(command)
-            return subprocess.CompletedProcess(command, 0, 'original-value\n', '')
+        execute = Xfconf(profiles.settings('oguzdows'))
+        calls = execute.calls
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
             profiles.apply('kde', root, execute)
@@ -61,13 +60,14 @@ class ProfileTests(unittest.TestCase):
                 self.assertFalse(calls)
 
     def test_failed_apply_rolls_back_existing_and_new_properties(self):
-        calls = []
+        xfconf = Xfconf(profiles.settings('oguzdows'))
+        xfconf.values.pop(('xfce4-panel', '/panels/panel-1/size'))
+        calls = xfconf.calls
         def execute(command):
-            calls.append(command)
-            if len(command) == 5:
-                return subprocess.CompletedProcess(command, 1 if command[4].endswith('size') else 0, 'original\n', '')
-            failing = command[4].endswith('button_layout') and command[-1] != 'original'
-            return subprocess.CompletedProcess(command, 1 if failing else 0, '', '')
+            if len(command) > 5 and command[4].endswith('button_layout') and command[-1] != 'original':
+                calls.append(command)
+                return subprocess.CompletedProcess(command, 1, '', '')
+            return xfconf(command)
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
             with self.assertRaises(RuntimeError):

@@ -30,6 +30,7 @@ def candidates(arch):
         (work + '/stage0/rootfs/var/log/bootstrap.log', 'stage0-bootstrap.log'),
         (work + '/stage-oguzdows/rootfs/var/log/apt/term.log', 'desktop-apt.log'),
         ('pi-upstream-audit.json', 'pi-upstream-audit.json'),
+        ('pi-apt-adaptation.json', 'pi-apt-adaptation.json'),
         ('pi-runtime-report.json', 'pi-runtime-report.json'),
     )
 

@@ -8,3 +8,7 @@
 .xfce4-panel #whiskermenu-button { background-image: none; background-color: #286d35; color: #ffffff; border-radius: 0 9px 9px 0; padding: 0 12px; font-weight: bold; }
 .xfce4-panel #whiskermenu-button:hover { background-color: #347e42; }
 #whiskermenu-window { background-color: #f5f7fa; color: #1e2a3a; border: 2px solid #245ca5; }
+
+/* Hafif Aero/cam esintisi: statik yansıma, pencereler ve yazılar opak. */
+.xfce4-panel.background { background-image: linear-gradient(to bottom, #3b7cb8, #20548b); border-top: 1px solid #84bce1; }
+.xfce4-panel button { background-image: none; }

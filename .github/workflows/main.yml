@@ -281,7 +281,7 @@ jobs:
         run: |
           python3 scripts/ci-run.py --title 'ISO hedef OS ${{ matrix.arch }}' -- \
             python3 tests/smoke-iso-target.py --iso 'OguzDows-${{ matrix.arch }}.iso' \
-            --arch '${{ matrix.arch }}' --expected-revision "$GITHUB_SHA" --graphical-idle \
+            --arch '${{ matrix.arch }}' --expected-revision "$GITHUB_SHA" --graphical-idle --low-ram-checks \
             --output 'test-results/iso-target-${{ matrix.arch }}'
 
       - name: Hedef sistem açılış kanıtları
@@ -343,9 +343,9 @@ jobs:
               selected = {k: data.get(k) for k in ('arch', 'source_revision', 'build', 'modes', 'error')}
               text = json.dumps(selected, ensure_ascii=False)
               print('::notice title=Önceki hedef sistem kanıtı::' + text[-3500:].replace('%', '%25'))
-          for path in sorted(Path('target-evidence').rglob('desktop-idle.json')):
+          for path in sorted([*Path('target-evidence').rglob('desktop-idle.json'), *Path('target-evidence').rglob('low-ram-idle.json')]):
               data = json.loads(path.read_text())
-              selected = {k: data.get(k) for k in ('build', 'method', 'target_bytes', 'settled_seconds',
+              selected = {k: data.get(k) for k in ('build', 'method', 'vm_ram_mib', 'target_bytes', 'settled_seconds',
                   'sample_count', 'sample_interval_seconds', 'idle_confirmed_by_operator',
                   'valid_idle_measurement', 'invalid_reasons', 'median_used_bytes', 'max_used_bytes',
                   'median_used_mb', 'max_used_mb', 'busy_cpu_percent', 'target_met')}

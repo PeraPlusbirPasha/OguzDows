@@ -11,6 +11,7 @@ import hashlib
 import json
 import os
 import re
+import stat
 import subprocess
 import sys
 from pathlib import Path
@@ -77,12 +78,14 @@ def catalogue(execute=command, info=None):
     arm_supported = (info.get('platform') == 'arm' and info.get('arch') == 'arm64' and info.get('suite') == 'trixie'
                      and info.get('device_profile') in ('arm64-uefi', 'pinephone', 'pinephone-pro', 'rockpro64'))
     supported = pc_supported or pi_supported or arm_supported
+    architecture = flatpak_arch(execute)
     return {'apps': [{**item, 'packages': list(item['packages']),
                       'installed': all(name in installed for name in item['packages']),
                       'flatpak_installed': item['flatpak'] in flatpaks} for item in app_catalog.APPS],
             'categories': list(app_catalog.CATEGORIES), 'supports_apt': supported, 'supports_updates': pc_supported,
             'supports_advanced': Path('/usr/lib/oguzdows/store.py').is_file(),
-            'arch': info.get('arch', 'bilinmiyor'), 'flatpak_arch': flatpak_arch(execute),
+            'arch': info.get('arch', 'bilinmiyor'), 'flatpak_arch': architecture,
+            'supports_user_flatpak': architecture in ('x86_64', 'aarch64'),
             'remote_ready': remote_ready(execute),
             'message': 'Yerel katalog hazır. Henüz ağ isteği veya paket işlemi yapılmadı.'}
 
@@ -100,15 +103,88 @@ def target(identifier, source):
     return item['id']
 
 
+def system_desktop(identifier, directory=Path('/usr/share/applications')):
+    app_catalog.get(identifier)
+    for name in app_catalog.DESKTOP_IDS.get(identifier, ()):
+        path = directory / name
+        try:
+            details = path.lstat()
+            if (stat.S_ISREG(details.st_mode) and details.st_uid == 0 and not details.st_mode & 0o022
+                    and path.resolve().parent == directory.resolve()):
+                return path
+        except OSError:
+            pass
+    return None
+
+
+def launch_state(identifier, source, execute=command):
+    name = target(identifier, source)
+    if source == 'system':
+        packages = dpkg_installed(execute)
+        installed = all(package in packages for package in app_catalog.packages(name))
+        desktop = system_desktop(name) if installed else None
+        return {'installed': installed, 'can_launch': desktop is not None, 'source': source}
+    arch = flatpak_arch(execute)
+    if arch not in ('x86_64', 'aarch64'):
+        return {'installed': False, 'can_launch': False, 'source': source}
+    try:
+        ref = execute([FLATPAK, '--user', 'info', '--show-ref', name])
+    except (OSError, RuntimeError, subprocess.SubprocessError):
+        ref = ''
+    installed = ref == 'app/' + name + '/' + arch + '/stable'
+    return {'installed': installed, 'can_launch': installed, 'source': source}
+
+
+def launch(identifier, source, execute=command, api=None):
+    if os.geteuid() == 0:
+        raise ValueError('Uygulama root olarak başlatılmaz. Kendi masaüstü hesabınızı kullanın.')
+    state = launch_state(identifier, source, execute)
+    if not state['installed'] or not state['can_launch']:
+        raise ValueError('Bu kaynakta çalıştırılabilir kurulu uygulama bulunamadı. Önce kurulum durumunu yenileyin.')
+    if api is None:
+        from gi.repository import Gio as api
+    name = target(identifier, source)
+    if source == 'system':
+        path = system_desktop(name)
+        if path is None:
+            raise ValueError('Sistem masaüstü kısayolu artık yok / değişmiş.')
+        application = api.DesktopAppInfo.new_from_filename(str(path))
+    else:
+        # Gio argv'yi ayrıştırıp başlatır; /bin/sh yok. Uygulama kimliği target()
+        # ile doğrulanır. --user sabittir; sistem Flatpak'ı / pkexec çağrılmaz.
+        arch = flatpak_arch(execute)
+        if arch not in ('x86_64', 'aarch64'):
+            raise ValueError('Kullanıcı Flatpak mimarisi değişti.')
+        application = api.AppInfo.create_from_commandline(
+            FLATPAK + ' run --user --arch=' + arch + ' --branch=stable ' + name,
+            None, api.AppInfoCreateFlags.NONE)
+    if application is None or not application.launch([], None):
+        raise ValueError('Masaüstü başlatma isteğini kabul etmedi.')
+    return {'message': 'Başlatma isteği gönderildi. Uygulama penceresini kontrol edin; çalışma / uyumluluk başarısı varsayılmaz.', 'source': source}
+
+
 def detail(identifier, source, execute=command):
     name = target(identifier, source)
+    state = launch_state(identifier, source, execute)
     if source == 'flatpak':
-        if not remote_ready(execute):
+        if flatpak_arch(execute) not in ('x86_64', 'aarch64'):
+            raise ValueError('Bu mimaride kullanıcı Flathub uygulamaları sunulmuyor.')
+        ready = remote_ready(execute)
+        if not ready and state['installed']:
+            return {**state, 'detail': 'Bu hesapta kurulu. Flathub metadata kaynağı hazır değil; kurulu uygulama Aç ile başlatılabilir.',
+                    'message': 'Yerel kurulum durumu okundu. Kaynak eklenmedi.'}
+        if not ready:
             raise ValueError('Önce Kaynaklar bölümünden Flathub’u açık onayla ekleyin.')
         ref = 'app/' + name + '/' + flatpak_arch(execute) + '/stable'
-        text = execute([FLATPAK, '--user', 'remote-info', '--log', 'flathub', ref], timeout=90)
-        permissions = execute([FLATPAK, '--user', 'remote-info', '--show-metadata', 'flathub', ref], timeout=90)
-        return {'detail': text[:12000] + '\n\nİzin bildirimi (özgün metadata):\n' + permissions[:16000],
+        try:
+            text = execute([FLATPAK, '--user', 'remote-info', '--log', 'flathub', ref], timeout=90)
+            permissions = execute([FLATPAK, '--user', 'remote-info', '--show-metadata', 'flathub', ref], timeout=90)
+        except (OSError, RuntimeError, subprocess.SubprocessError) as error:
+            if not state['installed']:
+                raise
+            return {**state, 'detail': 'Kaynak metadata bilgisi alınamadı: ' + str(error)[:2500],
+                    'message': 'Metadata hatası. Kurulu uygulamayı Aç ile başlatabilirsin; yeni kurulum yapılmadı.'}
+        return {**state, 'detail': text[:12000] + '\n\nİzin bildirimi (özgün metadata):\n' + permissions[:16000],
                 'message': 'İmzalı kaynak metadata bilgisi; kurulum yapılmadı. İzinleri ve geliştirici kimliğini inceleyin.'}
     import apt
     cache = apt.Cache()
@@ -122,7 +198,7 @@ def detail(identifier, source, execute=command):
         lines.append(package + '\nSürüm: ' + value.version + '\nKaynak: ' + origins
                      + '\nLisans / telif: kurulum sonrası /usr/share/doc/' + package + '/copyright\n'
                      + value.description[:4500])
-    return {'detail': '\n\n'.join(lines), 'message': 'Yerel paket listesi okundu. Aday ve imzalı köken kurulum planında yeniden doğrulanır.'}
+    return {**state, 'detail': '\n\n'.join(lines), 'message': 'Yerel paket listesi okundu. Aday ve imzalı köken kurulum planında yeniden doğrulanır.'}
 
 
 def apt_request(operation, identifier, token='', execute=command):
@@ -157,7 +233,7 @@ def search(query, execute=command):
         except ValueError:
             continue
         apps.append({'id': 'flatpak:' + identifier, 'name': columns[1][:120], 'summary': columns[2][:350],
-                     'category': 'Flathub', 'flatpak': identifier, 'icon': 'system-software-install',
+                     'category': 'Flathub', 'flatpak': identifier, 'icon': identifier, 'fallback_icon': 'oguzdows-app-flathub',
                      'packages': [], 'installed': False, 'flatpak_installed': False})
         if len(apps) == 80:
             break
@@ -217,7 +293,7 @@ def flatpak_transaction(identifier, operation, token='', api=None):
         captured = {'source': 'flatpak', 'token': plan_digest(operations), 'changes': operations,
                     'detail': '\n'.join(row['ref'] + '\n  commit: ' + row['commit'] + '\n  indirme: ' + str(row['download_bytes']) + ' bayt' for row in operations)
                               or 'Güncellenecek / kurulacak kullanıcı Flatpak paketi yok.',
-                    'note': 'Yalnızca kullanıcı kapsamı. Runtime ve bağımlılıklar dahildir. Uygulama izinlerini ayrıntı sayfasında inceleyin.'}
+                    'note': 'Yalnızca bu hesaba, yönetici parolası olmadan. Runtime ve bağımlılıklar dahildir. Uygulama izinlerini ayrıntı sayfasında inceleyin.'}
         if operation == 'apply' and token != captured['token']:
             refused = 'Flatpak planı / commit değişti. Yeni planı görüntüleyip yeniden onaylayın.'
         return operation == 'apply' and refused is None
@@ -252,6 +328,8 @@ def dispatch(arguments):
         return search(arguments[1])
     if len(arguments) == 3 and arguments[0] == 'detail':
         return detail(arguments[1], arguments[2])
+    if len(arguments) == 3 and arguments[0] == 'launch':
+        return launch(arguments[1], arguments[2])
     if len(arguments) in (3, 4) and arguments[0] in ('plan', 'apply'):
         operation, identifier, source = arguments[:3]
         if (operation == 'plan' and len(arguments) != 3) or (operation == 'apply' and len(arguments) != 4):

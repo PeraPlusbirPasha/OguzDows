@@ -1,6 +1,5 @@
 import json
 import stat
-import subprocess
 import tempfile
 import unittest
 from pathlib import Path
@@ -8,6 +7,7 @@ from unittest.mock import patch
 
 from PIL import Image
 from support import ROOT, load
+from xfconf_fixture import Xfconf
 
 model = load('welcome_v11_model', 'system/usr/lib/oguzdows/welcome_model.py')
 profiles = load('welcome_v11_profiles', 'system/usr/lib/oguzdows/profiles.py')
@@ -45,13 +45,11 @@ class WelcomeModelTests(unittest.TestCase):
 
 class AppearanceTests(unittest.TestCase):
     def execute(self, command):
-        self.calls.append(command)
-        if len(command) == 5:
-            return subprocess.CompletedProcess(command, 0, 'original\n', '')
-        return subprocess.CompletedProcess(command, 0, '', '')
+        return self.xfconf(command)
 
     def setUp(self):
-        self.calls = []
+        self.xfconf = Xfconf(profiles.settings('oguzdows'))
+        self.calls = self.xfconf.calls
 
     def test_oguzdows_is_original_xp_inspired_bottom_panel(self):
         settings = {(channel, key): value for channel, key, _type, value in profiles.settings('oguzdows')}
@@ -60,7 +58,7 @@ class AppearanceTests(unittest.TestCase):
         self.assertEqual(settings['xsettings', '/Net/ThemeName'], 'OguzDowsXP')
         self.assertEqual(settings['xfwm4', '/general/theme'], 'OguzDowsXP')
         self.assertEqual(profiles.theme('oguzdows', 'dark'), 'OguzDowsXPDark')
-        self.assertEqual(profiles.theme('gnome', 'light'), 'OguzDowsLight')
+        self.assertEqual(profiles.theme('gnome', 'light'), 'OguzDowsGnome')
         for value in ('', 'auto', '../OguzDows'):
             with self.assertRaises(ValueError):
                 profiles.settings('oguzdows', value)
@@ -77,7 +75,7 @@ class AppearanceTests(unittest.TestCase):
             self.calls.clear()
             profiles.apply('mac', root, self.execute)
             self.assertEqual(profiles.selection(root), ('mac', 'dark'))
-            self.assertIn('OguzDows', [call[-1] for call in self.calls])
+            self.assertIn('OguzDowsMacDark', [call[-1] for call in self.calls])
             backup = json.loads((root / 'before-first-change.json').read_text())
             self.assertEqual(len(backup), len(profiles.settings('oguzdows')))
             profiles.restore(root, self.execute)
@@ -89,6 +87,7 @@ class AppearanceTests(unittest.TestCase):
             root = Path(temporary)
             profiles.apply('xfce', root, self.execute)
             self.calls.clear()
+            before = dict(self.xfconf.values)
             original = profiles.atomic_text
             def fail(path, text):
                 if text == 'dark\n':
@@ -98,12 +97,14 @@ class AppearanceTests(unittest.TestCase):
                 with self.assertRaises(OSError):
                     profiles.set_appearance('dark', root, self.execute)
             self.assertEqual(profiles.selection(root), ('xfce', 'light'))
-            self.assertTrue(any(call[-1] == 'original' for call in self.calls))
+            self.assertEqual(self.xfconf.values, before)
 
-    def test_all_four_generated_decorations_have_opaque_visible_close_controls(self):
+    def test_all_eight_generated_decorations_have_opaque_visible_close_controls(self):
         with tempfile.TemporaryDirectory() as temporary:
             for name, light, xp in (('OguzDows', False, False), ('OguzDowsLight', True, False),
-                                    ('OguzDowsXP', True, True), ('OguzDowsXPDark', False, True)):
+                                    ('OguzDowsXP', True, True), ('OguzDowsXPDark', False, True),
+                                    ('OguzDowsMac', True, False), ('OguzDowsMacDark', False, False),
+                                    ('OguzDowsGnome', True, False), ('OguzDowsGnomeDark', False, False)):
                 root = Path(temporary)
                 assets.window_theme(root, name, light, xp)
                 theme = root / 'usr/share/themes' / name

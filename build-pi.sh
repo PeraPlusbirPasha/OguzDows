@@ -58,6 +58,9 @@ PY
     # Güncel sürüme portta boot / kernel / kaynak mimarisi sessizce değişmesin.
     python3 "$ROOT/scripts/audit-pi-upstream.py" --arch "$ARCH" --source "$WORK/pi-gen" \
         --output "$WORK/pi-upstream-audit.json"
+    # Denetlenen upstream farkı ayrı before/after SHA-256 raporuna kaydedilir.
+    python3 "$ROOT/scripts/prepare-pi-apt.py" --arch "$ARCH" --source "$WORK/pi-gen" \
+        --output "$WORK/pi-apt-adaptation.json"
     cp -a "$WORK/configuration/stage-oguzdows" "$WORK/pi-gen/"
     cp "$WORK/configuration/config" "$WORK/pi-gen/config"
     # Yalnızca OğuzDows masaüstü son aşaması dışa aktarılır; boş Lite imajı yok.

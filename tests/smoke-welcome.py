@@ -50,7 +50,7 @@ def main():
             assert icons.load_icon(name, 24, 0).get_width() == 24
         assert icons.lookup_icon("battery-missing-symbolic", 24, 0), "Belirsiz pil durumu için ayrı simge olmalı"
         assert icons.lookup_icon("ac-adapter-symbolic", 24, 0), "Pilsiz AC durumu için ayrı fiş simgesi olmalı"
-        for name in ('OguzDows', 'OguzDowsLight', 'OguzDowsXP', 'OguzDowsXPDark'):
+        for name in ('OguzDows', 'OguzDowsLight', 'OguzDowsXP', 'OguzDowsXPDark', 'OguzDowsMac', 'OguzDowsMacDark', 'OguzDowsGnome', 'OguzDowsGnomeDark'):
             provider = Gtk.CssProvider()
             provider.load_from_path(str(ROOT / 'system/usr/share/themes' / name / 'gtk-3.0/gtk.css'))
         notify_provider = Gtk.CssProvider()
@@ -62,7 +62,7 @@ def main():
         if args.pi:
             welcome.is_pi = lambda: True
             welcome.pi_model = lambda: "Raspberry Pi · arayüz kontrolü (host)"
-            welcome.current_policy = lambda: {"profile": "mini", "animations": False}
+            welcome.current_policy = lambda: {"profile": "mini", "animations": False, "thumbnail_pixels": 160}
         app = welcome.Welcome()
         app.register(None)
         app.activate()
@@ -87,6 +87,7 @@ def main():
                 assert app.stack.get_visible_child_name() == "welcome"
                 assert not app.show_again.get_active()
                 assert len(app.sidebar.get_children()) == 7
+                assert app.loaded_pages == {'welcome', 'hardware'}, 'Diğer sayfalar ilk ziyaretten önce oluşturulmamalı'
                 assert not app.previous_button.get_sensitive()
                 assert app.next_button.get_sensitive()
                 if not args.pi:

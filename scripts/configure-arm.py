@@ -41,6 +41,9 @@ def configure(identifier, output):
     (overlay / 'etc/oguzdows').mkdir(parents=True, exist_ok=True)
     (overlay / 'etc/oguzdows/device.json').write_text(json.dumps({'schema': 1, 'profile': identifier}, indent=2) + '\n')
     (overlay / 'usr/share/oguzdows/build-info.json').write_text(json.dumps(info, indent=2) + '\n')
+    wants = overlay / 'etc/systemd/system/multi-user.target.wants'
+    wants.mkdir(parents=True, exist_ok=True)
+    (wants / 'oguzdows-resource-tune.service').symlink_to('../oguzdows-resource-tune.service')
     shutil.copytree(ROOT / 'native', overlay / 'usr/share/oguzdows/native')
     (overlay / 'usr/share/oguzdows/scripts').mkdir(parents=True, exist_ok=True)
     shutil.copy2(ROOT / 'scripts/build-native.sh', overlay / 'usr/share/oguzdows/scripts/build-native.sh')
@@ -82,6 +85,10 @@ ile derlenir. `seal-app-store.sh` root sahipliğini / yazma izinlerini mühürle
 `render-assets.py --root /` görselleri üretir ve `update-desktop-database`
 MIME açıcılarını kaydeder. Bunlar cihaz üzerinde kendiliğinden çalıştırılmaz.
 Hedef rootfs dışında host makinenizde root olarak çalıştırmayın.
+
+Ortak kaynak kararı `/etc/oguzdows/resources.conf` içindedir. Katmanda etkin
+`oguzdows-resource-tune.service` ilk açılışta sınırlı LZ4 zram bütçesini yazar;
+özel zramswap ve disk swap ayarları korunur. Pi firmware / Pi servisleri eklenmez.
 
 Waydroid / Android imajı eklenmez, servis açılmaz. Xfce varsayılanı X11'dir;
 APK için ayrıca Wayland, binder, cihaz uyumlu hazırlanmış Waydroid ve yeterli RAM

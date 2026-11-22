@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Name=Dosyalar
+Exec=/usr/bin/Thunar
+Icon=system-file-manager
+Terminal=false
+NoDisplay=true
+Categories=Utility;

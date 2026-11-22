@@ -9,7 +9,7 @@ import shutil
 import struct
 from pathlib import Path
 
-from PIL import Image, ImageDraw, ImageFont
+from PIL import Image, ImageColor, ImageDraw, ImageFont
 
 INK = "#131620"
 PAPER = "#fff9ef"
@@ -145,14 +145,31 @@ def boot_background(width: int, height: int) -> Image.Image:
 def window_theme(root: Path, name='OguzDows', light=False, xp=False) -> None:
     base = f'usr/share/themes/{name}/xfwm4/'
     active_bg = '#245ca5' if xp and light else ('#183352' if xp else ('#e9edf2' if light else '#1c202a'))
+    mac, gnome = name.startswith('OguzDowsMac'), name.startswith('OguzDowsGnome')
     inactive_bg = '#385d88' if xp and light else ('#1b3048' if xp else ('#dce3ed' if light else '#191c24'))
     active_text = '#1e2a3a' if light and not xp else PAPER
     inactive_text = '#334155' if light and not xp else '#e1e6ef'
+    if mac:
+        active_bg, inactive_bg = ('#eef0f4', '#e1e5ec') if light else ('#292c33', '#24272e')
+    elif gnome:
+        active_bg, inactive_bg = ('#f0edf3', '#e2dfe9') if light else ('#322f3d', '#292733')
+
+    def tile(size, color):
+        image = Image.new('RGBA', size, color)
+        if xp or mac:
+            # Reflet çizime gömülüdür; çalışma anında blur / animasyon yoktur.
+            rgb = ImageColor.getrgb(color)
+            draw = ImageDraw.Draw(image)
+            for y in range(size[1]):
+                shine = (1 - y / max(1, size[1] - 1)) * (.16 if xp else .05)
+                draw.line((0, y, size[0], y), fill=tuple(round(c + (255 - c) * shine) for c in rgb) + (255,))
+        return image
+
     for state in ("active", "inactive"):
         bg = active_bg if state == "active" else inactive_bg
         edge = RED if state == "active" else "#363b49"
         for part in ("title-1", "title-2", "title-3", "title-4", "title-5", "top-left", "top-right"):
-            image = Image.new("RGBA", (5, 32), bg)
+            image = tile((5, 32), bg)
             ImageDraw.Draw(image).line((0, 0, 5, 0), fill=edge)
             save(image, root, base + f"{part}-{state}.png")
         for part, size in (("left", (3, 1)), ("right", (3, 1)), ("bottom", (1, 3)), ("bottom-left", (3, 3)), ("bottom-right", (3, 3))):
@@ -161,14 +178,18 @@ def window_theme(root: Path, name='OguzDows', light=False, xp=False) -> None:
         color = inactive_text if state == "inactive" else active_text
         for button in ("close", "hide", "maximize", "maximize-toggled", "menu"):
             # Eski GPU'da da bütün düğme döşemesi tamamen opaktır.
-            image = Image.new("RGBA", (28 * 3, 32 * 3), inactive_bg if state == "inactive" else active_bg)
+            image = tile((28 * 3, 32 * 3), inactive_bg if state == "inactive" else active_bg)
             draw = ImageDraw.Draw(image)
-            if button == "close" or state in ("prelight", "pressed"):
+            if mac and button in ("close", "hide", "maximize", "maximize-toggled"):
+                fill = {"close": "#f16e68", "hide": "#f4cf72", "maximize": "#81c79a", "maximize-toggled": "#81c79a"}[button]
+                draw.ellipse((12, 21, 72, 81), fill=fill, outline="#68717d", width=2)
+                color = "#20252d"
+            elif button == "close" or state in ("prelight", "pressed"):
                 fill = ("#9f293e" if state == "inactive" else RED) if button == "close" else "#37424b"
                 draw.rounded_rectangle((6, 12, 78, 84), radius=15, fill=fill)
             if button == "close":
-                draw.line((30, 36, 54, 60), fill=PAPER, width=4)
-                draw.line((54, 36, 30, 60), fill=PAPER, width=4)
+                draw.line((30, 36, 54, 60), fill=color if mac else PAPER, width=4)
+                draw.line((54, 36, 30, 60), fill=color if mac else PAPER, width=4)
             elif button == "hide":
                 draw.line((27, 57, 57, 57), fill=color, width=4)
             elif button.startswith("maximize"):
@@ -194,6 +215,27 @@ shadow_delta_width=2
 shadow_delta_x=0
 shadow_delta_y=2
 """)
+
+
+def render_store_icons(root: Path) -> None:
+    """Kurulmamış uygulamada da çevrimdışı rozet; üçüncü taraf logosu taklidi değil."""
+    relative = 'usr/share/oguzdows/store-icons.json'
+    manifest = root / relative
+    if not manifest.is_file():
+        manifest = Path(__file__).resolve().parents[1] / 'system' / relative
+    for item in json.loads(manifest.read_text()):
+        for size in (48, 64):
+            n = size * 3
+            image = Image.new('RGBA', (n, n))
+            draw = ImageDraw.Draw(image)
+            draw.rounded_rectangle((2, 2, n - 3, n - 3), radius=n * .23, fill=item['color'])
+            draw.rounded_rectangle((n * .12, n * .10, n * .88, n * .88), radius=n * .17, outline='#ffffff50', width=2)
+            words = item['badge']
+            draw.text((n * .5, n * .47), words, fill='#ffffff', anchor='mm',
+                      font=font(round(n * (.32 if len(words) < 3 else .24)), True))
+            draw.line((n * .35, n * .78, n * .65, n * .78), fill='#ffffffb0', width=max(2, n // 50))
+            save(image.resize((size, size), Image.Resampling.LANCZOS), root,
+                 f"usr/share/icons/hicolor/{size}x{size}/apps/oguzdows-app-{item['id']}.png")
 
 
 def nazar(level: int, size: int = 48, charging: bool = False) -> Image.Image:
@@ -372,10 +414,13 @@ def render(root: Path) -> None:
     installer = "usr/share/calamares/branding/oguzdows/"
     save(emblem(160, tile=True), root, installer + "logo.png")
     save(boot_background(640, 480).crop((80, 20, 560, 210)), root, installer + "welcome.png")
+    render_store_icons(root)
     window_theme(root)
     window_theme(root, 'OguzDowsLight', light=True)
     window_theme(root, 'OguzDowsXP', light=True, xp=True)
     window_theme(root, 'OguzDowsXPDark', xp=True)
+    for name, light in (('OguzDowsMac', True), ('OguzDowsMacDark', False), ('OguzDowsGnome', True), ('OguzDowsGnomeDark', False)):
+        window_theme(root, name, light=light)
 
 
 def main() -> None:

@@ -1,0 +1,14 @@
+[Unit]
+Description=OğuzDows ortak bellek bütçesi ve LZ4 zram
+After=local-fs.target
+Before=zramswap.service lightdm.service
+# Pi'de mevcut pi-tune birimi aynı ortak işçiyi çağırır; iki kez çalışmaz.
+ConditionPathExists=!/etc/oguzdows/pi-image.json
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/python3 /usr/lib/oguzdows/resource_tune.py --apply
+RemainAfterExit=yes
+
+[Install]
+WantedBy=multi-user.target

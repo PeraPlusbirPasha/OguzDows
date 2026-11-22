@@ -48,6 +48,9 @@ class Welcome(Gtk.Application):
         self.speaker = None
         self.narration_source = None
         self.sidebar_rows = {}
+        self.loaded_pages = set()
+        self.page_scrollers = {}
+        self.page_builders = {}
         self.theme_busy = False
         self.window = None
         self.driver_busy = False
@@ -190,6 +193,7 @@ class Welcome(Gtk.Application):
                     'appearance': self.appearance_page, 'wallpapers': self.wallpapers_page,
                     'hardware': self.hardware_page, 'applications': self.applications_page,
                     'support': self.support_page}
+        self.page_builders = builders
         for identifier, title, icon in welcome_model.PAGES:
             row = Gtk.ListBoxRow()
             row.page_name = identifier
@@ -206,10 +210,12 @@ class Welcome(Gtk.Application):
             page_scroll = Gtk.ScrolledWindow()
             page_scroll.set_policy(Gtk.PolicyType.NEVER, Gtk.PolicyType.AUTOMATIC)
             page_scroll.set_propagate_natural_width(False)
-            page = builders[identifier]()
-            page.set_border_width(18)
-            page_scroll.add(page)
+            self.page_scrollers[identifier] = page_scroll
             self.stack.add_named(page_scroll, identifier)
+            # Kurulum / donanım düğmeleri daima hazır. Diğer beş sayfanın
+            # GTK ağaçları ilk ziyarette kurulur; özellikler silinmez.
+            if identifier in ('welcome', 'hardware'):
+                self.ensure_page(identifier)
         self.stack.add_named(self.result_page(), 'install-result')
         self.sidebar.connect('row-selected', self.sidebar_selected)
         content.pack_start(self.sidebar, False, False, 0)
@@ -232,6 +238,15 @@ class Welcome(Gtk.Application):
         self.window.show_all()
         self.sidebar.select_row(self.sidebar_rows['welcome'])
         self.page_changed()
+
+    def ensure_page(self, identifier):
+        if identifier in self.loaded_pages or identifier not in self.page_builders:
+            return
+        page = self.page_builders[identifier]()
+        page.set_border_width(18)
+        self.page_scrollers[identifier].add(page)
+        self.loaded_pages.add(identifier)
+        page.show_all()
 
     def focus_changed(self, window, *_):
         if not window.is_active() and (self.rifki is None or not self.rifki.get_visible()):
@@ -485,34 +500,45 @@ class Welcome(Gtk.Application):
         return page
 
     def style_preview(self, identifier):
-        """Yerel GTK kutuları: şema, ekran görüntüsü değil. Python çizici yok."""
+        """Yerel GTK kutuları; gerçek panel düzeninin şeması, ekran resmi değil."""
         frame = Gtk.Frame()
-        frame.set_size_request(156, 94)
+        frame.set_size_request(156, 98)
         frame.get_style_context().add_class('style-preview')
+        frame.get_style_context().add_class('preview-' + identifier)
         column = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
         frame.add(column)
+        body = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL)
         workspace = Gtk.Overlay()
         workspace.get_style_context().add_class('preview-workspace')
         workspace.add(Gtk.Box())
-        mini_window = Gtk.Frame()
-        mini_window.get_style_context().add_class('preview-window')
-        mini_window.set_halign(Gtk.Align.CENTER)
-        mini_window.set_valign(Gtk.Align.CENTER)
-        mini_window.set_size_request(78, 42)
-        mini_window.add(Gtk.Label(label='─  □  ×'))
-        workspace.add_overlay(mini_window)
+        mini = Gtk.Frame()
+        mini.get_style_context().add_class('preview-window')
+        mini.set_halign(Gtk.Align.CENTER)
+        mini.set_valign(Gtk.Align.CENTER)
+        mini.set_size_request(78, 42)
+        mini.add(Gtk.Label(label='● ● ●' if identifier == 'mac' else '─ □ ×'))
+        workspace.add_overlay(mini)
+        if identifier == 'gnome':
+            side = Gtk.Label(label='▦\n●\n●\n●')
+            side.get_style_context().add_class('preview-panel')
+            side.set_size_request(18, -1)
+            body.pack_start(side, False, False, 0)
+        body.pack_start(workspace, True, True, 0)
         panel = Gtk.Box(spacing=8)
         panel.get_style_context().add_class('preview-panel')
-        start = Gtk.Label(label='Başlat' if identifier == 'oguzdows' else '▦')
-        start.get_style_context().add_class('preview-start')
-        panel.pack_start(start, False, False, 0)
-        panel.pack_end(Gtk.Label(label='···'), False, False, 3)
-        if profiles.PROFILES[identifier]['position'] == 6:
+        panel.pack_start(Gtk.Label(label='Başlat' if identifier == 'oguzdows' else 'Oğuz'), False, False, 3)
+        panel.pack_end(Gtk.Label(label='12:30'), False, False, 3)
+        if profiles.PROFILES[identifier]['position'] == 9:
             column.pack_start(panel, False, False, 0)
-            column.pack_start(workspace, True, True, 0)
+            column.pack_start(body, True, True, 0)
         else:
-            column.pack_start(workspace, True, True, 0)
+            column.pack_start(body, True, True, 0)
             column.pack_start(panel, False, False, 0)
+        if identifier == 'mac':
+            dock = Gtk.Label(label='●  ▣  ▦  ▪')
+            dock.set_halign(Gtk.Align.CENTER)
+            dock.get_style_context().add_class('preview-panel')
+            column.pack_end(dock, False, False, 0)
         return frame
 
     def styles_page(self):
@@ -552,9 +578,12 @@ class Welcome(Gtk.Application):
         self.profile_restore = Gtk.Button(label='İlk görünüm ayarlarıma dön')
         self.profile_restore.connect('clicked', lambda *_: self.change_style(None))
         page.pack_start(self.profile_restore, False, False, 0)
-        self.profile_status = label('OğuzDows: XP esintili Başlat ve alt görev çubuğu. Açık/koyu tema bağımsız seçilir.', 'muted', 75)
+        self.profile_status = label('OğuzDows: Başlat ve cam esintili alt çubuk. Mac: üst panel + alt iskele. GNOME: üst panel + sol iskele.', 'muted', 75)
         page.pack_start(self.profile_status, False, False, 0)
-        page.pack_start(label('Eski Whisker menüsü sürümlerinde Başlat yazısı sonraki girişte görünür. Yeni sürümlerde yerel xfconf ayarları uygulanır; panel zorla yeniden başlatılmaz. Windows varlığı, logosu veya ikili dosyası kullanılmaz.', 'muted', 75), False, False, 0)
+        reload_button = Gtk.Button(label='Panelleri şimdi yenile…')
+        reload_button.connect('clicked', self.reload_panels)
+        page.pack_start(reload_button, False, False, 0)
+        page.pack_start(label('İskele ve eklenti yerleşimi sonraki girişte yüklenir; istersen yukarıdaki düğmeyle ayrıca onaylayarak şimdi yenile. Pencerelerin kapanmaz. Mac global menüsü veya GNOME kabuğu kurulmaz. Eski Whisker sürümünde menü yazısı sonraki girişte değişebilir.', 'muted', 75), False, False, 0)
         page.pack_start(label('Yerel tespih imleci için ayrı süreç / tıklama dinleyicisi yoktur. Gerçek KDE/GNOME daha fazla kaynak ister ve 600 MB hedefinin dışındadır.', 'muted', 75), False, False, 0)
         if self.pc:
             row = Gtk.Box(spacing=8)
@@ -576,7 +605,7 @@ class Welcome(Gtk.Application):
     def appearance_page(self):
         page = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=14)
         page.pack_start(label('Gündüz de senin, gece de.', 'heading'), False, False, 0)
-        page.pack_start(label('Açık veya koyu temayı seç. Tarzın korunur; bu değişiklik yalnızca bu kullanıcıya aittir. Panel, başlıklar ve kapatma düğmeleri opak kalır.', 'muted', 75), False, False, 0)
+        page.pack_start(label('Açık veya koyu temayı seç. Tarzın korunur; bu değişiklik yalnızca bu kullanıcıya aittir. Üst panel, başlıklar ve kapatma düğmeleri opak kalır.', 'muted', 75), False, False, 0)
         self.theme_buttons = {}
         row = Gtk.Box(orientation=Gtk.Orientation.VERTICAL if self.phone else Gtk.Orientation.HORIZONTAL, spacing=12, homogeneous=True)
         for mode, name in profiles.APPEARANCES.items():
@@ -589,6 +618,15 @@ class Welcome(Gtk.Application):
         page.pack_start(row, False, False, 0)
         self.theme_status = label('Tema sistemdeki GTK 3 / Xfce uygulamalarına uygulanır. Kendi temasını kullanan uygulamalar farklı görünebilir; tüm üçüncü taraf pencerelere garanti verilmez.', 'muted', 75)
         page.pack_start(self.theme_status, False, False, 0)
+        self.effect_choice = Gtk.ComboBoxText()
+        for identifier, title in profiles.EFFECTS.items():
+            self.effect_choice.append(identifier, title)
+        self.effect_choice.set_active_id(profiles.effect_selection())
+        page.pack_start(self.effect_choice, False, False, 0)
+        self.effect_apply = Gtk.Button(label='Efekt tercihini uygula')
+        self.effect_apply.connect('clicked', self.change_effects)
+        page.pack_start(self.effect_apply, False, False, 0)
+        page.pack_start(label('Cam seçimi yalnızca alt çubuk / iskele arka planını hafif saydamlaştırır. Blur ve sürekli animasyon yoktur. 512 MiB–2 GiB RAM, ARMv6 veya nomodeset ile kompozitör açılmaz; aynı düzen ve statik yansımalar korunur. Donanım hızı cihazda ayrıca ölçülmelidir.', 'muted', 75), False, False, 0)
         page.pack_start(label('Yazı tipi, ekran ölçeği veya çözünürlük için:', 'section-title'), False, False, 0)
         for title, command in (('Görünüm ve yazı tipleri', ['/usr/bin/xfce4-appearance-settings']),
                                ('Ekran ayarları', ['/usr/bin/xfce4-display-settings'])):
@@ -597,8 +635,51 @@ class Welcome(Gtk.Application):
             page.pack_start(button, False, False, 0)
         return page
 
+    def change_effects(self, *_):
+        if self.theme_busy or self.profile_busy or self.install_busy or self.external_installing or self.driver_busy:
+            return
+        self.theme_busy = True
+        self.effect_apply.set_sensitive(False)
+        effect = self.effect_choice.get_active_id()
+        def work():
+            try:
+                profiles.set_effects(effect)
+                message = ('Cam tercihi kaydedildi. Düşük RAM / güvenli grafik koruması önceliklidir.' if effect == 'glass'
+                           else 'Efektler kapalı. Tüm düzenler ve uygulamalar kullanılabilir.')
+            except (OSError, ValueError, RuntimeError, subprocess.SubprocessError) as error:
+                message = 'Efekt değiştirilemedi: ' + str(error)
+            def done():
+                self.theme_busy = False
+                self.effect_apply.set_sensitive(True)
+                self.theme_status.set_text(message)
+                return GLib.SOURCE_REMOVE
+            GLib.idle_add(done)
+        threading.Thread(target=work, daemon=True).start()
+
+    def reload_panels(self, *_):
+        if self.profile_busy or self.theme_busy or self.install_busy or self.external_installing or self.driver_busy:
+            return
+        dialog = Gtk.MessageDialog(transient_for=self.window, modal=True,
+            message_type=Gtk.MessageType.QUESTION, buttons=Gtk.ButtonsType.OK_CANCEL,
+            text='Panel yerleşimi şimdi yenilensin mi?')
+        dialog.format_secondary_text('Görev çubuğu kısa süreliğine kaybolup geri gelir. Açık uygulamalar kapanmaz. İstersen Vazgeç deyip oturumu daha sonra yeniden açabilirsin.')
+        dialog.set_default_response(Gtk.ResponseType.CANCEL)
+        answer = dialog.run()
+        dialog.destroy()
+        if answer != Gtk.ResponseType.OK:
+            return
+        self.profile_busy = True
+        def work():
+            try:
+                profiles.reload_panels()
+                message = 'Panel yenileme isteği gönderildi; iskele ve görev çubuğunu kontrol et.'
+            except (OSError, RuntimeError, subprocess.SubprocessError) as error:
+                message = str(error)
+            GLib.idle_add(self.style_finished, message)
+        threading.Thread(target=work, daemon=True).start()
+
     def change_appearance(self, mode):
-        if self.theme_busy or self.profile_busy:
+        if self.theme_busy or self.profile_busy or self.install_busy or self.external_installing or self.driver_busy:
             return
         self.theme_busy = True
         for button in self.theme_buttons.values():
@@ -657,7 +738,7 @@ class Welcome(Gtk.Application):
         return page
 
     def change_style(self, identifier):
-        if self.profile_busy or self.theme_busy:
+        if self.profile_busy or self.theme_busy or self.install_busy or self.external_installing or self.driver_busy:
             return
         self.profile_busy = True
         self.profile_apply.set_sensitive(False)
@@ -666,7 +747,7 @@ class Welcome(Gtk.Application):
         def work():
             try:
                 profiles.restore() if identifier is None else profiles.apply(identifier)
-                message = 'İlk görünüm ayarların geri yüklendi.' if identifier is None else profiles.PROFILES[identifier]['name'] + ' uygulandı. Gerçek bir masaüstü kurulmadı.'
+                message = 'İlk görünüm ayarların geri yüklendi.' if identifier is None else profiles.PROFILES[identifier]['name'] + ' kaydedildi. İskele / eklenti değişimi için panelleri onayla yenile veya oturumu yeniden aç.'
             except (OSError, ValueError, RuntimeError, subprocess.SubprocessError) as error:
                 message = 'Görünüm değiştirilemedi: ' + str(error)
             GLib.idle_add(self.style_finished, message)
@@ -688,7 +769,8 @@ class Welcome(Gtk.Application):
             box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=8)
             box.set_border_width(8)
             try:
-                pixbuf = GdkPixbuf.Pixbuf.new_from_file_at_scale(item["preview"], 224, 126, True)
+                pixels = current_policy()['thumbnail_pixels']
+                pixbuf = GdkPixbuf.Pixbuf.new_from_file_at_scale(item["preview"], pixels, pixels * 9 // 16, True)
                 box.pack_start(Gtk.Image.new_from_pixbuf(pixbuf), False, False, 0)
             except GLib.Error:
                 box.pack_start(Gtk.Image.new_from_icon_name("image-x-generic", Gtk.IconSize.DIALOG), False, False, 0)
@@ -723,6 +805,7 @@ class Welcome(Gtk.Application):
 
     def page_changed(self, *_):
         page=self.stack.get_visible_child_name()
+        self.ensure_page(page)
         if page=='wallpapers':
             self.populate_wallpapers()
         if page == "hardware" and not self.report_text:

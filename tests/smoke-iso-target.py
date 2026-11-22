@@ -177,10 +177,12 @@ def configure_idle_test(root, uid):
     (wants / unit).symlink_to('../' + unit)
 
 
-def boot_os(image, mode, output, work, root_uuid, graphical_idle=False):
+def boot_os(image, mode, output, work, root_uuid, graphical_idle=False, ram_mib=2048):
+    if ram_mib not in (512, 1024, 2048):
+        raise ValueError("VM RAM bütçesi 512, 1024 veya 2048 MiB olmalı.")
     serial = output / ('target-os-' + mode + '.serial.log')
     marker = 'OGUZDOWS-TARGET-OS-OK:' + root_uuid
-    args = ['qemu-system-x86_64', '-machine', 'pc,accel=tcg', '-m', '2048', '-smp', '2',
+    args = ['qemu-system-x86_64', '-machine', 'pc,accel=tcg', '-m', str(ram_mib), '-smp', '2',
             '-vga', 'std', '-display', 'none', '-monitor', 'none', '-serial', 'file:' + str(serial),
             '-drive', f'file={image},format=raw,if=none,id=testdisk,snapshot=on',
             '-device', 'virtio-blk-pci,drive=testdisk', '-nic', 'none', '-boot', 'c', '-no-reboot']
@@ -200,11 +202,15 @@ def boot_os(image, mode, output, work, root_uuid, graphical_idle=False):
                 idle_match = re.search(r'OGUZDOWS-DESKTOP-IDLE-JSON:([^\r\n]+)\r?\n', text) if graphical_idle else None
                 if marker in text and idle_match:
                     measurement = json.loads(idle_match[1])
+                    measurement['vm_ram_mib'] = ram_mib
+                    if ram_mib <= 1024 and re.search(r'Out of memory:|oom-kill:', text):
+                        raise RuntimeError('Düşük RAM testinde OOM görüldü; başarı sayılmadı.')
                     if not all(item.get('graphical_xfce') for item in measurement.get('samples', [])) or not measurement.get('samples'):
                         raise RuntimeError('Hedef kullanıcı için tam Xfce grafik oturumu açılamadı: ' + json.dumps(measurement.get('invalid_reasons')))
-                    (output / 'desktop-idle.json').write_text(json.dumps(measurement, ensure_ascii=False, indent=2) + '\n')
+                    (output / ('low-ram-idle.json' if ram_mib <= 1024 else 'desktop-idle.json')).write_text(json.dumps(measurement, ensure_ascii=False, indent=2) + '\n')
                     status = 'notice' if measurement.get('target_met') else 'warning'
                     summary = {key: measurement.get(key) for key in ('valid_idle_measurement', 'median_used_mb', 'max_used_mb', 'target_met', 'invalid_reasons')}
+                    summary['vm_ram_mib'] = ram_mib
                     print('::' + status + ' title=Tam Xfce oturumu RAM (VM)::' + json.dumps(summary, ensure_ascii=False), flush=True)
                     return summary
                 if process.poll() is not None:
@@ -228,7 +234,10 @@ def main():
     parser.add_argument('--expected-revision', required=True)
     parser.add_argument('--output', type=Path, default=Path('test-results/iso-target'))
     parser.add_argument('--graphical-idle', action='store_true', help='Geçici test hesabıyla tam Xfce oturumu ve yerleşmiş RAM raporu')
+    parser.add_argument('--low-ram-checks', action='store_true', help='Aynı geçici hedefte 512 / 1024 MiB tam Xfce boot ve RAM kontrolü ekle; fiziksel ARM testi değil')
     args = parser.parse_args()
+    if args.low_ram_checks and not args.graphical_idle:
+        parser.error('--low-ram-checks için --graphical-idle gerekli.')
     if os.geteuid() != 0 or os.environ.get('CI') != 'true':
         parser.error('Yalnızca ayrıcalıklı, tek kullanımlık CI konteynerinde çalıştırılır.')
     if not args.iso.is_file() or not stat.S_ISREG(args.iso.stat().st_mode):
@@ -389,6 +398,15 @@ def main():
             if idle is not None:
                 report['desktop_idle'] = idle
             report['modes'].append(mode)
+        if args.low_ram_checks:
+            report['low_ram'] = []
+            for ram in (512, 1024):
+                low_output = output / f'ram-{ram}'
+                low_output.mkdir()
+                measurement = boot_os(image, 'bios', low_output, work, root_uuid, graphical_idle=True, ram_mib=ram)
+                report['low_ram'].append(measurement)
+                if not measurement or not measurement.get('valid_idle_measurement'):
+                    raise RuntimeError(f'{ram} MiB tam Xfce ölçümü geçerli değil: ' + json.dumps(measurement))
         print('::notice title=ISO hedef sistem açılışı::' + json.dumps(report), flush=True)
     except Exception as error:
         report['error'] = str(error)

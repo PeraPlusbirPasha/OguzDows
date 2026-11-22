@@ -1,0 +1,10 @@
+[Desktop Entry]
+Type=X-GNOME-Metatheme
+Name=OğuzDows · Mac esintisi · Koyu
+Comment=Hafif Xfce düzeni, opak ve okunaklı başlıklar
+
+[X-GNOME-Metatheme]
+GtkTheme=OguzDowsMacDark
+MetacityTheme=OguzDowsMacDark
+IconTheme=OguzDows
+CursorTheme=OguzDowsTespih

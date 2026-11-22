@@ -1,0 +1,17 @@
+@import url("../../OguzDowsLight/gtk-3.0/gtk.css");
+/* Bu bir shell / global menü değil, özgün hafif Xfce temasıdır. */
+@define-color theme_selected_bg_color #2469ad;
+@define-color selected_bg_color #2469ad;
+headerbar, headerbar:backdrop { background-image: none; background-color: #eef0f4; color: #223249; border-bottom: 1px solid #acb5c5; opacity: 1; }
+headerbar label:backdrop { color: #223249; }
+button.suggested-action { background-color: #2469ad; border-color: #2469ad; color: #ffffff; }
+selection { background-color: #2469ad; color: #ffffff; }
+.xfce4-panel.background { background-color: #eef0f4; color: #223249; background-image: none; border: 0; opacity: 1; }
+.xfce4-panel button, .xfce4-panel label { color: #223249; }
+.xfce4-panel button { border-radius: 8px; }
+.xfce4-panel button:checked { background-color: #c5d6ec; border-bottom: 2px solid #659fd9; }
+.xfce4-panel button:hover { background-color: #dce4ee; }
+headerbar button.titlebutton, headerbar button.titlebutton:backdrop { border-radius: 14px; color: #20252d; border-color: #767e8c; min-width: 22px; min-height: 22px; padding: 1px; }
+headerbar button.titlebutton.close, headerbar button.titlebutton.close:backdrop { background-color: #f16e68; color: #20252d; border-color: #ab4240; }
+headerbar button.titlebutton.minimize, headerbar button.titlebutton.minimize:backdrop { background-color: #f4cf72; }
+headerbar button.titlebutton.maximize, headerbar button.titlebutton.maximize:backdrop { background-color: #81c79a; }

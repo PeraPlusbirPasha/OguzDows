@@ -1,0 +1,4 @@
+# Aynı Raspbian arşivi, aynı anahtar ve bookworm/armhf. Yeni dağıtım yok.
+# Önce ana arşiv; mirror director'ın ulaşılamayan bir aynaya yönlendirmesi atlanır.
+http://archive.raspbian.org/raspbian/	priority:1
+http://raspbian.raspberrypi.com/raspbian/	priority:2

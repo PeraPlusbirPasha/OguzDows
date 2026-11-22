@@ -12,7 +12,7 @@ import yaml
 from support import ROOT, load
 
 config = load('calamares_service_configure', 'scripts/configure.py')
-SERVICES = ['NetworkManager.service', 'lightdm.service', 'bluetooth.service', 'zramswap.service']
+SERVICES = ['NetworkManager.service', 'lightdm.service', 'bluetooth.service', 'zramswap.service', 'oguzdows-resource-tune.service']
 
 
 def staged(arch, directory):

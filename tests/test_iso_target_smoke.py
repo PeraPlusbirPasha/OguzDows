@@ -78,11 +78,35 @@ class IsoTargetSmokeContractTests(unittest.TestCase):
                 result = smoke.boot_os(root / 'private.img', 'bios', root, root, 'abc', graphical_idle=True)
             self.assertFalse(result['target_met'])
             self.assertIn('::warning', notice.call_args.args[0])
-            self.assertEqual(json.loads((root / 'desktop-idle.json').read_text()), measurement)
+            self.assertEqual(json.loads((root / 'desktop-idle.json').read_text()), {**measurement, 'vm_ram_mib': 2048})
             measurement['samples'][0]['graphical_xfce'] = False
             serial.write_text('OGUZDOWS-TARGET-OS-OK:abc\nOGUZDOWS-DESKTOP-IDLE-JSON:' + json.dumps(measurement) + '\n')
             with patch.object(smoke.subprocess, 'Popen', return_value=process), self.assertRaisesRegex(RuntimeError, 'tam Xfce'):
                 smoke.boot_os(root / 'private.img', 'bios', root, root, 'abc', graphical_idle=True)
+
+    def test_low_ram_boot_records_real_vm_budget_and_rejects_oom(self):
+        for ram in (512, 1024):
+            with self.subTest(ram=ram), tempfile.TemporaryDirectory() as directory:
+                root = Path(directory)
+                serial = root / 'target-os-bios.serial.log'
+                measurement = {'samples': [{'graphical_xfce': True}], 'valid_idle_measurement': True, 'target_met': True}
+                uart = 'OGUZDOWS-TARGET-OS-OK:abc\nOGUZDOWS-DESKTOP-IDLE-JSON:' + json.dumps(measurement) + '\n'
+                serial.write_text(uart)
+                process = Mock()
+                process.poll.return_value = None
+                with patch.object(smoke.subprocess, 'Popen', return_value=process) as spawn, patch('builtins.print'):
+                    result = smoke.boot_os(root / 'private.img', 'bios', root, root, 'abc', graphical_idle=True, ram_mib=ram)
+                command = spawn.call_args.args[0]
+                self.assertEqual(command[command.index('-m') + 1], str(ram))
+                self.assertEqual(result['vm_ram_mib'], ram)
+                self.assertEqual(json.loads((root / 'low-ram-idle.json').read_text())['vm_ram_mib'], ram)
+                self.assertFalse((root / 'desktop-idle.json').exists(), 'Ana 2 GiB kanıtı ile karışmamalı')
+                serial.write_text('oom-kill: constraint=CONSTRAINT_NONE\n' + uart)
+                with patch.object(smoke.subprocess, 'Popen', return_value=process), self.assertRaisesRegex(RuntimeError, 'OOM'):
+                    smoke.boot_os(root / 'private.img', 'bios', root, root, 'abc', graphical_idle=True, ram_mib=ram)
+        with patch.object(smoke.subprocess, 'Popen') as spawn, self.assertRaises(ValueError):
+            smoke.boot_os(Path('/unused'), 'bios', Path('/unused'), Path('/unused'), 'abc', ram_mib=256)
+        spawn.assert_not_called()
 
     def test_uart_does_not_parse_partial_graphical_json_before_the_record_is_complete(self):
         with tempfile.TemporaryDirectory() as directory:

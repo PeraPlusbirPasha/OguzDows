@@ -12,12 +12,14 @@
     "arm_boost=1"
   ],
   "adaptations": [
-    "stock stage0/stage1/stage2 and export chain retained",
+    "stock stage0/stage1/stage2 and export chain retained; explicit hashed post-bootstrap APT transport adaptation",
     "OğuzDows Xfce instead of stock LXDE/labwc desktop stages",
     "locked personal first-account flow instead of shared build account / user-rename",
     "bounded LZ4 zram instead of persistent SD swap",
     "network asynchronous at desktop startup; Wi-Fi/Bluetooth/audio kept",
-    "host-only Xvfb and private chroot D-Bus for minimum-CPU ARM GTK testing"
+    "host-only Xvfb and private chroot D-Bus for minimum-CPU ARM GTK testing",
+    "bounded APT retries/timeouts; armhf same-archive mirror+file failover with signature/hash checks retained",
+    "shared PC/ARM memory budget; native Xfce top/dock layouts and offline store badges"
   ],
   "architectures": {
     "armhf": {
