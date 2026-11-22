@@ -1,0 +1,61 @@
+{
+  "schema_version": 1,
+  "scope": "development-host-real-gio-launch-with-package-state-fixture",
+  "source_revision": "3833b71f603ede8f5e5f3c63d254aae238726158",
+  "run_id": 45047133667,
+  "url": "https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/45047133667",
+  "origin": "Actions check-runs annotations API; artifact contents not downloaded",
+  "not_a_release": true,
+  "real_package_installation": false,
+  "physical_hardware_verified": false,
+  "suites": {
+    "bookworm": {
+      "job_id": 137284082444,
+      "result": {
+        "scope": "host-real-gio-private-user-harmless-application",
+        "package_state_fixture": true,
+        "real_package_installation": false,
+        "real_flatpak_runtime": false,
+        "root_application": false,
+        "message": "Başlatma isteği gönderildi. Uygulama penceresini kontrol edin; çalışma / uyumluluk başarısı varsayılmaz.",
+        "source": "system",
+        "real_gio_launch": true,
+        "uid": 65534,
+        "glib_version": [
+          2,
+          74,
+          4
+        ],
+        "child_uid": 65534,
+        "worker_seconds": 0.087,
+        "clean_json": true,
+        "child_streams_detached": true,
+        "application_alive_after_worker_exit": true
+      }
+    },
+    "trixie": {
+      "job_id": 137284082458,
+      "result": {
+        "scope": "host-real-gio-private-user-harmless-application",
+        "package_state_fixture": true,
+        "real_package_installation": false,
+        "real_flatpak_runtime": false,
+        "root_application": false,
+        "message": "Başlatma isteği gönderildi. Uygulama penceresini kontrol edin; çalışma / uyumluluk başarısı varsayılmaz.",
+        "source": "system",
+        "real_gio_launch": true,
+        "uid": 65534,
+        "glib_version": [
+          2,
+          84,
+          4
+        ],
+        "child_uid": 65534,
+        "worker_seconds": 0.088,
+        "clean_json": true,
+        "child_streams_detached": true,
+        "application_alive_after_worker_exit": true
+      }
+    }
+  }
+}
