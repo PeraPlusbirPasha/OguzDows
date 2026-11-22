@@ -1,0 +1,421 @@
+{
+  "schema_version": 1,
+  "scope": "host-actual-Xfce-panels-GTK-CSS-and-native-APT-plans-only",
+  "source_revision": "b30dbf946b62528a72843489bb4cb7719794fd5f",
+  "pc_run_id": 45084351368,
+  "pc_url": "https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/45084351368",
+  "conclusion": "success",
+  "physical_boot_verified": false,
+  "arm_session_runtime_verified": false,
+  "real_apt_or_flatpak_install_to_launch_verified": false,
+  "new_image_verified": false,
+  "idle_or_device_ram_measurement": false,
+  "gui_screenshot_bytes_independently_downloaded": false,
+  "origin": "GitHub check-runs annotations API; exact source and job identities retained; screenshots not downloaded",
+  "pc_baselines": [
+    {
+      "suite": "bookworm",
+      "job_id": 137399422718,
+      "conclusion": "success",
+      "panels": {
+        "scope": "host-real-xfce-panels-private-xvfb",
+        "physical_boot": false,
+        "arm_runtime": false,
+        "performance_test": false,
+        "package_transaction": false,
+        "layouts": [
+          {
+            "profile": "mac",
+            "variant": "light",
+            "windows": [
+              {
+                "x": 0,
+                "y": 0,
+                "width": 1280,
+                "height": 31
+              },
+              {
+                "x": 294,
+                "y": 846,
+                "width": 691,
+                "height": 54
+              }
+            ],
+            "xfconf_arrays": true,
+            "all_plugins_preserved": true,
+            "sample_application_stayed_open": true
+          },
+          {
+            "profile": "mac",
+            "variant": "-dark",
+            "windows": [
+              {
+                "x": 0,
+                "y": 0,
+                "width": 1280,
+                "height": 31
+              },
+              {
+                "x": 294,
+                "y": 846,
+                "width": 691,
+                "height": 54
+              }
+            ],
+            "xfconf_arrays": true,
+            "all_plugins_preserved": true,
+            "sample_application_stayed_open": true
+          },
+          {
+            "profile": "gnome",
+            "variant": "light",
+            "windows": [
+              {
+                "x": 0,
+                "y": 0,
+                "width": 1280,
+                "height": 33
+              },
+              {
+                "x": 0,
+                "y": 54,
+                "width": 50,
+                "height": 792
+              }
+            ],
+            "xfconf_arrays": true,
+            "all_plugins_preserved": true,
+            "sample_application_stayed_open": true
+          },
+          {
+            "profile": "oguzdows",
+            "variant": "light",
+            "windows": [
+              {
+                "x": 0,
+                "y": 861,
+                "width": 1280,
+                "height": 39
+              }
+            ],
+            "xfconf_arrays": true,
+            "all_plugins_preserved": true,
+            "sample_application_stayed_open": true
+          },
+          {
+            "profile": "kde",
+            "variant": "light",
+            "windows": [
+              {
+                "x": 0,
+                "y": 855,
+                "width": 1280,
+                "height": 45
+              }
+            ],
+            "xfconf_arrays": true,
+            "all_plugins_preserved": true,
+            "sample_application_stayed_open": true
+          },
+          {
+            "profile": "xfce",
+            "variant": "light",
+            "windows": [
+              {
+                "x": 0,
+                "y": 0,
+                "width": 1280,
+                "height": 31
+              }
+            ],
+            "xfconf_arrays": true,
+            "all_plugins_preserved": true,
+            "sample_application_stayed_open": true
+          },
+          {
+            "profile": "windows11",
+            "variant": "light",
+            "windows": [
+              {
+                "x": 154,
+                "y": 851,
+                "width": 972,
+                "height": 49
+              }
+            ],
+            "xfconf_arrays": true,
+            "all_plugins_preserved": true,
+            "sample_application_stayed_open": true
+          }
+        ],
+        "xfce_panel_version": "xfce4-panel 4.18.2 (Xfce 4.18)\n\nCopyright (c) 2004-2023\n\tThe Xfce development team. All rights reserved.\n\nPlease report bugs to <https://gitlab.xfce.org/xfce/xfce4-panel/-/issues>.",
+        "restored": true
+      },
+      "ui": [
+        {
+          "component": "light",
+          "gtk": true,
+          "new_themes_parsed": 4,
+          "apt_and_accountsservice_mocked": true,
+          "physical_boot": false,
+          "performance_claim": false,
+          "max_rss_kib": 114264,
+          "errors": []
+        },
+        {
+          "component": "desktops",
+          "gtk": true,
+          "new_themes_parsed": 4,
+          "apt_and_accountsservice_mocked": true,
+          "physical_boot": false,
+          "performance_claim": false,
+          "max_rss_kib": 118180,
+          "errors": []
+        }
+      ],
+      "apt_plans": {
+        "host_suite": "bookworm",
+        "host_arch": "amd64",
+        "package_installation_tested": false,
+        "plans": {
+          "upgrade": {
+            "changes": 0,
+            "token": "756ff402fd863deb1fa2c78c52b0d9db3f3f89c70cd1db74fd98731343d0e8ac",
+            "all_origins_verified": true
+          },
+          "desktop:kde": {
+            "changes": 338,
+            "token": "45692f8a1520f2ccbf051139e18454b19a2b168d7626172a0a2bf57e564518f8",
+            "all_origins_verified": true
+          },
+          "desktop:gnome": {
+            "changes": 239,
+            "token": "3865ad3d77bbf886fafb8a3b12af24a9ad832217da94bf274014359b6b41de03",
+            "all_origins_verified": true
+          }
+        }
+      }
+    },
+    {
+      "suite": "trixie",
+      "job_id": 137399422275,
+      "conclusion": "success",
+      "panels": {
+        "scope": "host-real-xfce-panels-private-xvfb",
+        "physical_boot": false,
+        "arm_runtime": false,
+        "performance_test": false,
+        "package_transaction": false,
+        "layouts": [
+          {
+            "profile": "mac",
+            "variant": "light",
+            "windows": [
+              {
+                "x": 0,
+                "y": 0,
+                "width": 1280,
+                "height": 31
+              },
+              {
+                "x": 294,
+                "y": 846,
+                "width": 691,
+                "height": 54
+              }
+            ],
+            "xfconf_arrays": true,
+            "all_plugins_preserved": true,
+            "sample_application_stayed_open": true
+          },
+          {
+            "profile": "mac",
+            "variant": "-dark",
+            "windows": [
+              {
+                "x": 0,
+                "y": 0,
+                "width": 1280,
+                "height": 31
+              },
+              {
+                "x": 294,
+                "y": 846,
+                "width": 691,
+                "height": 54
+              }
+            ],
+            "xfconf_arrays": true,
+            "all_plugins_preserved": true,
+            "sample_application_stayed_open": true
+          },
+          {
+            "profile": "gnome",
+            "variant": "light",
+            "windows": [
+              {
+                "x": 0,
+                "y": 0,
+                "width": 1280,
+                "height": 33
+              },
+              {
+                "x": 0,
+                "y": 54,
+                "width": 50,
+                "height": 792
+              }
+            ],
+            "xfconf_arrays": true,
+            "all_plugins_preserved": true,
+            "sample_application_stayed_open": true
+          },
+          {
+            "profile": "oguzdows",
+            "variant": "light",
+            "windows": [
+              {
+                "x": 0,
+                "y": 861,
+                "width": 1280,
+                "height": 39
+              }
+            ],
+            "xfconf_arrays": true,
+            "all_plugins_preserved": true,
+            "sample_application_stayed_open": true
+          },
+          {
+            "profile": "kde",
+            "variant": "light",
+            "windows": [
+              {
+                "x": 0,
+                "y": 855,
+                "width": 1280,
+                "height": 45
+              }
+            ],
+            "xfconf_arrays": true,
+            "all_plugins_preserved": true,
+            "sample_application_stayed_open": true
+          },
+          {
+            "profile": "xfce",
+            "variant": "light",
+            "windows": [
+              {
+                "x": 0,
+                "y": 0,
+                "width": 1280,
+                "height": 31
+              }
+            ],
+            "xfconf_arrays": true,
+            "all_plugins_preserved": true,
+            "sample_application_stayed_open": true
+          },
+          {
+            "profile": "windows11",
+            "variant": "light",
+            "windows": [
+              {
+                "x": 154,
+                "y": 851,
+                "width": 972,
+                "height": 49
+              }
+            ],
+            "xfconf_arrays": true,
+            "all_plugins_preserved": true,
+            "sample_application_stayed_open": true
+          }
+        ],
+        "xfce_panel_version": "xfce4-panel 4.20.4 (Xfce 4.20)\n\nCopyright (c) 2004-2025\n\tThe Xfce development team. All rights reserved.\n\nPlease report bugs to <https://gitlab.xfce.org/xfce/xfce4-panel/-/issues>.",
+        "restored": true
+      },
+      "ui": [
+        {
+          "component": "light",
+          "gtk": true,
+          "new_themes_parsed": 4,
+          "apt_and_accountsservice_mocked": true,
+          "physical_boot": false,
+          "performance_claim": false,
+          "max_rss_kib": 112688,
+          "errors": []
+        },
+        {
+          "component": "desktops",
+          "gtk": true,
+          "new_themes_parsed": 4,
+          "apt_and_accountsservice_mocked": true,
+          "physical_boot": false,
+          "performance_claim": false,
+          "max_rss_kib": 123312,
+          "errors": []
+        }
+      ],
+      "apt_plans": {
+        "host_suite": "trixie",
+        "host_arch": "amd64",
+        "package_installation_tested": false,
+        "plans": {
+          "upgrade": {
+            "changes": 1,
+            "token": "65c02b198b705a180afc3edc818f9c5f9eee122dffc5cb5c220df9ba26f5a049",
+            "all_origins_verified": true
+          },
+          "desktop:kde": {
+            "changes": 426,
+            "token": "3fb9e02ac60c23fc25b2a6117c30ce623394c04cf49f7fb48b05563ae4f67299",
+            "all_origins_verified": true
+          },
+          "desktop:gnome": {
+            "changes": 283,
+            "token": "953c38b7ea65d602855986f35195fd51147a5253cef288c46311f779aee5c685",
+            "all_origins_verified": true
+          }
+        },
+        "pardus": {
+          "current_signature_verified": true,
+          "fingerprint": "88561F1612B981756C6C9E94026440E60FE45435",
+          "inrelease_sha256": "d70e0854680736b18262fab01cfb3e2ec3df473b5ad4d81b4b0c545493649573",
+          "source_enabled": false,
+          "package_installation_tested": false
+        }
+      }
+    }
+  ],
+  "pi_host": {
+    "source_revision": "b30dbf946b62528a72843489bb4cb7719794fd5f",
+    "run_id": 45084351385,
+    "job_id": 137399422579,
+    "url": "https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/45084351385",
+    "conclusion": "success",
+    "cpu_arch": "host-not-target-ARM",
+    "ui": [
+      {
+        "component": "light",
+        "gtk": true,
+        "new_themes_parsed": 4,
+        "apt_and_accountsservice_mocked": true,
+        "physical_boot": false,
+        "performance_claim": false,
+        "max_rss_kib": 104528,
+        "errors": []
+      },
+      {
+        "component": "desktops",
+        "gtk": true,
+        "new_themes_parsed": 4,
+        "apt_and_accountsservice_mocked": true,
+        "physical_boot": false,
+        "performance_claim": false,
+        "max_rss_kib": 114088,
+        "errors": []
+      }
+    ]
+  },
+  "following_narration_change": "This record precedes the replacement appearance WAV/text and its manifest regression. Later source must be revalidated; this is not new image or physical Zero evidence."
+}

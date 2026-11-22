@@ -34,16 +34,16 @@
     },
     {
       "topic": "appearance",
-      "text": "Tasarım senin elinde. Beş kart da aynı hafif Xfce masaüstünün görünümünü değiştirir; başka bir işletim sistemi kurmaz. OğuzDows tarzında eski Başlat menülerini hatırlatan özgün renkler ve altta görev çubuğu var. Açık veya koyu temayı ayrıca seçebilirsin. Tema değişikliği panel yerleşimini ve dosyalarını değiştirmez. İlk görünüm ayarların yedeklenir; istersen geri dönebilirsin. Panel ve kapatma düğmeleri opak kalır.",
-      "text_key": "776bfe3e95a1fe37f02bb2c13f9a5f798223be0c78d0b477874780209bd15b94",
+      "text": "Tasarım senin elinde. Tarz kartları aynı hafif Xfce masaüstünün düzenini değiştirir; başka bir işletim sistemi kurmaz. Windows on bir esintisinde ortalı alt çubuk, macOS esintisinde üst çubuk ve alt iskele, Ubuntu esintisinde sol iskele var. Gerçek KDE Plasma ve GNOME ise ayrı kurulum ve sonraki giriş seçimidir; yeterli donanım gerekir. Açık veya koyu temayı ayrıca seçebilirsin. Aero esintisi eski cihazlarda statik ve opak kalır; cam ve gölge yalnızca uygun kaynakta açılır. İlk görünüm ayarların yedeklenir; istersen geri dönebilirsin. Panel, yazılar ve kapatma düğmeleri okunaklı kalır.",
+      "text_key": "4cca67691b9980d86b4a68090e094ce159712d648070697660e94580cc8e7d3b",
       "file": "panel-appearance.wav",
-      "sha256": "3495ca84ab757eb3cdf6d47546608b758bb0226048caa2693278cd59ba19ff9f",
-      "bytes": 1355598,
+      "sha256": "7674c81eecc28e63f41b727605e905a692a9685b5e7eaa120ce71baaaa7a06db",
+      "bytes": 1858638,
       "sample_rate": 24000,
       "channels": 1,
       "sample_width": 2,
-      "frames": 677760,
-      "duration_seconds": 28.24
+      "frames": 929280,
+      "duration_seconds": 38.72
     },
     {
       "topic": "applications",

@@ -53,7 +53,10 @@ def prepare(source, root, metadata):
     manifest = json.loads(manifest_path.read_text()) if manifest_path.exists() else {}
     if not isinstance(manifest, dict):
         raise ValueError('Mevcut konuşma eşleme dosyası nesne olmalı.')
-    manifest = {key: value for key, value in manifest.items() if value not in OBSOLETE}
+    # Yenilenen aynı WAV dosyasına eski bir metnin hash'i bağlı kalmamalı.
+    # Yeni metinler aşağıda tek kez eklenir; temel / sonuç kayıtları korunur.
+    replaced = OBSOLETE | set(FILES.values())
+    manifest = {key: value for key, value in manifest.items() if value not in replaced}
     for clip in clips:
         shutil.copyfile(source / clip['file'], destination / clip['file'])
         manifest[clip['text_key']] = clip['file']

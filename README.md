@@ -29,7 +29,9 @@
 
 Sol menülü **ayrı canlı / kurulu karşılama**, açık / koyu tema ve özgün **XP esintili Başlat**, **derlenen C / GTK mağaza**, **20 kültür görseli** ve seçilen sesle **10 yeni doğal Rıfkı kaydı** geliştiriliyor. Yeni **Cihaz Merkezi** destek düzeylerini açıklar; EXE / APK açıcı dosyayı önce inceler ve açık onay ister. Wine / Waydroid hazır değilse çalıştırmaz; güvenlik veya evrensel uyumluluk garantisi değildir.
 
-**1.1 henüz Release olarak yayımlanmadı.** `819c883` kaynağının amd64 / i386 geliştirme ISO’ları [başarılı PC çalışmasının Artifacts bölümünde](https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/44791237446) bulunur; geçici çıktılardır ve GitHub oturumu gerekebilir. Yeni tam Xfce sanal makine ölçümünde en yüksek kullanım **amd64 478,4 MB / i386 480,8 MB**; ikisi de 600 MB hedefinin altında. Bu fiziksel cihaz veya KDE/GNOME / Pi sonucu değildir. [1.1 ISO ve ölçüm kanıtı →](docs/V1.1-TEST-KANITI.md)
+**1.1 henüz Release olarak yayımlanmadı.** `440cf74` kaynağının amd64 / i386 geliştirme ISO’ları [başarılı PC çalışmasının Artifacts bölümündedir](https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/45069328093); geçici çıktılardır ve GitHub oturumu gerekebilir. Tam Xfce **512 / 1024 MiB VM** kapıları iki mimaride geçti; 512 MiB’de en yüksek kullanım **amd64 269,8 MB / i386 197,5 MB**. Bunlar fiziksel cihaz, gerçek KDE/GNOME veya Pi sonucu değildir. [1.1 ISO ve ölçüm kanıtı →](docs/V1.1-TEST-KANITI.md)
+
+Yeni kaynakta **Windows 11 dahil altı Xfce düzeni**, ayrı gerçek KDE/GNOME X11 kurulum / sonraki giriş seçimi ve kaynak bütçeli Aero bulunur. Mini/light başlangıç tam rehberi istek üzerine yükler; armhf temel web için NetSurf kullanır. **Pi Zero’da hesap ekranı sonrası siyah ekranın kök nedeni / fiziksel onarım sonucu henüz doğrulanmadı; yeni kod bu eski ISO’larda yoktur.** [Oturum ve Zero teşhisi →](docs/PI-ZERO-OTURUM.md)
 
 Aşağıdaki kalıcı indirmeler, vitrin ve ana RAM tablosu **v1.0.0** içindir; etiket / dosyalar korunur. ARM64 / telefon katmanları önyüklenebilir telefon imajı değildir; fiziksel cihaz testleri bekliyor.
 

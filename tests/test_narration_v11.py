@@ -117,6 +117,22 @@ class NarrationV11Tests(unittest.TestCase):
             for text in texts.TEXTS.values():
                 self.assertIsNotNone(speech.ready_clip(text, destination))
 
+    def test_replacing_a_clip_retires_old_text_key_but_preserves_unrelated_audio(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            source = self.sources(root)
+            destination = root / 'overlay/usr/share/oguzdows/rifki'
+            destination.mkdir(parents=True)
+            old_key = speech.text_key('Eski beş kart açıklaması')
+            (destination / 'speech.json').write_text(json.dumps({old_key: 'panel-appearance.wav', 'basic': 'intro-light.wav'}))
+            (destination / 'intro-light.wav').write_bytes(b'unchanged')
+            prepare.prepare(source, root / 'overlay', root / 'metadata.json')
+            manifest = speech.load_manifest(destination)
+            self.assertNotIn(old_key, manifest)
+            self.assertEqual(manifest[speech.text_key(texts.TEXTS['appearance'])], 'panel-appearance.wav')
+            self.assertEqual(len(manifest), len(texts.TEXTS) + 1)
+            self.assertEqual((destination / 'intro-light.wav').read_bytes(), b'unchanged')
+
     def test_bad_pcm_or_truncated_record_changes_nothing(self):
         for damage in ('stereo', 'truncated'):
             with self.subTest(damage=damage), tempfile.TemporaryDirectory() as temporary:

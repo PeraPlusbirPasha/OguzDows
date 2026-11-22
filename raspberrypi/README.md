@@ -25,7 +25,7 @@ Bu sayfa **v1.1 geliştirme tarifini** açıklar. Bu çalışma için doğrulanm
 
 ### “Aynı özellikler” ve donanım sınırları
 
-Ortak masaüstü/uygulama listesi iki PC imajıyla paylaşılır: Türkçe Firefox ESR, LibreOffice Writer/Calc/Impress, VLC, dosya yöneticisi, ağ/Bluetooth/ses, temalar ve galeri korunur. Pi'ye GPIO/I2C/SPI kitaplıkları ve kamera komut satırı araçları da eklenir. Kamera/HAT arabirimleri kullanıcı istemeden zorla etkinleştirilmez.
+Ortak masaüstü/uygulama listesi iki PC imajıyla paylaşılır: LibreOffice Writer/Calc/Impress, VLC, dosya yöneticisi, ağ/Bluetooth/ses, temalar ve galeri korunur. Web başlatıcısı armhf'de NetSurf GTK, arm64'te kaynak bütçesine göre NetSurf / kurulu Türkçe Firefox ESR kullanır; armhf için Firefox zorunlu değildir. Pi'ye GPIO/I2C/SPI kitaplıkları ve kamera komut satırı araçları da eklenir. Kamera/HAT arabirimleri kullanıcı istemeden zorla etkinleştirilmez.
 
 Yerel mağaza Pi rootfs'i içinde kendi mimarisine derlenir; PC ikili dosyası kopyalanmaz. Sabit uygulama demetleri yalnızca cihazın mevcut imzalı kaynaklarından planlanır. Genel Pi sistem / çekirdek güncellemeleri kendi paket yöneticisinde kalır; PC güncelleyicisi veya başka dağıtımın temel depoları taşınmaz. İsteğe bağlı kullanıcı Flatpak / Flathub altyapısı yalnızca arm64 tarifindedir; eski Zero / armhf için bu kaynak veya APK çalıştırma vaadi yoktur. Gerçek APT / Flatpak işlemi ve fiziksel kart doğrulaması henüz tamamlanmadı.
 
@@ -136,7 +136,7 @@ Resmî `RPi-Distro/pi-gen` kaynakları `pi-gen.lock.json` içinde **tam commit +
 
 - Birim/kontrat testleri: iki mimari, PC paket ayrımı, ARMv6/Zero 2 ayrımı, zram sınırları, komut enjeksiyonu reddi, ilk açılışta kesinti/yeniden deneme ve hesap güvenliği.
 - Xvfb üzerindeki gerçek GTK penceresi Pi sayfa dalını **host üzerinde** açar; sahte kurucu/PC STA düğmesi olmadığını ve galeriyi denetler. Bu ARM veya kart ekran testi değildir.
-- Tam derlemede kullanıcı alanı **QEMU ARM1176 (ARMv6)** veya **Cortex-A53 (ARMv8)** altında `/bin/true`, Python / ürün modülleri, gerçek GTK pencere / Türkçe metin, Xfce ve yerel C mağaza sürümü / ELF ABI ile denetlenir. Xvfb yalnızca hosttadır; hedefe özel XDG / D-Bus oturumu verilir. Bu tam Xfce oturumu, tarayıcı/ofis yükü veya gerçek ses testi değildir.
+- Tam derlemede kullanıcı alanı **QEMU ARM1176 (ARMv6)** veya **Cortex-A53 (ARMv8)** altında `/bin/true`, Python / ürün modülleri, gerçek GTK pencere / Türkçe metin, Xfce ve yerel C mağaza sürümü / ELF ABI ile denetlenir. Xvfb yalnızca hosttadır; hedefe özel XDG / D-Bus oturumu verilir. Yeni kaynak buna özel non-root tam Xfce (WM + panel + masaüstü + kararlı örnekler) ve armhf'de yerel NetSurf başlangıcı kapısını ekler. Eski başarılı imajın sürüm testi bu yeni kapı yerine kullanılamaz. LightDM/PAM, gerçek firmware/GPU/512 MiB fiziksel RAM, tarayıcı/ofis yükü veya gerçek ses testi değildir.
 - **9 ortak özellik grubu**, ortak paketlerin gerçek sürüm / yerel mimarileri, **20 görsel + 10 seçilmiş doğal kayıt hash'i** ve resmî boot / taban kimliği build ve export'ta tekrar denetlenir. Minimum kaynak profili özellik kaldırmaz. Teknik paket tabanı / kod adı korunur; görünen ürün OğuzDows'tur.
 - Export öncesi ve son ham imajın **salt okunur loop** kontrolünde MBR/FAT/ext4, hizalama, model DTB/çekirdek/initramfs zinciri, çözülmüş PARTUUID, marka ve hesap güvenliği denetlenir. SSH anahtarları/machine-id, ortak kullanıcı ve parolasız sudo bulunması derlemeyi durdurur.
 - Bu kontroller **Pi'nin firmware'den gerçekten açıldığını, VC4/V3D donanım hızlandırmasını, Wi-Fi/Bluetooth/kamera/HAT işlevlerini veya performansı kanıtlamaz.** Bunlar fiziksel test ister.
@@ -185,3 +185,6 @@ Yeni `pi_session_smoke.py` root olmayan UID 65534 / ayrı ev / Xauthority /
 beş örnekte doğrular, armhf’de gerçek NetSurf başlatıcısını yerel sayfayla açar.
 Test kullanıcısı / daemon dağıtılmaz. LightDM/PAM, GPU, SD veya fiziksel 512 MiB
 ölçümü değildir; eski başarılı imajın `--version` kapısı bu yeni kanıt yerine geçmez.
+Paylaşılan yeni hafif başlangıç / oturum seçici / CSS, `b30dbf9` host CI'ında
+[başarılıdır](../docs/releases/v1.1-development-sessions.json); bu raporda ARM
+hedef oturumu veya yeni IMG açılışı sınanmış değildir.

@@ -582,7 +582,7 @@
     "user_report": "account creation/login screen appears, then black",
     "root_cause_confirmed": false,
     "physical_fix_verified": false,
-    "source_state": "46677f5 implementation plus subsequent validation fixes; not included in 440cf74 images; no completed new-source image yet",
+    "source_state": "46677f5 implementation + b30dbf9 validated host fixes + following appearance narration refresh; not included in 440cf74 images; no completed new-source image yet",
     "new_gate": "non-root complete Xfce session with host Xvfb and target QEMU minimum CPU, plus local NetSurf startup on armhf; not LightDM/PAM/full-system or physical GPU proof",
     "browser": "NetSurf only mandatory on armhf; Firefox/language package no longer required",
     "ram_delta_measured": false,
@@ -601,11 +601,19 @@
       "cancelled_or_rerun": false
     },
     "local_followup_validation": {
-      "tests": 405,
+      "tests": 406,
       "skipped_dependency_tests": 7,
-      "seconds": 24.616,
+      "seconds": 23.71,
       "resourcewarning_fatal": true,
       "gtk_target_or_physical_test": false
+    },
+    "host_validation": {
+      "source_revision": "b30dbf946b62528a72843489bb4cb7719794fd5f",
+      "conclusion": "success",
+      "pc_run_id": 45084351368,
+      "pi_run_id": 45084351385,
+      "record": "v1.1-development-sessions.json",
+      "new_arm_session_or_physical_boot": false
     }
   }
 }
