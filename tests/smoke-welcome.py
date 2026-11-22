@@ -7,6 +7,7 @@ import argparse
 import os
 import sys
 import tempfile
+import traceback
 from pathlib import Path
 
 import gi
@@ -29,6 +30,9 @@ def main():
     if not Gtk.init_check([])[0]:
         raise RuntimeError("GTK için bir görüntü sunucusu gerekli; Xvfb ile çalıştırın.")
     errors = []
+    def record_error(error):
+        errors.append(type(error).__name__ + ': ' + str(error))
+        traceback.print_exc()  # Boş AssertionError CI notundan kaybolmasın.
     original_hook = sys.excepthook
     def report_exception(kind, value, trace):
         if str(value) not in errors:
@@ -102,7 +106,7 @@ def main():
                 screenshot("welcome.png")
                 app.window.resize(min(400, app.window.get_screen().get_width() - 24) if args.phone else 600, 440)
             except Exception as error:
-                errors.append(str(error))
+                record_error(error)
             return GLib.SOURCE_REMOVE
 
         def gallery():
@@ -112,15 +116,15 @@ def main():
                 app.stack.set_visible_child_name("wallpapers")
                 assert len(app.wallpaper_buttons)==20, 'Yirmi görsel yalnızca galeri açılınca yüklenmeli'
             except Exception as error:
-                errors.append(str(error))
+                record_error(error)
             return GLib.SOURCE_REMOVE
 
         def hardware():
             try:
                 screenshot('wallpapers.png')
                 app.stack.set_visible_child_name('styles')
-                assert len(app.profile_choice.get_model()) == 5
-                assert len(app.profile_buttons) == 6
+                assert len(app.profile_choice.get_model()) == len(welcome.profiles.PROFILES), 'Tarz seçicisi model / sözleşme sayısı eşleşmiyor'
+                assert set(app.profile_buttons) == set(welcome.profiles.PROFILES), 'Tarz kartı / kimlik eşleşmesi bozuk'
                 screenshot('desktop-styles.png')
                 app.step_page(1)
                 assert app.stack.get_visible_child_name() == 'appearance'
@@ -134,7 +138,7 @@ def main():
                 app.window.resize(min(400, app.window.get_screen().get_width() - 24) if args.phone else 900, 600)
                 app.show_drivers()
             except Exception as error:
-                errors.append(str(error))
+                record_error(error)
             return GLib.SOURCE_REMOVE
 
         def closed(*_):
@@ -143,7 +147,7 @@ def main():
             try:
                 assert app.state_file.is_file(), "İlk açılış tercihi kaydedilmedi"
             except Exception as error:
-                errors.append(str(error))
+                record_error(error)
             finally:
                 loop.quit()
 
@@ -216,12 +220,12 @@ def main():
                         app.window.connect("destroy", closed)
                         app.window.close()
                     except Exception as error:
-                        errors.append(str(error))
+                        record_error(error)
                         loop.quit()
                     return GLib.SOURCE_REMOVE
                 GLib.timeout_add(450, final_close)
             except Exception as error:
-                errors.append(str(error))
+                record_error(error)
                 loop.quit()
             return GLib.SOURCE_REMOVE
 

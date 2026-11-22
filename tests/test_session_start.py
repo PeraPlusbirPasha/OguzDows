@@ -198,7 +198,8 @@ class RealDesktopTests(unittest.TestCase):
             self.assertIn('gnome-session', gnome)
             self.assertIn('kwin-x11', kde)
             self.assertEqual('gnome-session-xsession' in gnome, suite == 'trixie')
-            self.assertEqual('plasma-workspace-x11' in kde, suite == 'trixie')
+            self.assertIn('plasma-workspace', kde)
+            self.assertNotIn('plasma-workspace-x11', kde)
 
     def test_new_desktop_identity_does_not_widen_general_pi_maintenance(self):
         with tempfile.TemporaryDirectory() as temporary:

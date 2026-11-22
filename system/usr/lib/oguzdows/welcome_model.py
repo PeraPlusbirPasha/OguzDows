@@ -6,6 +6,7 @@ Canlı, kurulu PC ve Pi ilk açılış işaretleri ayrıdır. Bir USB oturumunun
 from __future__ import annotations
 
 from dataclasses import dataclass
+from pathlib import Path
 
 from rifki_dialogue import PANELS
 from rifki_narration_texts import TEXTS
@@ -34,8 +35,24 @@ class Context:
         return 'welcome-' + self.kind + '-1.1-seen'
 
     @property
+    def light_state_name(self):
+        return 'light-start-' + self.kind + '-seen'
+
+    @property
     def offers_installer(self):
         return self.kind == 'live'
+
+
+def save_autostart_preference(directory, session, show_again):
+    """Tam rehberdeki yeniden göster seçimi hafif başlangıçta da geçerlidir."""
+    directory = Path(directory)
+    state = directory / session.state_name
+    if show_again:
+        state.unlink(missing_ok=True)
+        (directory / session.light_state_name).unlink(missing_ok=True)
+    else:
+        directory.mkdir(parents=True, exist_ok=True)
+        state.write_text('OğuzDows\n', encoding='utf-8')
 
 
 def context(live=False, pi=False):

@@ -37,7 +37,8 @@ Başarılı PC `440cf74` / 45069328093 512 MiB VM ölçümü de Pi sonucu değil
    hafif kurucuya doğrudan düğme korunur. Kapanınca worker kalmaz; bu küçük
    pencere de bir sonraki otomatik başlangıçta tekrarlanmaz. Manuel rehber
    çağrıları normal tam arayüzü açar. Otomatik tam rehber tercihi kapatılmışsa
-   hafif pencere de açılmaz. Canlı / kurulu / Pi işaretleri ayrıdır.
+   hafif pencere de açılmaz. Tam rehberde yeniden göster seçilirse hafif
+   başlangıç işareti de sıfırlanır. Canlı / kurulu / Pi işaretleri ayrıdır.
 5. LightDM servisi başarısız olup systemd hata durumuna gelirse, hesap
    tamamlanmış cihazda konsolda Türkçe teşhis yönergesi gösterilir. Bu, çalışan
    LightDM altındaki her Xfce / GPU siyahlığını yakalayan watchdog değildir.

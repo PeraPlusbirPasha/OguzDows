@@ -80,7 +80,8 @@ def desktop_resources(memory_kib, legacy=False):
 def build_store_info(path=Path('/usr/share/oguzdows/build-info.json')):
     """Yalnızca sabit mağaza app: istekleri için ayrı ARM tabanı sözleşmesi.
 
-    Genel bakım / sürücü / masaüstü / depo işlemlerinin PC sınırı genişletilmez.
+    Genel bakım / sürücü / depo işlemlerinin PC sınırı genişletilmez;
+    gerçek masaüstü işlemi ayrıca build_desktop_info ile daraltılır.
     """
     try:
         data = json.loads(path.read_text())
@@ -137,8 +138,8 @@ def request_packages(request, info, suggestions=None):
         if info['suite'] == 'bookworm':
             # GNOME 43 X11 dosyası gnome-session içindedir; ayrı paket yeni tabandadır.
             packages = [name for name in packages if name != 'gnome-session-xsession']
-        elif request == 'desktop:kde':
-            packages.append('plasma-workspace-x11')
+        # Bookworm / trixie startplasma-x11 ve Xsession girdisini zaten
+        # plasma-workspace sağlar. Daha yeni bir tabanın paket ayrımını taşıma.
         return packages
     if request.startswith('driver:'):
         choice = request[7:]

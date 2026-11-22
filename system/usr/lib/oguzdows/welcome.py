@@ -1119,11 +1119,8 @@ class Welcome(Gtk.Application):
             return True
         if self.mark_on_close:
             try:
-                if self.show_again.get_active():
-                    self.state_file.unlink(missing_ok=True)
-                else:
-                    self.state_file.parent.mkdir(parents=True, exist_ok=True)
-                    self.state_file.write_text("OğuzDows\n", encoding="utf-8")
+                welcome_model.save_autostart_preference(
+                    self.state_file.parent, self.context, self.show_again.get_active())
             except OSError:
                 print("OğuzDows karşılama tercihi kaydedilemedi.", file=sys.stderr)
         self.stop_narration()

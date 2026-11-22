@@ -28,6 +28,24 @@ class WelcomeModelTests(unittest.TestCase):
         smoke = (ROOT / 'tests/smoke-iso-target.py').read_text()
         self.assertIn(installed.state_name, smoke)
 
+    def test_repeat_preference_rearms_light_and_full_without_touching_other_contexts(self):
+        contexts = (model.context(live=True), model.context(), model.context(pi=True))
+        self.assertEqual(len({item.light_state_name for item in contexts}), 3)
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            for item in contexts:
+                model.save_autostart_preference(root, item, show_again=False)
+                (root / item.light_state_name).write_text('1\n')
+            installed = model.context()
+            model.save_autostart_preference(root, installed, show_again=True)
+            self.assertFalse((root / installed.state_name).exists())
+            self.assertFalse((root / installed.light_state_name).exists())
+            for item in (contexts[0], contexts[2]):
+                self.assertTrue((root / item.state_name).is_file())
+                self.assertTrue((root / item.light_state_name).is_file())
+            model.save_autostart_preference(root, installed, show_again=False)
+            self.assertTrue((root / installed.state_name).is_file())
+
     def test_bounded_previous_next_never_leaves_install_result(self):
         self.assertEqual(model.PAGE_IDS[0], 'welcome')
         self.assertIsNone(model.adjacent('welcome', -1))

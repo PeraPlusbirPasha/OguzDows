@@ -26,7 +26,7 @@ def main():
     from pi_support import is_pi
     from hardware import is_live
     context = welcome_model.context(live=is_live(), pi=is_pi())
-    light_state = state / ('light-start-' + context.kind + '-seen')
+    light_state = state / context.light_state_name
     if light_state.is_file() or (state / context.state_name).is_file():
         return
     import gi

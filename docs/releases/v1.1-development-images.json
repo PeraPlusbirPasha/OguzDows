@@ -582,9 +582,30 @@
     "user_report": "account creation/login screen appears, then black",
     "root_cause_confirmed": false,
     "physical_fix_verified": false,
-    "source_state": "new working-branch changes, not included in 440cf74 images",
+    "source_state": "46677f5 implementation plus subsequent validation fixes; not included in 440cf74 images; no completed new-source image yet",
     "new_gate": "non-root complete Xfce session with host Xvfb and target QEMU minimum CPU, plus local NetSurf startup on armhf; not LightDM/PAM/full-system or physical GPU proof",
     "browser": "NetSurf only mandatory on armhf; Firefox/language package no longer required",
-    "ram_delta_measured": false
+    "ram_delta_measured": false,
+    "implementation_revision": "46677f5b0aa8fb91a500b84e0fc2dcb69d979b72",
+    "first_validation": {
+      "source_revision": "46677f5b0aa8fb91a500b84e0fc2dcb69d979b72",
+      "pc_run_id": 45083549051,
+      "pi_run_id": 45083551519,
+      "conclusion": "failure",
+      "failure_layer": "host-validation-before-image-jobs",
+      "new_iso_or_img_produced": false,
+      "findings": [
+        "GTK smoke source still expected five style choices although six required profiles are now present; traceback reporting added for empty AssertionError.",
+        "Trixie real APT simulation: Unable to locate package plasma-workspace-x11; correction retains plasma-workspace and kwin-x11."
+      ],
+      "cancelled_or_rerun": false
+    },
+    "local_followup_validation": {
+      "tests": 405,
+      "skipped_dependency_tests": 7,
+      "seconds": 24.616,
+      "resourcewarning_fatal": true,
+      "gtk_target_or_physical_test": false
+    }
   }
 }

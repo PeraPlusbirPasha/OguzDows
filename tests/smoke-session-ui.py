@@ -7,6 +7,7 @@ import resource
 import subprocess
 import sys
 import tempfile
+import traceback
 from pathlib import Path
 from unittest.mock import patch
 
@@ -25,6 +26,9 @@ def main():
     if not Gtk.init_check()[0]:
         raise RuntimeError('Özel Xvfb ekranı gerekli.')
     errors = []
+    def record_error(error):
+        errors.append(type(error).__name__ + ': ' + str(error))
+        traceback.print_exc()
     calls = []
     original = sys.excepthook
     def exception(kind, value, trace):
@@ -51,7 +55,7 @@ def main():
                     assert calls == [[]], calls
                     windows[0].close()
                 except Exception as error:
-                    errors.append(str(error))
+                    record_error(error)
                     Gtk.main_quit()
                 return GLib.SOURCE_REMOVE
             GLib.timeout_add(400, inspect)
@@ -107,7 +111,7 @@ def main():
                         app.quit()
                         loop.quit()
                     except Exception as error:
-                        errors.append(str(error))
+                        record_error(error)
                         loop.quit()
                     return GLib.SOURCE_REMOVE
                 GLib.timeout_add(150, check)
