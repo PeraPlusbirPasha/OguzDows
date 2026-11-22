@@ -55,6 +55,19 @@ class InitramfsReportTests(unittest.TestCase):
             self.assertEqual(report['regular_file_bytes'], sum(report['category_bytes'].values()))
             self.assertNotIn('converted', report['firmware'][0])
 
+    def test_no_early_archive_uses_the_tools_flat_output_without_a_synthetic_main_directory(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            stage, _original = staged(root)
+            (root / 'kernel-config').unlink()
+            for path in stage.iterdir():
+                shutil.move(path, root / path.name)
+            stage.rmdir()
+            report, _manifests = inventory.inspect_tree(root)
+            self.assertEqual(report['extraction_layout'], 'flat')
+            self.assertEqual(report['firmware'][0]['payloads_verified'], 1)
+            self.assertEqual(report['category_bytes']['modules'], len(b'module fixture' * 500))
+
     def test_split_early_compressed_members_and_main_manifest_are_verified_together(self):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)

@@ -80,7 +80,9 @@ jobs:
           test "$(gsettings get org.gnome.desktop.interface cursor-theme)" = "'OguzDowsTespih'"
 
       - name: Birim ve yapılandırma testleri
-        run: python3 -m unittest discover -s tests -p 'test_*.py' -v
+        run: |
+          python3 scripts/ci-run.py --title 'Birim ve yapılandırma testleri' -- \
+            python3 -m unittest discover -s tests -p 'test_*.py' -v
 
       - name: Kabuk betiklerini denetle
         run: |

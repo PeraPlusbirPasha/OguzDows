@@ -12,6 +12,7 @@ import hashlib
 import json
 import lzma
 import os
+import re
 import stat
 import subprocess
 import tempfile
@@ -38,13 +39,19 @@ def member(stage, relative):
 
 
 def inspect_tree(unpacked):
-    """unmkinitramfs early/early2/main ağaçları; symlink dizinleri izlenmez."""
+    """early/main veya tek düz arşiv; symlink dizinleri izlenmez."""
+    unpacked = Path(unpacked)
+    # 0.142 ve 0.148, early microcode katmanı yoksa geriye uyumluluk için
+    # doğrudan çıktı köküne açar; hayali bir main/ dizini varsayma.
+    flat = (unpacked / 'init').is_file()
+    stages = [unpacked] if flat else sorted(unpacked.iterdir())
+    if not stages or any(stage.is_symlink() or not stage.is_dir()
+            or (not flat and not re.fullmatch(r'main|early[0-9]*', stage.name)) for stage in stages):
+        raise ValueError('Beklenmeyen unmkinitramfs kanıt kökü.')
     totals = {'firmware': 0, 'modules': 0, 'other': 0}
     files, manifests = [], []
     seen = set()
-    for stage in sorted(Path(unpacked).iterdir()):
-        if stage.is_symlink() or not stage.is_dir():
-            raise ValueError('Beklenmeyen unmkinitramfs kanıt kökü.')
+    for stage in stages:
         for directory, _dirs, names in os.walk(stage, followlinks=False):
             for name in names:
                 path = Path(directory) / name
@@ -68,7 +75,7 @@ def inspect_tree(unpacked):
         verified = 0
         # Sıkışık dosyalar 0.148'de early, normal dosyalar main içinde olabilir.
         for item in data['converted']:
-            matches = [member(part, item['path'] + '.xz') for part in Path(unpacked).iterdir()]
+            matches = [member(part, item['path'] + '.xz') for part in stages]
             matches = [path for path in matches if path.is_file()]
             if len(matches) != 1:
                 raise ValueError('Paketlenmiş sıkışık firmware tekil değil / eksik: ' + item['path'])
@@ -79,10 +86,10 @@ def inspect_tree(unpacked):
                 if file_digest(stream) != (item['sha256'], item['raw_bytes']):
                     raise ValueError('Paketlenmiş firmware ham SHA-256 / boyutu eşleşmiyor: ' + item['path'])
             for logical in (item['path'], *item['aliases']):
-                for part in Path(unpacked).iterdir():
+                for part in stages:
                     if os.path.lexists(member(part, logical)):
                         raise ValueError('Sıkıştırma sonrası ham firmware geri eklenmiş: ' + logical)
-                links = [member(part, logical + '.xz') for part in Path(unpacked).iterdir()]
+                links = [member(part, logical + '.xz') for part in stages]
                 if not any(link.is_file() and link.resolve() == encoded.resolve() for link in links):
                     raise ValueError('Firmware mantıksal adı korunmamış: ' + logical)
             verified += 1
@@ -91,7 +98,8 @@ def inspect_tree(unpacked):
         summary['payloads_verified'] = verified
         summary['manifest_sha256'] = hashlib.sha256(manifest.read_bytes()).hexdigest()
         manifests.append((summary, data))
-    return {'regular_file_bytes': sum(totals.values()), 'regular_file_count': len(files),
+    return {'extraction_layout': 'flat' if flat else 'split',
+            'regular_file_bytes': sum(totals.values()), 'regular_file_count': len(files),
             'category_bytes': totals, 'largest_files': sorted(files, key=lambda item: (-item['bytes'], item['path']))[:8],
             'firmware': [summary for summary, _data in manifests]}, [data for _summary, data in manifests]
 
