@@ -1,0 +1,366 @@
+{
+  "schema_version": 1,
+  "scope": "development-completed-image-outcomes-and-pc-early-boot-investigation",
+  "source_revision": "3833b71f603ede8f5e5f3c63d254aae238726158",
+  "origin": "Actions run/check-runs annotations API; prior target report sizes relayed by read-only download-artifact diagnostic on runner",
+  "not_a_release": true,
+  "local_iso_or_img_bytes_downloaded": false,
+  "physical_hardware_verified": false,
+  "real_apt_or_flatpak_install_to_launch_verified": false,
+  "pc": {
+    "run_id": 45047556003,
+    "url": "https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/45047556003",
+    "conclusion": "failure",
+    "amd64": {
+      "job_id": 137288219306,
+      "conclusion": "failure",
+      "kernel": "6.12.117+deb13-amd64",
+      "passed_2048_mib_modes": [
+        "bios",
+        "efi"
+      ],
+      "idle_vm_results": [
+        {
+          "valid_idle_measurement": true,
+          "median_used_mb": 478.9,
+          "max_used_mb": 478.9,
+          "target_met": true,
+          "invalid_reasons": [],
+          "vm_ram_mib": 2048
+        }
+      ],
+      "512_mib_boot": {
+        "passed": false,
+        "phase": "kernel-initramfs-gzip-unpack-before-userspace",
+        "panic": "Kernel panic - not syncing: System is deadlocked on memory",
+        "stack": [
+          "gunzip",
+          "unpack_to_rootfs",
+          "do_populate_rootfs"
+        ],
+        "desktop_or_zram_started": false
+      },
+      "1024_mib_boot": {
+        "tested": false,
+        "reason": "Original sequential low-RAM loop stopped at failed 512 MiB boot."
+      }
+    },
+    "i386": {
+      "job_id": 137288219401,
+      "conclusion": "success",
+      "kernel": "6.1.0-56-686-pae",
+      "passed_modes": [
+        "bios"
+      ],
+      "idle_vm_results": [
+        {
+          "valid_idle_measurement": true,
+          "median_used_mb": 197.1,
+          "max_used_mb": 197.1,
+          "target_met": true,
+          "invalid_reasons": [],
+          "vm_ram_mib": 512,
+          "low_ram_budget": {
+            "passed": true,
+            "minimum_available_bytes": 51412583,
+            "observed_min_available_bytes": 317030400,
+            "policy": "Geçerli tam Xfce boşta ölçümü + en çok 600 MB kullanım + en az max(32 MiB, MemTotal / 10) kullanılabilir RAM; aktif uygulama gecikmesi garantisi değil.",
+            "fail_reasons": []
+          }
+        },
+        {
+          "valid_idle_measurement": true,
+          "median_used_mb": 410.8,
+          "max_used_mb": 410.8,
+          "target_met": true,
+          "invalid_reasons": [],
+          "vm_ram_mib": 1024,
+          "low_ram_budget": {
+            "passed": true,
+            "minimum_available_bytes": 104559002,
+            "observed_min_available_bytes": 634789888,
+            "policy": "Geçerli tam Xfce boşta ölçümü + en çok 600 MB kullanım + en az max(32 MiB, MemTotal / 10) kullanılabilir RAM; aktif uygulama gecikmesi garantisi değil.",
+            "fail_reasons": []
+          }
+        },
+        {
+          "valid_idle_measurement": true,
+          "median_used_mb": 492.4,
+          "max_used_mb": 492.4,
+          "target_met": true,
+          "invalid_reasons": [],
+          "vm_ram_mib": 2048
+        }
+      ]
+    },
+    "read_only_diagnostic": {
+      "run_id": 45068204890,
+      "job_id": 137349041903,
+      "source_revision": "053fa4271f948ba94ac2e8c1418dfb011cd6a05a",
+      "url": "https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/45068204890",
+      "conclusion": "success",
+      "new_image_build": false,
+      "relayed_target_reports": [
+        {
+          "arch": "i386",
+          "source_revision": "3833b71f603ede8f5e5f3c63d254aae238726158",
+          "build": {
+            "arch": "i386",
+            "suite": "bookworm",
+            "flavour": "686-pae",
+            "uefi": false,
+            "source_revision": "3833b71f603ede8f5e5f3c63d254aae238726158",
+            "source_dirty": null
+          },
+          "modes": [
+            "bios"
+          ],
+          "initramfs": {
+            "6.1.0-56-686-pae": {
+              "device": "66304",
+              "inode": "131098",
+              "mtime_ns": "1795368702263240828",
+              "size": "97195537"
+            }
+          },
+          "error_tail": "",
+          "report_sha256": "8b36dd85a7a66696b80d3a3dfd472585936fb3422d4ea081db52d743d0b4e281"
+        },
+        {
+          "arch": "amd64",
+          "source_revision": "3833b71f603ede8f5e5f3c63d254aae238726158",
+          "build": {
+            "arch": "amd64",
+            "suite": "trixie",
+            "flavour": "amd64",
+            "uefi": true,
+            "source_revision": "3833b71f603ede8f5e5f3c63d254aae238726158",
+            "source_dirty": null
+          },
+          "modes": [
+            "bios",
+            "efi"
+          ],
+          "initramfs": {
+            "6.12.117+deb13-amd64": {
+              "device": "66306",
+              "inode": "1310724",
+              "mtime_ns": "1795368529628045769",
+              "size": "160643364"
+            }
+          },
+          "error_tail": "_write_begin+0x2c/0xc0\n[    6.998507]  generic_perform_write+0xe0/0x290\n[    6.998632]  ? __pfx_flush_buffer+0x10/0x10\n[    6.998745]  generic_file_write_iter+0x62/0xd0\n[    6.998888]  __kernel_write_iter+0x133/0x270\n[    6.998925]  kernel_write+0xf5/0x1c0\n[    6.998925]  ? __pfx_error+0x10/0x10\n[    6.998925]  xwrite.constprop.0+0x31/0x90\n[    6.998925]  do_copy+0xe7/0x140\n[    6.998925]  ? __pfx_error+0x10/0x10\n[    6.998925]  ? do_name+0x15c/0x330\n[    6.998925]  write_buffer+0x27/0x40\n[    6.998925]  flush_buffer+0x2f/0x90\n[    6.998925]  gunzip+0x24b/0x300\n[    6.998925]  ? __pfx_nofill+0x10/0x10\n[    6.998925]  ? __pfx_gunzip+0x10/0x10\n[    6.998925]  unpack_to_rootfs+0x188/0x2d0\n[    6.998925]  ? __pfx_error+0x10/0x10\n[    6.998925]  do_populate_rootfs+0x6e/0x180\n[    6.998925]  async_run_entry_fn+0x34/0x130\n[    6.998925]  process_one_work+0x18b/0x340\n[    6.998925]  worker_thread+0x191/0x2f0\n[    6.998925]  ? __pfx_worker_thread+0x10/0x10\n[    6.998925]  kthread+0xd2/0x100\n[    6.998925]  ? __pfx_kthread+0x10/0x10\n[    6.998925]  ret_from_fork+0x34/0x50\n[    6.998925]  ? __pfx_kthread+0x10/0x10\n[    6.998925]  ret_from_fork_asm+0x1a/0x30\n[    6.998925]  </TASK>\n[    6.998925] Kernel Offset: 0x25800000 from 0xffffffff81000000 (relocation range: 0xffffffff80000000-0xffffffffbfffffff)\n[    6.998925] ---[ end Kernel panic - not syncing: System is deadlocked on memory ]---\n",
+          "report_sha256": "ff6af075b9b1cc8e7b97bb0357c55348e6bef73fe7b9201814fee5c94177c439"
+        }
+      ]
+    },
+    "repeated_on_prior_source": {
+      "run_id": 45045668083,
+      "source_revision": "281a66c438f190794cbe5ec82e3cf81dca6f2798",
+      "amd64_job_id": 137280568626,
+      "amd64_512_mib_same_panic": true,
+      "i386_job_id": 137280568635,
+      "i386_conclusion": "success"
+    }
+  },
+  "raspberrypi": {
+    "run_id": 45047558638,
+    "url": "https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/45047558638",
+    "conclusion": "success",
+    "host_job_id": 137296766863,
+    "architectures": {
+      "armhf": {
+        "job_id": 137297165479,
+        "conclusion": "success",
+        "abi_gui_features": {
+          "scope": "ARM-qemu-user-with-host-Xvfb",
+          "physical_boot": false,
+          "hardware_gpu": false,
+          "performance_measurement": false,
+          "errors": [],
+          "arch": "armhf",
+          "minimum_cpu": "arm1176",
+          "gui": {
+            "gtk_window": true,
+            "gtk_version": [
+              3,
+              24,
+              38
+            ],
+            "xfce_version": "xfce4-session 4.18.1 (Xfce 4.18)",
+            "native_store_version": "OğuzDows Mağaza · GTK 3.24.38"
+          },
+          "feature_presence": {
+            "groups": [
+              "desktop-start-menu",
+              "welcome-rifki-narration",
+              "independent-light-dark-and-xp",
+              "cultural-wallpapers-and-tools",
+              "native-store",
+              "device-and-file-inspection",
+              "web-office-media",
+              "network-bluetooth-audio",
+              "pi-kms-camera-gpio"
+            ],
+            "asset_hashes": 30,
+            "wallpapers": 20,
+            "selected_narration": 10,
+            "speech_contexts": 24
+          },
+          "packages_checked": 116
+        },
+        "official_source_contract": {
+          "arch": "armhf",
+          "suite": "bookworm",
+          "pi_gen_commit": "8b71acc79287392a63985ba383c496d5419426b4",
+          "physical_boot": false,
+          "errors": [],
+          "upstream_files_checked": 12
+        }
+      },
+      "arm64": {
+        "job_id": 137297165432,
+        "conclusion": "success",
+        "abi_gui_features": {
+          "scope": "ARM-qemu-user-with-host-Xvfb",
+          "physical_boot": false,
+          "hardware_gpu": false,
+          "performance_measurement": false,
+          "errors": [],
+          "arch": "arm64",
+          "minimum_cpu": "cortex-a53",
+          "gui": {
+            "gtk_window": true,
+            "gtk_version": [
+              3,
+              24,
+              38
+            ],
+            "xfce_version": "xfce4-session 4.18.1 (Xfce 4.18)",
+            "native_store_version": "OğuzDows Mağaza · GTK 3.24.38"
+          },
+          "feature_presence": {
+            "groups": [
+              "desktop-start-menu",
+              "welcome-rifki-narration",
+              "independent-light-dark-and-xp",
+              "cultural-wallpapers-and-tools",
+              "native-store",
+              "device-and-file-inspection",
+              "web-office-media",
+              "network-bluetooth-audio",
+              "pi-kms-camera-gpio"
+            ],
+            "asset_hashes": 30,
+            "wallpapers": 20,
+            "selected_narration": 10,
+            "speech_contexts": 24
+          },
+          "packages_checked": 120
+        },
+        "official_source_contract": {
+          "arch": "arm64",
+          "suite": "bookworm",
+          "pi_gen_commit": "3a7eeb9bd49278375b8871b284c1aacf54a31b34",
+          "physical_boot": false,
+          "errors": [],
+          "upstream_files_checked": 12
+        }
+      }
+    },
+    "limits": [
+      "ARM QEMU user / host Xvfb is not full system or physical boot.",
+      "No GPU / audio / camera / SD / 512 MiB physical performance measured.",
+      "Successful armhf image did not deliberately recreate the historical identical mirror outage."
+    ]
+  },
+  "pc_repair_followup": {
+    "source_revision": "440cf743ccde4c76d79a5d87d8530cd0c1229552",
+    "run_id": 45069328093,
+    "url": "https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/45069328093",
+    "image_result_recorded": false,
+    "successful_512_mib_repair_claimed": false,
+    "scope": "amd64 PC-only initramfs GPU firmware XZ/CRC32 compression with actual kernel capability check, payload hashes and logical aliases preserved",
+    "unchanged": [
+      "MODULES=most default",
+      "installed firmware files",
+      "microcode",
+      "storage and network firmware",
+      "encryption and Plymouth",
+      "i386 product path",
+      "Pi and other ARM product paths",
+      "v1.0.0 release"
+    ],
+    "local_regression": {
+      "tests_run": 386,
+      "dependency_skips": 7,
+      "seconds": 22.582,
+      "resource_warning_fatal": true
+    },
+    "test_gate_changes": [
+      "Fail early on kernel panic instead of waiting 600 seconds.",
+      "Attempt both 512 and 1024 MiB; any failure still fails the whole gate.",
+      "Record real initrd file/category sizes and verify packaged decompressed GPU payload hashes."
+    ],
+    "production_repair_revision": "26ef4ef21dc2ae90e55a443586dda60a929be0dc",
+    "prior_attempt": {
+      "source_revision": "26ef4ef21dc2ae90e55a443586dda60a929be0dc",
+      "run_id": 45068861604,
+      "conclusion": "failure",
+      "phase": "host-unit-tests-before-iso-build",
+      "iso_build_started": false,
+      "raw_unit_traceback_available_locally": false,
+      "independently_identified_test_reader_bug": "unmkinitramfs flat output when no early microcode archive; main directory must not be assumed",
+      "rerun_or_cancelled": false
+    },
+    "host_results": [
+      {
+        "job_id": 137352536861,
+        "name": "Firmware → GRUB · bookworm",
+        "conclusion": "success",
+        "unit_step": null
+      },
+      {
+        "job_id": 137352537027,
+        "name": "Firmware → GRUB · trixie",
+        "conclusion": "success",
+        "unit_step": null
+      },
+      {
+        "job_id": 137352537044,
+        "name": "Yapılandırma ve GTK · bookworm",
+        "conclusion": "success",
+        "unit_step": "success"
+      },
+      {
+        "job_id": 137352537090,
+        "name": "Yapılandırma ve GTK · trixie",
+        "conclusion": "success",
+        "unit_step": "success"
+      }
+    ],
+    "image_jobs": [
+      {
+        "job_id": 137353565343,
+        "name": "ISO · amd64"
+      },
+      {
+        "job_id": 137353565407,
+        "name": "ISO · i386"
+      }
+    ],
+    "pull_request_host_runs": [
+      {
+        "run_id": 45069334929,
+        "workflow": ".github/workflows/main.yml",
+        "conclusion": "success"
+      },
+      {
+        "run_id": 45069334882,
+        "workflow": ".github/workflows/raspberrypi.yml",
+        "conclusion": "success",
+        "physical_or_image_boot": false
+      }
+    ]
+  }
+}
