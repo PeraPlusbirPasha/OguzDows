@@ -79,6 +79,8 @@ def summarize(samples, settled_seconds, interval, idle_confirmed):
     if cpu_percent is None or cpu_percent > 10:
         reasons.append('Örnekleme sırasında CPU boşta / sakin değil (> %10 veya veri yok).')
     valid = not reasons
+    available = [item.get('available_bytes') for item in samples]
+    available = available if all(type(value) is int and value >= 0 for value in available) else []
     return {'version': 1, 'scope': 'Bu çalışan sistem ve Xfce oturumu; fiziksel PC / diğer masaüstleri için genellenmez.',
             'method': samples[-1]['method'], 'target_bytes': 600_000_000,
             'settled_seconds': settled_seconds, 'sample_interval_seconds': interval, 'sample_count': len(samples),
@@ -86,6 +88,9 @@ def summarize(samples, settled_seconds, interval, idle_confirmed):
             'median_used_bytes': int(statistics.median(used)), 'max_used_bytes': max(used),
             'median_used_mb': round(statistics.median(used) / 1_000_000, 1),
             'max_used_mb': round(max(used) / 1_000_000, 1), 'busy_cpu_percent': cpu_percent,
+            'reported_total_bytes': samples[-1].get('total_bytes'),
+            'min_available_bytes': min(available) if available else None,
+            'min_available_mb': round(min(available) / 1_000_000, 1) if available else None,
             'target_met': valid and max(used) <= 600_000_000, 'samples': samples,
             'limits': 'MemAvailable hesaplanır; RSS toplamı sistem RAM’i sayılmaz. Önbellek düşürülmez. Zram ayrıca gösterilir, RAM’den ikinci kez çıkarılmaz. Ekran kartı / donanım / güncellemeler sonucu değiştirebilir.'}
 

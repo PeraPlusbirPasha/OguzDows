@@ -278,6 +278,7 @@ def memory_report(text=None):
         raise MaintenanceError('MemAvailable bilgisi okunamadı; bellek kullanımı tahmin edilmedi.')
     used = (fields['MemTotal'] - fields['MemAvailable']) * 1024
     return {'used_bytes': used, 'used_mb': round(used / 1_000_000, 1),
+            'total_bytes': fields['MemTotal'] * 1024, 'available_bytes': fields['MemAvailable'] * 1024,
             'used_mib': round(used / 1048576, 1), 'target_bytes': 600_000_000,
             'within_target': used <= 600_000_000,
             'method': 'MemTotal − MemAvailable; önbellek boşaltılmadı, zram RAM kazancı diye sayılmadı.',

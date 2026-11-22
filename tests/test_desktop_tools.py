@@ -255,7 +255,16 @@ class MemoryTests(unittest.TestCase):
         self.assertTrue(report['valid_idle_measurement'])
         instant = memory.memory_report('MemTotal: 1000000 kB\nMemAvailable: 500000 kB\n')
         self.assertEqual(instant['used_bytes'], 512_000_000)
+        self.assertEqual(instant['total_bytes'], 1_024_000_000)
+        self.assertEqual(instant['available_bytes'], 512_000_000)
         self.assertEqual(instant['measurement'], 'anlık; boşta olduğunuzu tek başına kanıtlamaz')
+        samples = self.samples()
+        for item in samples:
+            item.update(total_bytes=1_024_000_000, available_bytes=524_000_000)
+        measured = memory.summarize(samples, 120, 5, True)
+        self.assertEqual(measured['reported_total_bytes'], 1_024_000_000)
+        self.assertEqual(measured['min_available_bytes'], 524_000_000)
+        self.assertEqual(measured['min_available_mb'], 524.0)
 
     def test_missing_graphics_apps_high_cpu_unsettled_or_no_consent_never_claims_target(self):
         cases = []

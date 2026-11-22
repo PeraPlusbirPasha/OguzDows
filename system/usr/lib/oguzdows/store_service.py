@@ -135,6 +135,22 @@ def launch_state(identifier, source, execute=command):
     return {'installed': installed, 'can_launch': installed, 'source': source}
 
 
+def launch_application(application, spawn_api=None):
+    if application is None:
+        return False
+    if spawn_api is None:
+        from gi.repository import GLib as spawn_api
+    # Normal AppInfo.launch, uygulamanın stdout/stderr'ini JSON işçisinin
+    # borularına miras bırakır. GSubprocess EOF'u uygulama kapanana dek alamaz;
+    # uygulama günlükleri de tek JSON yanıtını bozar. Gio Exec/DBus çözümlemesi
+    # korunur, yalnızca çocuk standart akışları /dev/null'a ayrılır. stdin için
+    # CHILD_INHERITS_STDIN verilmez; DO_NOT_REAP_CHILD de verilmez.
+    flags = spawn_api.SpawnFlags.SEARCH_PATH | spawn_api.SpawnFlags.STDOUT_TO_DEV_NULL | spawn_api.SpawnFlags.STDERR_TO_DEV_NULL
+    return application.launch_uris_as_manager(uris=[], launch_context=None, spawn_flags=flags,
+                                              user_setup=None, user_setup_data=None,
+                                              pid_callback=None, pid_callback_data=None)
+
+
 def launch(identifier, source, execute=command, api=None):
     if os.geteuid() == 0:
         raise ValueError('Uygulama root olarak başlatılmaz. Kendi masaüstü hesabınızı kullanın.')
@@ -158,7 +174,7 @@ def launch(identifier, source, execute=command, api=None):
         application = api.AppInfo.create_from_commandline(
             FLATPAK + ' run --user --arch=' + arch + ' --branch=stable ' + name,
             None, api.AppInfoCreateFlags.NONE)
-    if application is None or not application.launch([], None):
+    if not launch_application(application):
         raise ValueError('Masaüstü başlatma isteğini kabul etmedi.')
     return {'message': 'Başlatma isteği gönderildi. Uygulama penceresini kontrol edin; çalışma / uyumluluk başarısı varsayılmaz.', 'source': source}
 

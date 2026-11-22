@@ -1,6 +1,9 @@
 """Kurulu uygulamaya açık başlatma isteği; gerçek program / paket çalışmaz."""
 import json
+import os
 import stat
+import subprocess
+import sys
 import tempfile
 import unittest
 from pathlib import Path
@@ -17,7 +20,7 @@ assets = load('launch_store_assets', 'scripts/render-assets.py')
 class LaunchTests(unittest.TestCase):
     def api(self):
         application = Mock()
-        application.launch.return_value = True
+        application.launch_uris_as_manager.return_value = True
         return NS(DesktopAppInfo=NS(new_from_filename=Mock(return_value=application)),
                   AppInfo=NS(create_from_commandline=Mock(return_value=application)),
                   AppInfoCreateFlags=NS(NONE=0)), application
@@ -35,6 +38,9 @@ class LaunchTests(unittest.TestCase):
     def setUp(self):
         self.commands, self.arch, self.installed = [], 'aarch64', True
         self.uid = patch.object(service.os, 'geteuid', return_value=1000).start()
+        launch_application = service.launch_application
+        flags_api = NS(SpawnFlags=NS(SEARCH_PATH=4, STDOUT_TO_DEV_NULL=8, STDERR_TO_DEV_NULL=16))
+        patch.object(service, 'launch_application', side_effect=lambda app: launch_application(app, flags_api)).start()
         self.addCleanup(patch.stopall)
 
     def test_user_launch_is_explicit_user_scope_exact_installed_stable_ref_and_no_admin(self):
@@ -42,8 +48,10 @@ class LaunchTests(unittest.TestCase):
         result = service.launch('gimp', 'flatpak', self.execute, api)
         api.AppInfo.create_from_commandline.assert_called_once_with(
             '/usr/bin/flatpak run --user --arch=aarch64 --branch=stable org.gimp.GIMP', None, 0)
-        app.launch.assert_called_once_with([], None)
+        app.launch_uris_as_manager.assert_called_once_with(
+            uris=[], launch_context=None, spawn_flags=28, user_setup=None, user_setup_data=None, pid_callback=None, pid_callback_data=None)
         self.assertIn('isteği gönderildi', result['message'])
+        app.launch.assert_not_called()
         self.assertFalse(any('pkexec' in ' '.join(command) for command in self.commands))
         self.assertFalse(any('install' in command or 'update' in command for command in self.commands))
         api.DesktopAppInfo.new_from_filename.assert_not_called()
@@ -54,7 +62,7 @@ class LaunchTests(unittest.TestCase):
             api, app = self.api()
             with self.assertRaises(ValueError):
                 service.launch('gimp', 'flatpak', self.execute, api)
-            app.launch.assert_not_called()
+            app.launch_uris_as_manager.assert_not_called()
             api.AppInfo.create_from_commandline.assert_not_called()
 
     def test_different_branch_or_system_scope_install_does_not_count_as_user_install(self):
@@ -70,7 +78,7 @@ class LaunchTests(unittest.TestCase):
                                    ('../../shell', 'system'), ('gimp', 'sudo')):
             with self.subTest(identifier=identifier), self.assertRaises(ValueError):
                 service.launch(identifier, source, self.execute, api)
-        app.launch.assert_not_called()
+        app.launch_uris_as_manager.assert_not_called()
         self.assertFalse(self.commands)
 
     def test_system_launch_uses_only_fixed_packaged_desktop_not_user_override(self):
@@ -79,7 +87,8 @@ class LaunchTests(unittest.TestCase):
             service.launch('gimp', 'system', self.execute, api)
         api.DesktopAppInfo.new_from_filename.assert_called_once_with('/usr/share/applications/gimp.desktop')
         api.AppInfo.create_from_commandline.assert_not_called()
-        app.launch.assert_called_once_with([], None)
+        app.launch_uris_as_manager.assert_called_once_with(
+            uris=[], launch_context=None, spawn_flags=28, user_setup=None, user_setup_data=None, pid_callback=None, pid_callback_data=None)
         with patch.object(service, 'system_desktop', return_value=None), self.assertRaises(ValueError):
             service.launch('gimp', 'system', self.execute, api)
 
@@ -110,9 +119,31 @@ class LaunchTests(unittest.TestCase):
 
     def test_launch_failure_is_not_reported_as_success(self):
         api, app = self.api()
-        app.launch.return_value = False
+        app.launch_uris_as_manager.return_value = False
         with self.assertRaisesRegex(ValueError, 'kabul etmedi'):
             service.launch('gimp', 'flatpak', self.execute, api)
+
+    def test_unavailable_gio_launcher_is_an_error_without_falling_back_to_shell(self):
+        api, app = self.api()
+        api.DesktopAppInfo.new_from_filename.return_value = None
+        with patch.object(service, 'system_desktop', return_value=Path('/usr/share/applications/gimp.desktop')):
+            with self.assertRaisesRegex(ValueError, 'kabul etmedi'):
+                service.launch('gimp', 'system', self.execute, api)
+        app.launch.assert_not_called()
+        app.launch_uris_as_manager.assert_not_called()
+
+    def test_real_gio_smoke_refuses_non_ci_and_root_worker_before_any_application(self):
+        cases = [({'CI': 'false'}, [], 'tek kullanımlık CI')]
+        if os.getuid() == 0:
+            cases.append(({'CI': 'true'}, ['--worker', '/does-not-exist'], 'gerçek yönetici olmayan'))
+        for extra, arguments, expected in cases:
+            with self.subTest(extra=extra), tempfile.TemporaryDirectory() as temporary:
+                output = Path(temporary) / 'must-not-exist'
+                result = subprocess.run([sys.executable, '-I', str(ROOT / 'tests/smoke-store-launch.py'), '--output', str(output), *arguments],
+                                        env={**extra, 'PATH': os.environ.get('PATH', '')}, capture_output=True, text=True, timeout=10)
+                self.assertNotEqual(result.returncode, 0)
+                self.assertIn(expected, result.stderr)
+                self.assertFalse(output.exists())
 
     def test_catalogue_declares_unsupported_passwordless_install_honestly(self):
         for arch, expected in (('arm', False), ('i386', False), ('aarch64', True), ('x86_64', True)):

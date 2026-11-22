@@ -177,6 +177,34 @@ def configure_idle_test(root, uid):
     (wants / unit).symlink_to('../' + unit)
 
 
+def low_ram_budget(measurement, ram_mib):
+    """600 MB hedefi 512 MiB'de tek başına anlamsızdır; gerçek pay da kalmalı."""
+    if ram_mib not in (512, 1024):
+        raise ValueError('Düşük RAM bütçesi yalnızca 512 / 1024 MiB için ölçülür.')
+    reasons = []
+    samples = measurement.get('samples', [])
+    valid = (isinstance(samples, list) and 6 <= len(samples) <= 60
+             and all(isinstance(item, dict) and type(item.get('total_bytes')) is int
+                     and type(item.get('available_bytes')) is int
+                     and ram_mib * 1024**2 * .75 <= item['total_bytes'] <= ram_mib * 1024**2
+                     and 0 <= item['available_bytes'] <= item['total_bytes'] for item in samples))
+    threshold = observed = None
+    if not valid:
+        reasons.append('En az altı örnekte gerçek VM MemTotal / MemAvailable baytları doğrulanamadı.')
+    else:
+        threshold = max(32 * 1024**2, (max(item['total_bytes'] for item in samples) + 9) // 10)
+        observed = min(item['available_bytes'] for item in samples)
+        if observed < threshold:
+            reasons.append('Boşta kullanılabilir bellek payı yetersiz: en az max(32 MiB, MemTotal / 10) gerekli.')
+    if not measurement.get('valid_idle_measurement'):
+        reasons.append('Yerleşmiş boşta ölçüm geçerli değil.')
+    if not measurement.get('target_met'):
+        reasons.append('600 decimal MB boşta hedefi geçilmedi.')
+    return {'passed': not reasons, 'minimum_available_bytes': threshold, 'observed_min_available_bytes': observed,
+            'policy': 'Geçerli tam Xfce boşta ölçümü + en çok 600 MB kullanım + en az max(32 MiB, MemTotal / 10) kullanılabilir RAM; aktif uygulama gecikmesi garantisi değil.',
+            'fail_reasons': reasons}
+
+
 def boot_os(image, mode, output, work, root_uuid, graphical_idle=False, ram_mib=2048):
     if ram_mib not in (512, 1024, 2048):
         raise ValueError("VM RAM bütçesi 512, 1024 veya 2048 MiB olmalı.")
@@ -203,14 +231,21 @@ def boot_os(image, mode, output, work, root_uuid, graphical_idle=False, ram_mib=
                 if marker in text and idle_match:
                     measurement = json.loads(idle_match[1])
                     measurement['vm_ram_mib'] = ram_mib
-                    if ram_mib <= 1024 and re.search(r'Out of memory:|oom-kill:', text):
-                        raise RuntimeError('Düşük RAM testinde OOM görüldü; başarı sayılmadı.')
+                    if ram_mib <= 1024:
+                        measurement['low_ram_budget'] = low_ram_budget(measurement, ram_mib)
+                        if re.search(r'out of memory|oom-kill', text, re.IGNORECASE):
+                            measurement['low_ram_budget']['passed'] = False
+                            measurement['low_ram_budget']['fail_reasons'].append('Düşük RAM testinde OOM görüldü; başarı sayılmadı.')
                     if not all(item.get('graphical_xfce') for item in measurement.get('samples', [])) or not measurement.get('samples'):
                         raise RuntimeError('Hedef kullanıcı için tam Xfce grafik oturumu açılamadı: ' + json.dumps(measurement.get('invalid_reasons')))
                     (output / ('low-ram-idle.json' if ram_mib <= 1024 else 'desktop-idle.json')).write_text(json.dumps(measurement, ensure_ascii=False, indent=2) + '\n')
+                    if ram_mib <= 1024 and not measurement['low_ram_budget']['passed']:
+                        raise RuntimeError('Düşük RAM bütçesi geçilmedi: ' + json.dumps(measurement['low_ram_budget'], ensure_ascii=False))
                     status = 'notice' if measurement.get('target_met') else 'warning'
                     summary = {key: measurement.get(key) for key in ('valid_idle_measurement', 'median_used_mb', 'max_used_mb', 'target_met', 'invalid_reasons')}
                     summary['vm_ram_mib'] = ram_mib
+                    if ram_mib <= 1024:
+                        summary['low_ram_budget'] = measurement['low_ram_budget']
                     print('::' + status + ' title=Tam Xfce oturumu RAM (VM)::' + json.dumps(summary, ensure_ascii=False), flush=True)
                     return summary
                 if process.poll() is not None:

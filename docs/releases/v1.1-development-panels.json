@@ -1,0 +1,269 @@
+{
+  "schema_version": 1,
+  "scope": "development-host-private-xfce-panel-layouts",
+  "source_revision": "281a66c438f190794cbe5ec82e3cf81dca6f2798",
+  "run_id": 45045662376,
+  "url": "https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/45045662376",
+  "origin": "Actions check-runs annotations API; full artifact contents not downloaded",
+  "not_a_release": true,
+  "physical_boot_verified": false,
+  "arm_runtime_verified": false,
+  "low_ram_verified": false,
+  "visual_screenshots_reviewed": false,
+  "suites": {
+    "bookworm": {
+      "job_id": 137279597185,
+      "conclusion": "success",
+      "screen_pixels": [
+        1280,
+        900
+      ],
+      "annotation": {
+        "scope": "host-real-xfce-panels-private-xvfb",
+        "physical_boot": false,
+        "arm_runtime": false,
+        "performance_test": false,
+        "package_transaction": false,
+        "layouts": [
+          {
+            "profile": "mac",
+            "variant": "light",
+            "windows": [
+              {
+                "x": 0,
+                "y": 0,
+                "width": 1280,
+                "height": 31
+              },
+              {
+                "x": 294,
+                "y": 846,
+                "width": 691,
+                "height": 54
+              }
+            ],
+            "xfconf_arrays": true,
+            "all_plugins_preserved": true,
+            "sample_application_stayed_open": true
+          },
+          {
+            "profile": "mac",
+            "variant": "-dark",
+            "windows": [
+              {
+                "x": 0,
+                "y": 0,
+                "width": 1280,
+                "height": 31
+              },
+              {
+                "x": 294,
+                "y": 846,
+                "width": 691,
+                "height": 54
+              }
+            ],
+            "xfconf_arrays": true,
+            "all_plugins_preserved": true,
+            "sample_application_stayed_open": true
+          },
+          {
+            "profile": "gnome",
+            "variant": "light",
+            "windows": [
+              {
+                "x": 0,
+                "y": 0,
+                "width": 1280,
+                "height": 33
+              },
+              {
+                "x": 0,
+                "y": 54,
+                "width": 50,
+                "height": 792
+              }
+            ],
+            "xfconf_arrays": true,
+            "all_plugins_preserved": true,
+            "sample_application_stayed_open": true
+          },
+          {
+            "profile": "oguzdows",
+            "variant": "light",
+            "windows": [
+              {
+                "x": 0,
+                "y": 861,
+                "width": 1280,
+                "height": 39
+              }
+            ],
+            "xfconf_arrays": true,
+            "all_plugins_preserved": true,
+            "sample_application_stayed_open": true
+          },
+          {
+            "profile": "kde",
+            "variant": "light",
+            "windows": [
+              {
+                "x": 0,
+                "y": 855,
+                "width": 1280,
+                "height": 45
+              }
+            ],
+            "xfconf_arrays": true,
+            "all_plugins_preserved": true,
+            "sample_application_stayed_open": true
+          },
+          {
+            "profile": "xfce",
+            "variant": "light",
+            "windows": [
+              {
+                "x": 0,
+                "y": 0,
+                "width": 1280,
+                "height": 31
+              }
+            ],
+            "xfconf_arrays": true,
+            "all_plugins_preserved": true,
+            "sample_application_stayed_open": true
+          }
+        ],
+        "xfce_panel_version": "xfce4-panel 4.18.2 (Xfce 4.18)\n\nCopyright (c) 2004-2023\n\tThe Xfce development team. All rights reserved.\n\nPlease report bugs to <https://gitlab.xfce.org/xfce/xfce4-panel/-/issues>.",
+        "restored": true
+      }
+    },
+    "trixie": {
+      "job_id": 137279597256,
+      "conclusion": "success",
+      "screen_pixels": [
+        1280,
+        900
+      ],
+      "annotation": {
+        "scope": "host-real-xfce-panels-private-xvfb",
+        "physical_boot": false,
+        "arm_runtime": false,
+        "performance_test": false,
+        "package_transaction": false,
+        "layouts": [
+          {
+            "profile": "mac",
+            "variant": "light",
+            "windows": [
+              {
+                "x": 0,
+                "y": 0,
+                "width": 1280,
+                "height": 31
+              },
+              {
+                "x": 294,
+                "y": 846,
+                "width": 691,
+                "height": 54
+              }
+            ],
+            "xfconf_arrays": true,
+            "all_plugins_preserved": true,
+            "sample_application_stayed_open": true
+          },
+          {
+            "profile": "mac",
+            "variant": "-dark",
+            "windows": [
+              {
+                "x": 0,
+                "y": 0,
+                "width": 1280,
+                "height": 31
+              },
+              {
+                "x": 294,
+                "y": 846,
+                "width": 691,
+                "height": 54
+              }
+            ],
+            "xfconf_arrays": true,
+            "all_plugins_preserved": true,
+            "sample_application_stayed_open": true
+          },
+          {
+            "profile": "gnome",
+            "variant": "light",
+            "windows": [
+              {
+                "x": 0,
+                "y": 0,
+                "width": 1280,
+                "height": 33
+              },
+              {
+                "x": 0,
+                "y": 54,
+                "width": 50,
+                "height": 792
+              }
+            ],
+            "xfconf_arrays": true,
+            "all_plugins_preserved": true,
+            "sample_application_stayed_open": true
+          },
+          {
+            "profile": "oguzdows",
+            "variant": "light",
+            "windows": [
+              {
+                "x": 0,
+                "y": 861,
+                "width": 1280,
+                "height": 39
+              }
+            ],
+            "xfconf_arrays": true,
+            "all_plugins_preserved": true,
+            "sample_application_stayed_open": true
+          },
+          {
+            "profile": "kde",
+            "variant": "light",
+            "windows": [
+              {
+                "x": 0,
+                "y": 855,
+                "width": 1280,
+                "height": 45
+              }
+            ],
+            "xfconf_arrays": true,
+            "all_plugins_preserved": true,
+            "sample_application_stayed_open": true
+          },
+          {
+            "profile": "xfce",
+            "variant": "light",
+            "windows": [
+              {
+                "x": 0,
+                "y": 0,
+                "width": 1280,
+                "height": 31
+              }
+            ],
+            "xfconf_arrays": true,
+            "all_plugins_preserved": true,
+            "sample_application_stayed_open": true
+          }
+        ],
+        "xfce_panel_version": "xfce4-panel 4.20.4 (Xfce 4.20)\n\nCopyright (c) 2004-2025\n\tThe Xfce development team. All rights reserved.\n\nPlease report bugs to <https://gitlab.xfce.org/xfce/xfce4-panel/-/issues>.",
+        "restored": true
+      }
+    }
+  }
+}

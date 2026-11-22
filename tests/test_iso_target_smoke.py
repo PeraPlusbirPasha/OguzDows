@@ -89,7 +89,9 @@ class IsoTargetSmokeContractTests(unittest.TestCase):
             with self.subTest(ram=ram), tempfile.TemporaryDirectory() as directory:
                 root = Path(directory)
                 serial = root / 'target-os-bios.serial.log'
-                measurement = {'samples': [{'graphical_xfce': True}], 'valid_idle_measurement': True, 'target_met': True}
+                measurement = {'samples': [{'graphical_xfce': True, 'total_bytes': (ram - 32) * 1024**2,
+                                            'available_bytes': ram * 1024**2 // 2} for _ in range(6)],
+                               'valid_idle_measurement': True, 'target_met': True}
                 uart = 'OGUZDOWS-TARGET-OS-OK:abc\nOGUZDOWS-DESKTOP-IDLE-JSON:' + json.dumps(measurement) + '\n'
                 serial.write_text(uart)
                 process = Mock()
@@ -107,6 +109,34 @@ class IsoTargetSmokeContractTests(unittest.TestCase):
         with patch.object(smoke.subprocess, 'Popen') as spawn, self.assertRaises(ValueError):
             smoke.boot_os(Path('/unused'), 'bios', Path('/unused'), Path('/unused'), 'abc', ram_mib=256)
         spawn.assert_not_called()
+
+    def test_low_ram_budget_needs_actual_headroom_not_just_the_600_mb_number(self):
+        total = 480 * 1024**2
+        threshold = (total + 9) // 10
+        samples = [{'total_bytes': total, 'available_bytes': threshold} for _ in range(6)]
+        measurement = {'samples': samples, 'target_met': True, 'valid_idle_measurement': True}
+        budget = smoke.low_ram_budget(measurement, 512)
+        self.assertTrue(budget['passed'])
+        self.assertEqual(budget['minimum_available_bytes'], threshold)
+        samples[-1]['available_bytes'] -= 1
+        budget = smoke.low_ram_budget(measurement, 512)
+        self.assertFalse(budget['passed'])
+        self.assertIn('payı yetersiz', budget['fail_reasons'][0])
+
+    def test_low_ram_budget_refuses_missing_or_other_vm_data_and_above_target_idle(self):
+        base = {'samples': [{'total_bytes': 960 * 1024**2, 'available_bytes': 500 * 1024**2} for _ in range(6)],
+                'target_met': True, 'valid_idle_measurement': True}
+        self.assertTrue(smoke.low_ram_budget(base, 1024)['passed'])
+        for change in ({'target_met': False}, {'valid_idle_measurement': False}, {'samples': []},
+                       {'samples': [{'total_bytes': 10, 'available_bytes': 9}] * 6},
+                       {'samples': [{'total_bytes': 960 * 1024**2, 'available_bytes': True}] * 6},
+                       {'samples': [{'total_bytes': 960 * 1024**2}] * 6},
+                       {'samples': base['samples'][:5]}):
+            with self.subTest(change=change):
+                self.assertFalse(smoke.low_ram_budget({**base, **change}, 1024)['passed'])
+        self.assertFalse(smoke.low_ram_budget(base, 512)['passed'], 'Farklı RAM VM örnekleri kanıt sayılamaz.')
+        with self.assertRaises(ValueError):
+            smoke.low_ram_budget(base, 2048)
 
     def test_uart_does_not_parse_partial_graphical_json_before_the_record_is_complete(self):
         with tempfile.TemporaryDirectory() as directory:
