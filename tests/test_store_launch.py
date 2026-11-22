@@ -145,6 +145,20 @@ class LaunchTests(unittest.TestCase):
                 self.assertIn(expected, result.stderr)
                 self.assertFalse(output.exists())
 
+    def test_private_launch_environment_is_set_after_switching_user_not_overwritten_by_runuser(self):
+        smoke = load('gio_launch_private_environment', 'tests/smoke-store-launch.py')
+        home, directory = Path('/private/test-home'), Path('/private/test-root')
+        arguments = smoke.worker_command(NS(pw_name='nobody'), home, directory)
+        self.assertEqual(arguments[:5], ['runuser', '-u', 'nobody', '--', '/usr/bin/env'])
+        dbus_index = arguments.index('dbus-run-session')
+        values = dict(value.split('=', 1) for value in arguments[5:dbus_index])
+        self.assertEqual(values['HOME'], str(home))
+        self.assertEqual(values['XDG_RUNTIME_DIR'], str(home / 'runtime'))
+        self.assertEqual(values['USER'], 'nobody')
+        self.assertEqual(arguments[-2:], ['--worker', str(directory)])
+        self.assertNotIn('/bin/sh', arguments)
+        self.assertNotIn('/bin/bash', arguments)
+
     def test_catalogue_declares_unsupported_passwordless_install_honestly(self):
         for arch, expected in (('arm', False), ('i386', False), ('aarch64', True), ('x86_64', True)):
             self.arch = arch

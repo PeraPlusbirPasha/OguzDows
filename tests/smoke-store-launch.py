@@ -67,6 +67,16 @@ def worker(directory):
     print(json.dumps(result, ensure_ascii=False), flush=True)
 
 
+def worker_command(user, home, directory):
+    # runuser hedef hesabın HOME'unu kullanır; ebeveyn env'si tek başına yetmez.
+    # Özel yolları yetki düşürüldükten SONRA, shell kullanmadan env argv'siyle ver.
+    private = {'HOME': str(home), 'USER': user.pw_name, 'LOGNAME': user.pw_name, 'GIO_USE_VFS': 'local',
+               'XDG_CONFIG_HOME': str(home / 'config'), 'XDG_CACHE_HOME': str(home / 'cache'),
+               'XDG_DATA_HOME': str(home / 'data'), 'XDG_STATE_HOME': str(home / 'state'), 'XDG_RUNTIME_DIR': str(home / 'runtime')}
+    return ['runuser', '-u', user.pw_name, '--', '/usr/bin/env', *(key + '=' + value for key, value in private.items()),
+            'dbus-run-session', '--', '/usr/bin/python3', '-I', str(Path(__file__).resolve()), '--worker', str(directory)]
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--output', type=Path)
@@ -109,8 +119,7 @@ def main():
         child = None
         started = time.monotonic()
         try:
-            arguments = ['runuser', '-u', user.pw_name, '--', 'dbus-run-session', '--', '/usr/bin/python3', '-I',
-                         str(Path(__file__).resolve()), '--worker', str(directory)]
+            arguments = worker_command(user, home, directory)
             with subprocess.Popen(arguments, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, env=environment) as process:
                 try:
                     stdout, stderr = process.communicate(timeout=4)
