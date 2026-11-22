@@ -7,15 +7,52 @@ Mevcut masaüstünde çalıştırılmaz; açık Xfce veri yolu varsa baştan red
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 import os
 import shutil
+import signal
 import subprocess
 import tempfile
 import time
+import xml.etree.ElementTree as ET
 from pathlib import Path
 
 from support import ROOT, load
+
+
+SKELETON = ROOT / 'system/etc/skel/.config/xfce4/xfconf/xfce-perchannel-xml/xfce4-panel.xml'
+
+
+def plugin_manifest(directory=Path('/usr/share/xfce4/panel/plugins'), skeleton=SKELETON):
+    """4.18'in eksik eklentiyi silerek testi yanlış geçirmesine izin verme."""
+    plugins = {node.attrib['value'] for node in ET.parse(skeleton).getroot().findall('./property[@name="plugins"]/property')
+               if node.get('type') == 'string'} | {'launcher', 'separator', 'tasklist'}
+    missing = sorted(name for name in plugins if not (directory / (name + '.desktop')).is_file())
+    if missing:
+        raise RuntimeError('Test ortamında gerekli Xfce eklentileri eksik: ' + ', '.join(missing)
+                           + '. Üretim paket listesindeki eklenti paketlerini de kurun; eksik eklenti silinmez / onaylanmaz.')
+    return {name: hashlib.sha256((directory / (name + '.desktop')).read_bytes()).hexdigest() for name in sorted(plugins)}
+
+
+def stop_owned_process(process):
+    """Yalnızca start_new_session ile bu testin açtığı grubu temizle.
+
+    --restart ile ilk ebeveyn çıkmış olsa bile yeniden açılan panel / eklentiler
+    aynı gruptadır. Genel pkill / killall veya başka oturumun PID'i kullanılmaz.
+    """
+    if process is None:
+        return
+    for sig in (signal.SIGTERM, signal.SIGKILL):
+        try:
+            os.killpg(process.pid, sig)
+        except ProcessLookupError:
+            pass
+        try:
+            process.wait(timeout=4)
+        except subprocess.TimeoutExpired:
+            continue
+        # Ebeveyn çıktıysa dahi varsa yalnızca kendi grubumuzdaki torunları temizle.
 
 
 def main():
@@ -129,15 +166,31 @@ def main():
             windows = docks()
             assert geometry_matches(identifier, windows), windows
             assert profiles.read_property('xfce4-panel', '/panels', 'int-array', profiles.run) == (['1', '90'] if identifier in ('mac', 'gnome') else ['1'])
+            plugin_names = {node.attrib['name'].removeprefix('plugin-'): node.attrib['value'] for node in
+                            ET.parse(SKELETON).getroot().findall('./property[@name="plugins"]/property')}
+            if identifier in ('mac', 'gnome'):
+                plugin_names.update({str(key): 'launcher' for key in profiles.LAUNCHERS})
+                plugin_names['94'] = 'separator'
+            for plugin, expected in plugin_names.items():
+                actual = profiles.read_property('xfce4-panel', '/plugins/plugin-' + plugin, 'string', profiles.run)
+                assert actual == expected, ('Eklenti kayboldu / yüklenmedi', plugin, actual, expected)
+            for channel, path, kind, expected in profiles.settings(identifier):
+                if channel == 'xfce4-panel' and path.endswith('/plugin-ids') and expected is not None:
+                    actual = profiles.read_property(channel, path, kind, profiles.run)
+                    assert actual == expected, ('Panel eklenti dizisi değişti', path, actual, expected)
             pixels = Gdk.pixbuf_get_from_window(Gdk.get_default_root_window(), 0, 0, screen_width, screen_height)
             assert pixels is not None
             pixels.savev(str(output / ('panels-' + identifier + suffix + '.png')), 'png', [], [])
             report['layouts'].append({'profile': identifier, 'variant': suffix or 'light', 'windows': windows,
-                                      'xfconf_arrays': True, 'sample_application_stayed_open': True})
+                                      'xfconf_arrays': True, 'all_plugins_preserved': True, 'sample_application_stayed_open': True})
 
         try:
-            wm_process = subprocess.Popen(['xfwm4', '--compositor=off'], stdout=log, stderr=subprocess.STDOUT)
-            settings_process = subprocess.Popen(['xfsettingsd', '--no-daemon'], stdout=log, stderr=subprocess.STDOUT)
+            if connection.get_selection_owner(connection.intern_atom('WM_S0')):
+                raise RuntimeError('Mevcut pencere yöneticisi var; özel, boş Xvfb ekranı gerekli.')
+            report['plugin_descriptors_sha256'] = plugin_manifest()
+            report['xfce_panel_version'] = subprocess.check_output(['xfce4-panel', '--version'], text=True, timeout=8).strip()
+            wm_process = subprocess.Popen(['xfwm4', '--compositor=off'], stdout=log, stderr=subprocess.STDOUT, start_new_session=True)
+            settings_process = subprocess.Popen(['xfsettingsd', '--no-daemon'], stdout=log, stderr=subprocess.STDOUT, start_new_session=True)
             profiles.apply('mac', appearance='light')
             sample = Gtk.Window(title='OğuzDows · gerçek panel denetimi')
             sample.set_default_size(440, 240)
@@ -148,7 +201,7 @@ def main():
             words.set_margin_bottom(30)
             sample.add(words)
             sample.show_all()
-            panel_process = subprocess.Popen(['xfce4-panel', '--disable-wm-check'], stdout=log, stderr=subprocess.STDOUT)
+            panel_process = subprocess.Popen(['xfce4-panel', '--disable-wm-check'], stdout=log, stderr=subprocess.STDOUT, start_new_session=True)
             capture('mac')
             for plugin in profiles.LAUNCHERS:
                 assert profiles.read_property('xfce4-panel', f'/plugins/plugin-{plugin}', 'string', profiles.run) == 'launcher'
@@ -163,25 +216,34 @@ def main():
                 capture(identifier)
             profiles.restore()
             report['restored'] = True
-            print('::notice title=Gerçek Xfce panel düzenleri::' + json.dumps(report, ensure_ascii=False), flush=True)
+            summary = {key: value for key, value in report.items() if key != 'plugin_descriptors_sha256'}
+            print('::notice title=Gerçek Xfce panel düzenleri::' + json.dumps(summary, ensure_ascii=False), flush=True)
         except Exception as error:
             report['error'] = str(error)
-            print('::error title=Gerçek Xfce panel düzenleri::' + str(error), flush=True)
+            log.flush()
+            report['panel_log_tail'] = (output / 'profile-panels.log').read_text(errors='replace')[-6000:]
+            diagnostic = json.dumps({'error': str(error), 'panel_log_tail': report['panel_log_tail'][-1800:]}, ensure_ascii=False)
+            print('::error title=Gerçek Xfce panel düzenleri::' + diagnostic.replace('%', '%25'), flush=True)
+            try:
+                pixels = Gdk.pixbuf_get_from_window(Gdk.get_default_root_window(), 0, 0, screen_width, screen_height)
+                if pixels is not None:
+                    pixels.savev(str(output / 'panels-failure.png'), 'png', [], [])
+            except Exception as screenshot_error:
+                report['failure_screenshot_error'] = str(screenshot_error)
             raise
         finally:
             (output / 'profile-layouts.json').write_text(json.dumps(report, ensure_ascii=False, indent=2) + '\n')
             if sample is not None:
                 sample.destroy()
             if panel_process is not None:
-                subprocess.run(['xfce4-panel', '--quit'], stdout=log, stderr=subprocess.STDOUT, timeout=12, check=False)
-                if panel_process.poll() is None:
-                    panel_process.wait(timeout=12)
-            if settings_process is not None and settings_process.poll() is None:
-                settings_process.terminate()
-                settings_process.wait(timeout=12)
-            if wm_process is not None and wm_process.poll() is None:
-                wm_process.terminate()
-                wm_process.wait(timeout=12)
+                try:
+                    subprocess.run(['xfce4-panel', '--quit'], stdout=log, stderr=subprocess.STDOUT, timeout=4, check=False)
+                except (OSError, subprocess.SubprocessError) as error:
+                    print('Özel panel D-Bus temizliği: ' + str(error), file=log, flush=True)
+            # Bir modal eklenti uyarısı --quit'e yanıt vermese de asıl hatayı
+            # TimeoutExpired ile maskeleme; yalnızca kendi süreç gruplarımız.
+            for process in (panel_process, settings_process, wm_process):
+                stop_owned_process(process)
             connection.close()
 
 
