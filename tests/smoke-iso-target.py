@@ -29,6 +29,7 @@ import target_system
 
 firmware = load('iso_test_firmware', 'tests/smoke-installed-boot.py')
 ci = load('iso_test_annotations', 'scripts/ci-run.py')
+initrd_report = load('iso_initrd_report', 'scripts/initramfs-report.py')
 
 
 def run(*args, timeout=600, **kwargs):
@@ -223,6 +224,10 @@ def boot_os(image, mode, output, work, root_uuid, graphical_idle=False, ram_mib=
             deadline = time.monotonic() + timeout
             while time.monotonic() < deadline:
                 text = serial.read_text(errors='replace') if serial.exists() else ''
+                if re.search(r'Kernel panic - not syncing:', text):
+                    # initramfs unpack OOM, systemd / masaüstü işaretinden önce
+                    # olur; bilinen ölümcül hatada 600 saniye boşuna bekleme.
+                    raise RuntimeError(f'{mode}: {ram_mib} MiB erken çekirdek paniği:\n' + text[-7000:])
                 if marker in text and not graphical_idle:
                     print(mode + ': gerçek hedef çekirdek, initramfs ve systemd disk kökünde açıldı.', flush=True)
                     return None
@@ -260,6 +265,27 @@ def boot_os(image, mode, output, work, root_uuid, graphical_idle=False, ram_mib=
                 except subprocess.TimeoutExpired:
                     process.kill()
                     process.wait()
+
+
+def check_low_ram(image, output, work, root_uuid, results):
+    """512 hatası 1 GiB kanıtını saklamasın; herhangi bir hata yine işi düşürür."""
+    errors = []
+    for ram in (512, 1024):
+        low_output = output / f'ram-{ram}'
+        low_output.mkdir()
+        try:
+            measurement = boot_os(image, 'bios', low_output, work, root_uuid, graphical_idle=True, ram_mib=ram)
+            if not measurement or not measurement.get('valid_idle_measurement'):
+                raise RuntimeError(f'{ram} MiB tam Xfce ölçümü geçerli değil: ' + json.dumps(measurement))
+            results.append(measurement)
+        except Exception as error:
+            failure = {'vm_ram_mib': ram, 'valid_idle_measurement': False, 'error': str(error)}
+            (low_output / 'low-ram-boot-error.json').write_text(json.dumps(failure, ensure_ascii=True, indent=2) + '\n')
+            results.append(failure)
+            errors.append(failure)
+    if errors:
+        raise RuntimeError('Düşük RAM açılışı başarısız; her bütçenin kanıtı korundu:\n'
+                           + '\n'.join(str(item['vm_ram_mib']) + ' MiB: ' + item['error'] for item in errors))
 
 
 def main():
@@ -386,6 +412,18 @@ def main():
         # Calamares InitramfsJob ile aynı gerçek komut, aynı güvenli UMASK.
         chroot('update-initramfs', '-k', 'all', '-c', '-t')
         report['initramfs'] = target_system.verify_initramfs(target, before)
+        report['initramfs_inventory'] = []
+        for version in report['initramfs']:
+            inventory = initrd_report.record(target / ('boot/initrd.img-' + version), output, work)
+            if args.arch == 'amd64' and (len(inventory['firmware']) != 1
+                    or not inventory['firmware'][0].get('kernel_support_verified')
+                    or inventory['firmware'][0].get('payloads_verified', 0) == 0):
+                raise RuntimeError('amd64 initramfs GPU firmware sıkıştırma / içerik kanıtı eksik.')
+            report['initramfs_inventory'].append(inventory)
+            summary = json.dumps(inventory, ensure_ascii=True, separators=(',', ':'))
+            if len(summary) > 3500:
+                raise RuntimeError('initramfs envanteri kontrol notu sınırını aştı; kesik JSON yayımlanmadı.')
+            print('::notice title=Gerçek initramfs envanteri::' + ci.escape_data(summary), flush=True)
         put(target, 'etc/default/grub.d/99-disposable-test.cfg',
             'GRUB_DISABLE_OS_PROBER=true\nGRUB_TIMEOUT=1\nGRUB_TERMINAL="serial console"\n'
             'GRUB_SERIAL_COMMAND="serial --unit=0 --speed=115200"\n'
@@ -435,13 +473,7 @@ def main():
             report['modes'].append(mode)
         if args.low_ram_checks:
             report['low_ram'] = []
-            for ram in (512, 1024):
-                low_output = output / f'ram-{ram}'
-                low_output.mkdir()
-                measurement = boot_os(image, 'bios', low_output, work, root_uuid, graphical_idle=True, ram_mib=ram)
-                report['low_ram'].append(measurement)
-                if not measurement or not measurement.get('valid_idle_measurement'):
-                    raise RuntimeError(f'{ram} MiB tam Xfce ölçümü geçerli değil: ' + json.dumps(measurement))
+            check_low_ram(image, output, work, root_uuid, report['low_ram'])
         print('::notice title=ISO hedef sistem açılışı::' + json.dumps(report), flush=True)
     except Exception as error:
         report['error'] = str(error)

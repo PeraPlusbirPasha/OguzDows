@@ -110,6 +110,34 @@ class IsoTargetSmokeContractTests(unittest.TestCase):
             smoke.boot_os(Path('/unused'), 'bios', Path('/unused'), Path('/unused'), 'abc', ram_mib=256)
         spawn.assert_not_called()
 
+    def test_pre_userspace_kernel_panic_fails_immediately_without_waiting_for_desktop(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            serial = root / 'target-os-bios.serial.log'
+            serial.write_text('gunzip\nunpack_to_rootfs\nKernel panic - not syncing: System is deadlocked on memory\n')
+            process = Mock()
+            process.poll.return_value = None
+            with patch.object(smoke.subprocess, 'Popen', return_value=process), patch.object(smoke.time, 'sleep') as pause:
+                with self.assertRaisesRegex(RuntimeError, '512 MiB erken çekirdek paniği'):
+                    smoke.boot_os(root / 'private.img', 'bios', root, root, 'abc', graphical_idle=True, ram_mib=512)
+            pause.assert_not_called()
+            process.terminate.assert_called_once()
+            self.assertFalse((root / 'low-ram-idle.json').exists())
+
+    def test_512_failure_keeps_1024_test_and_fails_whole_gate_without_hiding_either_result(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            results = []
+            success = {'vm_ram_mib': 1024, 'valid_idle_measurement': True}
+            with patch.object(smoke, 'boot_os', side_effect=[RuntimeError('512 initramfs OOM'), success]) as boot:
+                with self.assertRaisesRegex(RuntimeError, '512 initramfs OOM'):
+                    smoke.check_low_ram(root / 'private.img', root, root, 'abc', results)
+            self.assertEqual([call.kwargs['ram_mib'] for call in boot.call_args_list], [512, 1024])
+            self.assertEqual(results[1], success)
+            self.assertFalse(results[0]['valid_idle_measurement'])
+            self.assertEqual(json.loads((root / 'ram-512/low-ram-boot-error.json').read_text())['error'], '512 initramfs OOM')
+            self.assertFalse((root / 'ram-1024/low-ram-boot-error.json').exists())
+
     def test_low_ram_budget_needs_actual_headroom_not_just_the_600_mb_number(self):
         total = 480 * 1024**2
         threshold = (total + 9) // 10
