@@ -1,4 +1,4 @@
-"""Beş yerel Xfce düzeni; tipli yedek, dar izin listesi ve bağımsız tema/efekt.
+"""Altı yerel Xfce düzeni; tipli yedek, dar izin listesi ve bağımsız tema/efekt.
 
 İskele Xfce panelidir; yeni shell, sürekli Python çizici veya Plank çalışmaz.
 Panel/plugin dizileri Xfce'de girişte yüklenir. Yenileme yalnızca ayrı kullanıcı
@@ -19,13 +19,15 @@ from resource_policy import current_policy
 
 PROFILES = {
     'oguzdows': {'name': 'OğuzDows', 'description': 'Başlat, mavi cam esintili alt çubuk ve turkuaz vurgular.', 'position': 10, 'size': 38, 'layout': 'O|HMC', 'appearance': 'light'},
-    'kde': {'name': 'KDE tarzı', 'description': 'Geniş alt görev çubuğu, okunaklı sekmeler ve mavi vurgular.', 'position': 10, 'size': 44, 'layout': 'O|HMC', 'appearance': 'dark'},
-    'gnome': {'name': 'GNOME tarzı', 'description': 'Ubuntu esintili sol iskele, üst durum çubuğu ve sıcak vurgular.', 'position': 9, 'size': 32, 'layout': 'O|HMC', 'appearance': 'light'},
+    'kde': {'name': 'Plasma esintisi · Xfce', 'description': 'Geniş alt görev çubuğu, okunaklı sekmeler ve mavi vurgular.', 'position': 10, 'size': 44, 'layout': 'O|HMC', 'appearance': 'dark'},
+    'gnome': {'name': 'Ubuntu / GNOME esintisi · Xfce', 'description': 'Ubuntu esintili sol iskele, üst durum çubuğu ve sıcak vurgular.', 'position': 9, 'size': 32, 'layout': 'O|HMC', 'appearance': 'light'},
     'xfce': {'name': 'Klasik Xfce', 'description': 'İnce üst panel, metinli görevler; en sade yerleşim.', 'position': 9, 'size': 30, 'layout': 'O|HMC', 'appearance': 'light'},
-    'mac': {'name': 'Mac esintisi', 'description': 'Üst durum/uygulama paneli, ortalı alt iskele ve renkli sol düğmeler.', 'position': 9, 'size': 30, 'layout': 'CHM|O', 'appearance': 'light'},
+    'windows11': {'name': 'Windows 11 esintisi · Xfce', 'description': 'Ortalanmış kısa alt çubuk, simgeli görevler ve mavi vurgu; Windows çalıştırmaz.', 'position': 10, 'size': 48, 'layout': 'O|HMC', 'appearance': 'light'},
+    'mac': {'name': 'macOS esintisi · Xfce', 'description': 'Üst durum/uygulama paneli, ortalı alt iskele ve renkli sol düğmeler.', 'position': 9, 'size': 30, 'layout': 'CHM|O', 'appearance': 'light'},
 }
 APPEARANCES = {'light': 'Açık', 'dark': 'Koyu'}
-EFFECTS = {'off': 'Efektsiz · en hafif', 'glass': 'Hafif cam · isteğe bağlı'}
+EFFECTS = {'off': 'Efektsiz · en hafif', 'glass': 'Hafif cam · isteğe bağlı',
+           'aero': 'Aero esintisi · statik yansıma + bütçeli cam / gölge'}
 DOCK = 90
 LAUNCHERS = {90: 'oguzdows-browser.desktop', 91: 'oguzdows-files.desktop',
              92: 'oguzdows-store.desktop', 93: 'oguzdows-terminal.desktop'}
@@ -37,7 +39,8 @@ def theme(identifier, appearance):
         raise ValueError('Bilinmeyen görünüm veya tema.')
     names = {'oguzdows': ('OguzDowsXP', 'OguzDowsXPDark'),
              'mac': ('OguzDowsMac', 'OguzDowsMacDark'),
-             'gnome': ('OguzDowsGnome', 'OguzDowsGnomeDark')}
+             'gnome': ('OguzDowsGnome', 'OguzDowsGnomeDark'),
+             'windows11': ('OguzDowsEleven', 'OguzDowsElevenDark')}
     return names.get(identifier, ('OguzDowsLight', 'OguzDows'))[appearance == 'dark']
 
 
@@ -46,16 +49,19 @@ def settings(identifier, appearance=None, effects='off', resources=None):
         raise ValueError('Bilinmeyen görünüm tarzı / efekti.')
     item = PROFILES[identifier]
     appearance = item['appearance'] if appearance is None else appearance
-    gtk = theme(identifier, appearance)
+    gtk = theme(identifier, appearance)  # Aero'da da kimlik / tema girişini doğrula.
+    if effects == 'aero':
+        gtk = ('OguzDowsAero', 'OguzDowsAeroDark')[appearance == 'dark']
     dock = identifier in ('mac', 'gnome')
-    glass = effects == 'glass' and (current_policy() if resources is None else resources)['compositing']
+    glass = effects in ('glass', 'aero') and (current_policy() if resources is None else resources)['compositing']
     # Üst çubuk, pencere çerçevesi, içerik ve tüm düğmeler daima opak.
     # Alfa yalnızca alt görev çubuğu / iskelenin ARKA PLAN rengindedir.
     rgba = (['0.93', '0.94', '0.96'] if identifier == 'mac' and appearance == 'light'
             else ['0.09', '0.16', '0.25']) + ['0.94' if glass else '1']
     choices = [
         ('xfce4-panel', '/panels/panel-1/position', 'string', f"p={item['position']};x=0;y=0"),
-        ('xfce4-panel', '/panels/panel-1/length', 'double', '100'),
+        ('xfce4-panel', '/panels/panel-1/length', 'double', '76' if identifier == 'windows11' else '100'),
+        ('xfce4-panel', '/panels/panel-1/length-adjust', 'bool', 'false'),
         ('xfce4-panel', '/panels/panel-1/size', 'uint', str(item['size'])),
         ('xfce4-panel', '/panels/panel-1/mode', 'uint', '0'),
         ('xfce4-panel', '/panels/panel-1/enter-opacity', 'uint', '100'),
@@ -64,10 +70,10 @@ def settings(identifier, appearance=None, effects='off', resources=None):
         ('xfce4-panel', '/panels/panel-1/background-rgba', 'double-array', rgba),
         ('xfce4-panel', '/panels/panel-1/plugin-ids', 'int-array', ['1', '3', '4', '5', '6', '7'] if dock else ['1', '2', '3', '4', '5', '6', '7']),
         ('xfce4-panel', '/plugins/plugin-1/button-title', 'string', 'Başlat' if identifier == 'oguzdows' else 'Etkinlikler' if identifier == 'gnome' else 'OğuzDows'),
-        ('xfce4-panel', '/plugins/plugin-1/show-button-title', 'bool', 'true'),
+        ('xfce4-panel', '/plugins/plugin-1/show-button-title', 'bool', str(identifier != 'windows11').lower()),
         ('xfce4-panel', '/plugins/plugin-1/show-button-icon', 'bool', 'true'),
         ('xfce4-panel', '/plugins/plugin-1/view-mode', 'int', '0'),
-        ('xfce4-panel', '/plugins/plugin-2/show-labels', 'bool', str(not dock).lower()),
+        ('xfce4-panel', '/plugins/plugin-2/show-labels', 'bool', str(not dock and identifier != 'windows11').lower()),
         ('xfce4-panel', '/plugins/plugin-2/flat-buttons', 'bool', 'true'),
         ('xfce4-panel', '/plugins/plugin-2/show-handle', 'bool', 'false'),
         ('xsettings', '/Net/ThemeName', 'string', gtk),
@@ -84,6 +90,8 @@ def settings(identifier, appearance=None, effects='off', resources=None):
         ('xfwm4', '/general/inactive_opacity', 'int', '100'),
         ('xfwm4', '/general/popup_opacity', 'int', '100'),
         ('xfwm4', '/general/show_popup_shadow', 'bool', 'false'),
+        ('xfwm4', '/general/show_frame_shadow', 'bool', str(glass and effects == 'aero').lower()),
+        ('xfwm4', '/general/shadow_opacity', 'int', '20'),
     ]
     dock_values = [('position', 'string', 'p=7;x=0;y=0' if identifier == 'gnome' else 'p=10;x=0;y=0'),
                    ('mode', 'uint', '1' if identifier == 'gnome' else '0'),
@@ -287,7 +295,9 @@ def set_effects(effects, directory=None, execute=run, resources=None):
         raise ValueError('Bilinmeyen efekt seçimi.')
     directory = state_directory() if directory is None else directory
     identifier, appearance = selection(directory)
-    keys = {('xfwm4', '/general/use_compositing'), ('xfce4-panel', '/panels/panel-1/background-style'),
+    keys = {('xsettings', '/Net/ThemeName'), ('xfwm4', '/general/theme'),
+            ('xfwm4', '/general/show_frame_shadow'), ('xfwm4', '/general/shadow_opacity'),
+            ('xfwm4', '/general/use_compositing'), ('xfce4-panel', '/panels/panel-1/background-style'),
             ('xfce4-panel', '/panels/panel-1/background-rgba'), ('xfce4-panel', '/panels/panel-90/background-rgba')}
     choices = [row for row in settings(identifier, appearance, effects, resources) if row[:2] in keys]
     # Daha önce iskele seçilmediyse ayrılmış panel alanına yazma.
@@ -340,13 +350,13 @@ def session(execute=run, directory=None, resources=None):
         for row in [('xfwm4', '/general/use_compositing', 'bool', 'false'),
                     ('xsettings', '/Gtk/EnableAnimations', 'bool', 'false')]:
             set_property(*row, execute)
-        if effect_selection(directory) == 'glass':
+        if effect_selection(directory) in ('glass', 'aero'):
             identifier, appearance = selection(directory)
             for row in settings(identifier, appearance, 'off'):
                 if row[3] is not None and (row[1].endswith('background-rgba') or row[1] == '/panels/panel-1/background-style'):
                     set_property(*row, execute)
-    elif effect_selection(directory) == 'glass':
-        set_effects('glass', directory, execute, resources)
+    elif effect_selection(directory) in ('glass', 'aero'):
+        set_effects(effect_selection(directory), directory, execute, resources)
 
 
 if __name__ == '__main__':

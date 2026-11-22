@@ -51,6 +51,7 @@ install -d -m 0700 "$runtime/home" "$runtime/config" "$runtime/cache" "$runtime/
 install -m 0755 "$emulator" "${ROOTFS_DIR}/tmp/oguzdows-qemu-static"
 install -m 0644 files/pi-runtime-smoke.py "$runtime/smoke.py"
 install -m 0644 files/pi_contract.py "$runtime/pi_contract.py"
+install -m 0644 files/pi_session_smoke.py "$runtime/pi_session_smoke.py"
 export OGUZDOWS_PI_CI_DIR="${runtime#"${ROOTFS_DIR}"}"
 export OGUZDOWS_PI_CI_CPU="$cpu"
 # X sunucusu hostta; hedef imaja Xvfb / xauth paketi veya daemon eklenmez.

@@ -59,6 +59,10 @@ class AssetTests(unittest.TestCase):
             for state in ("active", "inactive"):
                 with Image.open(theme / f"close-{state}.png") as close:
                     self.assertEqual(close.getchannel("A").getextrema(), (255, 255))
+            for name in ('OguzDowsAero', 'OguzDowsAeroDark', 'OguzDowsEleven', 'OguzDowsElevenDark'):
+                for part in ('title-1-active', 'close-active', 'close-inactive'):
+                    with Image.open(root / f'usr/share/themes/{name}/xfwm4/{part}.png') as image:
+                        self.assertEqual(image.getchannel('A').getextrema(), (255, 255))
             original = bios.read_bytes()
             renderer.render(root)
             self.assertEqual(bios.read_bytes(), original)

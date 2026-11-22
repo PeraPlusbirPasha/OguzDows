@@ -120,7 +120,7 @@ def main():
                 screenshot('wallpapers.png')
                 app.stack.set_visible_child_name('styles')
                 assert len(app.profile_choice.get_model()) == 5
-                assert len(app.profile_buttons) == 5
+                assert len(app.profile_buttons) == 6
                 screenshot('desktop-styles.png')
                 app.step_page(1)
                 assert app.stack.get_visible_child_name() == 'appearance'

@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 """Hedef ARM + minimum CPU + gerçek GTK/Xfce; Xvfb ekranı fiziksel Pi değildir.
 
-Paket kurmaz, sistem/oturum servisi veya uygulama motoru başlatmaz. Ürün
+Paket kurmaz, sistem servisi veya uygulama motoru başlatmaz. Geçici non-root Xfce
+oturumu açıp kapatır; LightDM/PAM ve fiziksel GPU açılışını sınamaz. Ürün
 özelliklerinin varlığını/hash'ini ölçer; uygulama işlemi/performansı sayılmaz.
 """
 from __future__ import annotations
@@ -114,6 +115,8 @@ def target_check(arch, cpu, report):
     if report['suite'] != contract['suite']:
         raise ValueError('Pi paket aracı gerçek taban kod adını göremiyor.')
     report['gui'] = gui_check(prefix, '/usr/lib/oguzdows/oguzdows-store-native')
+    from pi_session_smoke import run_nonroot_session
+    report['full_session'] = run_nonroot_session(cpu)
 
 
 def main():
@@ -146,7 +149,7 @@ def main():
     args.output.write_text(json.dumps(report, ensure_ascii=False, indent=2) + '\n')
     summary = {key: report[key] for key in ('scope', 'physical_boot', 'hardware_gpu', 'performance_measurement', 'errors')}
     summary.update(arch=report.get('arch'), minimum_cpu=report.get('minimum_cpu'), gui=report.get('gui'),
-                   feature_presence=report.get('feature_presence'), packages_checked=len(report.get('packages', {})))
+                   feature_presence=report.get('feature_presence'), full_session=report.get('full_session'), packages_checked=len(report.get('packages', {})))
     print('::notice title=Pi ABI / GTK / özellik varlığı::' + json.dumps(summary, ensure_ascii=False), flush=True)
     return 1 if report['errors'] else 0
 

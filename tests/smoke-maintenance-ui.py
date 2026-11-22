@@ -161,7 +161,7 @@ def main():
             GLib.timeout_add_seconds(30, timeout)
             loop.run()
         (args.output / ('maintenance-ui-' + args.component + '.json')).write_text(json.dumps({'gtk': True, 'component': args.component,
-            'native_xfconf_profiles': 5 if args.component == 'updater' else 0, 'apt_mocked': True,
+            'native_xfconf_profiles': 6 if args.component == 'updater' else 0, 'apt_mocked': True,
             'package_installation_tested': False, 'network_used': False, 'errors': errors}, ensure_ascii=False, indent=2) + '\n')
     if errors:
         raise AssertionError('\n'.join(errors))

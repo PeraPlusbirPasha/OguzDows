@@ -387,7 +387,7 @@ class Welcome(Gtk.Application):
             choices.add(self.card('Masaüstünü kişiselleştir', 'Tarzını, açık/koyu temanı ve duvar kâğıdını seç.',
                                   'preferences-desktop-theme-symbolic', lambda *_: self.navigate('styles')))
         choices.add(self.card("Donanımını tanı", "Aygıtları, yüklü firmware'i ve gömülü ek sürücüleri gör.", "preferences-system-symbolic", lambda *_: self.show_drivers()))
-        choices.add(self.card('Masaüstü tarzını seç', 'Beş hafif görünüm. Pencere düğmeleri ve panel daima okunaklı.', 'preferences-desktop-theme-symbolic', lambda *_: self.stack.set_visible_child_name('styles')))
+        choices.add(self.card('Masaüstü tarzını seç', 'Altı hafif düzen; gerçek oturumlar ayrıca seçilir. Pencere düğmeleri ve panel daima okunaklı.', 'preferences-desktop-theme-symbolic', lambda *_: self.stack.set_visible_child_name('styles')))
         if not is_pi():
             choices.add(self.card('Uygulamalar ve güncellemeler', 'Mağaza ve Güncelleyici ayrı, anlaşılır düğmelerle.', 'system-software-update-symbolic', lambda *_: self.navigate('applications')))
         choices.add(self.card('İmece araçları', 'Çay Molası · Türkçe Hızlı Yazım · Heybe · Yerel paylaşım paketi.', 'applications-utilities-symbolic', lambda *_: self.launch(['/usr/local/bin/oguzdows-imece'])))
@@ -526,6 +526,8 @@ class Welcome(Gtk.Application):
         body.pack_start(workspace, True, True, 0)
         panel = Gtk.Box(spacing=8)
         panel.get_style_context().add_class('preview-panel')
+        if identifier == 'windows11':
+            panel.set_halign(Gtk.Align.CENTER)
         panel.pack_start(Gtk.Label(label='Başlat' if identifier == 'oguzdows' else 'Oğuz'), False, False, 3)
         panel.pack_end(Gtk.Label(label='12:30'), False, False, 3)
         if profiles.PROFILES[identifier]['position'] == 9:
@@ -544,7 +546,7 @@ class Welcome(Gtk.Application):
     def styles_page(self):
         page = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=12)
         page.pack_start(label('Masaüstün, senin tarzın.', 'heading'), False, False, 0)
-        page.pack_start(label('Kartlar şematik önizlemedir. Hepsi aynı hafif Xfce masaüstünü düzenler; başka işletim sistemi kurmaz. İlk ayarlar yedeklenir.', 'muted', 72), False, False, 0)
+        page.pack_start(label('Kartlar şematik önizlemedir. Bu altı kart hafif Xfce düzenidir; gerçek KDE / GNOME seçimi aşağıda ayrıdır. macOS / Windows kurulmaz. İlk ayarlar yedeklenir.', 'muted', 72), False, False, 0)
         grid = Gtk.FlowBox()
         grid.set_selection_mode(Gtk.SelectionMode.NONE)
         grid.set_min_children_per_line(1)
@@ -571,6 +573,9 @@ class Welcome(Gtk.Application):
         self.profile_choice.connect('changed', self.profile_selected)
         self.profile_choice.set_active_id(profiles.selection()[0])
         page.pack_start(self.profile_choice, False, False, 0)
+        self.profile_reload = Gtk.CheckButton(label='Uygularken panelleri de şimdi yenile (açık pencereler kapanmaz)')
+        self.profile_reload.set_active(True)
+        page.pack_start(self.profile_reload, False, False, 0)
         self.profile_apply = Gtk.Button(label='Seçili tarzı uygula')
         self.profile_apply.get_style_context().add_class('suggested-action')
         self.profile_apply.connect('clicked', lambda *_: self.change_style(self.profile_choice.get_active_id()))
@@ -578,20 +583,20 @@ class Welcome(Gtk.Application):
         self.profile_restore = Gtk.Button(label='İlk görünüm ayarlarıma dön')
         self.profile_restore.connect('clicked', lambda *_: self.change_style(None))
         page.pack_start(self.profile_restore, False, False, 0)
-        self.profile_status = label('OğuzDows: Başlat ve cam esintili alt çubuk. Mac: üst panel + alt iskele. GNOME: üst panel + sol iskele.', 'muted', 75)
+        self.profile_status = label('OğuzDows: Başlat. Windows 11: ortalı, simgeli kısa çubuk. macOS: üst panel + alt iskele. Ubuntu: üst panel + sol iskele.', 'muted', 75)
         page.pack_start(self.profile_status, False, False, 0)
         reload_button = Gtk.Button(label='Panelleri şimdi yenile…')
         reload_button.connect('clicked', self.reload_panels)
         page.pack_start(reload_button, False, False, 0)
-        page.pack_start(label('İskele ve eklenti yerleşimi sonraki girişte yüklenir; istersen yukarıdaki düğmeyle ayrıca onaylayarak şimdi yenile. Pencerelerin kapanmaz. Mac global menüsü veya GNOME kabuğu kurulmaz. Eski Whisker sürümünde menü yazısı sonraki girişte değişebilir.', 'muted', 75), False, False, 0)
+        page.pack_start(label('Yenile kutusu seçiliyse Uygula, paneli de yeniler. İşareti kaldırırsan yeni iskele / eklenti yerleşimi sonraki girişte yüklenir. Pencerelerin kapanmaz. Mac global menüsü veya GNOME kabuğu kurulmaz. Eski Whisker sürümünde menü yazısı sonraki girişte değişebilir.', 'muted', 75), False, False, 0)
         page.pack_start(label('Yerel tespih imleci için ayrı süreç / tıklama dinleyicisi yoktur. Gerçek KDE/GNOME daha fazla kaynak ister ve 600 MB hedefinin dışındadır.', 'muted', 75), False, False, 0)
-        if self.pc:
-            row = Gtk.Box(spacing=8)
-            for identifier, title in (('kde', 'Gerçek KDE planı…'), ('gnome', 'Gerçek GNOME planı…')):
-                button = Gtk.Button(label=title)
-                button.connect('clicked', lambda _button, name=identifier: self.launch(['/usr/local/bin/oguzdows-update', '--desktop', name]))
-                row.pack_start(button, True, True, 0)
-            page.pack_start(row, False, False, 0)
+        # Kurulu oturumları her mimaride göster; kurulum uygunluğu ayrıca denetlenir.
+        row = Gtk.Box(spacing=8)
+        for identifier, title in (('kde', 'Gerçek KDE Plasma oturumu…'), ('gnome', 'Gerçek GNOME oturumu…')):
+            button = Gtk.Button(label=title)
+            button.connect('clicked', lambda _button, name=identifier: self.launch(['/usr/local/bin/oguzdows-desktops', '--desktop', name]))
+            row.pack_start(button, True, True, 0)
+        page.pack_start(row, False, False, 0)
         return page
 
     def profile_selected(self, *_):
@@ -626,7 +631,7 @@ class Welcome(Gtk.Application):
         self.effect_apply = Gtk.Button(label='Efekt tercihini uygula')
         self.effect_apply.connect('clicked', self.change_effects)
         page.pack_start(self.effect_apply, False, False, 0)
-        page.pack_start(label('Cam seçimi yalnızca alt çubuk / iskele arka planını hafif saydamlaştırır. Blur ve sürekli animasyon yoktur. 512 MiB–2 GiB RAM, ARMv6 veya nomodeset ile kompozitör açılmaz; aynı düzen ve statik yansımalar korunur. Donanım hızı cihazda ayrıca ölçülmelidir.', 'muted', 75), False, False, 0)
+        page.pack_start(label('Aero: opak yansımalı başlıklar; uygun bütçede alt çubuk / iskele camı ve hafif gölge. Blur ve sürekli animasyon yoktur. 512 MiB–2 GiB RAM, ARMv6, nomodeset veya tanınan DRM sürücüsü yoksa kompozitör açılmaz; aynı düzen ve statik yansımalar korunur. Donanım hızı cihazda ayrıca ölçülmelidir.', 'muted', 75), False, False, 0)
         page.pack_start(label('Yazı tipi, ekran ölçeği veya çözünürlük için:', 'section-title'), False, False, 0)
         for title, command in (('Görünüm ve yazı tipleri', ['/usr/bin/xfce4-appearance-settings']),
                                ('Ekran ayarları', ['/usr/bin/xfce4-display-settings'])):
@@ -644,7 +649,7 @@ class Welcome(Gtk.Application):
         def work():
             try:
                 profiles.set_effects(effect)
-                message = ('Cam tercihi kaydedildi. Düşük RAM / güvenli grafik koruması önceliklidir.' if effect == 'glass'
+                message = ('Cam tercihi kaydedildi. Düşük RAM / güvenli grafik koruması önceliklidir.' if effect in ('glass', 'aero')
                            else 'Efektler kapalı. Tüm düzenler ve uygulamalar kullanılabilir.')
             except (OSError, ValueError, RuntimeError, subprocess.SubprocessError) as error:
                 message = 'Efekt değiştirilemedi: ' + str(error)
@@ -702,7 +707,9 @@ class Welcome(Gtk.Application):
             self.theme_status.set_text('Tema değiştirilemedi: ' + error)
         else:
             identifier, selected = profiles.selection()
-            Gtk.Settings.get_default().set_property('gtk-theme-name', profiles.theme(identifier, selected))
+            active_theme = next(value for channel, key, _kind, value in profiles.settings(identifier, selected, profiles.effect_selection())
+                                if channel == 'xsettings' and key == '/Net/ThemeName')
+            Gtk.Settings.get_default().set_property('gtk-theme-name', active_theme)
             Gtk.Settings.get_default().set_property('gtk-application-prefer-dark-theme', selected == 'dark')
             self.theme_status.set_text(profiles.APPEARANCES[mode] + ' tema uygulandı. Tarzın ve panel yerleşimin korundu.')
         return GLib.SOURCE_REMOVE
@@ -744,10 +751,13 @@ class Welcome(Gtk.Application):
         self.profile_apply.set_sensitive(False)
         self.profile_restore.set_sensitive(False)
         self.profile_status.set_text('Yalnızca bu hesabın görünümü düzenleniyor…')
+        reload_now = self.profile_reload.get_active()
         def work():
             try:
                 profiles.restore() if identifier is None else profiles.apply(identifier)
-                message = 'İlk görünüm ayarların geri yüklendi.' if identifier is None else profiles.PROFILES[identifier]['name'] + ' kaydedildi. İskele / eklenti değişimi için panelleri onayla yenile veya oturumu yeniden aç.'
+                if reload_now:
+                    profiles.reload_panels()
+                message = 'İlk görünüm ayarların geri yüklendi.' if identifier is None else profiles.PROFILES[identifier]['name'] + (' uygulandı; paneller yenilendi.' if reload_now else ' kaydedildi; yeni iskele sonraki girişte yüklenir.')
             except (OSError, ValueError, RuntimeError, subprocess.SubprocessError) as error:
                 message = 'Görünüm değiştirilemedi: ' + str(error)
             GLib.idle_add(self.style_finished, message)

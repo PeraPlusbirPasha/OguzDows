@@ -149,25 +149,29 @@ def window_theme(root: Path, name='OguzDows', light=False, xp=False) -> None:
     inactive_bg = '#385d88' if xp and light else ('#1b3048' if xp else ('#dce3ed' if light else '#191c24'))
     active_text = '#1e2a3a' if light and not xp else PAPER
     inactive_text = '#334155' if light and not xp else '#e1e6ef'
-    if mac:
+    if name.startswith('OguzDowsAero'):
+        active_bg, inactive_bg = ('#bfd9f3', '#d6e2ef') if light else ('#204568', '#25374d')
+    elif name.startswith('OguzDowsEleven'):
+        active_bg, inactive_bg = ('#e9f1fb', '#e0e7ef') if light else ('#172a42', '#1c2b3e')
+    elif mac:
         active_bg, inactive_bg = ('#eef0f4', '#e1e5ec') if light else ('#292c33', '#24272e')
     elif gnome:
         active_bg, inactive_bg = ('#f0edf3', '#e2dfe9') if light else ('#322f3d', '#292733')
 
     def tile(size, color):
         image = Image.new('RGBA', size, color)
-        if xp or mac:
+        if xp or mac or name.startswith('OguzDowsAero'):
             # Reflet çizime gömülüdür; çalışma anında blur / animasyon yoktur.
             rgb = ImageColor.getrgb(color)
             draw = ImageDraw.Draw(image)
             for y in range(size[1]):
-                shine = (1 - y / max(1, size[1] - 1)) * (.16 if xp else .05)
+                shine = (1 - y / max(1, size[1] - 1)) * (.27 if name.startswith('OguzDowsAero') else .16 if xp else .05)
                 draw.line((0, y, size[0], y), fill=tuple(round(c + (255 - c) * shine) for c in rgb) + (255,))
         return image
 
     for state in ("active", "inactive"):
         bg = active_bg if state == "active" else inactive_bg
-        edge = RED if state == "active" else "#363b49"
+        edge = ("#75aadd" if name.startswith(("OguzDowsAero", "OguzDowsEleven")) else RED) if state == "active" else "#363b49"
         for part in ("title-1", "title-2", "title-3", "title-4", "title-5", "top-left", "top-right"):
             image = tile((5, 32), bg)
             ImageDraw.Draw(image).line((0, 0, 5, 0), fill=edge)
@@ -419,7 +423,9 @@ def render(root: Path) -> None:
     window_theme(root, 'OguzDowsLight', light=True)
     window_theme(root, 'OguzDowsXP', light=True, xp=True)
     window_theme(root, 'OguzDowsXPDark', xp=True)
-    for name, light in (('OguzDowsMac', True), ('OguzDowsMacDark', False), ('OguzDowsGnome', True), ('OguzDowsGnomeDark', False)):
+    for name, light in (('OguzDowsMac', True), ('OguzDowsMacDark', False), ('OguzDowsGnome', True), ('OguzDowsGnomeDark', False),
+                        ('OguzDowsEleven', True), ('OguzDowsElevenDark', False),
+                        ('OguzDowsAero', True), ('OguzDowsAeroDark', False)):
         window_theme(root, name, light=light)
 
 

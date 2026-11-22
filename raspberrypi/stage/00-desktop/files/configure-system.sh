@@ -19,6 +19,10 @@ systemctl enable NetworkManager.service lightdm.service bluetooth.service zramsw
 systemctl disable NetworkManager-wait-online.service
 systemctl set-default graphical.target
 printf '/usr/sbin/lightdm\n' > /etc/X11/default-display-manager
+# lightdm.conf, conf.d dosyalarından SONRA okunur. Ana dosyanın olası
+# LXDE-pi / başka greeter varsayılanı ürün drop-in'ini ezemesin.
+python3 /usr/lib/oguzdows/pi-display-setup.py
+/usr/sbin/lightdm --show-config
 if [ -z "$(dpkg-divert --list /usr/lib/os-release)" ]; then
     # Essential paket dosyasını rename ile geçici olarak kaybetme.
     install -m 0644 /usr/lib/os-release /usr/lib/os-release.upstream
@@ -29,7 +33,10 @@ ln -sfn ../usr/lib/os-release /etc/os-release
 # distribution paket symlink'i yalnızca hedef chroot içinde izlenir.
 chown root:root /usr/share/oguzdows/firefox-policies.json
 chmod 0644 /usr/share/oguzdows/firefox-policies.json
-python3 /usr/lib/oguzdows/pi-firefox-policy.py
+# armhf NetSurf imajında olmayan Firefox için politika dizini oluşturma.
+if [ -x /usr/bin/firefox-esr ]; then
+    python3 /usr/lib/oguzdows/pi-firefox-policy.py
+fi
 locale-gen
 update-locale LANG=tr_TR.UTF-8 LANGUAGE=tr:en
 ln -sfn /usr/share/zoneinfo/Europe/Istanbul /etc/localtime

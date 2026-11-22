@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import argparse
+import configparser
 import re
 import sys
 from pathlib import Path
@@ -42,6 +43,18 @@ def validate_features(root: Path, arch: str) -> None:
             or 'xfce4-session' not in report.get('gui', {}).get('xfce_version', '')
             or 'OğuzDows' not in report.get('gui', {}).get('native_store_version', '')):
         raise ValueError('Pi hedef ABI / gerçek GTK / kaynak raporu eksik veya başarısız.')
+    session = report.get('full_session', {})
+    if (not isinstance(session, dict) or session.get('uid') != 65534
+            or session.get('scope') != 'non-root-Xfce-on-host-Xvfb'
+            or str(session.get('x11_window_manager', '')).lower() != 'xfwm4'
+            or session.get('errors') != [] or type(session.get('stable_samples')) is not int
+            or session['stable_samples'] < 5
+            or any(session.get(name) is not True for name in ('xfwm4', 'xfce4-panel', 'xfdesktop'))
+            or any(session.get(name) is not False for name in ('lightdm_pam', 'physical_boot', 'performance_measurement'))):
+        raise ValueError('Pi root olmayan TAM Xfce oturum raporu eksik / başarısız; --version yeterli değildir.')
+    if arch == 'armhf' and session.get('browser') != {'program': 'netsurf-gtk', 'local_start_page_alive': True,
+                                                   'network_tested': False, 'modern_sites_verified': False}:
+        raise ValueError('Pi ARMv6 NetSurf yerel başlangıç testi eksik / başarısız.')
     if any(report.get(key) is not False for key in ('physical_boot', 'hardware_gpu', 'performance_measurement', 'real_package_transactions', 'real_audio_playback')):
         raise ValueError('Pi yapı raporu yapılmayan fiziksel / işlem testini başarı sayamaz.')
     if not isinstance(report.get('packages'), dict) or set(report['packages']) != set(contract['required_packages']):
@@ -129,6 +142,14 @@ def validate(root: Path, arch: str, pre_export: bool = False) -> None:
             'NetworkManager enable sonrasında ağ bekleyici geri açılmış.')
     if not pre_export:
         require(not read(root, "etc/machine-id").strip(), "Makine kimliği sıfırlanmamış.")
+    # Ana lightdm.conf drop-in'den sonra okunur. Yanlış LXDE / greeter
+    # seçimini yalnızca paket varlığı kapısından geçirip dağıtma.
+    display = configparser.ConfigParser(interpolation=None)
+    display.read_string(read(root, 'etc/lightdm/lightdm.conf'))
+    require(display.get('Seat:*', 'user-session', fallback='') == 'oguzdows'
+            and display.get('Seat:*', 'greeter-session', fallback='') == 'lightdm-gtk-greeter',
+            'LightDM ana dosyası ürün oturumunu / greeter seçimini ezebilir.')
+    require('session_start.py' in read(root, 'usr/share/xsessions/oguzdows.desktop'), 'Ürün oturum giriş işçisi kullanılmıyor.')
     validate_features(root, arch)
     print(f"OğuzDows Pi {arch}: dosya / boot / hesap güvenliği / özellik varlığı doğrulandı ({'export öncesi' if pre_export else 'son imaj'}).")
     print("Bu sonuç fiziksel Pi açılışı, çevre birimi veya performans doğrulaması değildir.")

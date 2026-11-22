@@ -13,7 +13,9 @@
     "device_support",
     "rifki_speech",
     "resource_policy",
-    "resource_tune"
+    "resource_tune",
+    "session_start",
+    "desktop_sessions"
   ],
   "architectures": {
     "armhf": {
@@ -49,7 +51,13 @@
         "etc/systemd/system/zramswap.service.d/10-oguzdows-resources.conf",
         "usr/share/applications/oguzdows-browser.desktop",
         "usr/share/applications/oguzdows-files.desktop",
-        "usr/share/applications/oguzdows-terminal.desktop"
+        "usr/share/applications/oguzdows-terminal.desktop",
+        "usr/lib/oguzdows/session_start.py",
+        "usr/lib/oguzdows/pi-display-setup.py",
+        "usr/lib/oguzdows/welcome_start.py",
+        "usr/lib/oguzdows/desktop_sessions.py",
+        "usr/lib/oguzdows/desktops.py",
+        "usr/local/bin/oguzdows-desktops"
       ]
     },
     "welcome-rifki-narration": {
@@ -83,7 +91,11 @@
         "usr/share/themes/OguzDowsMac/xfwm4/themerc",
         "usr/share/themes/OguzDowsMacDark/xfwm4/themerc",
         "usr/share/themes/OguzDowsGnome/xfwm4/themerc",
-        "usr/share/themes/OguzDowsGnomeDark/xfwm4/themerc"
+        "usr/share/themes/OguzDowsGnomeDark/xfwm4/themerc",
+        "usr/share/themes/OguzDowsEleven/xfwm4/themerc",
+        "usr/share/themes/OguzDowsElevenDark/xfwm4/themerc",
+        "usr/share/themes/OguzDowsAero/xfwm4/themerc",
+        "usr/share/themes/OguzDowsAeroDark/xfwm4/themerc"
       ]
     },
     "cultural-wallpapers-and-tools": {

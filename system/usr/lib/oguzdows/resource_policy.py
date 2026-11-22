@@ -18,7 +18,7 @@ def text(path):
         return ''
 
 
-def policy(memory_kib, legacy=False, requested='auto', nomodeset=False):
+def policy(memory_kib, legacy=False, requested='auto', nomodeset=False, graphics=True):
     if requested not in PROFILES:
         raise ValueError('Profil auto, mini, light veya full olmalı.')
     memory_kib = max(0, int(memory_kib))
@@ -26,14 +26,15 @@ def policy(memory_kib, legacy=False, requested='auto', nomodeset=False):
     # Bilinmeyen RAM de güvenli tarafta kalır. full, düşük RAM / nomodeset
     # korumasını aşarak kompozitörü açma yetkisi değildir.
     profile = automatic if requested == 'auto' else requested
-    effects = bool(memory_kib > 2097152 and not legacy and not nomodeset and profile == 'full')
+    effects = bool(memory_kib > 2097152 and not legacy and not nomodeset and profile == 'full' and graphics)
     usable_mb = max(1, memory_kib // 1024) if memory_kib else 512
     zram_mb = min(usable_mb, max(64, min(384 if profile == 'mini' else 1024,
                                       usable_mb * (75 if profile == 'mini' else 50) // 100)))
     return {'profile': profile, 'memory_kib': memory_kib, 'compositing': effects,
             'animations': False, 'zram_mb': zram_mb, 'algorithm': 'lz4',
             'swappiness': 100, 'page_cluster': 0,
-            'thumbnail_pixels': 160 if automatic == 'mini' else 224}
+            'thumbnail_pixels': 160 if automatic == 'mini' else 224,
+            'legacy_cpu': bool(legacy), 'graphics_candidate': bool(graphics)}
 
 
 def current_policy(root=Path('/')):
@@ -61,7 +62,11 @@ def current_policy(root=Path('/')):
         requested = 'auto'
     legacy = board.startswith(('Raspberry Pi Zero', 'Raspberry Pi 1 ', 'Raspberry Pi Model ',
                                'Raspberry Pi Compute Module Rev')) and not board.startswith('Raspberry Pi Zero 2')
-    return policy(memory, legacy, requested, 'nomodeset' in args)
+    # RAM tek başına GPU kanıtı değildir. Bilinen DRM sürücüsü yoksa statik kal.
+    drivers = {path.resolve().name for path in (root / 'sys/class/drm').glob('card[0-9]*/device/driver') if path.is_symlink()}
+    graphics = bool(drivers & {'vc4', 'v3d', 'i915', 'xe', 'amdgpu', 'radeon', 'nouveau',
+                               'nvidia', 'virtio_gpu', 'panfrost', 'lima', 'msm', 'etnaviv'})
+    return policy(memory, legacy, requested, 'nomodeset' in args, graphics)
 
 
 if __name__ == '__main__':

@@ -36,7 +36,11 @@ class ContractsTests(unittest.TestCase):
                     if not technical:
                         self.assertNotIn('debian', text)
                     self.assertNotIn("whitesur", text)
-                    self.assertNotIn("macos", text)
+                    # Kullanıcı açıkça macOS esintili düzen istedi. Ürün kimliği
+                    # macOS olamaz; dürüst esinti / kurulmaz açıklaması olabilir.
+                    if 'macos' in text:
+                        self.assertIn('xfce', text)
+                        self.assertTrue('esinti' in text or 'kurulmaz' in text)
 
     def test_live_admin_account_is_bounded_to_live_boot(self):
         unit = (ROOT / "system/etc/systemd/system/oguzdows-live-setup.service").read_text()

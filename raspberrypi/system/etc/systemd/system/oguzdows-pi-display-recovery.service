@@ -1,0 +1,13 @@
+[Unit]
+Description=OğuzDows Pi giriş ekranı hatasını konsolda göster
+After=oguzdows-pi-firstboot.service
+ConditionPathExists=/var/lib/oguzdows/firstboot.done
+
+[Service]
+Type=oneshot
+ExecStartPre=-/usr/bin/chvt 1
+ExecStart=/usr/bin/printf '\nOğuzDows: Grafik giriş ekranı başlatılamadı.\nHesabınız ve dosyalarınız silinmedi. Ctrl+Alt+F2 ile metin ekranından giriş yapabilirsiniz.\nSalt okunur teşhis: systemctl status lightdm\nAyrıntı: journalctl -b -u lightdm --no-pager -n 60\nBu ekran GPU / HDMI veya kullanıcı oturumu sorununu otomatik onarmaz.\n'
+StandardOutput=tty
+StandardError=journal
+TTYPath=/dev/tty1
+TimeoutStartSec=15

@@ -170,7 +170,11 @@ class PiAbiAndFeatureTests(unittest.TestCase):
                 config.configure(arch, output)
                 overlay = output / 'stage-oguzdows/00-desktop/files/overlay'
                 contract = json.loads((overlay / 'usr/share/oguzdows/pi-contract.json').read_text())
-                self.assertTrue(common.issubset(contract['required_packages']))
+                expected = common - ({'firefox-esr', 'firefox-esr-l10n-tr'} if arch == 'armhf' else set())
+                self.assertTrue(expected.issubset(contract['required_packages']))
+                if arch == 'armhf':
+                    self.assertTrue({'firefox-esr', 'firefox-esr-l10n-tr'}.isdisjoint(contract['required_packages']))
+                    self.assertIn('netsurf-gtk', contract['required_packages'])
                 self.assertEqual(len(contract['asset_hashes']), 30)
                 self.assertNotIn('xvfb', contract['required_packages'])
                 self.assertNotIn('xauth', contract['required_packages'])
@@ -345,6 +349,7 @@ class PiGuiLifecycleTests(unittest.TestCase):
         (target / 'usr/share/oguzdows').mkdir(parents=True)
         stage = root / 'desktop'
         write(stage, 'files/pi-runtime-smoke.py', '# yalnızca yaşam döngüsü test girdisi')
+        write(stage, 'files/pi_session_smoke.py', '# yalnızca yaşam döngüsü test girdisi')
         write(stage, 'files/pi_contract.py', '# yalnızca yaşam döngüsü test girdisi')
         write(tools, 'xauth', '#!/bin/sh\nexit 0\n').chmod(0o755)
         # /bin/sh, tıpkı gerçek xvfb-run gibi Bash işlevlerini aktarmaz.

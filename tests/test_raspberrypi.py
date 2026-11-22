@@ -43,8 +43,9 @@ class PiConfigurationTests(unittest.TestCase):
                 self.assertEqual(info["pi_gen_commit"], config.LOCK[arch]["commit"])
                 packages = (stage / "00-desktop/00-packages-nr").read_text().splitlines()
                 self.assertEqual(len(packages), len(set(packages)))
-                for package in ("xfce4", "firefox-esr", "libreoffice-writer", "vlc", "netsurf-gtk", "plymouth", "firmware-brcm80211", "zram-tools", "python3-rpi-lgpio"):
+                for package in ("xfce4", "libreoffice-writer", "vlc", "netsurf-gtk", "plymouth", "firmware-brcm80211", "zram-tools", "python3-rpi-lgpio"):
                     self.assertIn(package, packages)
+                self.assertIn('firefox-esr', packages) if arch == 'arm64' else self.assertNotIn('firefox-esr', packages)
                 for package in ("intel-microcode", "amd64-microcode", "grub-pc-bin", "calamares", "broadcom-sta-dkms", "dkms", "firmware-amd-graphics", "xserver-xorg-video-all"):
                     self.assertNotIn(package, packages)
                 for name in config.PC_ONLY:
@@ -155,7 +156,8 @@ class PiConfigurationTests(unittest.TestCase):
         base = ROOT / "raspberrypi/system/etc/systemd/system"
         result = subprocess.run(["systemd-analyze", "--man=no", "verify",
                                  str(base / "oguzdows-pi-firstboot.service"),
-                                 str(base / "oguzdows-pi-tune.service")], capture_output=True, text=True)
+                                 str(base / "oguzdows-pi-tune.service"),
+                                 str(base / "oguzdows-pi-display-recovery.service")], capture_output=True, text=True)
         self.assertEqual(result.returncode, 0, result.stderr)
 
     def test_pi_workflow_is_separate_non_cancelling_and_checks_images(self):
@@ -196,7 +198,7 @@ class PiConfigurationTests(unittest.TestCase):
 
     def test_browser_selects_netsurf_only_for_armv6_and_never_interprets_options(self):
         for legacy, expected in ((True, "/usr/bin/netsurf-gtk"), (False, "/usr/bin/firefox-esr")):
-            with patch.object(pi, "armv6", return_value=legacy), patch.object(os, "execv") as execute, patch("sys.argv", ["oguzdows-browser", "https://example.org/"]):
+            with patch.object(pi, "armv6", return_value=legacy), patch.object(os, "execv") as execute, patch.object(os, "access", return_value=True), patch("sys.argv", ["oguzdows-browser", "https://example.org/"]):
                 load("oguzdows_browser_test", "system/usr/lib/oguzdows/browser.py").main()
                 execute.assert_called_once_with(expected, [expected, "https://example.org/"])
         with patch.object(os, "execv") as execute, patch("sys.argv", ["oguzdows-browser", "--private-window"]):
@@ -422,6 +424,15 @@ class PiImageValidationTests(unittest.TestCase):
                                        'wallpapers': 20, 'selected_narration': 10,
                                        'speech_contexts': len(json.loads((root / 'usr/share/oguzdows/rifki/speech.json').read_text()))}}
         write(root, 'usr/share/oguzdows/pi-build-report.json', json.dumps(report))
+        write(root, 'etc/lightdm/lightdm.conf', '[Seat:*]\nuser-session=oguzdows\ngreeter-session=lightdm-gtk-greeter\n')
+        report['full_session'] = {'uid': 65534, 'errors': [], 'stable_samples': 5,
+                                  'scope': 'non-root-Xfce-on-host-Xvfb', 'x11_window_manager': 'Xfwm4',
+                                  'xfwm4': True, 'xfce4-panel': True, 'xfdesktop': True,
+                                  'lightdm_pam': False, 'physical_boot': False, 'performance_measurement': False}
+        if arch == 'armhf':
+            report['full_session']['browser'] = {'program': 'netsurf-gtk', 'local_start_page_alive': True,
+                                                 'network_tested': False, 'modern_sites_verified': False}
+        write(root, 'usr/share/oguzdows/pi-build-report.json', json.dumps(report))
         write(root, "etc/passwd", "root:x:0:0:root:/root:/bin/bash\nnobody:x:65534:65534:nobody:/nonexistent:/usr/sbin/nologin\n")
         write(root, "etc/shadow", "root:*:1:0:99999:7:::\n")
         write(root, "etc/sudoers", "%sudo ALL=(ALL:ALL) ALL\n")
@@ -481,6 +492,22 @@ class PiImageValidationTests(unittest.TestCase):
             image.write_bytes(b'degismis')
             with self.assertRaisesRegex(ValueError, 'hash'):
                 verify.validate(root, 'arm64')
+
+    def test_export_requires_complete_nonroot_session_and_netsurf_receipts(self):
+        for broken in ('missing', 'root', 'panel', 'version-only', 'samples-type', 'browser'):
+            with self.subTest(broken=broken), tempfile.TemporaryDirectory() as directory:
+                root = self.fixture(directory)
+                path = root / 'usr/share/oguzdows/pi-build-report.json'
+                report = json.loads(path.read_text())
+                if broken == 'missing': report.pop('full_session')
+                if broken == 'root': report['full_session']['uid'] = 0
+                if broken == 'panel': report['full_session']['xfce4-panel'] = False
+                if broken == 'version-only': report['full_session']['x11_window_manager'] = ''
+                if broken == 'samples-type': report['full_session']['stable_samples'] = '5'
+                if broken == 'browser': report['full_session'].pop('browser')
+                path.write_text(json.dumps(report))
+                with self.assertRaisesRegex(ValueError, 'oturum|NetSurf'):
+                    verify.validate(root, 'armhf')
 
     def test_export_rechecks_catalog_and_never_imports_the_images_python_module(self):
         with tempfile.TemporaryDirectory() as directory:

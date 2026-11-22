@@ -52,6 +52,10 @@ def packages_for(arch='armhf') -> list[str]:
     for name in ("common", "raspberrypi"):
         for line in (ROOT / "packages" / (name + ".list")).read_text().splitlines():
             package = line.partition("#")[0].strip()
+            # ARMv6 uyumlu ortak armhf imajında zorunlu ağır web motoru yok.
+            # NetSurf aynı web özelliğini temel / JavaScript'siz kapsamda sağlar.
+            if arch == 'armhf' and package in ('firefox-esr', 'firefox-esr-l10n-tr'):
+                continue
             if package and package not in packages:
                 packages.append(package)
     if arch == 'arm64':
@@ -82,6 +86,7 @@ def configure(arch: str, output: Path) -> None:
     documentation = overlay / "usr/share/doc/oguzdows"
     documentation.mkdir(parents=True, exist_ok=True)
     shutil.copy2(ROOT / "docs/MASAUSTU-VE-BAKIM.md", documentation / "masaustu-ve-bakim.md")
+    shutil.copy2(ROOT / "docs/PI-ZERO-OTURUM.md", documentation / "PI-ZERO-OTURUM.md")
     shutil.copy2(ROOT / "docs/CIHAZLAR-VE-UYUMLULUK.md", documentation / "cihazlar-ve-uyumluluk.md")
     shutil.copy2(ROOT / "scripts/render-assets.py", overlay / "usr/lib/oguzdows/render-assets.py")
     shutil.copytree(ROOT / 'native', overlay / 'usr/share/oguzdows/native')
@@ -101,6 +106,10 @@ def configure(arch: str, output: Path) -> None:
     write(overlay / "usr/share/oguzdows/pi-gen.lock.json", json.dumps(LOCK, indent=2) + "\n")
     # Her sürümde tüm ortak paketler / ürün varlıkları için hedef mimari kapısı.
     contract = json.loads((ROOT / 'raspberrypi/feature-contract.json').read_text())
+    if arch == 'armhf':
+        contract['features']['web-office-media']['packages'] = [
+            package for package in contract['features']['web-office-media']['packages']
+            if package not in ('firefox-esr', 'firefox-esr-l10n-tr')]
     contract.update(arch=arch, suite=LOCK['suite'], required_packages=packages_for(arch),
                     source_revision=info['source_revision'], pi_gen_commit=info['pi_gen_commit'])
     contract['asset_hashes'] = {
@@ -112,6 +121,7 @@ def configure(arch: str, output: Path) -> None:
     write(overlay / 'usr/share/oguzdows/pi-contract.json', json.dumps(contract, ensure_ascii=False, indent=2) + '\n')
     shutil.copy2(ROOT / 'scripts/pi-runtime-smoke.py', stage / '00-desktop/files/pi-runtime-smoke.py')
     shutil.copy2(ROOT / 'scripts/pi_contract.py', stage / '00-desktop/files/pi_contract.py')
+    shutil.copy2(ROOT / 'scripts/pi_session_smoke.py', stage / '00-desktop/files/pi_session_smoke.py')
     # Sadece güvenli tarayıcı varsayılanları; sandbox/çoklu süreç izolasyonu kapatılmaz.
     policy_path = overlay / "usr/lib/firefox-esr/distribution/policies.json"
     policies = json.loads(policy_path.read_text())

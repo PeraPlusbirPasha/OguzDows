@@ -18,7 +18,7 @@ geldi; ISO baytlarının bu sandbox'ta indirildiği iddia edilmez. Eski arşivin
 Dış gzip/xz/zstd seçimi arşivin açılmış dosya boyutunu azaltmaz. Genel Plymouth
 GPU firmware'inin **yalnızca initramfs kopyasını**, çekirdeğin istek anında
 çözebildiği `.xz` biçiminde tutmak erken rootfs yükünü azaltmayı hedefler.
-Gerçek etki yeni envanter ve 512/1024 MiB boot kapısıyla doğrulanmalıdır.
+Gerçek etki aşağıdaki yeni envanter ve 512/1024 MiB boot kapısıyla doğrulandı; sonuç yalnızca o kaynak içindir.
 
 ## Korunanlar ve güvenlik sınırı
 
@@ -81,3 +81,19 @@ Eski işler iptal / yeniden başlatma almaz; v1.0.0 değişmez.
   ve [yükleyici](https://github.com/torvalds/linux/blob/v6.12/drivers/base/firmware_loader/main.c):
   `.xz` fallback, CRC32 gereği, istek anında sayfalı açma. Referans sürümdür;
   kullanılan gerçek çekirdeğin config'i ayrıca her derlemede denetlenir.
+
+## Tamamlanan yeni imaj sonucu · `440cf74`
+
+[45069328093](https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/45069328093)
+**başarılı tamamlandı**. amd64 ve i386 ISO'larının gerçek hedef OS / tam Xfce
+512 ve 1024 MiB kapıları geçti. amd64: 512/1024/2048 MiB medyan **269,7 /
+454,9 / 479,2 MB**; i386 **197,5 / 417,8 / 494,7 MB** (decimal MB, boşta VM).
+Bu bir fiziksel Pi veya açık uygulama performans ölçümü değildir.
+
+Gerçek amd64 initrd: **152.275.913 bayt**, SHA-256
+`fb124fe64ddfdac00d88e8326d665a65c3b72db28aa5edf76524c83bd3fe7b52`.
+**710 payload dönüştürüldü ve doğrulandı; 211 alias korundu; açılmış dosya
+verisinde 93.426.608 bayt azalma** kaydedildi. Kurulu firmware / sürücü ve ürün
+özellikleri çıkarılmadı. [Tam kayıt](../docs/releases/v1.1-development-images.json).
+Bu sonuç `440cf74` kaynağına aittir; sonraki Pi oturum / yeni görünüm değişiklikleri
+bu imajlarda varmış gibi gösterilmez. Önceki çalışmalar tekrar başlatılmadı.

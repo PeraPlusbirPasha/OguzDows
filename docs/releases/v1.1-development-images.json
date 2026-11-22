@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
-  "scope": "development-completed-image-outcomes-and-pc-early-boot-investigation",
-  "source_revision": "3833b71f603ede8f5e5f3c63d254aae238726158",
+  "scope": "completed-development-image-outcomes-plus-unverified-Pi-Zero-login-followup",
+  "source_revision": "440cf743ccde4c76d79a5d87d8530cd0c1229552",
   "origin": "Actions run/check-runs annotations API; prior target report sizes relayed by read-only download-artifact diagnostic on runner",
   "not_a_release": true,
   "local_iso_or_img_bytes_downloaded": false,
@@ -161,7 +161,8 @@
       "amd64_512_mib_same_panic": true,
       "i386_job_id": 137280568635,
       "i386_conclusion": "success"
-    }
+    },
+    "source_revision": "3833b71f603ede8f5e5f3c63d254aae238726158"
   },
   "raspberrypi": {
     "run_id": 45047558638,
@@ -272,14 +273,15 @@
       "ARM QEMU user / host Xvfb is not full system or physical boot.",
       "No GPU / audio / camera / SD / 512 MiB physical performance measured.",
       "Successful armhf image did not deliberately recreate the historical identical mirror outage."
-    ]
+    ],
+    "source_revision": "3833b71f603ede8f5e5f3c63d254aae238726158"
   },
   "pc_repair_followup": {
     "source_revision": "440cf743ccde4c76d79a5d87d8530cd0c1229552",
     "run_id": 45069328093,
     "url": "https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/45069328093",
-    "image_result_recorded": false,
-    "successful_512_mib_repair_claimed": false,
+    "image_result_recorded": true,
+    "successful_512_mib_repair_claimed": true,
     "scope": "amd64 PC-only initramfs GPU firmware XZ/CRC32 compression with actual kernel capability check, payload hashes and logical aliases preserved",
     "unchanged": [
       "MODULES=most default",
@@ -342,11 +344,219 @@
     "image_jobs": [
       {
         "job_id": 137353565343,
-        "name": "ISO · amd64"
+        "name": "ISO · amd64",
+        "arch": "amd64",
+        "conclusion": "success",
+        "idle_vm_results": [
+          {
+            "valid_idle_measurement": true,
+            "median_used_mb": 269.7,
+            "max_used_mb": 269.8,
+            "target_met": true,
+            "invalid_reasons": [],
+            "vm_ram_mib": 512,
+            "low_ram_budget": {
+              "passed": true,
+              "minimum_available_bytes": 48636314,
+              "observed_min_available_bytes": 216559616,
+              "policy": "Geçerli tam Xfce boşta ölçümü + en çok 600 MB kullanım + en az max(32 MiB, MemTotal / 10) kullanılabilir RAM; aktif uygulama gecikmesi garantisi değil.",
+              "fail_reasons": []
+            }
+          },
+          {
+            "valid_idle_measurement": true,
+            "median_used_mb": 454.9,
+            "max_used_mb": 454.9,
+            "target_met": true,
+            "invalid_reasons": [],
+            "vm_ram_mib": 1024,
+            "low_ram_budget": {
+              "passed": true,
+              "minimum_available_bytes": 101405901,
+              "observed_min_available_bytes": 559144960,
+              "policy": "Geçerli tam Xfce boşta ölçümü + en çok 600 MB kullanım + en az max(32 MiB, MemTotal / 10) kullanılabilir RAM; aktif uygulama gecikmesi garantisi değil.",
+              "fail_reasons": []
+            }
+          },
+          {
+            "valid_idle_measurement": true,
+            "median_used_mb": 479.2,
+            "max_used_mb": 479.2,
+            "target_met": true,
+            "invalid_reasons": [],
+            "vm_ram_mib": 2048
+          }
+        ],
+        "initramfs_inventory": {
+          "extraction_layout": "split",
+          "regular_file_bytes": 220877674,
+          "regular_file_count": 2229,
+          "category_bytes": {
+            "firmware": 114321451,
+            "modules": 38920918,
+            "other": 67635305
+          },
+          "largest_files": [
+            {
+              "path": "main/usr/lib/firmware/nvidia/ga102/gsp/gsp-535.113.01.bin.xz",
+              "bytes": 25781424
+            },
+            {
+              "path": "early2/kernel/x86/microcode/GenuineIntel.bin",
+              "bytes": 15105024
+            },
+            {
+              "path": "main/usr/lib/udev/hwdb.bin",
+              "bytes": 13936393
+            },
+            {
+              "path": "main/usr/lib/firmware/nvidia/tu102/gsp/gsp-535.113.01.bin.xz",
+              "bytes": 12693164
+            },
+            {
+              "path": "main/usr/lib/x86_64-linux-gnu/libcrypto.so.3",
+              "bytes": 6525504
+            },
+            {
+              "path": "main/usr/lib/x86_64-linux-gnu/systemd/libsystemd-shared-257.so",
+              "bytes": 4451744
+            },
+            {
+              "path": "main/usr/lib/modules/6.12.118+deb13-amd64/kernel/drivers/gpu/drm/amd/amdgpu/amdgpu.ko.xz",
+              "bytes": 4112724
+            },
+            {
+              "path": "main/usr/lib/firmware/netronome/nic/nic_AMDA0097-0001_8x10.nffw",
+              "bytes": 3449264
+            }
+          ],
+          "firmware": [
+            {
+              "schema": 1,
+              "kernel_version": "6.12.118+deb13-amd64",
+              "scope": "initramfs-only-gpu-firmware",
+              "codec": "xz-crc32-lzma2-dict-1MiB",
+              "graphics_directories": [
+                "amdgpu",
+                "i915",
+                "nvidia",
+                "radeon",
+                "xe"
+              ],
+              "kernel_support_verified": true,
+              "renamed_aliases": 211,
+              "saved_unpacked_bytes": 93426608,
+              "kernel_config_sha256": "44f881c8f540989198cd88dd441f47e904cd696d0d4bac0d2e170fa0fc2a2241",
+              "firmware_regular_bytes_before": 207748059,
+              "firmware_regular_files_before": 1040,
+              "firmware_regular_bytes_after": 114321451,
+              "converted_files": 710,
+              "payloads_verified": 710,
+              "manifest_sha256": "e636730ce9003d6d042bbf73f39a240513a02b559de109f4bea6a4ec733894e1"
+            }
+          ],
+          "archive_sha256": "fb124fe64ddfdac00d88e8326d665a65c3b72db28aa5edf76524c83bd3fe7b52",
+          "archive_bytes": 152275913,
+          "archive": "initrd.img-6.12.118+deb13-amd64",
+          "size_limit_note": "Dosya verisi; erken açılış RAM toplamı değildir. Gerçek VM / donanım açılışı ayrıca gerekli."
+        },
+        "evidence_url": "https://api.github.com/repos/PeraPlusbirPasha/OguzDows/check-runs/137353565343/annotations?per_page=100"
       },
       {
         "job_id": 137353565407,
-        "name": "ISO · i386"
+        "name": "ISO · i386",
+        "arch": "i386",
+        "conclusion": "success",
+        "idle_vm_results": [
+          {
+            "valid_idle_measurement": true,
+            "median_used_mb": 197.5,
+            "max_used_mb": 197.5,
+            "target_met": true,
+            "invalid_reasons": [],
+            "vm_ram_mib": 512,
+            "low_ram_budget": {
+              "passed": true,
+              "minimum_available_bytes": 51474842,
+              "observed_min_available_bytes": 317218816,
+              "policy": "Geçerli tam Xfce boşta ölçümü + en çok 600 MB kullanım + en az max(32 MiB, MemTotal / 10) kullanılabilir RAM; aktif uygulama gecikmesi garantisi değil.",
+              "fail_reasons": []
+            }
+          },
+          {
+            "valid_idle_measurement": true,
+            "median_used_mb": 417.8,
+            "max_used_mb": 419.7,
+            "target_met": true,
+            "invalid_reasons": [],
+            "vm_ram_mib": 1024,
+            "low_ram_budget": {
+              "passed": true,
+              "minimum_available_bytes": 104539341,
+              "observed_min_available_bytes": 625741824,
+              "policy": "Geçerli tam Xfce boşta ölçümü + en çok 600 MB kullanım + en az max(32 MiB, MemTotal / 10) kullanılabilir RAM; aktif uygulama gecikmesi garantisi değil.",
+              "fail_reasons": []
+            }
+          },
+          {
+            "valid_idle_measurement": true,
+            "median_used_mb": 494.7,
+            "max_used_mb": 496.8,
+            "target_met": true,
+            "invalid_reasons": [],
+            "vm_ram_mib": 2048
+          }
+        ],
+        "initramfs_inventory": {
+          "extraction_layout": "split",
+          "regular_file_bytes": 247850126,
+          "regular_file_count": 2155,
+          "category_bytes": {
+            "firmware": 126322209,
+            "modules": 73976661,
+            "other": 47551256
+          },
+          "largest_files": [
+            {
+              "path": "early2/kernel/x86/microcode/GenuineIntel.bin",
+              "bytes": 15005696
+            },
+            {
+              "path": "main/usr/lib/modules/6.1.0-56-686-pae/kernel/drivers/gpu/drm/amd/amdgpu/amdgpu.ko",
+              "bytes": 9042541
+            },
+            {
+              "path": "main/usr/lib/i386-linux-gnu/libcrypto.so.3",
+              "bytes": 4527996
+            },
+            {
+              "path": "main/usr/lib/firmware/netronome/nic/nic_AMDA0097-0001_8x10.nffw",
+              "bytes": 3449264
+            },
+            {
+              "path": "main/usr/lib/firmware/netronome/nic/nic_AMDA0097-0001_4x10_1x40.nffw",
+              "bytes": 3335048
+            },
+            {
+              "path": "main/usr/lib/firmware/netronome/nic/nic_AMDA0081-0001_4x10.nffw",
+              "bytes": 3297408
+            },
+            {
+              "path": "main/usr/lib/firmware/netronome/nic/nic_AMDA0099-0001_2x25.nffw",
+              "bytes": 3222648
+            },
+            {
+              "path": "main/usr/lib/firmware/netronome/nic/nic_AMDA0097-0001_2x40.nffw",
+              "bytes": 3221944
+            }
+          ],
+          "firmware": [],
+          "archive_sha256": "0c64e8b9947f264bd76042664bb6effc4b6d817829dbdb2d894641023c62533d",
+          "archive_bytes": 97195280,
+          "archive": "initrd.img-6.1.0-56-686-pae",
+          "size_limit_note": "Dosya verisi; erken açılış RAM toplamı değildir. Gerçek VM / donanım açılışı ayrıca gerekli."
+        },
+        "evidence_url": "https://api.github.com/repos/PeraPlusbirPasha/OguzDows/check-runs/137353565407/annotations?per_page=100"
       }
     ],
     "pull_request_host_runs": [
@@ -361,6 +571,20 @@
         "conclusion": "success",
         "physical_or_image_boot": false
       }
-    ]
+    ],
+    "conclusion": "success",
+    "physical_hardware_verified": false
+  },
+  "prior_source_revision": "3833b71f603ede8f5e5f3c63d254aae238726158",
+  "pi_zero_followup": {
+    "device": "Pi Zero / Zero W first-generation ARMv6",
+    "image_arch": "armhf",
+    "user_report": "account creation/login screen appears, then black",
+    "root_cause_confirmed": false,
+    "physical_fix_verified": false,
+    "source_state": "new working-branch changes, not included in 440cf74 images",
+    "new_gate": "non-root complete Xfce session with host Xvfb and target QEMU minimum CPU, plus local NetSurf startup on armhf; not LightDM/PAM/full-system or physical GPU proof",
+    "browser": "NetSurf only mandatory on armhf; Firefox/language package no longer required",
+    "ram_delta_measured": false
   }
 }

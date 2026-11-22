@@ -47,7 +47,7 @@ def verify_pardus(execute):
 
 def main():
     args = sys.argv[1:]
-    valid = (args in (['refresh'], ['drivers'], ['pardus-enable'], ['pardus-disable'])
+    valid = (args in (['refresh'], ['desktop-refresh'], ['drivers'], ['pardus-enable'], ['pardus-disable'])
              or len(args) == 2 and args[0] == 'plan'
              or len(args) == 3 and args[0] == 'apply')
     if not valid or os.geteuid() != 0:
@@ -57,7 +57,14 @@ def main():
     lists_descriptor = None
     try:
         app_request = args[0] in ('plan', 'apply') and args[1].startswith('app:')
-        info = core.build_store_info() if app_request else core.build_info()
+        desktop_request = (args[0] == 'desktop-refresh'
+                           or args[0] in ('plan', 'apply') and args[1].startswith('desktop:'))
+        info = (core.build_desktop_info() if desktop_request else
+                core.build_store_info() if app_request else core.build_info())
+        if desktop_request:
+            from resource_policy import current_policy
+            resources = current_policy()
+            core.desktop_resources(resources['memory_kib'], resources['legacy_cpu'])
         architecture = subprocess.check_output(['/usr/bin/dpkg', '--print-architecture'], env=core.ENV, text=True).strip()
         if architecture != info['arch']:
             raise core.MaintenanceError('Çalışan mimari ile imaj kimliği eşleşmiyor; paketler değiştirilmedi.')
@@ -90,7 +97,7 @@ def main():
                     raise core.MaintenanceError('Paket işlemi tamamlanamadı. Başka paket yöneticisi açıksa bitmesini bekleyin.\n'
                                                 + result.stdout[-4500:] + '\nGünlük: /var/log/oguzdows/updater.log')
                 return result.stdout
-            if args[0] == 'refresh':
+            if args[0] in ('refresh', 'desktop-refresh'):
                 execute([*core.APT, 'update'])
                 result = {'message': 'İmzalı paket listeleri yenilendi. Şimdi planı görüntüleyin.'}
             elif args[0] == 'drivers':

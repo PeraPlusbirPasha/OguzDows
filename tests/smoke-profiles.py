@@ -144,6 +144,10 @@ def main():
             if identifier == 'gnome':
                 return (len(horizontal) == 1 and horizontal[0]['y'] <= 3
                         and any(item['x'] <= 3 and item['height'] > item['width'] for item in windows))
+            if identifier == 'windows11':
+                return (len(horizontal) == 1 and horizontal[0]['width'] < screen_width * .9
+                        and abs(horizontal[0]['x'] + horizontal[0]['width'] / 2 - screen_width / 2) <= 4
+                        and horizontal[0]['y'] >= screen_height - horizontal[0]['height'] - 3)
             return len(horizontal) == 1
 
         def capture(identifier, suffix=''):
@@ -210,7 +214,7 @@ def main():
             profiles.set_appearance('dark')
             capture('mac', '-dark')
             profiles.set_appearance('light')
-            for identifier in ('gnome', 'oguzdows', 'kde', 'xfce'):
+            for identifier in ('gnome', 'oguzdows', 'kde', 'xfce', 'windows11'):
                 profiles.apply(identifier)
                 profiles.reload_panels()  # Yalnızca bu testin özel veri yolu.
                 capture(identifier)

@@ -23,8 +23,8 @@ memory = load('memory_probe_test', 'system/usr/lib/oguzdows/memory_probe.py')
 
 
 class ProfileTests(unittest.TestCase):
-    def test_five_profiles_only_change_appearance_and_never_reenable_effects(self):
-        self.assertEqual(set(profiles.PROFILES), {'oguzdows', 'kde', 'gnome', 'xfce', 'mac'})
+    def test_six_profiles_only_change_appearance_and_never_reenable_effects(self):
+        self.assertEqual(set(profiles.PROFILES), {'oguzdows', 'kde', 'gnome', 'xfce', 'mac', 'windows11'})
         for name in profiles.PROFILES:
             values = {(channel, path): value for channel, path, _kind, value in profiles.settings(name)}
             self.assertEqual(values['xfce4-panel', '/panels/panel-1/enter-opacity'], '100')

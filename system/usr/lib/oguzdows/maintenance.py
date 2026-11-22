@@ -63,6 +63,20 @@ def build_info(path=Path('/usr/share/oguzdows/build-info.json')):
     return data
 
 
+def build_desktop_info(path=Path('/usr/share/oguzdows/build-info.json')):
+    """Sadece sabit desktop: demetleri için ayrı PC / ARM64 sözleşmesi."""
+    data = build_store_info(path)
+    if data['arch'] not in ('amd64', 'arm64'):
+        raise MaintenanceError('Gerçek Plasma / GNOME amd64 veya ARM64 gerektirir; Zero / armhf için hafif Xfce düzenleri korunur.')
+    return data
+
+
+def desktop_resources(memory_kib, legacy=False):
+    # MemTotal, 2 GiB kartta ayrılan GPU / firmware belleğinden daha küçüktür.
+    if legacy or memory_kib < 1792000:
+        raise MaintenanceError('Gerçek Plasma / GNOME için en az 2 GiB sınıfı cihaz gerekir; 4 GiB ve çalışan 3B sürücü önerilir. 512 MiB / 1 GiB ve Zero için hafif düzeni seçin.')
+
+
 def build_store_info(path=Path('/usr/share/oguzdows/build-info.json')):
     """Yalnızca sabit mağaza app: istekleri için ayrı ARM tabanı sözleşmesi.
 
@@ -117,9 +131,15 @@ def request_packages(request, info, suggestions=None):
         except ValueError as error:
             raise MaintenanceError(str(error)) from error
     if request.startswith('desktop:') and request[8:] in DESKTOPS:
-        if info['arch'] != 'amd64':
-            raise MaintenanceError('Gerçek KDE/GNOME kurulumu bu sürümde yalnızca amd64 için sunulur.')
-        return list(DESKTOPS[request[8:]])
+        if info['arch'] not in ('amd64', 'arm64'):
+            raise MaintenanceError('Gerçek KDE/GNOME için amd64 veya ARM64 gerekir; armhf / Zero için Xfce düzenleri kullanılır.')
+        packages = list(DESKTOPS[request[8:]])
+        if info['suite'] == 'bookworm':
+            # GNOME 43 X11 dosyası gnome-session içindedir; ayrı paket yeni tabandadır.
+            packages = [name for name in packages if name != 'gnome-session-xsession']
+        elif request == 'desktop:kde':
+            packages.append('plasma-workspace-x11')
+        return packages
     if request.startswith('driver:'):
         choice = request[7:]
         found = driver_suggestions(suite=info['suite']) if suggestions is None else suggestions
@@ -171,7 +191,7 @@ def verify_origins(changes, cache, request, info):
         debian = any(origin.origin == 'Debian' and origin.codename in allowed_suites for origin in trusted)
         # Pi uygulamaları kendi imzası doğrulanmış mevcut pi-gen kaynaklarını
         # kullanır. Başka dağıtım kaynağı eklenmez; PC kuralı değişmez.
-        pi = (info.get('platform') == 'raspberrypi' and request.startswith('app:')
+        pi = (info.get('platform') == 'raspberrypi' and request.startswith(('app:', 'desktop:'))
               and info['suite'] == 'bookworm' and info['arch'] in ('armhf', 'arm64')
               and any(origin.origin in ('Raspbian', 'Raspberry Pi Foundation')
                       and origin.codename in allowed_suites for origin in trusted))
