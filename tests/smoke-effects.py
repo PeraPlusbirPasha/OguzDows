@@ -38,7 +38,7 @@ def child(directory):
     window = None
     with (directory / 'effects.log').open('w') as log:
         try:
-            wm = subprocess.Popen(['/usr/bin/xfwm4', '--compositor=off'], stdout=log, stderr=subprocess.STDOUT, start_new_session=True)
+            wm = subprocess.Popen(['/usr/bin/xfwm4', '--compositor=on', '--vblank=off'], stdout=log, stderr=subprocess.STDOUT, start_new_session=True)
             time.sleep(1)
             assert wm.poll() is None
             first = effects.reconcile('aero', full)

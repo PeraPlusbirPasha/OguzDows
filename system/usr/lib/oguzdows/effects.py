@@ -142,6 +142,24 @@ def wait_owner(x11, expected, seconds=2):
         time.sleep(.04)
 
 
+def apply_xfwm(x11, enabled):
+    xfwm(enabled)
+    if not enabled:
+        return 'none'
+    # xfconf yazısının kabulü tek başına çalışan kompozitör kanıtı değildir.
+    # Örn. kullanıcı xfwm4 --compositor=off ile başlatmış olabilir.
+    owner = wait_owner(x11, None)
+    return 'xfwm4' if owner and owner == x11.wm_owner() else 'external' if owner else 'none'
+
+
+def release_owned(directory, current, x11):
+    stop_owned(directory)
+    # /proc'ta çocuk zombi olmuş olsa bile X sunucusu CM seçimini bir sonraki
+    # turda bırakabilir. Kendi kimliğimizi yabancı motor sanıp camı atlama.
+    if current and x11.owner() == current['owner']:
+        wait_owner(x11, 0)
+
+
 def spawn(directory):
     # posix_spawn: uzun yaşayan tek süreç Picom'dur; Popen / Python daemon yok.
     # Sabit sistem config'i; ~/.config/picom.conf veya shell metni çalıştırılmaz.
@@ -188,7 +206,7 @@ def reconcile(effect=None, resources=None, *, directory=None, connect=X11):
         try:
             current = owned_state(directory)
             if effect != 'aero' or not budget:
-                stop_owned(directory)
+                release_owned(directory, current, x11)
                 owner = x11.owner()
                 if owner and owner != x11.wm_owner():
                     result = {'engine': 'external', 'transitions': False,
@@ -197,13 +215,13 @@ def reconcile(effect=None, resources=None, *, directory=None, connect=X11):
                     # Zaten xfwm'a ait seçim varsa camı KAPATIP açma. Aynı
                     # tercih tekrarlanabilir; dış kompozitöre dokunulmaz.
                     enabled = budget and effect == 'glass'
-                    xfwm(enabled)
-                    result = {'engine': 'xfwm4' if enabled else 'none', 'transitions': False,
-                              'message': 'Hafif cam; pencere geçişleri kapalı.' if enabled else 'Opak / statik görünüm; düşük kaynak koruması önceliklidir.'}
+                    engine = apply_xfwm(x11, enabled)
+                    result = {'engine': engine, 'transitions': False,
+                              'message': 'Hafif cam; pencere geçişleri kapalı.' if engine == 'xfwm4' else 'Opak / statik görünüm; düşük kaynak koruması veya kompozitör kullanılabilirliği önceliklidir.'}
             elif current and x11.owner() == current['owner']:
                 result = {'engine': 'picom', 'transitions': True, 'message': 'Kısa pencere geçişleri ve hafif gölge açık; metin / üst panel opak.'}
             else:
-                stop_owned(directory)
+                release_owned(directory, current, x11)
                 owner = x11.owner()
                 external = bool(owner and owner != x11.wm_owner())
                 if not external:
@@ -236,10 +254,8 @@ def reconcile(effect=None, resources=None, *, directory=None, connect=X11):
                         result = {'engine': 'picom', 'transitions': True,
                                   'message': 'Kısa açma / kapama geçişleri ve hafif gölge açık; blur / sürekli animasyon yok.'}
                     else:
-                        available = x11.owner() == 0
-                        if available:
-                            xfwm(True)
-                        result = {'engine': 'xfwm4' if available else 'external', 'transitions': False,
+                        engine = apply_xfwm(x11, True) if x11.owner() == 0 else 'external'
+                        result = {'engine': engine, 'transitions': False,
                                   'message': 'Geçiş motoru açılamadı; statik Aero / uygun olduğunda xfwm gölgesi korundu. Efekt günlüğünü inceleyebilirsin.'}
             atomic_text(directory / 'status.json', json.dumps({**result, 'physical_gpu_verified': False}, ensure_ascii=False) + '\n')
             return result

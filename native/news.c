@@ -450,8 +450,10 @@ static gboolean smoke(gpointer data) {
     for (guint i = 0; i < 40; i++) larger(NULL, NULL);
     g_assert_cmpint(points, ==, 26);
     gchar *path = g_build_filename(smoke_directory, "news-native.json", NULL);
-    g_file_set_contents(path, "{\"native_gtk\":true,\"fixture_not_network\":true,\"cold_start_fetch\":false,\"offline_after_error\":true,\"font_limits\":true,\"worker_exited\":true,\"cancellation\":true,\"deadline_callback\":true,\"physical_device\":false}\n", -1, NULL);
-    g_free(path); gtk_widget_destroy(window); g_application_quit(G_APPLICATION(application)); return G_SOURCE_REMOVE;
+    gchar *receipt = g_strdup_printf("{\"native_gtk\":true,\"fixture_not_network\":true,\"cold_start_fetch\":false,\"offline_after_error\":true,\"font_limits\":true,\"worker_exited\":true,\"cancellation\":true,\"deadline_callback\":true,\"physical_device\":false,\"screen_width\":%d,\"screen_height\":%d,\"window_width\":%d}", area.width, area.height, gtk_widget_get_allocated_width(window));
+    g_assert_true(g_file_set_contents(path, receipt, -1, NULL));
+    g_print("::notice title=C Haber GTK::%s\n", receipt);
+    g_free(receipt); g_free(path); gtk_widget_destroy(window); g_application_quit(G_APPLICATION(application)); return G_SOURCE_REMOVE;
 }
 #endif
 

@@ -52,8 +52,8 @@ class EffectTests(unittest.TestCase):
 
     def test_existing_owned_engine_is_reused_and_failure_falls_back_without_a_restart_loop(self):
         for current in ({'pid': 12345, 'started': '123', 'owner': 77}, None):
-            with self.subTest(current=current), tempfile.TemporaryDirectory() as temporary, patch.dict(os.environ, {'DISPLAY': ':999', 'XDG_CURRENT_DESKTOP': 'XFCE', 'XDG_SESSION_TYPE': 'x11'}), patch.object(effects.os, 'getuid', return_value=1000), patch.object(effects, 'owned_state', return_value=current), patch.object(effects, 'stop_owned') as stop, patch.object(effects, 'xfwm') as xfwm, patch.object(effects, 'wait_owner', return_value=0), patch.object(effects.Path, 'is_file', return_value=True), patch.object(effects.os, 'access', return_value=True), patch.object(effects, 'spawn', side_effect=OSError('Unavailable')) as spawn:
-                x11 = Mock(owner=Mock(return_value=77 if current else 0))
+            with self.subTest(current=current), tempfile.TemporaryDirectory() as temporary, patch.dict(os.environ, {'DISPLAY': ':999', 'XDG_CURRENT_DESKTOP': 'XFCE', 'XDG_SESSION_TYPE': 'x11'}), patch.object(effects.os, 'getuid', return_value=1000), patch.object(effects, 'owned_state', return_value=current), patch.object(effects, 'stop_owned') as stop, patch.object(effects, 'xfwm') as xfwm, patch.object(effects, 'wait_owner', side_effect=[0, 77]), patch.object(effects.Path, 'is_file', return_value=True), patch.object(effects.os, 'access', return_value=True), patch.object(effects, 'spawn', side_effect=OSError('Unavailable')) as spawn:
+                x11 = Mock(owner=Mock(return_value=77 if current else 0), wm_owner=Mock(return_value=77))
                 result = effects.reconcile('aero', policy.policy(8388608), directory=Path(temporary), connect=lambda: x11)
                 if current:
                     self.assertTrue(result['transitions']); spawn.assert_not_called(); stop.assert_not_called(); xfwm.assert_not_called()
@@ -64,7 +64,7 @@ class EffectTests(unittest.TestCase):
 
     def test_glass_reuses_xfwm_selection_instead_of_switching_it_off(self):
         for owner, requested, expected in ((0, 'glass', True), (77, 'glass', True), (77, 'off', False)):
-            with self.subTest(owner=owner, requested=requested), tempfile.TemporaryDirectory() as temporary, patch.dict(os.environ, {'DISPLAY': ':999', 'XDG_CURRENT_DESKTOP': 'XFCE', 'XDG_SESSION_TYPE': 'x11'}), patch.object(effects.os, 'getuid', return_value=1000), patch.object(effects, 'stop_owned'), patch.object(effects, 'xfwm') as xfwm, patch.object(effects, 'spawn') as spawn:
+            with self.subTest(owner=owner, requested=requested), tempfile.TemporaryDirectory() as temporary, patch.dict(os.environ, {'DISPLAY': ':999', 'XDG_CURRENT_DESKTOP': 'XFCE', 'XDG_SESSION_TYPE': 'x11'}), patch.object(effects.os, 'getuid', return_value=1000), patch.object(effects, 'stop_owned'), patch.object(effects, 'xfwm') as xfwm, patch.object(effects, 'spawn') as spawn, patch.object(effects, 'wait_owner', return_value=77):
                 x11 = Mock(owner=Mock(return_value=owner), wm_owner=Mock(return_value=77))
                 result = effects.reconcile(requested, policy.policy(8388608), directory=Path(temporary), connect=lambda: x11)
                 self.assertEqual(result['engine'], 'xfwm4' if expected else 'none')
@@ -77,6 +77,16 @@ class EffectTests(unittest.TestCase):
                 result = effects.reconcile(requested, policy.policy(524288), directory=Path(temporary), connect=lambda: x11)
                 self.assertEqual(result['engine'], 'external')
                 self.assertFalse(result['transitions']); xfwm.assert_not_called(); spawn.assert_not_called()
+
+    def test_xfconf_acceptance_is_not_claimed_as_an_active_compositor(self):
+        with patch.object(effects, 'xfwm') as xfwm, patch.object(effects, 'wait_owner', return_value=0):
+            x11 = Mock(owner=Mock(return_value=0), wm_owner=Mock(return_value=77))
+            self.assertEqual(effects.apply_xfwm(x11, True), 'none')
+            xfwm.assert_called_once_with(True)
+        with tempfile.TemporaryDirectory() as temporary, patch.object(effects, 'stop_owned') as stop, patch.object(effects, 'wait_owner', return_value=0) as wait:
+            x11 = Mock(owner=Mock(return_value=42))
+            effects.release_owned(Path(temporary), {'owner': 42}, x11)
+            stop.assert_called_once(); wait.assert_called_once_with(x11, 0)
 
     def test_no_saved_user_choice_leaves_a_personal_compositor_unchanged(self):
         with patch.object(effects, 'read_state', return_value=''), patch.object(effects, 'state_directory') as directory, patch.object(effects, 'xfwm') as xfwm:
