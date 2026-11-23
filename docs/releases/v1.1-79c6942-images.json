@@ -1,0 +1,418 @@
+{
+  "schema_version": 1,
+  "scope": "completed-79c6942-development-images-before-elementary-news-icon-changes",
+  "source_revision": "79c694280296097ef0c90e6439bacd5a0a681af4",
+  "origin": "GitHub Actions run, jobs, check annotations and artifacts metadata APIs; not independently downloaded image bytes",
+  "not_a_release": true,
+  "image_bytes_independently_downloaded": false,
+  "physical_hardware_verified": false,
+  "new_news_icons_transitions_included": false,
+  "real_kde_or_gnome_login_verified": false,
+  "manual_dispatches_per_target": 1,
+  "runs_cancelled_or_restarted": false,
+  "pc": {
+    "run_id": 45084956906,
+    "url": "https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/45084956906",
+    "conclusion": "success",
+    "artifacts": [
+      {
+        "id": 14779932308,
+        "name": "OguzDows-i386",
+        "size_in_bytes": 1453916532,
+        "digest": "sha256:9d016c0c8770e310aa25f65c302e8bf636387be3422ca7756c049372e28b062c",
+        "expired": false
+      },
+      {
+        "id": 14779922000,
+        "name": "OguzDows-amd64",
+        "size_in_bytes": 1773175161,
+        "digest": "sha256:4aa269fea8517d2b730a03558f6d2850eb3cc748ade0c4696c5928c61632e802",
+        "expired": false
+      }
+    ],
+    "artifact_digest_scope": "GitHub ZIP artifact metadata digest, not the inner ISO/IMG hash",
+    "architectures": {
+      "amd64": {
+        "job_id": 137402276349,
+        "conclusion": "success",
+        "boot_modes": [
+          "bios",
+          "efi"
+        ],
+        "gui_installation_tested": false,
+        "encrypted_root_tested": false,
+        "physical_boot_verified": false,
+        "source_dirty": null,
+        "idle_vm_results": [
+          {
+            "valid_idle_measurement": true,
+            "median_used_mb": 277.4,
+            "max_used_mb": 277.4,
+            "target_met": true,
+            "invalid_reasons": [],
+            "vm_ram_mib": 512,
+            "low_ram_budget": {
+              "passed": true,
+              "minimum_available_bytes": 48636314,
+              "observed_min_available_bytes": 208941056,
+              "policy": "Geçerli tam Xfce boşta ölçümü + en çok 600 MB kullanım + en az max(32 MiB, MemTotal / 10) kullanılabilir RAM; aktif uygulama gecikmesi garantisi değil.",
+              "fail_reasons": []
+            }
+          },
+          {
+            "valid_idle_measurement": true,
+            "median_used_mb": 447.5,
+            "max_used_mb": 447.5,
+            "target_met": true,
+            "invalid_reasons": [],
+            "vm_ram_mib": 1024,
+            "low_ram_budget": {
+              "passed": true,
+              "minimum_available_bytes": 101405901,
+              "observed_min_available_bytes": 566587392,
+              "policy": "Geçerli tam Xfce boşta ölçümü + en çok 600 MB kullanım + en az max(32 MiB, MemTotal / 10) kullanılabilir RAM; aktif uygulama gecikmesi garantisi değil.",
+              "fail_reasons": []
+            }
+          },
+          {
+            "valid_idle_measurement": true,
+            "median_used_mb": 476.0,
+            "max_used_mb": 476.0,
+            "target_met": true,
+            "invalid_reasons": [],
+            "vm_ram_mib": 2048
+          }
+        ],
+        "initramfs_inventory": {
+          "extraction_layout": "split",
+          "regular_file_bytes": 220877674,
+          "regular_file_count": 2229,
+          "category_bytes": {
+            "firmware": 114321451,
+            "modules": 38920918,
+            "other": 67635305
+          },
+          "largest_files": [
+            {
+              "path": "main/usr/lib/firmware/nvidia/ga102/gsp/gsp-535.113.01.bin.xz",
+              "bytes": 25781424
+            },
+            {
+              "path": "early2/kernel/x86/microcode/GenuineIntel.bin",
+              "bytes": 15105024
+            },
+            {
+              "path": "main/usr/lib/udev/hwdb.bin",
+              "bytes": 13936393
+            },
+            {
+              "path": "main/usr/lib/firmware/nvidia/tu102/gsp/gsp-535.113.01.bin.xz",
+              "bytes": 12693164
+            },
+            {
+              "path": "main/usr/lib/x86_64-linux-gnu/libcrypto.so.3",
+              "bytes": 6525504
+            },
+            {
+              "path": "main/usr/lib/x86_64-linux-gnu/systemd/libsystemd-shared-257.so",
+              "bytes": 4451744
+            },
+            {
+              "path": "main/usr/lib/modules/6.12.118+deb13-amd64/kernel/drivers/gpu/drm/amd/amdgpu/amdgpu.ko.xz",
+              "bytes": 4112724
+            },
+            {
+              "path": "main/usr/lib/firmware/netronome/nic/nic_AMDA0097-0001_8x10.nffw",
+              "bytes": 3449264
+            }
+          ],
+          "firmware": [
+            {
+              "schema": 1,
+              "kernel_version": "6.12.118+deb13-amd64",
+              "scope": "initramfs-only-gpu-firmware",
+              "codec": "xz-crc32-lzma2-dict-1MiB",
+              "graphics_directories": [
+                "amdgpu",
+                "i915",
+                "nvidia",
+                "radeon",
+                "xe"
+              ],
+              "kernel_support_verified": true,
+              "renamed_aliases": 211,
+              "saved_unpacked_bytes": 93426608,
+              "kernel_config_sha256": "44f881c8f540989198cd88dd441f47e904cd696d0d4bac0d2e170fa0fc2a2241",
+              "firmware_regular_bytes_before": 207748059,
+              "firmware_regular_files_before": 1040,
+              "firmware_regular_bytes_after": 114321451,
+              "converted_files": 710,
+              "payloads_verified": 710,
+              "manifest_sha256": "8003fd05d4cdea5f1a532312fe27147fb3c183c2d8a84e65260395fb7f9bc6be"
+            }
+          ],
+          "archive_sha256": "8d66ce192d6a1deee3281ca091a2a98a25054afc46fb7132e015dac51c0a6c99",
+          "archive_bytes": 152276739,
+          "archive": "initrd.img-6.12.118+deb13-amd64"
+        },
+        "annotation_limit": "ISO summary may be truncated; final inventory prose contained invalid escapes. Numeric/hash fields retained from complete prefix; RAM annotations parsed separately.",
+        "raw_annotation_json_sha256": "e179c19bc3f66403f95c87fe944beaf903848b262cb550f4985a4bdd753d4d22"
+      },
+      "i386": {
+        "job_id": 137402276383,
+        "conclusion": "success",
+        "boot_modes": [
+          "bios"
+        ],
+        "gui_installation_tested": false,
+        "encrypted_root_tested": false,
+        "physical_boot_verified": false,
+        "source_dirty": null,
+        "idle_vm_results": [
+          {
+            "valid_idle_measurement": true,
+            "median_used_mb": 194.8,
+            "max_used_mb": 194.8,
+            "target_met": true,
+            "invalid_reasons": [],
+            "vm_ram_mib": 512,
+            "low_ram_budget": {
+              "passed": true,
+              "minimum_available_bytes": 51461735,
+              "observed_min_available_bytes": 319819776,
+              "policy": "Geçerli tam Xfce boşta ölçümü + en çok 600 MB kullanım + en az max(32 MiB, MemTotal / 10) kullanılabilir RAM; aktif uygulama gecikmesi garantisi değil.",
+              "fail_reasons": []
+            }
+          },
+          {
+            "valid_idle_measurement": true,
+            "median_used_mb": 380.0,
+            "max_used_mb": 380.0,
+            "target_met": true,
+            "invalid_reasons": [],
+            "vm_ram_mib": 1024,
+            "low_ram_budget": {
+              "passed": true,
+              "minimum_available_bytes": 104549172,
+              "observed_min_available_bytes": 665522176,
+              "policy": "Geçerli tam Xfce boşta ölçümü + en çok 600 MB kullanım + en az max(32 MiB, MemTotal / 10) kullanılabilir RAM; aktif uygulama gecikmesi garantisi değil.",
+              "fail_reasons": []
+            }
+          },
+          {
+            "valid_idle_measurement": true,
+            "median_used_mb": 465.6,
+            "max_used_mb": 465.6,
+            "target_met": true,
+            "invalid_reasons": [],
+            "vm_ram_mib": 2048
+          }
+        ],
+        "initramfs_inventory": {
+          "extraction_layout": "split",
+          "regular_file_bytes": 247850126,
+          "regular_file_count": 2155,
+          "category_bytes": {
+            "firmware": 126322209,
+            "modules": 73976661,
+            "other": 47551256
+          },
+          "largest_files": [
+            {
+              "path": "early2/kernel/x86/microcode/GenuineIntel.bin",
+              "bytes": 15005696
+            },
+            {
+              "path": "main/usr/lib/modules/6.1.0-56-686-pae/kernel/drivers/gpu/drm/amd/amdgpu/amdgpu.ko",
+              "bytes": 9042541
+            },
+            {
+              "path": "main/usr/lib/i386-linux-gnu/libcrypto.so.3",
+              "bytes": 4527996
+            },
+            {
+              "path": "main/usr/lib/firmware/netronome/nic/nic_AMDA0097-0001_8x10.nffw",
+              "bytes": 3449264
+            },
+            {
+              "path": "main/usr/lib/firmware/netronome/nic/nic_AMDA0097-0001_4x10_1x40.nffw",
+              "bytes": 3335048
+            },
+            {
+              "path": "main/usr/lib/firmware/netronome/nic/nic_AMDA0081-0001_4x10.nffw",
+              "bytes": 3297408
+            },
+            {
+              "path": "main/usr/lib/firmware/netronome/nic/nic_AMDA0099-0001_2x25.nffw",
+              "bytes": 3222648
+            },
+            {
+              "path": "main/usr/lib/firmware/netronome/nic/nic_AMDA0097-0001_2x40.nffw",
+              "bytes": 3221944
+            }
+          ],
+          "firmware": [],
+          "archive_sha256": "2ab7d64ca2a1179cc0f61121420dc9873e8bed5fba90e2b0d2ecbad30023f7d2",
+          "archive_bytes": 97195917,
+          "archive": "initrd.img-6.1.0-56-686-pae"
+        },
+        "annotation_limit": "ISO summary may be truncated; final inventory prose contained invalid escapes. Numeric/hash fields retained from complete prefix; RAM annotations parsed separately.",
+        "raw_annotation_json_sha256": "8ee30f7e07e04c071e3bfb9b3cc02048d10be5387a129ec0bec0fcdc54b98d97"
+      }
+    }
+  },
+  "raspberrypi": {
+    "run_id": 45084959200,
+    "url": "https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/45084959200",
+    "conclusion": "success",
+    "artifacts": [
+      {
+        "id": 14781735150,
+        "name": "OguzDows-rpi-armhf",
+        "size_in_bytes": 980122307,
+        "digest": "sha256:271c328ca46cbd19b71782f50acce03a04a86703120855ffb497f2cf4388f5e8",
+        "expired": false
+      },
+      {
+        "id": 14780461580,
+        "name": "OguzDows-rpi-arm64",
+        "size_in_bytes": 937024924,
+        "digest": "sha256:ddd8ed5c225e12a7f260a56fb6fe267cae679b5bc7338d6282e6246f09e12db8",
+        "expired": false
+      }
+    ],
+    "artifact_digest_scope": "GitHub ZIP artifact metadata digest, not the inner ISO/IMG hash",
+    "architectures": {
+      "arm64": {
+        "job_id": 137401815331,
+        "conclusion": "success",
+        "runtime_receipt": {
+          "scope": "ARM-qemu-user-with-host-Xvfb",
+          "physical_boot": false,
+          "hardware_gpu": false,
+          "performance_measurement": false,
+          "errors": [],
+          "arch": "arm64",
+          "minimum_cpu": "cortex-a53",
+          "gui": {
+            "gtk_window": true,
+            "gtk_version": [
+              3,
+              24,
+              38
+            ],
+            "xfce_version": "xfce4-session 4.18.1 (Xfce 4.18)",
+            "native_store_version": "OğuzDows Mağaza · GTK 3.24.38"
+          },
+          "feature_presence": {
+            "groups": [
+              "desktop-start-menu",
+              "welcome-rifki-narration",
+              "independent-light-dark-and-xp",
+              "cultural-wallpapers-and-tools",
+              "native-store",
+              "device-and-file-inspection",
+              "web-office-media",
+              "network-bluetooth-audio",
+              "pi-kms-camera-gpio"
+            ],
+            "asset_hashes": 30,
+            "wallpapers": 20,
+            "selected_narration": 10,
+            "speech_contexts": 24
+          },
+          "full_session": {
+            "scope": "non-root-Xfce-on-host-Xvfb",
+            "uid": 65534,
+            "lightdm_pam": false,
+            "physical_boot": false,
+            "performance_measurement": false,
+            "errors": [],
+            "xfwm4": true,
+            "xfce4-panel": true,
+            "xfdesktop": true,
+            "x11_window_manager": "Xfwm4",
+            "stable_samples": 5,
+            "panel_configuration": "Value is an array with 1 items:\n\n1",
+            "startup_profile": "full"
+          },
+          "packages_checked": 120
+        },
+        "raw_annotation_json_sha256": "3064cf57bdb280ef4e57bed250f45b6afe7c2933192e6b39b5617cb80c90cd12"
+      },
+      "armhf": {
+        "job_id": 137401815349,
+        "conclusion": "success",
+        "runtime_receipt": {
+          "scope": "ARM-qemu-user-with-host-Xvfb",
+          "physical_boot": false,
+          "hardware_gpu": false,
+          "performance_measurement": false,
+          "errors": [],
+          "arch": "armhf",
+          "minimum_cpu": "arm1176",
+          "gui": {
+            "gtk_window": true,
+            "gtk_version": [
+              3,
+              24,
+              38
+            ],
+            "xfce_version": "xfce4-session 4.18.1 (Xfce 4.18)",
+            "native_store_version": "OğuzDows Mağaza · GTK 3.24.38"
+          },
+          "feature_presence": {
+            "groups": [
+              "desktop-start-menu",
+              "welcome-rifki-narration",
+              "independent-light-dark-and-xp",
+              "cultural-wallpapers-and-tools",
+              "native-store",
+              "device-and-file-inspection",
+              "web-office-media",
+              "network-bluetooth-audio",
+              "pi-kms-camera-gpio"
+            ],
+            "asset_hashes": 30,
+            "wallpapers": 20,
+            "selected_narration": 10,
+            "speech_contexts": 24
+          },
+          "full_session": {
+            "scope": "non-root-Xfce-on-host-Xvfb",
+            "uid": 65534,
+            "lightdm_pam": false,
+            "physical_boot": false,
+            "performance_measurement": false,
+            "errors": [],
+            "xfwm4": true,
+            "xfce4-panel": true,
+            "xfdesktop": true,
+            "x11_window_manager": "Xfwm4",
+            "stable_samples": 5,
+            "panel_configuration": "Value is an array with 1 items:\n\n1",
+            "startup_profile": "full",
+            "browser": {
+              "program": "netsurf-gtk",
+              "local_start_page_alive": true,
+              "network_tested": false,
+              "modern_sites_verified": false
+            }
+          },
+          "packages_checked": 114
+        },
+        "raw_annotation_json_sha256": "c0c3e71dae9746ef7c3846d1cdcea8820924adce61edf2dd70dac399ffc4124c"
+      }
+    }
+  },
+  "automatic_pr_runs": [
+    {
+      "id": 45084962603,
+      "conclusion": "success"
+    },
+    {
+      "id": 45084962720,
+      "conclusion": "success"
+    }
+  ]
+}

@@ -8,3 +8,6 @@ chmod -R go-w /usr/share/oguzdows/native /usr/share/oguzdows/scripts
 chown root:root /usr/lib/oguzdows/oguzdows-store-native
 chmod 0755 /usr/lib/oguzdows/oguzdows-store-native
 update-desktop-database /usr/share/applications
+/usr/share/oguzdows/scripts/build-news.sh /usr/lib/oguzdows/oguzdows-news-native
+chown root:root /usr/lib/oguzdows/oguzdows-news-native
+chmod 0755 /usr/lib/oguzdows/oguzdows-news-native

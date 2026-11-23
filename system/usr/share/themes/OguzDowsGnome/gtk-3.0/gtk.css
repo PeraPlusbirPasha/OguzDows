@@ -1,4 +1,5 @@
 @import url("../../OguzDowsLight/gtk-3.0/gtk.css");
+@import url("../../OguzDows/gtk-3.0/dock.css");
 /* Bu bir shell / global menü değil, özgün hafif Xfce temasıdır. */
 @define-color theme_selected_bg_color #aa4623;
 @define-color selected_bg_color #aa4623;

@@ -12,6 +12,7 @@ import os
 import shutil
 import signal
 import subprocess
+import sys
 import time
 from pathlib import Path
 
@@ -41,6 +42,53 @@ def owned_processes(home, uid=None):
         except (OSError, ValueError):
             continue
     return result
+
+
+
+def news_fixture_check(prefix, home, log):
+    """Gerçek hedef C istemcisi + üretim JSON işçisi; ağsız RSS fixture'ı.
+
+    Süreç / offline önbellek denetimi; pencere pikseli, haber ağı ve performans
+    ölçümü değildir. Yalnızca bu geçici evdeki veriye ve çocuğa dokunur.
+    """
+    sys.path.insert(0, '/usr/lib/oguzdows')
+    from news_core import Reader
+    reader = Reader()
+    selected = reader.sources()[0]['id']
+    payload = b'<rss><channel><item><title>TEST ONLY - offline news</title><description>TEST fixture, not real news.</description><link>https://example.org/test</link></item></channel></rss>'
+    reader.refresh(selected, download=lambda _url: payload)
+    cache = reader.cache / (selected + '.json')
+    before = cache.read_bytes()
+    process = subprocess.Popen([*prefix, '/usr/lib/oguzdows/oguzdows-news-native'],
+                               env={**os.environ, 'G_MESSAGES_DEBUG': 'OguzDows-Haber'},
+                               stdout=log, stderr=subprocess.STDOUT, start_new_session=True)
+    try:
+        deadline = time.monotonic() + 60
+        stable = 0
+        while time.monotonic() < deadline:
+            if process.poll() is not None:
+                raise ValueError('Hedef C Haber istemcisi erken kapandı: ' + str(process.returncode))
+            processes = owned_processes(home)
+            names = set().union(*processes.values()) if processes else set()
+            log.flush()
+            response = 'cached-view-ready: 1 items' in Path(log.name).read_text(errors='replace')[-64000:]
+            ready = response and 'oguzdows-news-native' in names and 'news_service.py' not in names
+            stable = stable + 1 if ready else 0
+            if stable >= 3:
+                break
+            time.sleep(1)
+        if stable < 3 or cache.read_bytes() != before:
+            raise ValueError('C Haber / kısa ömürlü işçi / salt-okunur offline önbellek denetimi başarısız.')
+        return {'native_process_alive': True, 'worker_exited': True, 'cached_fixture_preserved': True,
+                'network_tested': False, 'performance_measurement': False, 'window_pixels_verified': False}
+    finally:
+        if process.poll() is None:
+            os.killpg(process.pid, signal.SIGTERM)
+        try:
+            process.wait(timeout=10)
+        except subprocess.TimeoutExpired:
+            os.killpg(process.pid, signal.SIGKILL)
+            process.wait(timeout=10)
 
 
 def session_child(output, cpu):
@@ -95,6 +143,7 @@ def session_child(output, cpu):
             if startup.get('uid') != os.getuid():
                 raise ValueError('Ürün giriş işçisi kullanıcı kimliği uyuşmuyor.')
             report['startup_profile'] = startup['profile']
+            report['news'] = news_fixture_check(prefix, home, log)
             if cpu == 'arm1176':
                 # armhf imajında varsayılan başlatıcı gerçekten NetSurf'ü
                 # açabilmeli. Ağ / haber sitesi uyumluluğu ölçülmez.

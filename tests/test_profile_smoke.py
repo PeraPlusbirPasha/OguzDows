@@ -29,6 +29,21 @@ class ProfileSmokeTests(unittest.TestCase):
             with self.assertRaisesRegex(RuntimeError, 'eksik: power-manager-plugin\\.'):
                 smoke.plugin_manifest(directory)
 
+    def test_pixel_bounds_measure_icons_not_just_an_already_centered_panel(self):
+        from PIL import Image, ImageDraw
+        image = Image.new('RGB', (240, 48), '#eeeeee')
+        draw = ImageDraw.Draw(image)
+        draw.rectangle((20, 12, 55, 35), fill='#2469ad')
+        draw.rectangle((175, 12, 210, 35), fill='#24b7bd')
+        self.assertEqual(smoke.icon_pixel_bounds(image), (20, 211))
+        # Aynı panel sınırı içinde sola kaymış simgeler de gerçekten ölçülür.
+        shifted = Image.new('RGB', (240, 48), '#eeeeee')
+        ImageDraw.Draw(shifted).rectangle((5, 12, 105, 35), fill='#2469ad')
+        self.assertEqual(smoke.icon_pixel_bounds(shifted), (5, 106))
+        self.assertGreater(abs(sum(smoke.icon_pixel_bounds(shifted)) / 2 - 120), 12)
+        with self.assertRaises(ValueError):
+            smoke.icon_pixel_bounds(Image.new('RGB', (240, 48), '#eeeeee'))
+
     def test_smoke_workflow_installs_every_external_plugin_used_by_the_real_skeleton(self):
         workflow = (ROOT / '.github/workflows/main.yml').read_text().split('      - name: Doğrulama araçları', 1)[1].split('      - name:', 1)[0]
         packages = set(workflow.replace('\\', '').split())

@@ -2,7 +2,7 @@
 """Seçilmiş sesle hazırlanmış 1.1 WAV'larını doğrula ve çevrimdışı paketle.
 
 Bu geliştirme aracı ses üretmez / indirmez. --source yalnızca açıkça üretilen
-on sabit dosyayı içerir. Çalışan sistemin /usr dizinine karşı kullanılmaz.
+sabit panel dosyalarını içerir. Çalışan sistemin /usr dizinine karşı kullanılmaz.
 """
 from __future__ import annotations
 

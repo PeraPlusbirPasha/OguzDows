@@ -1,0 +1,27 @@
+/* Paylaşılan iskele düğmeleri: ikonun kendisi saydam kenarlı özgün çizimdir.
+ * Kare çerçeve / kabartma yok. Renkler seçilen açık/koyu temadan gelir.
+ * Tüm paneli saydamlaştırma, CSS zoom, sonsuz animasyon veya blur yoktur. */
+.xfce4-panel.horizontal button,
+.xfce4-panel.vertical button {
+  background-image: none;
+  border: 0;
+  border-radius: 12px;
+  box-shadow: none;
+  text-shadow: none;
+  padding: 4px;
+  margin: 2px;
+  min-width: 0;
+  min-height: 0;
+  transition-duration: 100ms;
+}
+.xfce4-panel.horizontal button image,
+.xfce4-panel.vertical button image {
+  background-image: none;
+  background-color: transparent;
+  border: 0;
+  box-shadow: none;
+  -gtk-icon-shadow: none;
+}
+.xfce4-panel.vertical button { margin: 3px 2px; }
+.xfce4-panel .tasklist button:checked { border-bottom: 2px solid @theme_selected_bg_color; }
+/* GTK EnableAnimations=false, mini/light'ta bütün geçişleri bastırır. */

@@ -47,12 +47,14 @@ def configure(identifier, output):
     shutil.copytree(ROOT / 'native', overlay / 'usr/share/oguzdows/native')
     (overlay / 'usr/share/oguzdows/scripts').mkdir(parents=True, exist_ok=True)
     shutil.copy2(ROOT / 'scripts/build-native.sh', overlay / 'usr/share/oguzdows/scripts/build-native.sh')
+    shutil.copy2(ROOT / 'scripts/build-news.sh', overlay / 'usr/share/oguzdows/scripts/build-news.sh')
+    (overlay / 'usr/share/oguzdows/scripts/build-news.sh').chmod(0o755)
     shutil.copy2(ROOT / 'scripts/render-assets.py', overlay / 'usr/lib/oguzdows/render-assets.py')
     shutil.copytree(ROOT / 'assets', overlay / 'usr/share/oguzdows/assets')
     shutil.copytree(ROOT / 'boot', overlay / 'usr/share/plymouth/themes/oguzdows')
     docs = overlay / 'usr/share/doc/oguzdows'
     docs.mkdir(parents=True, exist_ok=True)
-    for source, target in (('MASAUSTU-VE-BAKIM.md', 'masaustu-ve-bakim.md'), ('CIHAZLAR-VE-UYUMLULUK.md', 'cihazlar-ve-uyumluluk.md'), ('PI-ZERO-OTURUM.md', 'PI-ZERO-OTURUM.md')):
+    for source, target in (('MASAUSTU-VE-BAKIM.md', 'masaustu-ve-bakim.md'), ('CIHAZLAR-VE-UYUMLULUK.md', 'cihazlar-ve-uyumluluk.md'), ('PI-ZERO-OTURUM.md', 'PI-ZERO-OTURUM.md'), ('ELEMENTARY-HABER.md', 'ELEMENTARY-HABER.md')):
         shutil.copy2(ROOT / 'docs' / source, docs / target)
     for directory in ('usr/local/bin', 'usr/local/sbin', 'usr/lib/oguzdows', 'usr/share/oguzdows/scripts'):
         for path in (overlay / directory).iterdir():
@@ -79,8 +81,10 @@ paket yöneticisi için paket adlarıdır; çalıştırılabilir kurulum komutu 
 Kurulu cihazına körlemesine kopyalamayın. Önce yedek ve ayrı geçici ARM64 rootfs
 üzerinde gözden geçirin. Çalışan kernel / boot / kullanıcı hesapları korunmalıdır.
 
-Mimariye uygun C mağazası, paketler kurulu ARM64 rootfs içinde
+Mimariye uygun C mağazası ve C haber okuyucusu, paketler kurulu ARM64 rootfs içinde
 `/usr/share/oguzdows/scripts/build-native.sh /usr/lib/oguzdows/oguzdows-store-native`
+ve
+`/usr/share/oguzdows/scripts/build-news.sh /usr/lib/oguzdows/oguzdows-news-native`
 ile derlenir. `seal-app-store.sh` root sahipliğini / yazma izinlerini mühürler;
 `render-assets.py --root /` görselleri üretir ve `update-desktop-database`
 MIME açıcılarını kaydeder. Bunlar cihaz üzerinde kendiliğinden çalıştırılmaz.

@@ -15,6 +15,7 @@ import wallpapers
 import boot_report
 import install_status as installer_state
 import profiles
+import effects
 import welcome_model
 import device_support
 from rifki_speech import Speaker, ready_clip
@@ -158,7 +159,7 @@ class Welcome(Gtk.Application):
     def build_window(self) -> None:
         self.window = Gtk.ApplicationWindow(application=self)
         self.window.set_title(self.context.title)
-        self.window.set_icon_name('oguzdows')
+        self.window.set_icon_name('oguzdows-welcome')
         self.window.get_style_context().add_class('oguzdows-window')
         self.window.set_position(Gtk.WindowPosition.CENTER)
         screen = self.window.get_screen()
@@ -390,7 +391,7 @@ class Welcome(Gtk.Application):
         choices.add(self.card('Masaüstü tarzını seç', 'Altı hafif düzen; gerçek oturumlar ayrıca seçilir. Pencere düğmeleri ve panel daima okunaklı.', 'preferences-desktop-theme-symbolic', lambda *_: self.stack.set_visible_child_name('styles')))
         if not is_pi():
             choices.add(self.card('Uygulamalar ve güncellemeler', 'Mağaza ve Güncelleyici ayrı, anlaşılır düğmelerle.', 'system-software-update-symbolic', lambda *_: self.navigate('applications')))
-        choices.add(self.card('İmece araçları', 'Çay Molası · Türkçe Hızlı Yazım · Heybe · Yerel paylaşım paketi.', 'applications-utilities-symbolic', lambda *_: self.launch(['/usr/local/bin/oguzdows-imece'])))
+        choices.add(self.card('İmece araçları', 'Çay Molası · Türkçe Hızlı Yazım · Heybe · Yerel paylaşım paketi.', 'oguzdows-imece', lambda *_: self.launch(['/usr/local/bin/oguzdows-imece'])))
         page.pack_start(choices, False, False, 0)
         setup_note = (f"{pi_model() or 'Raspberry Pi'} · {current_policy()['profile']} profili. Değişikliklerin SD/USB üzerinde kalıcıdır."
                       if is_pi() else ('Kurulum günlüğü: /var/log/oguzdows/installer.log' if self.context.offers_installer
@@ -536,8 +537,8 @@ class Welcome(Gtk.Application):
         else:
             column.pack_start(body, True, True, 0)
             column.pack_start(panel, False, False, 0)
-        if identifier == 'mac':
-            dock = Gtk.Label(label='●  ▣  ▦  ▪')
+        if identifier in ('mac', 'windows11'):
+            dock = Gtk.Label(label='▦  ●  ▣  ▪' if identifier == 'windows11' else '●  ▣  ▦  ▪')
             dock.set_halign(Gtk.Align.CENTER)
             dock.get_style_context().add_class('preview-panel')
             column.pack_end(dock, False, False, 0)
@@ -583,7 +584,7 @@ class Welcome(Gtk.Application):
         self.profile_restore = Gtk.Button(label='İlk görünüm ayarlarıma dön')
         self.profile_restore.connect('clicked', lambda *_: self.change_style(None))
         page.pack_start(self.profile_restore, False, False, 0)
-        self.profile_status = label('OğuzDows: Başlat. Windows 11: ortalı, simgeli kısa çubuk. macOS: üst panel + alt iskele. Ubuntu: üst panel + sol iskele.', 'muted', 75)
+        self.profile_status = label('OğuzDows: Başlat. Windows 11: ortalı Başlat / simge grubu, ayrı üst durum şeridi. macOS: üst panel + alt iskele. Ubuntu: üst panel + sol iskele.', 'muted', 75)
         page.pack_start(self.profile_status, False, False, 0)
         reload_button = Gtk.Button(label='Panelleri şimdi yenile…')
         reload_button.connect('clicked', self.reload_panels)
@@ -631,7 +632,7 @@ class Welcome(Gtk.Application):
         self.effect_apply = Gtk.Button(label='Efekt tercihini uygula')
         self.effect_apply.connect('clicked', self.change_effects)
         page.pack_start(self.effect_apply, False, False, 0)
-        page.pack_start(label('Aero: opak yansımalı başlıklar; uygun bütçede alt çubuk / iskele camı ve hafif gölge. Blur ve sürekli animasyon yoktur. 512 MiB–2 GiB RAM, ARMv6, nomodeset veya tanınan DRM sürücüsü yoksa kompozitör açılmaz; aynı düzen ve statik yansımalar korunur. Donanım hızı cihazda ayrıca ölçülmelidir.', 'muted', 75), False, False, 0)
+        page.pack_start(label('Aero: opak yansımalı başlıklar; uygun bütçede iskele camı, hafif gölge ve yaklaşık 100 ms açma / kapama geçişi. Tek kompozitör kullanılır; Picom açılamazsa statik Xfwm görünümüne dönülür. Blur, yaylanma ve sürekli animasyon yoktur. 512 MiB–2 GiB RAM, ARMv6, nomodeset veya tanınan DRM sürücüsü yoksa kompozitör açılmaz; aynı düzen ve statik yansımalar korunur. Donanım hızı cihazda ayrıca ölçülmelidir.', 'muted', 75), False, False, 0)
         page.pack_start(label('Yazı tipi, ekran ölçeği veya çözünürlük için:', 'section-title'), False, False, 0)
         for title, command in (('Görünüm ve yazı tipleri', ['/usr/bin/xfce4-appearance-settings']),
                                ('Ekran ayarları', ['/usr/bin/xfce4-display-settings'])):
@@ -649,8 +650,7 @@ class Welcome(Gtk.Application):
         def work():
             try:
                 profiles.set_effects(effect)
-                message = ('Cam tercihi kaydedildi. Düşük RAM / güvenli grafik koruması önceliklidir.' if effect in ('glass', 'aero')
-                           else 'Efektler kapalı. Tüm düzenler ve uygulamalar kullanılabilir.')
+                message = effects.reconcile(effect)['message']
             except (OSError, ValueError, RuntimeError, subprocess.SubprocessError) as error:
                 message = 'Efekt değiştirilemedi: ' + str(error)
             def done():
@@ -718,15 +718,16 @@ class Welcome(Gtk.Application):
         page = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=14)
         page.pack_start(label('İhtiyacın olan, elinin altında.', 'heading'), False, False, 0)
         if not self.pc:
-            page.pack_start(self.card('OğuzDows Mağaza', 'Yerel uygulama seçkisi, cihazının kendi imzalı APT kaynaklarından planlar. ARM64’te isteğe bağlı Flathub.', 'system-software-install-symbolic', lambda *_: self.launch(['/usr/local/bin/oguzdows-store'])), False, False, 0)
+            page.pack_start(self.card('OğuzDows Mağaza', 'Yerel uygulama seçkisi, cihazının kendi imzalı APT kaynaklarından planlar. ARM64’te isteğe bağlı Flathub.', 'oguzdows-store', lambda *_: self.launch(['/usr/local/bin/oguzdows-store'])), False, False, 0)
         else:
             for title, text, icon, command in (
-                    ('OğuzDows Mağaza', 'Uygulamaları keşfet. Mağazayı açmak paket kurmaz.', 'system-software-install-symbolic', ['/usr/local/bin/oguzdows-store']),
-                    ('OğuzDows Güncelleyici', 'Önce planı gör; sonra güncelleme ve firmware işlemlerini onayla.', 'system-software-update-symbolic', ['/usr/local/bin/oguzdows-update'])):
+                    ('OğuzDows Mağaza', 'Uygulamaları keşfet. Mağazayı açmak paket kurmaz.', 'oguzdows-store', ['/usr/local/bin/oguzdows-store']),
+                    ('OğuzDows Güncelleyici', 'Önce planı gör; sonra güncelleme ve firmware işlemlerini onayla.', 'oguzdows-update', ['/usr/local/bin/oguzdows-update'])):
                 page.pack_start(self.card(title, text, icon, lambda _button, value=command: self.launch(value)), False, False, 0)
-        page.pack_start(self.card('EXE / APK uyumluluğu', 'Dosyayı önce incele, sonra açık onay ver. Wine / Waydroid ve donanım koşulları ayrıca gerekir.', 'application-x-executable-symbolic', lambda *_: self.launch(['/usr/local/bin/oguzdows-open', '--manager'])), False, False, 0)
-        page.pack_start(self.card('Cihaz ve ARM merkezi', 'Pi Zero–5, diğer ARM kartları ve deneysel telefon katmanlarının gerçek sınırları.', 'computer-symbolic', lambda *_: self.launch(['/usr/local/bin/oguzdows-device'])), False, False, 0)
-        page.pack_start(self.card('Çay Molası · Heybe · İmece', 'İstek üzerine yerel kültür ve paylaşım araçları.', 'applications-utilities-symbolic', lambda *_: self.launch(['/usr/local/bin/oguzdows-imece'])), False, False, 0)
+        page.pack_start(self.card('EXE / APK uyumluluğu', 'Dosyayı önce incele, sonra açık onay ver. Wine / Waydroid ve donanım koşulları ayrıca gerekir.', 'oguzdows-compatibility', lambda *_: self.launch(['/usr/local/bin/oguzdows-open', '--manager'])), False, False, 0)
+        page.pack_start(self.card('Cihaz ve ARM merkezi', 'Pi Zero–5, diğer ARM kartları ve deneysel telefon katmanlarının gerçek sınırları.', 'oguzdows-device', lambda *_: self.launch(['/usr/local/bin/oguzdows-device'])), False, False, 0)
+        page.pack_start(self.card('Çay Molası · Heybe · İmece', 'İstek üzerine yerel kültür ve paylaşım araçları.', 'oguzdows-imece', lambda *_: self.launch(['/usr/local/bin/oguzdows-imece'])), False, False, 0)
+        page.pack_start(self.card('OğuzDows Haber', 'Hafif RSS / Atom okuyucu. Büyük yazı, çevrimdışı metin ve yalnızca istekle yenileme; webview yok.', 'oguzdows-news', lambda *_: self.launch(['/usr/local/bin/oguzdows-news'])), False, False, 0)
         page.pack_start(label('Mağaza, derlenen yerel GTK arayüzüdür. Sistem ve Flathub ayrı kaynaklardır; paketler plan ve açık onay olmadan kurulmaz. Açılışta mağaza servisi veya indirme çalışmaz.', 'muted', 75), False, False, 0)
         return page
 
@@ -754,7 +755,14 @@ class Welcome(Gtk.Application):
         reload_now = self.profile_reload.get_active()
         def work():
             try:
-                profiles.restore() if identifier is None else profiles.apply(identifier)
+                if identifier is None:
+                    # Önce yalnız bizim motoru bırak; en son tipli ilk ayarlar
+                    # yüklensin. Geri alınan kişisel kompozitör tekrar ezilmez.
+                    effects.reconcile('off')
+                    profiles.restore()
+                else:
+                    profiles.apply(identifier)
+                    effects.reconcile()
                 if reload_now:
                     profiles.reload_panels()
                 message = 'İlk görünüm ayarların geri yüklendi.' if identifier is None else profiles.PROFILES[identifier]['name'] + (' uygulandı; paneller yenilendi.' if reload_now else ' kaydedildi; yeni iskele sonraki girişte yüklenir.')

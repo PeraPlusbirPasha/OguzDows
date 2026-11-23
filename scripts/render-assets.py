@@ -171,7 +171,7 @@ def window_theme(root: Path, name='OguzDows', light=False, xp=False) -> None:
 
     for state in ("active", "inactive"):
         bg = active_bg if state == "active" else inactive_bg
-        edge = ("#75aadd" if name.startswith(("OguzDowsAero", "OguzDowsEleven")) else RED) if state == "active" else "#363b49"
+        edge = ('#b0b9c5' if light else '#535e6e') if mac else ("#75aadd" if name.startswith(("OguzDowsAero", "OguzDowsEleven")) else RED) if state == "active" else "#363b49"
         for part in ("title-1", "title-2", "title-3", "title-4", "title-5", "top-left", "top-right"):
             image = tile((5, 32), bg)
             ImageDraw.Draw(image).line((0, 0, 5, 0), fill=edge)
@@ -219,6 +219,153 @@ shadow_delta_width=2
 shadow_delta_x=0
 shadow_delta_y=2
 """)
+
+
+def own_app_icon(identifier: str, size: int) -> Image.Image:
+    """Özgün, farklı siluetli ve saydam kenarlı ikonlar; tek tip kare rozet yok.
+
+    Mantıksal 256 px çizimler düşük boyutta da okunur; gölgeler/statik parıltı
+    PNG'ye gömülüdür. Panelde SVG işçisi veya animasyon çalışmaz.
+    """
+    image = Image.new('RGBA', (256, 256))
+    d = ImageDraw.Draw(image)
+    white, ink = '#fffdf7', '#243952'
+    if identifier == 'store':
+        d.rounded_rectangle((43, 76, 213, 223), radius=30, fill='#147f92')
+        d.polygon([(43, 97), (213, 97), (203, 215), (54, 215)], fill='#24b7bd')
+        d.arc((86, 28, 172, 136), 180, 359, fill='#156879', width=15)
+        d.arc((88, 27, 169, 132), 180, 359, fill='#b8f0e3', width=7)
+        d.ellipse((83, 101, 98, 116), fill=ink); d.ellipse((163, 101, 178, 116), fill=ink)
+        d.line((105, 162, 122, 179, 155, 143), fill=white, width=12, joint='curve')
+        d.line((61, 88, 196, 88), fill='#b8f5e4', width=4)
+    elif identifier == 'news':
+        d.rounded_rectangle((32, 44, 204, 217), radius=13, fill='#b9ceda')
+        d.rounded_rectangle((43, 31, 220, 206), radius=14, fill='#f5f7ee')
+        d.rounded_rectangle((57, 48, 205, 82), radius=5, fill='#2d74ad')
+        d.rectangle((59, 99, 121, 151), fill='#57b2b5')
+        d.polygon([(61, 149), (82, 120), (96, 135), (114, 112), (121, 149)], fill='#286986')
+        for y in (103, 121, 139): d.line((137, y, 202, y), fill='#5c7183', width=7)
+        for y in (171, 188): d.line((59, y, 202, y), fill='#7d929e', width=6)
+        d.arc((24, 178, 57, 217), 0, 180, fill='#7193a7', width=6)
+    elif identifier == 'welcome':
+        d.polygon([(29, 56), (119, 68), (128, 219), (32, 201)], fill='#238f9d')
+        d.polygon([(128, 68), (224, 52), (224, 199), (128, 219)], fill='#176e83')
+        d.polygon([(40, 43), (124, 59), (124, 202), (40, 187)], fill='#f6f1d9')
+        d.polygon([(132, 59), (213, 43), (213, 187), (132, 202)], fill=white)
+        for y in (87, 108, 129): d.line((52, y, 105, y+8), fill='#b5b5a8', width=5)
+        d.ellipse((146, 100, 234, 188), fill='#eab455', outline='#9c7139', width=4)
+        d.polygon([(190, 111), (205, 151), (173, 173)], fill='#df6551')
+        d.polygon([(173, 173), (185, 133), (205, 151)], fill=white)
+    elif identifier == 'update':
+        d.arc((35, 34, 220, 220), 205, 356, fill='#2bbab1', width=29)
+        d.polygon([(222, 61), (224, 146), (160, 103)], fill='#2bbab1')
+        d.arc((35, 34, 220, 220), 26, 178, fill='#2779ba', width=29)
+        d.polygon([(33, 195), (30, 111), (96, 151)], fill='#2779ba')
+        d.ellipse((103, 103, 153, 153), fill='#b9eadf')
+    elif identifier in ('device', 'drivers'):
+        d.rounded_rectangle((26, 35, 220, 170), radius=16, fill='#344e6f')
+        d.rounded_rectangle((38, 47, 208, 151), radius=7, fill='#64b9ca')
+        d.polygon([(49, 133), (111, 65), (201, 137)], fill='#2e81a0')
+        d.polygon([(110, 173), (140, 173), (150, 202), (97, 202)], fill='#8097ac')
+        d.rounded_rectangle((78, 201, 167, 215), radius=6, fill='#a6b9c7')
+        if identifier == 'device':
+            d.rounded_rectangle((154, 140, 231, 218), radius=12, fill='#225d63', outline='#a5ddc4', width=5)
+            d.rounded_rectangle((172, 158, 213, 199), radius=5, fill='#55be9f')
+            for i in range(4):
+                v = 165+i*15; d.line((v, 133, v, 145), fill='#8eb2a2', width=5); d.line((v, 215, v, 229), fill='#8eb2a2', width=5)
+        else:
+            d.ellipse((156, 128, 230, 202), fill='#e8b667')
+            d.polygon([(166, 157), (197, 185), (137, 234), (118, 214)], fill='#f2ce87')
+            d.polygon([(190, 125), (232, 161), (208, 165), (183, 144)], fill=(0, 0, 0, 0))
+            d.ellipse((127, 213, 139, 225), fill='#795d3d')
+    elif identifier == 'compatibility':
+        d.rounded_rectangle((31, 83, 129, 210), radius=21, fill='#5989d2')
+        d.ellipse((74, 55, 125, 108), fill='#5989d2')
+        d.rounded_rectangle((126, 44, 225, 175), radius=21, fill='#62ba99')
+        d.ellipse((103, 103, 154, 155), fill='#62ba99')
+        d.line((61, 152, 78, 169, 105, 133), fill=white, width=9, joint='curve')
+        d.line((165, 82, 196, 82), fill='#def6d7', width=8)
+        d.line((180, 67, 180, 98), fill='#def6d7', width=8)
+    elif identifier == 'imece':
+        d.ellipse((29, 191, 227, 229), fill='#b7d5d8', outline='#5d99a1', width=5)
+        d.ellipse((51, 194, 204, 216), fill='#eaf1df')
+        d.polygon([(72, 57), (183, 57), (163, 122), (175, 195), (80, 195), (92, 122)], fill='#b1d7d5')
+        d.polygon([(84, 81), (172, 81), (152, 125), (165, 187), (90, 187), (103, 125)], fill='#ac5034')
+        d.polygon([(95, 93), (165, 93), (151, 125), (158, 165), (96, 165), (103, 125)], fill='#cc7040')
+        d.arc((109, 16, 141, 68), 110, 266, fill='#83b5ba', width=7)
+        d.line((86, 64, 97, 93), fill='#f5f5dc', width=6)
+    elif identifier == 'install':
+        d.rounded_rectangle((28, 146, 228, 223), radius=22, fill='#5f8194')
+        d.rounded_rectangle((35, 151, 221, 198), radius=15, fill='#a9c3cb')
+        d.ellipse((186, 202, 197, 213), fill='#9aedd8')
+        d.line((54, 210, 154, 210), fill='#2f5369', width=5)
+        d.rounded_rectangle((105, 29, 151, 132), radius=9, fill='#1eae9e')
+        d.polygon([(70, 111), (186, 111), (128, 174)], fill='#1eae9e')
+        d.line((118, 43, 118, 111), fill='#9ce9d8', width=7)
+    elif identifier == 'rifki':
+        d.polygon([(43, 111), (38, 29), (104, 70)], fill='#ba8b60')
+        d.polygon([(153, 70), (218, 29), (213, 118)], fill='#ae7b52')
+        d.polygon([(54, 80), (53, 46), (86, 68)], fill='#ecc1a1')
+        d.polygon([(174, 68), (204, 46), (202, 87)], fill='#ecc1a1')
+        d.ellipse((37, 57, 219, 226), fill='#d5ac7b')
+        d.polygon([(109, 60), (128, 57), (147, 60), (137, 109), (119, 109)], fill='#a87351')
+        d.ellipse((69, 121, 103, 151), fill=ink); d.ellipse((155, 121, 189, 151), fill=ink)
+        d.ellipse((77, 125, 87, 135), fill='#cceae0'); d.ellipse((162, 125, 172, 135), fill='#cceae0')
+        d.ellipse((87, 155, 169, 212), fill='#f7e7c7')
+        d.polygon([(114, 165), (142, 165), (128, 180)], fill='#a8675f')
+        d.line((128, 180, 128, 189), fill='#735144', width=4)
+        for y in (168, 185):
+            d.line((20, y-8, 84, y), fill='#735b4e', width=4); d.line((172, y, 236, y-8), fill='#735b4e', width=4)
+    elif identifier == 'desktops':
+        d.rounded_rectangle((28, 34, 198, 174), radius=17, fill='#698cbd')
+        d.rounded_rectangle((57, 76, 232, 218), radius=17, fill='#f3f0e3', outline='#477b98', width=6)
+        d.rounded_rectangle((63, 81, 226, 112), radius=9, fill='#4eb3b2')
+        for x in (79, 96, 113): d.ellipse((x, 91, x+8, 99), fill='#f8f2d7')
+        d.rounded_rectangle((75, 130, 118, 201), radius=6, fill='#b9d9d8')
+        d.rounded_rectangle((132, 130, 211, 159), radius=5, fill='#c2d7e8')
+        d.rounded_rectangle((132, 170, 211, 201), radius=5, fill='#dce8ed')
+    elif identifier == 'wallpapers':
+        d.rounded_rectangle((29, 43, 227, 214), radius=22, fill='#e6ddc6', outline='#b9ab8c', width=5)
+        d.rounded_rectangle((42, 56, 214, 200), radius=13, fill='#85c9d7')
+        d.ellipse((156, 72, 192, 108), fill='#ffe5a2')
+        d.polygon([(43, 169), (98, 92), (160, 179), (185, 140), (214, 178), (214, 200), (43, 200)], fill='#367e8e')
+        d.polygon([(77, 121), (98, 92), (121, 124), (100, 115)], fill='#ecf0df')
+        d.polygon([(43, 185), (108, 152), (162, 181), (214, 167), (214, 200), (43, 200)], fill='#68b59b')
+    elif identifier == 'browser':
+        d.ellipse((29, 29, 227, 227), fill='#318db8')
+        d.arc((61, 29, 195, 227), 80, 280, fill='#a2ded4', width=10)
+        d.arc((61, 29, 195, 227), 260, 460, fill='#a2ded4', width=10)
+        d.arc((29, 75, 227, 179), 0, 360, fill='#95d5d4', width=9)
+        d.line((34, 128, 222, 128), fill='#9ee4dd', width=8)
+        d.polygon([(166, 137), (239, 108), (207, 181), (195, 150)], fill='#f9b978', outline='#f8dfae')
+    elif identifier == 'files':
+        d.rounded_rectangle((26, 57, 126, 127), radius=14, fill='#2c92af')
+        d.rounded_rectangle((26, 79, 229, 215), radius=20, fill='#2689a9')
+        d.rounded_rectangle((42, 85, 213, 163), radius=10, fill='#e6f2e7')
+        d.polygon([(25, 116), (232, 116), (216, 214), (41, 214)], fill='#63bec9')
+        d.line((44, 130, 215, 130), fill='#a8e5db', width=5)
+    elif identifier == 'terminal':
+        d.rounded_rectangle((25, 42, 231, 207), radius=27, fill='#31475d')
+        d.rounded_rectangle((34, 51, 222, 197), radius=21, fill='#21374b')
+        d.polygon([(62, 201), (62, 232), (99, 201)], fill='#31475d')
+        d.line((64, 90, 95, 118, 64, 146), fill='#8be2ce', width=11, joint='curve')
+        d.line((118, 150, 171, 150), fill='#f2eedb', width=10)
+        d.line((51, 61, 201, 61), fill='#65879b', width=3)
+    else:
+        raise ValueError('Özgün simge kimliği bilinmiyor: ' + identifier)
+    return image.resize((size, size), Image.Resampling.LANCZOS)
+
+
+def render_own_app_icons(root: Path) -> None:
+    relative = 'usr/share/oguzdows/own-app-icons.json'
+    source = root / relative
+    if not source.is_file():
+        source = Path(__file__).resolve().parents[1] / 'system' / relative
+    manifest = json.loads(source.read_text())
+    for identifier in manifest['icons']:
+        for size in manifest['sizes']:
+            save(own_app_icon(identifier, size), root,
+                 f'usr/share/icons/hicolor/{size}x{size}/apps/oguzdows-{identifier}.png')
 
 
 def render_store_icons(root: Path) -> None:
@@ -419,6 +566,7 @@ def render(root: Path) -> None:
     save(emblem(160, tile=True), root, installer + "logo.png")
     save(boot_background(640, 480).crop((80, 20, 560, 210)), root, installer + "welcome.png")
     render_store_icons(root)
+    render_own_app_icons(root)
     window_theme(root)
     window_theme(root, 'OguzDowsLight', light=True)
     window_theme(root, 'OguzDowsXP', light=True, xp=True)

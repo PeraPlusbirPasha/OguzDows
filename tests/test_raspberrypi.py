@@ -407,21 +407,21 @@ class PiImageValidationTests(unittest.TestCase):
         struct.pack_into('<H', header, 18, expected['elf_machine'])
         if arch == 'armhf':
             struct.pack_into('<I', header, 36, 0x5000400)
-        for name in ('usr/bin/python3', 'usr/lib/oguzdows/oguzdows-store-native'):
+        for name in ('usr/bin/python3', 'usr/lib/oguzdows/oguzdows-store-native', 'usr/lib/oguzdows/oguzdows-news-native'):
             write(root, name, '').write_bytes(header)
         report = {'schema': 1, 'arch': arch, 'minimum_cpu': expected['cpu'], 'errors': [],
                   'scope': 'ARM-qemu-user-with-host-Xvfb', 'source_revision': contract['source_revision'],
                   'pi_gen_commit': contract['pi_gen_commit'], 'suite': contract['suite'],
-                  'gui': {'gtk_window': True, 'xfce_version': 'xfce4-session test', 'native_store_version': 'OğuzDows test'},
+                  'gui': {'gtk_window': True, 'xfce_version': 'xfce4-session test', 'native_store_version': 'OğuzDows test', 'native_news_version': 'OğuzDows Haber · GTK 3.24.0'},
                   'python_modules': contract['python_modules'],
                   'abi': {'/' + name: {'bits': 32 if arch == 'armhf' else 64,
                                       'machine': expected['elf_machine'], 'hard_float': True if arch == 'armhf' else None}
-                          for name in ('usr/bin/python3', 'usr/lib/oguzdows/oguzdows-store-native')},
+                          for name in ('usr/bin/python3', 'usr/lib/oguzdows/oguzdows-store-native', 'usr/lib/oguzdows/oguzdows-news-native')},
                   'packages': {name: {'architecture': arch, 'version': 'test-verisi'} for name in contract['required_packages']},
                   'physical_boot': False, 'hardware_gpu': False, 'performance_measurement': False,
                   'real_package_transactions': False, 'real_audio_playback': False,
                   'feature_presence': {'groups': list(contract['features']), 'asset_hashes': len(contract['asset_hashes']),
-                                       'wallpapers': 20, 'selected_narration': 10,
+                                       'wallpapers': 20, 'selected_narration': 11,
                                        'speech_contexts': len(json.loads((root / 'usr/share/oguzdows/rifki/speech.json').read_text()))}}
         write(root, 'usr/share/oguzdows/pi-build-report.json', json.dumps(report))
         write(root, 'etc/lightdm/lightdm.conf', '[Seat:*]\nuser-session=oguzdows\ngreeter-session=lightdm-gtk-greeter\n')
@@ -429,6 +429,8 @@ class PiImageValidationTests(unittest.TestCase):
                                   'scope': 'non-root-Xfce-on-host-Xvfb', 'x11_window_manager': 'Xfwm4',
                                   'xfwm4': True, 'xfce4-panel': True, 'xfdesktop': True,
                                   'lightdm_pam': False, 'physical_boot': False, 'performance_measurement': False}
+        report['full_session']['news'] = {'native_process_alive': True, 'worker_exited': True, 'cached_fixture_preserved': True,
+                                          'network_tested': False, 'performance_measurement': False, 'window_pixels_verified': False}
         if arch == 'armhf':
             report['full_session']['browser'] = {'program': 'netsurf-gtk', 'local_start_page_alive': True,
                                                  'network_tested': False, 'modern_sites_verified': False}

@@ -3,6 +3,6 @@ Type=Application
 Name=Gerçek Masaüstü Oturumları
 Comment=Gerçek KDE Plasma / GNOME kurulum planı ve sonraki giriş tercihi
 Exec=/usr/local/bin/oguzdows-desktops
-Icon=preferences-desktop-theme
+Icon=oguzdows-desktops
 Terminal=false
 Categories=Settings;DesktopSettings;

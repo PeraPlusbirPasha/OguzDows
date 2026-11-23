@@ -33,7 +33,7 @@ class Culture(Gtk.Application):
 
     def build(self):
         self.window = Gtk.ApplicationWindow(application=self, title='OğuzDows · İmece')
-        self.window.set_icon_name('oguzdows')
+        self.window.set_icon_name('oguzdows-imece')
         self.window.set_default_size(760, 560)
         self.window.connect('delete-event', self.close)
         header = Gtk.HeaderBar(title='İmece', subtitle='Küçük araçlar · Büyük kolaylık')

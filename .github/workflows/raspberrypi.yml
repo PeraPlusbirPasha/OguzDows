@@ -85,6 +85,7 @@ jobs:
           sudo cp -a system/usr/share/themes/. /usr/share/themes/
           sudo python3 scripts/ci-run.py --title 'Pi tema görselleri' -- \
             python3 scripts/render-assets.py --root /
+          sudo gtk-update-icon-cache -f -t /usr/share/icons/hicolor
           python3 scripts/ci-run.py --title 'Pi GTK görünümü' -- \
             xvfb-run -a -s '-screen 0 1024x768x24' dbus-run-session -- \
             python3 tests/smoke-welcome.py --pi --output test-results/pi-ui
@@ -95,6 +96,17 @@ jobs:
           python3 scripts/ci-run.py --title 'Pi ortak C / GTK mağaza (host)' -- \
             xvfb-run -a -s '-screen 0 1280x900x24' dbus-run-session -- \
             /tmp/oguzdows-store-ui-test --smoke-test test-results/pi-ui
+
+      - name: Pi ortak hafif C haber okuyucusu (host, ağsız fixture)
+        run: |
+          sh scripts/build-news.sh /tmp/oguzdows-news-native
+          sh scripts/build-news.sh /tmp/oguzdows-news-ui-test --test
+          /tmp/oguzdows-news-native --version
+          for screen in 1024x768 360x800; do
+            python3 scripts/ci-run.py --title "Pi ortak C Haber $screen (host / fixture)" -- \
+              xvfb-run -a -s "-screen 0 ${screen}x24" dbus-run-session -- \
+              /tmp/oguzdows-news-ui-test --smoke-test "test-results/pi-ui/news-$screen"
+          done
 
       - name: Başsız Xfce kontrolünü gerçek özel X ve D-Bus ile doğrula (host)
         run: |

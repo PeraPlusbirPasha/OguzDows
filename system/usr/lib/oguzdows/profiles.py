@@ -22,13 +22,14 @@ PROFILES = {
     'kde': {'name': 'Plasma esintisi · Xfce', 'description': 'Geniş alt görev çubuğu, okunaklı sekmeler ve mavi vurgular.', 'position': 10, 'size': 44, 'layout': 'O|HMC', 'appearance': 'dark'},
     'gnome': {'name': 'Ubuntu / GNOME esintisi · Xfce', 'description': 'Ubuntu esintili sol iskele, üst durum çubuğu ve sıcak vurgular.', 'position': 9, 'size': 32, 'layout': 'O|HMC', 'appearance': 'light'},
     'xfce': {'name': 'Klasik Xfce', 'description': 'İnce üst panel, metinli görevler; en sade yerleşim.', 'position': 9, 'size': 30, 'layout': 'O|HMC', 'appearance': 'light'},
-    'windows11': {'name': 'Windows 11 esintisi · Xfce', 'description': 'Ortalanmış kısa alt çubuk, simgeli görevler ve mavi vurgu; Windows çalıştırmaz.', 'position': 10, 'size': 48, 'layout': 'O|HMC', 'appearance': 'light'},
-    'mac': {'name': 'macOS esintisi · Xfce', 'description': 'Üst durum/uygulama paneli, ortalı alt iskele ve renkli sol düğmeler.', 'position': 9, 'size': 30, 'layout': 'CHM|O', 'appearance': 'light'},
+    'windows11': {'name': 'Windows 11 esintisi · Xfce', 'description': 'Gerçekten ortalı Başlat / uygulama grubu ve ayrı ince üst durum şeridi; Windows çalıştırmaz.', 'position': 9, 'size': 28, 'layout': 'O|HMC', 'appearance': 'light'},
+    'mac': {'name': 'macOS esintisi · Xfce', 'description': 'elementary esintili ince üst panel, içeriğe oturan ortalı iskele ve renkli sol düğmeler.', 'position': 9, 'size': 30, 'layout': 'CHM|O', 'appearance': 'light'},
 }
 APPEARANCES = {'light': 'Açık', 'dark': 'Koyu'}
 EFFECTS = {'off': 'Efektsiz · en hafif', 'glass': 'Hafif cam · isteğe bağlı',
-           'aero': 'Aero esintisi · statik yansıma + bütçeli cam / gölge'}
+           'aero': 'Aero esintisi · cam / gölge + kısa pencere geçişi'}
 DOCK = 90
+DOCK_PROFILES = ('mac', 'gnome', 'windows11')
 LAUNCHERS = {90: 'oguzdows-browser.desktop', 91: 'oguzdows-files.desktop',
              92: 'oguzdows-store.desktop', 93: 'oguzdows-terminal.desktop'}
 ARRAY_TYPES = {'int-array': 'int', 'double-array': 'double', 'string-array': 'string'}
@@ -50,17 +51,20 @@ def settings(identifier, appearance=None, effects='off', resources=None):
     item = PROFILES[identifier]
     appearance = item['appearance'] if appearance is None else appearance
     gtk = theme(identifier, appearance)  # Aero'da da kimlik / tema girişini doğrula.
-    if effects == 'aero':
+    if effects == 'aero' and identifier != 'mac':
         gtk = ('OguzDowsAero', 'OguzDowsAeroDark')[appearance == 'dark']
-    dock = identifier in ('mac', 'gnome')
-    glass = effects in ('glass', 'aero') and (current_policy() if resources is None else resources)['compositing']
+    dock = identifier in DOCK_PROFILES
+    budget = current_policy() if resources is None else resources
+    glass = effects in ('glass', 'aero') and budget['compositing']
+    transitions = glass and effects == 'aero'
     # Üst çubuk, pencere çerçevesi, içerik ve tüm düğmeler daima opak.
     # Alfa yalnızca alt görev çubuğu / iskelenin ARKA PLAN rengindedir.
-    rgba = (['0.93', '0.94', '0.96'] if identifier == 'mac' and appearance == 'light'
+    light_panel = appearance == 'light' and (identifier in ('mac', 'windows11') or effects == 'aero')
+    rgba = (['0.93', '0.94', '0.96'] if light_panel
             else ['0.09', '0.16', '0.25']) + ['0.94' if glass else '1']
     choices = [
         ('xfce4-panel', '/panels/panel-1/position', 'string', f"p={item['position']};x=0;y=0"),
-        ('xfce4-panel', '/panels/panel-1/length', 'double', '76' if identifier == 'windows11' else '100'),
+        ('xfce4-panel', '/panels/panel-1/length', 'double', '100'),
         ('xfce4-panel', '/panels/panel-1/length-adjust', 'bool', 'false'),
         ('xfce4-panel', '/panels/panel-1/size', 'uint', str(item['size'])),
         ('xfce4-panel', '/panels/panel-1/mode', 'uint', '0'),
@@ -68,8 +72,11 @@ def settings(identifier, appearance=None, effects='off', resources=None):
         ('xfce4-panel', '/panels/panel-1/leave-opacity', 'uint', '100'),
         ('xfce4-panel', '/panels/panel-1/background-style', 'uint', '1' if glass and item['position'] == 10 else '0'),
         ('xfce4-panel', '/panels/panel-1/background-rgba', 'double-array', rgba),
-        ('xfce4-panel', '/panels/panel-1/plugin-ids', 'int-array', ['1', '3', '4', '5', '6', '7'] if dock else ['1', '2', '3', '4', '5', '6', '7']),
-        ('xfce4-panel', '/plugins/plugin-1/button-title', 'string', 'Başlat' if identifier == 'oguzdows' else 'Etkinlikler' if identifier == 'gnome' else 'OğuzDows'),
+        # Durum / saat kümesi merkez grubun dışında; asimetrik sağ alan
+        # Başlat + simgeleri sola itemez. Dar ekranda da çakışma olmaz.
+        ('xfce4-panel', '/panels/panel-1/plugin-ids', 'int-array', ['3', '4', '5', '6', '7'] if identifier == 'windows11' else ['1', '3', '4', '5', '6', '7'] if dock else ['1', '2', '3', '4', '5', '6', '7']),
+        ('xfce4-panel', '/plugins/plugin-1/button-title', 'string', 'Başlat' if identifier == 'oguzdows' else 'Etkinlikler' if identifier == 'gnome' else 'Uygulamalar' if identifier == 'mac' else 'OğuzDows'),
+        ('xfce4-panel', '/plugins/plugin-1/button-icon', 'string', 'oguzdows-desktops' if identifier == 'mac' else 'oguzdows'),
         ('xfce4-panel', '/plugins/plugin-1/show-button-title', 'bool', str(identifier != 'windows11').lower()),
         ('xfce4-panel', '/plugins/plugin-1/show-button-icon', 'bool', 'true'),
         ('xfce4-panel', '/plugins/plugin-1/view-mode', 'int', '0'),
@@ -80,12 +87,13 @@ def settings(identifier, appearance=None, effects='off', resources=None):
         ('xsettings', '/Gtk/ApplicationPreferDarkTheme', 'bool', str(appearance == 'dark').lower()),
         ('xsettings', '/Gtk/CursorThemeName', 'string', 'OguzDowsTespih'),
         ('xsettings', '/Gtk/CursorThemeSize', 'int', '32'),
-        ('xsettings', '/Gtk/EnableAnimations', 'bool', 'false'),
+        ('xsettings', '/Gtk/EnableAnimations', 'bool', str(transitions).lower()),
         ('xsettings', '/Gtk/DecorationLayout', 'string', 'close,minimize,maximize:menu' if identifier == 'mac' else 'menu:minimize,maximize,close'),
         ('xfwm4', '/general/theme', 'string', gtk),
         ('xfwm4', '/general/button_layout', 'string', item['layout']),
         ('xfwm4', '/general/title_alignment', 'string', 'center' if identifier == 'mac' else 'left'),
-        ('xfwm4', '/general/use_compositing', 'bool', str(glass).lower()),
+        # Aero'nun tek kompozitörü Picom; başarısızsa yönetici xfwm'a döner.
+        ('xfwm4', '/general/use_compositing', 'bool', str(glass and not transitions).lower()),
         ('xfwm4', '/general/frame_opacity', 'int', '100'),
         ('xfwm4', '/general/inactive_opacity', 'int', '100'),
         ('xfwm4', '/general/popup_opacity', 'int', '100'),
@@ -95,12 +103,12 @@ def settings(identifier, appearance=None, effects='off', resources=None):
     ]
     dock_values = [('position', 'string', 'p=7;x=0;y=0' if identifier == 'gnome' else 'p=10;x=0;y=0'),
                    ('mode', 'uint', '1' if identifier == 'gnome' else '0'),
-                   ('length', 'double', '88' if identifier == 'gnome' else '54'),
-                   ('length-adjust', 'bool', 'true'), ('size', 'uint', '50' if identifier == 'gnome' else '54'),
-                   ('icon-size', 'uint', '36'), ('position-locked', 'bool', 'true'),
+                   ('length', 'double', '1'),
+                   ('length-adjust', 'bool', 'true'), ('size', 'uint', '50' if identifier == 'gnome' else '48' if identifier == 'windows11' else '54'),
+                   ('icon-size', 'uint', '32' if identifier == 'windows11' else '36'), ('nrows', 'uint', '1'), ('position-locked', 'bool', 'true'),
                    ('autohide-behavior', 'uint', '0'), ('enter-opacity', 'uint', '100'), ('leave-opacity', 'uint', '100'),
                    ('background-style', 'uint', '1'), ('background-rgba', 'double-array', rgba),
-                   ('plugin-ids', 'int-array', ['90', '91', '92', '93', '94', '2'])]
+                   ('plugin-ids', 'int-array', (['1'] if identifier == 'windows11' else []) + ['90', '91', '92', '93', '94', '2'])]
     for key, kind, value in dock_values:
         choices.append(('xfce4-panel', '/panels/panel-90/' + key, kind, value if dock else None))
     for plugin, desktop in LAUNCHERS.items():
@@ -108,6 +116,7 @@ def settings(identifier, appearance=None, effects='off', resources=None):
                         ('xfce4-panel', f'/plugins/plugin-{plugin}/items', 'string-array', ['/usr/share/applications/' + desktop] if dock else None)])
     choices.extend([('xfce4-panel', '/plugins/plugin-94', 'string', 'separator' if dock else None),
                     ('xfce4-panel', '/plugins/plugin-94/style', 'uint', '1' if dock else None),
+                    ('xfce4-panel', '/plugins/plugin-94/expand', 'bool', 'false' if dock else None),
                     # En son yayımla; başka kullanıcı panellerini transaction korur.
                     ('xfce4-panel', '/panels', 'int-array', ['1', '90'] if dock else ['1'])])
     return choices
@@ -275,7 +284,7 @@ def apply(identifier, directory=None, execute=run, appearance=None):
         value = read_state(directory, 'appearance')
         appearance = value if value in APPEARANCES else None
     transaction(settings(identifier, appearance, effect_selection(directory)), directory, execute,
-                {'selected': identifier + '\n', 'layout-v2': 'owned\n' if identifier in ('mac', 'gnome') else None}, layout=True)
+                {'selected': identifier + '\n', 'layout-v2': 'owned\n' if identifier in DOCK_PROFILES else None}, layout=True)
 
 
 def set_appearance(appearance, directory=None, execute=run):
@@ -284,8 +293,10 @@ def set_appearance(appearance, directory=None, execute=run):
     directory = state_directory() if directory is None else directory
     identifier, _ = selection(directory)
     keys = {('xsettings', '/Net/ThemeName'), ('xsettings', '/Gtk/ApplicationPreferDarkTheme'), ('xfwm4', '/general/theme')}
-    if identifier == 'mac' and read_state(directory, 'layout-v2') == 'owned':
+    if identifier in DOCK_PROFILES and read_state(directory, 'layout-v2') == 'owned':
         keys.add(('xfce4-panel', '/panels/panel-90/background-rgba'))
+    elif effect_selection(directory) == 'aero':
+        keys.add(('xfce4-panel', '/panels/panel-1/background-rgba'))
     transaction([row for row in settings(identifier, appearance, effect_selection(directory)) if row[:2] in keys], directory, execute,
                 {'appearance': appearance + '\n'})
 
@@ -295,13 +306,13 @@ def set_effects(effects, directory=None, execute=run, resources=None):
         raise ValueError('Bilinmeyen efekt seçimi.')
     directory = state_directory() if directory is None else directory
     identifier, appearance = selection(directory)
-    keys = {('xsettings', '/Net/ThemeName'), ('xfwm4', '/general/theme'),
+    keys = {('xsettings', '/Net/ThemeName'), ('xsettings', '/Gtk/EnableAnimations'), ('xfwm4', '/general/theme'),
             ('xfwm4', '/general/show_frame_shadow'), ('xfwm4', '/general/shadow_opacity'),
             ('xfwm4', '/general/use_compositing'), ('xfce4-panel', '/panels/panel-1/background-style'),
             ('xfce4-panel', '/panels/panel-1/background-rgba'), ('xfce4-panel', '/panels/panel-90/background-rgba')}
     choices = [row for row in settings(identifier, appearance, effects, resources) if row[:2] in keys]
     # Daha önce iskele seçilmediyse ayrılmış panel alanına yazma.
-    if identifier not in ('mac', 'gnome'):
+    if identifier not in DOCK_PROFILES:
         choices = [row for row in choices if '/panel-90/' not in row[1]]
     transaction(choices, directory, execute, {'effects': effects + '\n'})
 

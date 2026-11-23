@@ -1,4 +1,5 @@
 @import url("../../OguzDowsLight/gtk-3.0/gtk.css");
+@import url("../../OguzDows/gtk-3.0/dock.css");
 /* OğuzDows özgün Xfce teması: ayrı shell / Microsoft işletim sistemi değildir. */
 @define-color theme_selected_bg_color #276bc1;
 @define-color selected_bg_color #276bc1;

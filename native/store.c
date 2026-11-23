@@ -518,7 +518,7 @@ static void build(void) {
     apps = g_ptr_array_new_with_free_func(app_free);
     window = gtk_application_window_new(application);
     gtk_window_set_title(GTK_WINDOW(window), "OğuzDows Mağaza");
-    gtk_window_set_icon_name(GTK_WINDOW(window), "oguzdows");
+    gtk_window_set_icon_name(GTK_WINDOW(window), "oguzdows-store");
     GdkDisplay *display = gtk_widget_get_display(window);
     GdkMonitor *monitor = gdk_display_get_primary_monitor(display);
     if (!monitor) monitor = gdk_display_get_monitor(display, 0);
@@ -649,7 +649,7 @@ static void build(void) {
     gtk_container_add(GTK_CONTAINER(window), root);
     GtkCssProvider *css = gtk_css_provider_new();
     gtk_css_provider_load_from_data(css,
-        ".store-sidebar row { padding: 0; border-bottom: 1px solid alpha(@borders,.5); }"
+        ".store-sidebar row { padding: 0; border: 0; border-radius: 11px; margin: 3px 4px; }"
         ".page-title { font-size: 25px; font-weight: 800; } .compact-store .page-title { font-size: 20px; } .dim-label { opacity: 1; }"
         ".app-card { background-image: none; background-color: @theme_base_color; border: 1px solid @borders; border-radius: 12px; }"
         ".app-card .app-icon { padding: 4px; } .scope-note { padding: 12px; border: 1px solid @borders; border-radius: 8px; }"

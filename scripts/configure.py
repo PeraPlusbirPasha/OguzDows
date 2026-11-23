@@ -83,6 +83,7 @@ def configure(arch: str, output: Path) -> None:
     documentation.mkdir(parents=True, exist_ok=True)
     shutil.copy2(ROOT / "docs/MASAUSTU-VE-BAKIM.md", documentation / "masaustu-ve-bakim.md")
     shutil.copy2(ROOT / "docs/PI-ZERO-OTURUM.md", documentation / "PI-ZERO-OTURUM.md")
+    shutil.copy2(ROOT / "docs/ELEMENTARY-HABER.md", documentation / "ELEMENTARY-HABER.md")
     shutil.copy2(ROOT / "docs/CIHAZLAR-VE-UYUMLULUK.md", documentation / "cihazlar-ve-uyumluluk.md")
     shutil.copy2(ROOT / "scripts/render-assets.py", overlay / "usr/lib/oguzdows/render-assets.py")
     if arch == 'amd64':
@@ -95,6 +96,8 @@ def configure(arch: str, output: Path) -> None:
     shutil.copytree(ROOT / 'native', overlay / 'usr/share/oguzdows/native', dirs_exist_ok=True)
     (overlay / 'usr/share/oguzdows/scripts').mkdir(parents=True, exist_ok=True)
     shutil.copy2(ROOT / 'scripts/build-native.sh', overlay / 'usr/share/oguzdows/scripts/build-native.sh')
+    shutil.copy2(ROOT / 'scripts/build-news.sh', overlay / 'usr/share/oguzdows/scripts/build-news.sh')
+    (overlay / 'usr/share/oguzdows/scripts/build-news.sh').chmod(0o755)
     (overlay / 'usr/share/oguzdows/scripts/build-native.sh').chmod(0o755)
 
     # Paketlerin önerilen ayar paketlerinden marka/config taşınmasına izin verme.

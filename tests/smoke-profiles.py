@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Beş düzeni gerçek Xfce panelleriyle özel CI Xvfb / D-Bus'ta açar.
+"""Altı düzeni gerçek Xfce panelleriyle özel CI Xvfb / D-Bus'ta açar.
 
 Kurulum, uygulama kısayolu çalıştırma veya fiziksel cihaz kanıtı değildir.
 Mevcut masaüstünde çalıştırılmaz; açık Xfce veri yolu varsa baştan reddedilir.
@@ -55,6 +55,26 @@ def stop_owned_process(process):
         # Ebeveyn çıktıysa dahi varsa yalnızca kendi grubumuzdaki torunları temizle.
 
 
+
+def icon_pixel_bounds(image):
+    """Panel çerçevesi değil, gerçek orta şeritte çizilen glyph/düğme sınırı.
+
+    Opak / tek renk CI iskelesi içindir; duvar kâğıdı veya fiziksel GPU ölçmez.
+    Panelin eşit kenar payı, yalnız pencere merkezini sınayan eski boşluğu kapatır.
+    """
+    from statistics import median
+    image = image.convert('RGB')
+    width, height = image.size
+    if min(width, height) < 22:
+        raise ValueError('İkon şeridi çok küçük.')
+    background = tuple(int(median(image.getpixel((2, y))[c] for y in (8, height // 2, height - 9))) for c in range(3))
+    columns = [x for x in range(2, width - 2) if any(max(abs(a-b) for a, b in zip(image.getpixel((x, y)), background)) > 24
+                                                         for y in range(8, height - 8))]
+    if not columns:
+        raise ValueError('Gerçek iskelede görünür simge bulunamadı.')
+    return columns[0], columns[-1] + 1
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--output', type=Path, required=True)
@@ -100,6 +120,7 @@ def main():
         type_atom = connection.intern_atom('_NET_WM_WINDOW_TYPE')
         clients_atom = connection.intern_atom('_NET_CLIENT_LIST')
         settings_process = panel_process = wm_process = sample = None
+        extra_windows = []
 
         def pump():
             for _ in range(50):
@@ -133,21 +154,17 @@ def main():
             return result
 
         def geometry_matches(identifier, windows):
-            expected = 2 if identifier in ('mac', 'gnome') else 1
+            expected = 2 if identifier in profiles.DOCK_PROFILES else 1
             if len(windows) != expected:
                 return False
             horizontal = [item for item in windows if item['width'] > item['height']]
-            if identifier == 'mac':
+            if identifier in ('mac', 'windows11'):
                 return (len(horizontal) == 2 and any(item['y'] <= 3 for item in windows)
                         and any(item['y'] >= screen_height - item['height'] - 3
                                 and abs(item['x'] + item['width'] / 2 - screen_width / 2) <= 4 for item in windows))
             if identifier == 'gnome':
                 return (len(horizontal) == 1 and horizontal[0]['y'] <= 3
                         and any(item['x'] <= 3 and item['height'] > item['width'] for item in windows))
-            if identifier == 'windows11':
-                return (len(horizontal) == 1 and horizontal[0]['width'] < screen_width * .9
-                        and abs(horizontal[0]['x'] + horizontal[0]['width'] / 2 - screen_width / 2) <= 4
-                        and horizontal[0]['y'] >= screen_height - horizontal[0]['height'] - 3)
             return len(horizontal) == 1
 
         def capture(identifier, suffix=''):
@@ -169,10 +186,10 @@ def main():
             assert sample.get_visible() and sample.get_window() is not None, 'Panel yenileme açık uygulamayı kapatmamalı'
             windows = docks()
             assert geometry_matches(identifier, windows), windows
-            assert profiles.read_property('xfce4-panel', '/panels', 'int-array', profiles.run) == (['1', '90'] if identifier in ('mac', 'gnome') else ['1'])
+            assert profiles.read_property('xfce4-panel', '/panels', 'int-array', profiles.run) == (['1', '90'] if identifier in profiles.DOCK_PROFILES else ['1'])
             plugin_names = {node.attrib['name'].removeprefix('plugin-'): node.attrib['value'] for node in
                             ET.parse(SKELETON).getroot().findall('./property[@name="plugins"]/property')}
-            if identifier in ('mac', 'gnome'):
+            if identifier in profiles.DOCK_PROFILES:
                 plugin_names.update({str(key): 'launcher' for key in profiles.LAUNCHERS})
                 plugin_names['94'] = 'separator'
             for plugin, expected in plugin_names.items():
@@ -184,9 +201,22 @@ def main():
                     assert actual == expected, ('Panel eklenti dizisi değişti', path, actual, expected)
             pixels = Gdk.pixbuf_get_from_window(Gdk.get_default_root_window(), 0, 0, screen_width, screen_height)
             assert pixels is not None
-            pixels.savev(str(output / ('panels-' + identifier + suffix + '.png')), 'png', [], [])
+            path = output / ('panels-' + identifier + suffix + '.png')
+            pixels.savev(str(path), 'png', [], [])
+            content = None
+            if identifier in ('mac', 'windows11'):
+                from PIL import Image
+                dock = next(item for item in windows if item['y'] > screen_height / 2)
+                with Image.open(path) as screenshot:
+                    strip = screenshot.crop((dock['x'], dock['y'], dock['x'] + dock['width'], dock['y'] + dock['height']))
+                    left, right = icon_pixel_bounds(strip)
+                center = dock['x'] + (left + right) / 2
+                content = {'left': dock['x'] + left, 'right': dock['x'] + right,
+                           'center_error_px': abs(center - screen_width / 2), 'screen_center': screen_width / 2}
+                assert content['center_error_px'] <= 12, ('Gerçek simge grubu merkezde değil', content)
+                assert dock['width'] < screen_width * .9, ('İskele gereksiz boş alanla dolduruldu', dock)
             report['layouts'].append({'profile': identifier, 'variant': suffix or 'light', 'windows': windows,
-                                      'xfconf_arrays': True, 'all_plugins_preserved': True, 'sample_application_stayed_open': True})
+                                      'icon_content': content, 'xfconf_arrays': True, 'all_plugins_preserved': True, 'sample_application_stayed_open': True})
 
         try:
             if connection.get_selection_owner(connection.intern_atom('WM_S0')):
@@ -197,6 +227,8 @@ def main():
             settings_process = subprocess.Popen(['xfsettingsd', '--no-daemon'], stdout=log, stderr=subprocess.STDOUT, start_new_session=True)
             profiles.apply('mac', appearance='light')
             sample = Gtk.Window(title='OğuzDows · gerçek panel denetimi')
+            sample.set_wmclass('oguzdows-layout-primary', 'OguzDowsLayoutPrimary')
+            sample.set_icon_name('oguzdows-news')
             sample.set_default_size(440, 240)
             sample.move((screen_width - 440) // 2, (screen_height - 240) // 2)
             sample.set_titlebar(Gtk.HeaderBar(title='OğuzDows', subtitle='Gerçek Xfce paneli · paket kurulmaz', show_close_button=True))
@@ -218,6 +250,25 @@ def main():
                 profiles.apply(identifier)
                 profiles.reload_panels()  # Yalnızca bu testin özel veri yolu.
                 capture(identifier)
+            # İki ek sınıf ile görev grubu büyürken merkez gerçekten kalmalı.
+            before = next(item['width'] for item in docks() if item['y'] > screen_height / 2)
+            for index in range(2):
+                extra = Gtk.Window(title='Merkez denetimi ' + str(index))
+                extra.set_wmclass('oguzdows-layout-extra-' + str(index), 'OguzDowsLayoutExtra' + str(index))
+                extra.set_icon_name('oguzdows-imece' if index else 'oguzdows-store')
+                extra.set_default_size(240, 150)
+                extra.add(Gtk.Label(label='Yalnızca panel merkez denetimi'))
+                extra.show_all()
+                extra_windows.append(extra)
+            # Wnck pencere olayını alsın; süre yalnızca bu özel testte.
+            deadline = time.monotonic() + 5
+            while time.monotonic() < deadline:
+                pump()
+                if any(item['y'] > screen_height / 2 and item['width'] > before + 20 for item in docks()):
+                    break
+                time.sleep(.05)
+            assert any(item['y'] > screen_height / 2 and item['width'] > before + 20 for item in docks()), 'Gerçek görev grubu yeni pencerelerle büyümeli'
+            capture('windows11', '-three-windows')
             profiles.restore()
             report['restored'] = True
             summary = {key: value for key, value in report.items() if key != 'plugin_descriptors_sha256'}
@@ -237,6 +288,8 @@ def main():
             raise
         finally:
             (output / 'profile-layouts.json').write_text(json.dumps(report, ensure_ascii=False, indent=2) + '\n')
+            for extra in extra_windows:
+                extra.destroy()
             if sample is not None:
                 sample.destroy()
             if panel_process is not None:

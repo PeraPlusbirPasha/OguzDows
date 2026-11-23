@@ -216,8 +216,13 @@ class RealDesktopTests(unittest.TestCase):
 class AeroTests(unittest.TestCase):
     def test_windows11_changes_geometry_icons_and_theme_not_merely_a_name(self):
         values = {path: value for _ch, path, _kind, value in profiles.settings('windows11')}
-        self.assertEqual(values['/panels/panel-1/position'], 'p=10;x=0;y=0')
-        self.assertLess(float(values['/panels/panel-1/length']), 100)
+        self.assertEqual(values['/panels/panel-90/position'], 'p=10;x=0;y=0')
+        self.assertEqual(values['/panels/panel-90/length'], '1')
+        self.assertEqual(values['/panels/panel-90/length-adjust'], 'true')
+        self.assertEqual(values['/panels/panel-1/position'], 'p=9;x=0;y=0')
+        self.assertIn('1', values['/panels/panel-90/plugin-ids'])
+        self.assertNotIn('3', values['/panels/panel-90/plugin-ids'])
+        self.assertNotIn('7', values['/panels/panel-90/plugin-ids'])
         self.assertEqual(values['/plugins/plugin-2/show-labels'], 'false')
         self.assertEqual(values['/plugins/plugin-1/show-button-title'], 'false')
         self.assertEqual(values['/Net/ThemeName'], 'OguzDowsEleven')
@@ -229,7 +234,8 @@ class AeroTests(unittest.TestCase):
             self.assertEqual(values['/general/frame_opacity'], '100')
             self.assertEqual(values['/general/inactive_opacity'], '100')
             self.assertEqual(values['/general/popup_opacity'], '100')
-            self.assertEqual(values['/general/use_compositing'], str(memory > 2097152).lower())
+            self.assertEqual(values['/general/use_compositing'], 'false', 'Aero tek Picom kompozitörü kullanır')
+            self.assertEqual(values['/Gtk/EnableAnimations'], str(memory > 2097152).lower())
         with self.assertRaises(ValueError):
             profiles.settings('windows11', 'invalid', 'aero')
 

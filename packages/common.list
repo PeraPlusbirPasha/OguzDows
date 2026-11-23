@@ -7,6 +7,8 @@ xfce4-terminal
 xfce4-settings
 xfce4-session
 xfce4-notifyd
+# İsteğe bağlı Aero geçişi; Zero / düşük RAM oturumunda çalıştırılmaz.
+picom
 xfce4-power-manager
 xfce4-power-manager-plugins
 xfce4-whiskermenu-plugin

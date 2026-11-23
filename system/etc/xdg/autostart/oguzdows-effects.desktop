@@ -1,0 +1,7 @@
+[Desktop Entry]
+Type=Application
+Name=OğuzDows isteğe bağlı pencere geçişleri
+Exec=/usr/bin/python3 -I /usr/lib/oguzdows/effects.py --session
+OnlyShowIn=XFCE;
+NoDisplay=true
+X-GNOME-Autostart-enabled=true

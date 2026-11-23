@@ -52,7 +52,7 @@ class Updater(Gtk.Application):
 
     def build(self):
         self.window = Gtk.ApplicationWindow(application=self, title='OğuzDows Güncelleyici')
-        self.window.set_icon_name('oguzdows')
+        self.window.set_icon_name('oguzdows-update')
         self.window.set_default_size(850, 640)
         self.window.set_size_request(540, 380)
         self.window.connect('delete-event', self.closing)

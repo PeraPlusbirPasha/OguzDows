@@ -124,6 +124,19 @@
       "duration_seconds": 43.68
     },
     {
+      "topic": "news",
+      "text": "OğuzDows Haber'e hoş geldin. Bu küçük okuyucu, yayıncıların RSS ve Atom akışlarında sunduğu başlıkları ve metinleri gösterir. Kaynağını seç; Yenile düğmesine bastığında yalnızca o kaynağa bağlanılır. Açılışta indirme, arka planda otomatik yenileme, resim veya JavaScript yoktur. İndirilen metinler internet kesilince de okunur. Bir başlığı aç, A artı ve A eksi düğmeleriyle yazıyı büyüt veya küçült. Yayıncı yalnızca özet sunuyorsa, Kaynakta aç düğmesiyle kendi tarayıcına geçebilirsin. Kendi HTTPS RSS adresini de ekleyebilirsin; eklemek indirme başlatmaz. Bu ses, okuyucunun rehberidir; değişen haberleri otomatik olarak seslendirmez.",
+      "text_key": "b11581540d69adfb1573acf22e0fbc695b28a829c3f406ef5ca2980926bafd3d",
+      "file": "panel-news.wav",
+      "sha256": "05465c3c6a9c70841354b8bf6303a912468d2ca41ed614564e429afa836c107d",
+      "bytes": 2288718,
+      "sample_rate": 24000,
+      "channels": 1,
+      "sample_width": 2,
+      "frames": 1144320,
+      "duration_seconds": 47.68
+    },
+    {
       "topic": "culture",
       "text": "İmece’de dört küçük araç var. Çay Molası zamanlayıcısını sen başlatırsın; pencere kapanınca durur. Türkçe Hızlı Yazım, noktalı ve noktasız I harflerini koruyarak yazını düzenler; panoyu kendiliğinden izlemez. Heybe, seçtiğin görünür ev klasörünü ayrı bir arşive yedekler; kaynak silinmez, otomatik geri yükleme yapılmaz. İmece Paketi, seçtiğin görünür dosyaları özetleriyle yerel bir arşivde toplar; ağda paylaşım servisi açmaz. Bu arşivler şifreli değildir. Hassas bilgileri paylaşmadan önce kontrol et; aynı diskte kopya, disk arızasına karşı yedek değildir.",
       "text_key": "9ef21daaef4eeb67885295bab24c2bd24f001c28fe067a29377269d2d79a5f29",

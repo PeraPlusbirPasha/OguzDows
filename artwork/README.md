@@ -35,3 +35,9 @@ Paketlenen 1920×1080 JPEG dosyaları `system/usr/share/backgrounds/oguzdows/` a
 **Vapur, Safranbolu, Pamukkale Terasları, Anadolu Gecesi** ise `scripts/draw-culture-wallpapers.py` içindeki özgün, deterministik Pillow çizimleridir; yapay zekâ görüntüsü veya kamera fotoğrafı olarak etiketlenmez. Çizim kaynağı sürüm kontrolündedir. 10 model görseli sınırı nedeniyle bu dört eserin tasarımı kodla yapılmıştır.
 
 Toplam **16 AI görsel + 4 özgün çizim**, 1920×1080 JPEG. Paketlenmiş yirmi dosya toplamı yaklaşık 11,3 MB; çalışma zamanında yalnızca kullanıcı seçtiği masaüstü ve galeriye girdiğinde 320×180 önizlemeler yüklenir. Ham geliştirme PNG'leri ve araç önbellekleri imaja / Git'e girmez. Hepsi bir kez sağ altta ay-yıldız / OğuzDows işaretiyle markalanır; SHA-256 ve köken kayıtları `landscapes.json` içinde tutulur. Bir logo lisans / telif yükümlülüğünü ortadan kaldırmaz.
+
+## Özgün OğuzDows uygulama simgeleri
+
+`own-app-icons.json` ürün tarafında `system/usr/share/oguzdows/` altındadır; 15 ayrı çizimin köken / ad listesi ve sekiz boyutu tutulur. Kaynak `scripts/render-assets.py:own_app_icon` olup derlemede 16–256px toplam 120 saydam kenarlı PNG üretir. Tekrarlanan bayraklar yerine çanta, gazete, çay, kedi, klasör ve ayrı siluetler vardır; elementary/Apple/Microsoft veya üçüncü taraf üretici logoları kopyalanmaz. Tam renderer yerelde 315.915 bayt üretti; bu dosya boyutu çalışma RAM'i veya fiziksel GPU başarısı değildir. Mağazadaki üçüncü taraf uygulama rozetleri ayrı kalır.
+
+Haber için seçili voice-01 ile 47,68sn yerel kullanım kaydı eklendi. Toplam 11 seçili WAV / 18.407.898 bayt / 25 metin eşlemesi; önceki on WAV'ın SHA-256'ları byte-byte korunur. Köken / PCM / tam metin `rifki-narration.json` içindedir; bu AI sesi insan stüdyo kaydı veya makale TTS'si değildir.

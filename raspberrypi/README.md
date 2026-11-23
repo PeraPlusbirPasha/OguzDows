@@ -134,10 +134,14 @@ Resmî `RPi-Distro/pi-gen` kaynakları `pi-gen.lock.json` içinde **tam commit +
 
 ## Doğrulama ve testlerin anlamı
 
+Ortak kaynak artık native C/GTK Haber okuyucusu, 15 ayrı simge ve doğal boyutlu iskele / bütçeli geçişleri de içerir. ARMv6'da kompozitör açılmaz; aynı uygulamalar ve statik düzen korunur. Yeni kapı hedef Haber ELF/sürümü ile non-root tam oturumda gerçek C istemcisi + üretim işçisi / ağsız TEST önbelleği ister. [Uygulama / sınırlar](../docs/ELEMENTARY-HABER.md).
+
+`79c6942` / [45084959200](https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/45084959200) önceki iki imajı, non-root tam Xfce ve armhf NetSurf yerel sayfasıyla başarıyla tamamladı. Bu kullanıcı-QEMU / host Xvfb kanıtıdır; fiziksel Zero siyahlığının çözüldüğü anlamına gelmez. Yeni Haber / simge / Picom kodu bu imajlarda yoktur.
+
 - Birim/kontrat testleri: iki mimari, PC paket ayrımı, ARMv6/Zero 2 ayrımı, zram sınırları, komut enjeksiyonu reddi, ilk açılışta kesinti/yeniden deneme ve hesap güvenliği.
 - Xvfb üzerindeki gerçek GTK penceresi Pi sayfa dalını **host üzerinde** açar; sahte kurucu/PC STA düğmesi olmadığını ve galeriyi denetler. Bu ARM veya kart ekran testi değildir.
 - Tam derlemede kullanıcı alanı **QEMU ARM1176 (ARMv6)** veya **Cortex-A53 (ARMv8)** altında `/bin/true`, Python / ürün modülleri, gerçek GTK pencere / Türkçe metin, Xfce ve yerel C mağaza sürümü / ELF ABI ile denetlenir. Xvfb yalnızca hosttadır; hedefe özel XDG / D-Bus oturumu verilir. Yeni kaynak buna özel non-root tam Xfce (WM + panel + masaüstü + kararlı örnekler) ve armhf'de yerel NetSurf başlangıcı kapısını ekler. Eski başarılı imajın sürüm testi bu yeni kapı yerine kullanılamaz. LightDM/PAM, gerçek firmware/GPU/512 MiB fiziksel RAM, tarayıcı/ofis yükü veya gerçek ses testi değildir.
-- **9 ortak özellik grubu**, ortak paketlerin gerçek sürüm / yerel mimarileri, **20 görsel + 10 seçilmiş doğal kayıt hash'i** ve resmî boot / taban kimliği build ve export'ta tekrar denetlenir. Minimum kaynak profili özellik kaldırmaz. Teknik paket tabanı / kod adı korunur; görünen ürün OğuzDows'tur.
+- **11 ortak özellik grubu**, ortak paketlerin gerçek sürüm / yerel mimarileri, **20 görsel + 11 seçilmiş doğal kayıt hash'i** ve resmî boot / taban kimliği build ve export'ta tekrar denetlenir. Minimum kaynak profili özellik kaldırmaz. Teknik paket tabanı / kod adı korunur; görünen ürün OğuzDows'tur.
 - Export öncesi ve son ham imajın **salt okunur loop** kontrolünde MBR/FAT/ext4, hizalama, model DTB/çekirdek/initramfs zinciri, çözülmüş PARTUUID, marka ve hesap güvenliği denetlenir. SSH anahtarları/machine-id, ortak kullanıcı ve parolasız sudo bulunması derlemeyi durdurur.
 - Bu kontroller **Pi'nin firmware'den gerçekten açıldığını, VC4/V3D donanım hızlandırmasını, Wi-Fi/Bluetooth/kamera/HAT işlevlerini veya performansı kanıtlamaz.** Bunlar fiziksel test ister.
 

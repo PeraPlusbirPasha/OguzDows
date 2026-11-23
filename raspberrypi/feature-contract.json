@@ -2,7 +2,7 @@
   "schema": 1,
   "scope": "build-time feature presence and ABI; not physical-device or application transaction proof",
   "minimum_wallpapers": 20,
-  "minimum_selected_narration": 10,
+  "minimum_selected_narration": 11,
   "python_modules": [
     "hardware",
     "pi_support",
@@ -15,7 +15,9 @@
     "resource_policy",
     "resource_tune",
     "session_start",
-    "desktop_sessions"
+    "desktop_sessions",
+    "news_core",
+    "effects"
   ],
   "architectures": {
     "armhf": {
@@ -215,6 +217,47 @@
         "boot/firmware/config.txt",
         "usr/lib/oguzdows/pi-firstboot.py",
         "usr/lib/oguzdows/pi-tune.py"
+      ]
+    },
+    "lightweight-news": {
+      "packages": [
+        "libjson-glib-1.0-0"
+      ],
+      "files": [
+        "usr/local/bin/oguzdows-news",
+        "usr/share/applications/oguzdows-news.desktop",
+        "usr/lib/oguzdows/oguzdows-news-native",
+        "usr/lib/oguzdows/news_core.py",
+        "usr/lib/oguzdows/news_service.py",
+        "usr/share/oguzdows/news-sources.json",
+        "usr/share/icons/hicolor/64x64/apps/oguzdows-news.png"
+      ]
+    },
+    "original-icons-and-budgeted-transitions": {
+      "packages": [
+        "picom"
+      ],
+      "files": [
+        "usr/lib/oguzdows/effects.py",
+        "etc/xdg/autostart/oguzdows-effects.desktop",
+        "usr/share/oguzdows/picom.conf",
+        "usr/share/oguzdows/own-app-icons.json",
+        "usr/share/themes/OguzDows/gtk-3.0/dock.css",
+        "usr/share/icons/hicolor/64x64/apps/oguzdows-store.png",
+        "usr/share/icons/hicolor/64x64/apps/oguzdows-news.png",
+        "usr/share/icons/hicolor/64x64/apps/oguzdows-welcome.png",
+        "usr/share/icons/hicolor/64x64/apps/oguzdows-update.png",
+        "usr/share/icons/hicolor/64x64/apps/oguzdows-device.png",
+        "usr/share/icons/hicolor/64x64/apps/oguzdows-compatibility.png",
+        "usr/share/icons/hicolor/64x64/apps/oguzdows-imece.png",
+        "usr/share/icons/hicolor/64x64/apps/oguzdows-install.png",
+        "usr/share/icons/hicolor/64x64/apps/oguzdows-rifki.png",
+        "usr/share/icons/hicolor/64x64/apps/oguzdows-desktops.png",
+        "usr/share/icons/hicolor/64x64/apps/oguzdows-drivers.png",
+        "usr/share/icons/hicolor/64x64/apps/oguzdows-wallpapers.png",
+        "usr/share/icons/hicolor/64x64/apps/oguzdows-browser.png",
+        "usr/share/icons/hicolor/64x64/apps/oguzdows-files.png",
+        "usr/share/icons/hicolor/64x64/apps/oguzdows-terminal.png"
       ]
     }
   }

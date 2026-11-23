@@ -174,7 +174,7 @@ class Narration(Gtk.Application):
             screen = self.window.get_screen()
             self.window.set_default_size(min(560, screen.get_width() - 24), min(350, screen.get_height() - 48))
             self.window.set_size_request(min(320, screen.get_width() - 24), 240)
-            self.window.set_icon_name('oguzdows')
+            self.window.set_icon_name('oguzdows-rifki')
             self.window.connect('destroy', lambda *_: setattr(self, 'window', None))
             self.box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=14, margin=18)
             self.explanation = Gtk.Label(xalign=0, wrap=True, max_width_chars=70)

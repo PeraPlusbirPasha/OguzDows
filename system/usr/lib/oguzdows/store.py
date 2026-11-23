@@ -212,7 +212,7 @@ class Store(Gtk.Application):
             self.window.present()
             return
         self.window = Gtk.ApplicationWindow(application=self, title='OğuzDows Mağaza')
-        self.window.set_icon_name('oguzdows')
+        self.window.set_icon_name('oguzdows-store')
         self.window.set_default_size(540, 320)
         self.window.connect('delete-event', lambda *_: self.busy)
         header = Gtk.HeaderBar(title='Mağazan hazır', subtitle='GNOME Yazılımlar · Sistem + Flatpak')

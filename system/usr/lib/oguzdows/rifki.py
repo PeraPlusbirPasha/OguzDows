@@ -109,7 +109,7 @@ class Companion(Gtk.ApplicationWindow):
         self.owns_speaker = speaker is None
         self.speaker = Speaker(GLib.idle_add, self.voice_error) if speaker is None else speaker
         self.set_title('Rıfkı · Hafif yardımcı')
-        self.set_icon_name('oguzdows')
+        self.set_icon_name('oguzdows-rifki')
         self.set_default_size(354,min(570,self.get_screen().get_height()-80))
         self.get_style_context().add_class('oguzdows-window')
         self.get_style_context().add_class('rifki-window')

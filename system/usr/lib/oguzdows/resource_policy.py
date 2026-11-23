@@ -31,7 +31,8 @@ def policy(memory_kib, legacy=False, requested='auto', nomodeset=False, graphics
     zram_mb = min(usable_mb, max(64, min(384 if profile == 'mini' else 1024,
                                       usable_mb * (75 if profile == 'mini' else 50) // 100)))
     return {'profile': profile, 'memory_kib': memory_kib, 'compositing': effects,
-            'animations': False, 'zram_mb': zram_mb, 'algorithm': 'lz4',
+            # Uygunluk; kendiliğinden açılmaz. Aero ayrıca açık tercih ister.
+            'animations': effects, 'zram_mb': zram_mb, 'algorithm': 'lz4',
             'swappiness': 100, 'page_cluster': 0,
             'thumbnail_pixels': 160 if automatic == 'mini' else 224,
             'legacy_cpu': bool(legacy), 'graphics_candidate': bool(graphics)}

@@ -175,7 +175,7 @@ class PiAbiAndFeatureTests(unittest.TestCase):
                 if arch == 'armhf':
                     self.assertTrue({'firefox-esr', 'firefox-esr-l10n-tr'}.isdisjoint(contract['required_packages']))
                     self.assertIn('netsurf-gtk', contract['required_packages'])
-                self.assertEqual(len(contract['asset_hashes']), 30)
+                self.assertEqual(len(contract['asset_hashes']), 31)
                 self.assertNotIn('xvfb', contract['required_packages'])
                 self.assertNotIn('xauth', contract['required_packages'])
                 self.assertFalse((overlay / 'etc/lsb-release').exists())
@@ -187,7 +187,9 @@ class PiAbiAndFeatureTests(unittest.TestCase):
                 reader = (ROOT / 'scripts/pi_contract.py').read_bytes()
                 self.assertEqual((overlay / 'usr/lib/oguzdows/pi_contract.py').read_bytes(), reader)
                 self.assertEqual((output / 'stage-oguzdows/00-desktop/files/pi_contract.py').read_bytes(), reader)
-                self.assertEqual(len(contract['features']), 9)
+                self.assertEqual(len(contract['features']), 11)
+                self.assertIn('lightweight-news', contract['features'])
+                self.assertIn('original-icons-and-budgeted-transitions', contract['features'])
                 self.assertIn('flatpak', contract['required_packages']) if arch == 'arm64' else self.assertNotIn('flatpak', contract['required_packages'])
 
 

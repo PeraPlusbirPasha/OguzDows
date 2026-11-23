@@ -29,13 +29,13 @@ class NarrationV11Tests(unittest.TestCase):
                             welcome.page_text('welcome', welcome.context()))
         self.assertEqual(welcome.page_text('hardware', welcome.context(pi=True)), texts.TEXTS['hardware-pi'])
 
-    def test_the_ten_selected_voice_clips_match_text_hash_bytes_and_pcm_provenance(self):
+    def test_selected_voice_clips_match_text_hash_bytes_and_pcm_provenance(self):
         provenance = json.loads((ROOT / 'artwork/rifki-narration.json').read_text())
         self.assertIn('Explicitly selected', provenance['voice_selection'])
         self.assertTrue(provenance['not_a_human_studio_recording'])
         self.assertFalse(provenance['runtime_synthesis'])
         self.assertEqual({clip['topic'] for clip in provenance['clips']}, set(texts.TEXTS))
-        self.assertEqual(len(provenance['clips']), 10)
+        self.assertEqual(len(provenance['clips']), 11)
         total = 0
         for clip in provenance['clips']:
             with self.subTest(topic=clip['topic']):
@@ -65,7 +65,7 @@ class NarrationV11Tests(unittest.TestCase):
             self.assertFalse((ASSETS / filename).exists())
 
     def test_other_window_guides_are_recorded_but_not_dynamic_error_or_success_texts(self):
-        for topic in ('applications', 'store', 'culture', 'compatibility', 'support'):
+        for topic in ('applications', 'store', 'culture', 'compatibility', 'support', 'news'):
             self.assertIsNotNone(speech.ready_clip(texts.TEXTS[topic], ASSETS))
         for text in ('Dosya başarıyla kuruldu', 'Sürücü hatası 1234', '/home/örnek/gizli.apk'):
             self.assertIsNone(speech.ready_clip(text, ASSETS))
@@ -112,7 +112,7 @@ class NarrationV11Tests(unittest.TestCase):
             self.assertEqual(manifest['basic'], 'intro-light.wav')
             self.assertNotIn('stale', manifest)
             self.assertEqual((destination / 'intro-light.wav').read_bytes(), b'basic stays')
-            self.assertEqual(len(manifest), 11)
+            self.assertEqual(len(manifest), len(texts.TEXTS) + 1)
             self.assertFalse((destination / 'panel-wallpapers.wav').exists())
             for text in texts.TEXTS.values():
                 self.assertIsNotNone(speech.ready_clip(text, destination))

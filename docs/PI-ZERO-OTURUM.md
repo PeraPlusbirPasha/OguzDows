@@ -9,9 +9,13 @@ Ekranın tam olarak Türkçe metin hesabından mı, grafik greeter girişinden m
 karardığı ve LightDM / Xorg / kullanıcı günlükleri henüz doğrulanmadı.
 **Kesin kök neden, başarılı fiziksel düzeltme veya Pi RAM tasarruf miktarı ilan edilmez.**
 
-Önceki yeşil Pi derlemesi root GTK penceresi + Xfce sürüm yanıtını sınadı;
-normal kullanıcının LightDM → masaüstü girişini veya gerçek GPU'yu kanıtlamadı.
-Başarılı PC `440cf74` / 45069328093 512 MiB VM ölçümü de Pi sonucu değildir.
+Eski yeşil Pi derlemesi yalnız root GTK penceresi + Xfce sürüm yanıtını sınadı.
+Sonraki `79c6942` / [45084959200](https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/45084959200)
+iki mimaride **UID65534 / gerçek ürün girişi / tam Xfce / beş kararlı örnek** ve
+armhf NetSurf yerel sayfasını geçti. Bu hâlâ ARM kullanıcı-QEMU + host Xvfb'dir:
+**LightDM/PAM/logind, gerçek Pi kernel/GPU/512MiB/SD veya fiziksel onarım kanıtı değildir.**
+[Kaynak kimlikli kayıt](releases/v1.1-79c6942-images.json). PC 512MiB VM de Pi sonucu değildir.
+Yeni Haber / simge / geçiş kodu bu önceki imajlara dahil değildir.
 
 ## Bu yeni kaynakta yapılanlar
 
@@ -115,7 +119,11 @@ menüsünde oturumu doğrulayın; gerektiğinde OğuzDows / Xfce'ye dönün.
 Aero esintisi **opak statik yansımalı başlık** sağlar. >2 GiB, ARMv6 olmayan,
 nomodeset olmayan ve tanınan DRM sürücülü full profilde, açık istekle alt çubuk /
 iskelede hafif alfa ve çerçeve gölgesi olabilir. Bilinen DRM sürücüsü tek başına
-hız ölçümü değildir. Blur / sürekli animasyon / picom daemon yoktur. Zero'da
-aynı statik renk / yansıma kalır, compositor açılmaz. Üst çubuk, içerik, yazılar
+hız ölçümü değildir. Yeni kaynakta açık Aero tercihi tek Picom XRender motoruyla
+yaklaşık 100ms solma / hafif gölge ister; sürekli Python denetleyicisi, GLX / blur /
+yaylanma yoktur. Başka kompozitör korunur; motor açılamazsa statik görünüm kalır.
+Zero'da aynı statik renk / yansıma kalır, compositor açılmaz. Üst çubuk, içerik, yazılar
 ve kapatma düğmeleri her bütçede okunaklı ve opaktır. Fiziksel GPU / RAM kazancı
 ayrıca ölçülmelidir.
+
+Hafif C/GTK Haber okuyucusu, yuvarlatılmış iskele / yan menü ve özgün simgeler de ortak ARM tarifindedir. [Kapsam ve bekleyen testler](ELEMENTARY-HABER.md). Haber / tarayıcı motoru Zero'da modern JavaScript sitelerinin yerine geçmiş sayılmaz.

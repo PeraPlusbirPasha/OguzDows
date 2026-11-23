@@ -2,7 +2,7 @@
 Type=Application
 Name=Uçbirim
 Exec=/usr/bin/xfce4-terminal
-Icon=utilities-terminal
+Icon=oguzdows-terminal
 Terminal=false
 NoDisplay=true
 Categories=Utility;

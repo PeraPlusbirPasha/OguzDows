@@ -119,7 +119,9 @@ def desktop_contract(root):
                'usr/local/sbin/oguzdows-maintenance', 'usr/lib/oguzdows/maintenance.py',
                'usr/lib/oguzdows/hardware.py', 'usr/lib/oguzdows/pi_support.py',
                'usr/lib/oguzdows/app_catalog.py', 'usr/lib/oguzdows/store_service.py',
-               'usr/lib/oguzdows/oguzdows-store-native', 'usr/share/oguzdows/build-info.json',
+               'usr/lib/oguzdows/oguzdows-store-native', 'usr/lib/oguzdows/oguzdows-news-native',
+               'usr/lib/oguzdows/news_service.py', 'usr/lib/oguzdows/news_core.py',
+               'usr/share/oguzdows/picom.conf', 'usr/share/oguzdows/build-info.json',
                'usr/share/polkit-1/actions/org.oguzdows.maintenance.policy',
                'etc/apt/preferences.d/oguzdows-pardus', 'etc/apt/sources.list.d/oguzdows-pardus.sources',
                'usr/share/keyrings/oguzdows-pardus.asc')
@@ -134,7 +136,7 @@ def desktop_contract(root):
         fields = dict(line.split(': ', 1) for line in paragraph.splitlines() if ': ' in line and not line.startswith((' ', '\t')))
         if fields.get('Status') == 'install ok installed':
             installed.add(fields.get('Package'))
-    required = {'python3-apt', 'gnome-software', 'gnome-software-plugin-flatpak', 'iso-codes', 'flatpak', 'gpgv', 'xdg-desktop-portal-gtk', 'gir1.2-flatpak-1.0', 'libjson-glib-1.0-0'}
+    required = {'python3-apt', 'gnome-software', 'gnome-software-plugin-flatpak', 'iso-codes', 'flatpak', 'gpgv', 'xdg-desktop-portal-gtk', 'gir1.2-flatpak-1.0', 'libjson-glib-1.0-0', 'picom'}
     if required - installed:
         raise RuntimeError('ISO bakım / mağaza paketleri eksik: ' + ', '.join(sorted(required - installed)))
     # Software 48 bu isteğe bağlı gibi görünen veri olmadan SIGTRAP ile çıkar.
@@ -148,6 +150,9 @@ def desktop_contract(root):
         if hashlib.sha256(picture.read_bytes()).hexdigest() != record['packaged_sha256']:
             raise RuntimeError('ISO yeni logolu manzarayı taşımıyor: ' + record['file'])
     target_system.nonempty(root, 'usr/share/icons/OguzDowsTespih/cursors/left_ptr')
+    for identifier in json.loads((ROOT / 'system/usr/share/oguzdows/own-app-icons.json').read_text())['icons']:
+        target_system.nonempty(root, f'usr/share/icons/hicolor/64x64/apps/oguzdows-{identifier}.png')
+    target_system.nonempty(root, 'usr/share/oguzdows/news-sources.json')
     return {'packages': sorted(required), 'privileged_ownership_verified': True,
             'pardus_enabled': False, 'replacement_wallpapers': 20, 'native_cursor': True}
 

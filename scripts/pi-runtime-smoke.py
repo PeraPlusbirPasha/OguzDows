@@ -95,7 +95,7 @@ def target_check(arch, cpu, report):
         raise ValueError('Minimum CPU / mimari sözleşmesi uyuşmuyor.')
     report.update(arch=arch, minimum_cpu=cpu, source_revision=contract['source_revision'], pi_gen_commit=contract['pi_gen_commit'])
     report['abi'] = {str(path): elf_info(checked_path(root, str(path).removeprefix('/')), expected) for path in
-                     (Path('/usr/bin/python3'), Path('/usr/lib/oguzdows/oguzdows-store-native'))}
+                     (Path('/usr/bin/python3'), Path('/usr/lib/oguzdows/oguzdows-store-native'), Path('/usr/lib/oguzdows/oguzdows-news-native'))}
     prefix = ['/tmp/oguzdows-qemu-static', '-cpu', cpu]
     command([*prefix, '/bin/true'])
     sys.path.insert(0, '/usr/lib/oguzdows')
@@ -115,6 +115,10 @@ def target_check(arch, cpu, report):
     if report['suite'] != contract['suite']:
         raise ValueError('Pi paket aracı gerçek taban kod adını göremiyor.')
     report['gui'] = gui_check(prefix, '/usr/lib/oguzdows/oguzdows-store-native')
+    news = command([*prefix, '/usr/lib/oguzdows/oguzdows-news-native', '--version'])
+    if 'OğuzDows Haber · GTK ' not in news:
+        raise ValueError('Hedef C haber okuyucusu sürümü geçersiz.')
+    report['gui']['native_news_version'] = news
     from pi_session_smoke import run_nonroot_session
     report['full_session'] = run_nonroot_session(cpu)
 

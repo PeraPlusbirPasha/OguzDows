@@ -28,7 +28,7 @@ def validate_features(root: Path, arch: str) -> None:
             or type(report.get('schema')) is not int or report['schema'] != 1):
         raise ValueError('Pi sözleşme / hedef rapor şeması geçersiz.')
     expected = contract['architectures'][arch]
-    if not isinstance(report.get('gui'), dict) or not all(isinstance(report['gui'].get(key), str) for key in ('xfce_version', 'native_store_version')):
+    if not isinstance(report.get('gui'), dict) or not all(isinstance(report['gui'].get(key), str) for key in ('xfce_version', 'native_store_version', 'native_news_version')):
         raise ValueError('Pi hedef GUI sürüm raporu eksik / geçersiz.')
     if (contract['arch'] != arch or contract['pi_gen_commit'] != info['pi_gen_commit']
             or contract['source_revision'] != info['source_revision']
@@ -41,7 +41,8 @@ def validate_features(root: Path, arch: str) -> None:
             or report.get('suite') != contract['suite']
             or report.get('gui', {}).get('gtk_window') is not True
             or 'xfce4-session' not in report.get('gui', {}).get('xfce_version', '')
-            or 'OğuzDows' not in report.get('gui', {}).get('native_store_version', '')):
+            or 'OğuzDows' not in report.get('gui', {}).get('native_store_version', '')
+            or 'OğuzDows Haber · GTK ' not in report.get('gui', {}).get('native_news_version', '')):
         raise ValueError('Pi hedef ABI / gerçek GTK / kaynak raporu eksik veya başarısız.')
     session = report.get('full_session', {})
     if (not isinstance(session, dict) or session.get('uid') != 65534
@@ -52,6 +53,9 @@ def validate_features(root: Path, arch: str) -> None:
             or any(session.get(name) is not True for name in ('xfwm4', 'xfce4-panel', 'xfdesktop'))
             or any(session.get(name) is not False for name in ('lightdm_pam', 'physical_boot', 'performance_measurement'))):
         raise ValueError('Pi root olmayan TAM Xfce oturum raporu eksik / başarısız; --version yeterli değildir.')
+    if session.get('news') != {'native_process_alive': True, 'worker_exited': True, 'cached_fixture_preserved': True,
+                              'network_tested': False, 'performance_measurement': False, 'window_pixels_verified': False}:
+        raise ValueError('Pi C Haber / offline fixture / kısa ömürlü işçi testi eksik veya başarısız.')
     if arch == 'armhf' and session.get('browser') != {'program': 'netsurf-gtk', 'local_start_page_alive': True,
                                                    'network_tested': False, 'modern_sites_verified': False}:
         raise ValueError('Pi ARMv6 NetSurf yerel başlangıç testi eksik / başarısız.')
@@ -65,7 +69,7 @@ def validate_features(root: Path, arch: str) -> None:
     if report.get('feature_presence') != feature_presence(root, contract):
         raise ValueError('Pi özellik / doğal kayıt / galeri raporu export ile eşleşmedi.')
     abi = {'/' + name: elf_info(checked_path(root, name), expected)
-           for name in ('usr/bin/python3', 'usr/lib/oguzdows/oguzdows-store-native')}
+           for name in ('usr/bin/python3', 'usr/lib/oguzdows/oguzdows-store-native', 'usr/lib/oguzdows/oguzdows-news-native')}
     if report.get('abi') != abi:
         raise ValueError('Pi hedef ABI raporu export içindeki Python / mağazayla eşleşmedi.')
     release = dict(line.split('=', 1) for line in read(root, 'usr/lib/os-release').splitlines() if '=' in line and not line.startswith('#'))

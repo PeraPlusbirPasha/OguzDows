@@ -2,7 +2,7 @@
 Type=Application
 Name=Dosyalar
 Exec=/usr/bin/Thunar
-Icon=system-file-manager
+Icon=oguzdows-files
 Terminal=false
 NoDisplay=true
 Categories=Utility;

@@ -112,7 +112,11 @@ class ResourcePolicyTests(unittest.TestCase):
         self.assertTrue(all(command[0] == 'xfconf-query' for command in xfconf.calls))
 
     def test_shared_files_reach_two_pc_two_pi_and_every_arm64_overlay(self):
-        required = ['usr/lib/oguzdows/session_start.py', 'usr/lib/oguzdows/welcome_start.py',
+        required = ['usr/lib/oguzdows/effects.py', 'usr/share/oguzdows/picom.conf',
+                    'usr/lib/oguzdows/news_core.py', 'usr/lib/oguzdows/news_service.py',
+                    'usr/local/bin/oguzdows-news', 'usr/share/applications/oguzdows-news.desktop',
+                    'usr/share/oguzdows/news-sources.json', 'usr/share/oguzdows/own-app-icons.json',
+                    'usr/share/themes/OguzDows/gtk-3.0/dock.css', 'usr/lib/oguzdows/session_start.py', 'usr/lib/oguzdows/welcome_start.py',
                     'usr/lib/oguzdows/desktop_sessions.py', 'usr/lib/oguzdows/desktops.py',
                     'usr/share/xsessions/oguzdows.desktop',
                     'usr/share/themes/OguzDowsAero/gtk-3.0/gtk.css', 'usr/share/themes/OguzDowsEleven/gtk-3.0/gtk.css',

@@ -1,6 +1,6 @@
 /* Yerel GTK kutuları; önizleme için Python/Cairo/Pillow döngüsü yoktur. */
 .oguzdows-window .welcome-sidebar { background-color: @welcome_sidebar_bg; }
-.oguzdows-window .welcome-sidebar row { border-bottom: 1px solid @borders; padding: 0; }
+.oguzdows-window .welcome-sidebar row { border: 0; border-radius: 11px; margin: 3px 6px; padding: 0; }
 .oguzdows-window .welcome-sidebar row:selected { background-color: @theme_selected_bg_color; color: @theme_selected_fg_color; }
 .oguzdows-window .welcome-sidebar row:selected label { color: @theme_selected_fg_color; }
 .oguzdows-window .style-card { border: 2px solid @borders; border-radius: 8px; background-image: none; padding: 2px; }
