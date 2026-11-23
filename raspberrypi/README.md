@@ -2,16 +2,18 @@
 
 Aynı Ay Yıldız kimliği, Türkçe Xfce/X11 masaüstü, net pencere/panel düğmeleri, Plymouth animasyonu, Pi'ye özel karşılayıcı, doğal yerel Rıfkı rehberi, cihaz merkezi, yerel C/GTK mağaza ve **20 kültür duvar kâğıdı**; Pi'ye özgü çekirdek, boot firmware'i ve güvenli ilk açılış ile. Galeri 16 AI görsel ve 4 özgün çizimden oluşur; yirmi gerçek fotoğraf iddiası değildir.
 
-Bu sayfa **v1.1 geliştirme tarifini** açıklar. Bu çalışma için doğrulanmış bir Pi imajı henüz yayımlanmadı. Aşağıdaki yazma adımları yalnızca kendi mimariniz için başarıyla üretilmiş, hash'i doğrulanmış imaj varsa uygulanır; `--configure-only` çıktısı imaj değildir.
+**[v1.1 yayını](https://github.com/PeraPlusbirPasha/OguzDows/releases/tag/v1.1)** iki mimarinin kalıcı indirmesini içerir: **[armhf](https://github.com/PeraPlusbirPasha/OguzDows/releases/download/v1.1/OguzDows-rpi-armhf.img.xz)** · [armhf SHA-256](https://github.com/PeraPlusbirPasha/OguzDows/releases/download/v1.1/OguzDows-rpi-armhf.img.xz.sha256) · **[arm64](https://github.com/PeraPlusbirPasha/OguzDows/releases/download/v1.1/OguzDows-rpi-arm64.img.xz)** · [arm64 SHA-256](https://github.com/PeraPlusbirPasha/OguzDows/releases/download/v1.1/OguzDows-rpi-arm64.img.xz.sha256). Ürün kaynağı `29f7738534cd00bd87887f530355ef45e01eb28c`; `--configure-only` çıktısı imaj değildir. **[PC/Pi model, CPU, RAM ve depolama indirme rehberi](../docs/releases/v1.1.md).**
+
+> **Deneysel port:** fiziksel kartlar bu yeni imajla doğrulanmadı. İlk nesil Zero/Zero W’de doğru armhf ile hesap ekranı sonrası siyah ekran bildirimi hâlâ açıktır; giderildiği iddia edilmez. ARM kullanıcı-QEMU/Xvfb başarısı LightDM/PAM veya fiziksel boot kanıtı değildir. [Teşhis](../docs/PI-ZERO-OTURUM.md).
 
 **Bu bir PC ISO'su değildir.** Doğrudan SD/USB'ye yazılan, değişiklikleri kalıcı tutan iki `.img.xz` tarifi vardır. ARMv6 ile ARM64 aynı dosya gibi ele alınmaz. Yapılandırmanın/testlerin geçmesi, bütün kartların açıldığı veya ölçülmüş yüksek performans elde edildiği anlamına gelmez. Fiziksel kart testleri aşağıdaki tabloda henüz yapılmamıştır.
 
 ## İmaj seçimi
 
-| Kart / işlemci | İmaj | Otomatik profil | Fiziksel test |
+| Kart / işlemci | İmaj | Otomatik profil | Bu imajla fiziksel test |
 | --- | --- | --- | --- |
-| Zero / Zero W / Zero WH · ARM1176, ARMv6, 512 MB | **armhf** | mini | Yapılmadı |
-| Pi 1 A/A+/B/B+ · ARMv6, 256–512 MB | **armhf** | mini | Yapılmadı; 256 MB masaüstü deneysel |
+| Zero / Zero W / Zero WH · ARM1176, ARMv6, 512 MB | **armhf** | mini | Yapılmadı; hesap sonrası siyahlık bildirimi açık |
+| Pi 1 A/A+/B/B+ · ARMv6, 256–512 MB | **armhf** | mini | Yapılmadı; 256 MB günlük masaüstü önerilmez |
 | Pi 2 B rev 1.0/1.1 · Cortex-A7, ARMv7 | **armhf** | light | Yapılmadı |
 | Pi 2 B rev 1.2 · Cortex-A53 | armhf veya arm64 | light | Yapılmadı |
 | Zero 2 W · Cortex-A53, 512 MB | RAM tasarrufu için **armhf**; arm64 alternatifi | mini | Yapılmadı |
@@ -35,7 +37,7 @@ PC'ye özgü Calamares, BIOS/UEFI/GRUB menüsü, Intel/AMD mikro kodları ve Bro
 
 ## SD / USB'ye yazma ve ilk açılış
 
-1. Kartınıza uygun `OguzDows-rpi-armhf.img.xz` veya `OguzDows-rpi-arm64.img.xz` ile SHA-256 dosyasını indirin. Actions artefaktı ZIP ise önce ZIP'i açın.
+1. Yukarıdaki v1.1 yayınından kartınıza uygun `OguzDows-rpi-armhf.img.xz` veya `OguzDows-rpi-arm64.img.xz` ile SHA-256 dosyasını indirin. Release dosyası `.img.xz` biçimindedir; ayrıca Actions ZIP’i indirmeniz gerekmez.
 2. Aynı dizinde `sha256sum -c OguzDows-rpi-armhf.img.xz.sha256` (veya arm64) çalıştırın.
 3. Raspberry Pi Imager'da **özel imaj kullan** ile `.img.xz` dosyasını seçin. Hedefin tüm verileri silinir; doğru SD/USB'yi seçtiğinizi iki kez kontrol edin. En az **16 GB**, tercihen kaliteli **32 GB A1/A2** kart kullanın. Pi 4/5'te desteklenen USB 3 SSD, SD'ye göre daha iyi uygulama deneyimi sağlayabilir.
 4. **Imager'ın kullanıcı/SSH/ileri özelleştirme seçeneklerini uygulamayın.** Bu port kendi hesap adımını kullanır. Mevcut imaj dosyası için Imager'ın kimlik özelleştirme uyumluluğu test edilmemiştir.
@@ -134,15 +136,19 @@ Resmî `RPi-Distro/pi-gen` kaynakları `pi-gen.lock.json` içinde **tam commit +
 
 ## Doğrulama ve testlerin anlamı
 
-`29f7738` [Pi ortak host CI](https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/45169809200) **başarılı**; üretim/test C Haber, 1024×768/360×800 offline/iptal/timeout ve diğer GTK kapıları geçti. Bu ARM CPU / gerçek kart testi değildir. Yeni [armhf+arm64 imaj çalışması 45170576727](https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/45170576727) bir kez başlatıldı; hedef ARM Haber / tam imaj sonucu ayrıca beklenir. [Kaynak kimlikli host kanıtı](../docs/releases/v1.1-elementary-host.json).
+`29f7738` [Pi ortak host CI](https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/45169809200) ve [armhf+arm64 imaj çalışması 45170576727](https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/45170576727) **başarılı tamamlandı**. İmajlar birer kez başlatıldı; iptal/yeniden başlatma yoktur. ARM1176/Cortex-A53 hedef ELF/GTK, root olmayan tam Xfce/beş kararlı örnek, native C Haber/çıkan üretim işçisi/ağsız TEST önbelleği ve armhf NetSurf yerel sayfası geçti. 115/121 ortak paket, 11 özellik grubu, 31 görsel/ses hash’i, 20 duvar kâğıdı, 11 kayıt/25 eşleme doğrulandı. **LightDM/PAM, fiziksel Pi kernel/GPU/SD, ses çıkışı, canlı haber veya Pi RAM/hız ölçümü değildir.**
 
-Ortak kaynak artık native C/GTK Haber okuyucusu, 15 ayrı simge ve doğal boyutlu iskele / bütçeli geçişleri de içerir. ARMv6'da kompozitör açılmaz; aynı uygulamalar ve statik düzen korunur. Yeni kapı hedef Haber ELF/sürümü ile non-root tam oturumda gerçek C istemcisi + üretim işçisi / ağsız TEST önbelleği ister. [Uygulama / sınırlar](../docs/ELEMENTARY-HABER.md).
+Yayın aktarımı [45201307283](https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/45201307283), mevcut sıkıştırılmış dosya SHA-256’sını yeniden hesaplar; ham imajı salt okunur açıp iç kaynak/sürüm/lock/rapor eşleşmesini ve mevcut Pi boot/hesap/özellik denetimini tekrar kontrol eder. İmaj yeniden derlenmez. [Yükleme sonrası 45203390800](https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/45203390800) 17 release dosyasını yeniden indirip hash’lerini ve 21 JSON kanıtını ayrıca doğruladı; release’e yazmadı. [Yayın manifesti](https://github.com/PeraPlusbirPasha/OguzDows/releases/download/v1.1/release-manifest.json) · [Özgün runtime/upstream/APT/collection JSON’ları](https://github.com/PeraPlusbirPasha/OguzDows/releases/download/v1.1/test-evidence.tar.gz) · [Host kanıtı](../docs/releases/v1.1-elementary-host.json).
+
+Ortak kaynak native C/GTK Haber okuyucusu, 15 ayrı simge ve doğal boyutlu iskele/bütçeli geçişleri içerir. ARMv6’da kompozitör açılmaz; aynı uygulamalar ve statik düzen korunur. [Uygulama / sınırlar](../docs/ELEMENTARY-HABER.md).
+
+### Önceki imajların tarihsel kaydı
 
 `79c6942` / [45084959200](https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/45084959200) önceki iki imajı, non-root tam Xfce ve armhf NetSurf yerel sayfasıyla başarıyla tamamladı. Bu kullanıcı-QEMU / host Xvfb kanıtıdır; fiziksel Zero siyahlığının çözüldüğü anlamına gelmez. Yeni Haber / simge / Picom kodu bu imajlarda yoktur.
 
 - Birim/kontrat testleri: iki mimari, PC paket ayrımı, ARMv6/Zero 2 ayrımı, zram sınırları, komut enjeksiyonu reddi, ilk açılışta kesinti/yeniden deneme ve hesap güvenliği.
 - Xvfb üzerindeki gerçek GTK penceresi Pi sayfa dalını **host üzerinde** açar; sahte kurucu/PC STA düğmesi olmadığını ve galeriyi denetler. Bu ARM veya kart ekran testi değildir.
-- Tam derlemede kullanıcı alanı **QEMU ARM1176 (ARMv6)** veya **Cortex-A53 (ARMv8)** altında `/bin/true`, Python / ürün modülleri, gerçek GTK pencere / Türkçe metin, Xfce ve yerel C mağaza sürümü / ELF ABI ile denetlenir. Xvfb yalnızca hosttadır; hedefe özel XDG / D-Bus oturumu verilir. Yeni kaynak buna özel non-root tam Xfce (WM + panel + masaüstü + kararlı örnekler) ve armhf'de yerel NetSurf başlangıcı kapısını ekler. Eski başarılı imajın sürüm testi bu yeni kapı yerine kullanılamaz. LightDM/PAM, gerçek firmware/GPU/512 MiB fiziksel RAM, tarayıcı/ofis yükü veya gerçek ses testi değildir.
+- Tam derlemede kullanıcı alanı **QEMU ARM1176 (ARMv6)** veya **Cortex-A53 (ARMv8)** altında `/bin/true`, Python / ürün modülleri, gerçek GTK pencere / Türkçe metin, Xfce ve yerel C mağaza sürümü / ELF ABI ile denetlenir. Xvfb yalnızca hosttadır; hedefe özel XDG / D-Bus oturumu verilir. Bu sürüm özel non-root tam Xfce (WM + panel + masaüstü + kararlı örnekler), native Haber ve armhf'de yerel NetSurf başlangıcı kapılarını da geçti. Eski başarılı imajın sürüm testi bu yeni kapı yerine kullanılamaz. LightDM/PAM, gerçek firmware/GPU/512 MiB fiziksel RAM, tarayıcı/ofis yükü veya gerçek ses testi değildir.
 - **11 ortak özellik grubu**, ortak paketlerin gerçek sürüm / yerel mimarileri, **20 görsel + 11 seçilmiş doğal kayıt hash'i** ve resmî boot / taban kimliği build ve export'ta tekrar denetlenir. Minimum kaynak profili özellik kaldırmaz. Teknik paket tabanı / kod adı korunur; görünen ürün OğuzDows'tur.
 - Export öncesi ve son ham imajın **salt okunur loop** kontrolünde MBR/FAT/ext4, hizalama, model DTB/çekirdek/initramfs zinciri, çözülmüş PARTUUID, marka ve hesap güvenliği denetlenir. SSH anahtarları/machine-id, ortak kullanıcı ve parolasız sudo bulunması derlemeyi durdurur.
 - Bu kontroller **Pi'nin firmware'den gerçekten açıldığını, VC4/V3D donanım hızlandırmasını, Wi-Fi/Bluetooth/kamera/HAT işlevlerini veya performansı kanıtlamaz.** Bunlar fiziksel test ister.

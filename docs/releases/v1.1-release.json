@@ -1,0 +1,593 @@
+{
+  "schema_version": 1,
+  "scope": "published-v1.1-PC-and-experimental-Pi-images-with-independent-release-byte-audit-not-physical-boot",
+  "repository": "PeraPlusbirPasha/OguzDows",
+  "release_id": 455583593,
+  "tag": "v1.1",
+  "url": "https://github.com/PeraPlusbirPasha/OguzDows/releases/tag/v1.1",
+  "published": true,
+  "latest": true,
+  "prerelease": false,
+  "published_at_github": "2026-11-23T15:18:38Z",
+  "source_revision": "29f7738534cd00bd87887f530355ef45e01eb28c",
+  "tag_target": "29f7738534cd00bd87887f530355ef45e01eb28c",
+  "publisher_revision": "d82f01ad24c7b8f109002fb7366002cb40b841af",
+  "audit_revision": "37c7428caa838214ff89aff6083f5e08e0f20261",
+  "images_rebuilt_or_repacked": false,
+  "source_runs": [
+    {
+      "run_id": 45170572813,
+      "url": "https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/45170572813",
+      "source_revision": "29f7738534cd00bd87887f530355ef45e01eb28c",
+      "branch": "arena/2d796713-o-uzdows",
+      "conclusion": "success",
+      "run_attempt": 1,
+      "cancelled_or_restarted": false,
+      "jobs": [
+        {
+          "id": 137678725492,
+          "name": "Yapılandırma ve GTK · trixie",
+          "conclusion": "success"
+        },
+        {
+          "id": 137678725548,
+          "name": "Firmware → GRUB · bookworm",
+          "conclusion": "success"
+        },
+        {
+          "id": 137678725567,
+          "name": "Yapılandırma ve GTK · bookworm",
+          "conclusion": "success"
+        },
+        {
+          "id": 137678725698,
+          "name": "Firmware → GRUB · trixie",
+          "conclusion": "success"
+        },
+        {
+          "id": 137678727092,
+          "name": "Raspberry Pi",
+          "conclusion": "skipped"
+        },
+        {
+          "id": 137678727758,
+          "name": "Doğrulanmış PC ISO → Release taslağı (derlemez)",
+          "conclusion": "skipped"
+        },
+        {
+          "id": 137678727947,
+          "name": "Önceki hedef sistem testinin kanıtları (derleme yapmaz)",
+          "conclusion": "skipped"
+        },
+        {
+          "id": 137680868930,
+          "name": "ISO · i386",
+          "conclusion": "success"
+        },
+        {
+          "id": 137680869075,
+          "name": "ISO · amd64",
+          "conclusion": "success"
+        }
+      ]
+    },
+    {
+      "run_id": 45170576727,
+      "url": "https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/45170576727",
+      "source_revision": "29f7738534cd00bd87887f530355ef45e01eb28c",
+      "branch": "arena/2d796713-o-uzdows",
+      "conclusion": "success",
+      "run_attempt": 1,
+      "cancelled_or_restarted": false,
+      "jobs": [
+        {
+          "id": 137678739857,
+          "name": "Raspberry Pi / Pi yapılandırma ve güvenlik testleri",
+          "conclusion": "success"
+        },
+        {
+          "id": 137678741782,
+          "name": "Firmware → GRUB · ${{ matrix.suite }}",
+          "conclusion": "skipped"
+        },
+        {
+          "id": 137678741819,
+          "name": "Önceki hedef sistem testinin kanıtları (derleme yapmaz)",
+          "conclusion": "skipped"
+        },
+        {
+          "id": 137678741899,
+          "name": "Doğrulanmış PC ISO → Release taslağı (derlemez)",
+          "conclusion": "skipped"
+        },
+        {
+          "id": 137678743864,
+          "name": "ISO · ${{ matrix.arch }}",
+          "conclusion": "skipped"
+        },
+        {
+          "id": 137678829039,
+          "name": "Yapılandırma ve GTK · ${{ matrix.suite }}",
+          "conclusion": "skipped"
+        },
+        {
+          "id": 137679443503,
+          "name": "Raspberry Pi / Pi SD/USB imajı · arm64",
+          "conclusion": "success"
+        },
+        {
+          "id": 137679443528,
+          "name": "Raspberry Pi / Pi SD/USB imajı · armhf",
+          "conclusion": "success"
+        }
+      ]
+    }
+  ],
+  "staging": {
+    "run_id": 45201307283,
+    "url": "https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/45201307283",
+    "job_id": 137785251620,
+    "conclusion": "success",
+    "original_image_checksums_recomputed": true,
+    "internal_source_version_identity_inspected_read_only": true,
+    "pi_existing_verifier_repeated": true,
+    "uploaded_asset_count": 17,
+    "annotation_limit_caveat": "GitHub retained the first ten notices; the later read-only audit emits bounded batches for a complete independent inventory."
+  },
+  "release_download_audit": {
+    "run_id": 45203390800,
+    "url": "https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/45203390800",
+    "job_id": 137792511586,
+    "conclusion": "success",
+    "all_17_release_assets_redownloaded_and_hashed": true,
+    "raw_json_evidence_count": 21,
+    "all_evidence_member_hashes_verified": true,
+    "four_original_and_combined_checksums_verified": true,
+    "release_modified": false,
+    "performed_on": "GitHub-hosted runner, not this restricted sandbox"
+  },
+  "image_identity": {
+    "rpi-arm64": {
+      "scope": "read-only-MBR-FAT-ext4-identity-and-existing-verifier-not-physical-boot",
+      "build": {
+        "platform": "raspberrypi",
+        "arch": "arm64",
+        "suite": "bookworm",
+        "pi_gen_commit": "3a7eeb9bd49278375b8871b284c1aacf54a31b34",
+        "status": "physical-boot-unverified",
+        "source_revision": "29f7738534cd00bd87887f530355ef45e01eb28c",
+        "source_dirty": false
+      },
+      "version": "1.1",
+      "uncompressed_bytes": 4722786304,
+      "uncompressed_sha256": "602788841dddc3fd6f52119ef8a350ed6f23a6b845c85dedc04ab7a443ff38ec",
+      "existing_pi_verifier_passed": true,
+      "embedded_runtime_matches_raw_artifact": true
+    },
+    "rpi-armhf": {
+      "scope": "read-only-MBR-FAT-ext4-identity-and-existing-verifier-not-physical-boot",
+      "build": {
+        "platform": "raspberrypi",
+        "arch": "armhf",
+        "suite": "bookworm",
+        "pi_gen_commit": "8b71acc79287392a63985ba383c496d5419426b4",
+        "status": "physical-boot-unverified",
+        "source_revision": "29f7738534cd00bd87887f530355ef45e01eb28c",
+        "source_dirty": false
+      },
+      "version": "1.1",
+      "uncompressed_bytes": 4026531840,
+      "uncompressed_sha256": "441bb733cff12852a961cb6154e4a74d282cf18a0b12c19348f190cbb4df9988",
+      "existing_pi_verifier_passed": true,
+      "embedded_runtime_matches_raw_artifact": true
+    },
+    "i386": {
+      "scope": "read-only-ISO-squashfs-identity-not-physical-boot",
+      "build": {
+        "arch": "i386",
+        "suite": "bookworm",
+        "flavour": "686-pae",
+        "uefi": false,
+        "source_revision": "29f7738534cd00bd87887f530355ef45e01eb28c",
+        "source_dirty": null
+      },
+      "version": "1.1"
+    },
+    "amd64": {
+      "scope": "read-only-ISO-squashfs-identity-not-physical-boot",
+      "build": {
+        "arch": "amd64",
+        "suite": "trixie",
+        "flavour": "amd64",
+        "uefi": true,
+        "source_revision": "29f7738534cd00bd87887f530355ef45e01eb28c",
+        "source_dirty": null
+      },
+      "version": "1.1"
+    }
+  },
+  "asset_count": 17,
+  "files": {
+    "INDIRME-REHBERI.md": {
+      "id": 783395242,
+      "url": "https://github.com/PeraPlusbirPasha/OguzDows/releases/download/v1.1/INDIRME-REHBERI.md",
+      "state": "uploaded",
+      "size": 14102,
+      "sha256": "f42850683fa13925a243270dd881cf4beccf916db09a693f38fec9131d808486"
+    },
+    "OguzDows-amd64.iso": {
+      "id": 783395303,
+      "url": "https://github.com/PeraPlusbirPasha/OguzDows/releases/download/v1.1/OguzDows-amd64.iso",
+      "state": "uploaded",
+      "size": 1776648192,
+      "sha256": "0819aae5d9c0bc9bb491926d1d38763556bdae22cc63528303a5e1bf5f28621d"
+    },
+    "OguzDows-amd64.iso.sha256": {
+      "id": 783397905,
+      "url": "https://github.com/PeraPlusbirPasha/OguzDows/releases/download/v1.1/OguzDows-amd64.iso.sha256",
+      "state": "uploaded",
+      "size": 85,
+      "sha256": "94a8daa0e835dd272b2c585b87a4b74bb400af7fd3e9927d5a3e1b3522bcaf1c"
+    },
+    "OguzDows-i386.iso": {
+      "id": 783397941,
+      "url": "https://github.com/PeraPlusbirPasha/OguzDows/releases/download/v1.1/OguzDows-i386.iso",
+      "state": "uploaded",
+      "size": 1455341568,
+      "sha256": "11f8787e9ef9ff8e80f9146e94ff52742edb3623defd0d50ba0ddf936741010c"
+    },
+    "OguzDows-i386.iso.sha256": {
+      "id": 783399891,
+      "url": "https://github.com/PeraPlusbirPasha/OguzDows/releases/download/v1.1/OguzDows-i386.iso.sha256",
+      "state": "uploaded",
+      "size": 84,
+      "sha256": "8e4010798598e2d505d711d707e4a49cb8ed8e0d0211538f8e40f5671996fe36"
+    },
+    "OguzDows-rpi-arm64.img.xz": {
+      "id": 783399963,
+      "url": "https://github.com/PeraPlusbirPasha/OguzDows/releases/download/v1.1/OguzDows-rpi-arm64.img.xz",
+      "state": "uploaded",
+      "size": 941771872,
+      "sha256": "b1af9e57ca7d6fa7580dae444c8edd45e0da9f613ca0aa9a7878e5e3f2c34324"
+    },
+    "OguzDows-rpi-arm64.img.xz.sha256": {
+      "id": 783401203,
+      "url": "https://github.com/PeraPlusbirPasha/OguzDows/releases/download/v1.1/OguzDows-rpi-arm64.img.xz.sha256",
+      "state": "uploaded",
+      "size": 92,
+      "sha256": "69934987a9693c14ccae981b4d7752983134c00c458a575b543f6eff29fd2107"
+    },
+    "OguzDows-rpi-arm64.packages.txt": {
+      "id": 783401327,
+      "url": "https://github.com/PeraPlusbirPasha/OguzDows/releases/download/v1.1/OguzDows-rpi-arm64.packages.txt",
+      "state": "uploaded",
+      "size": 177277,
+      "sha256": "15c80f7decdddb38db04416e1f011b7838e809078ab898b808d36638a950bb3c"
+    },
+    "OguzDows-rpi-armhf.img.xz": {
+      "id": 783401405,
+      "url": "https://github.com/PeraPlusbirPasha/OguzDows/releases/download/v1.1/OguzDows-rpi-armhf.img.xz",
+      "state": "uploaded",
+      "size": 982432564,
+      "sha256": "45df4c78ee6f71534c4f2a3be26b2ac992bc0eb7490273df2a765f9a36282857"
+    },
+    "OguzDows-rpi-armhf.img.xz.sha256": {
+      "id": 783403214,
+      "url": "https://github.com/PeraPlusbirPasha/OguzDows/releases/download/v1.1/OguzDows-rpi-armhf.img.xz.sha256",
+      "state": "uploaded",
+      "size": 92,
+      "sha256": "f94ed7e5b6e43bb6f7b92a1566cadda0bddc00486bdf8412aaf2faaa1872a3ed"
+    },
+    "OguzDows-rpi-armhf.packages.txt": {
+      "id": 783403304,
+      "url": "https://github.com/PeraPlusbirPasha/OguzDows/releases/download/v1.1/OguzDows-rpi-armhf.packages.txt",
+      "state": "uploaded",
+      "size": 175478,
+      "sha256": "6a913c4ec72f9394ec477cb650cc2da13ea4ef182dc6a4b11a18bf31a904202d"
+    },
+    "SHA256SUMS": {
+      "id": 783403365,
+      "url": "https://github.com/PeraPlusbirPasha/OguzDows/releases/download/v1.1/SHA256SUMS",
+      "state": "uploaded",
+      "size": 353,
+      "sha256": "298d44e8dbbc0bd4b55bc04ca5fdbb0099d9f2afc1afbb3e94b9e05643f5f65a"
+    },
+    "desktop-idle-amd64.json": {
+      "id": 783403444,
+      "url": "https://github.com/PeraPlusbirPasha/OguzDows/releases/download/v1.1/desktop-idle-amd64.json",
+      "state": "uploaded",
+      "size": 22331,
+      "sha256": "2b77f9a76cf30460a622b88b309b528b407ba418201861cbd300214813836c47"
+    },
+    "desktop-idle-i386.json": {
+      "id": 783403527,
+      "url": "https://github.com/PeraPlusbirPasha/OguzDows/releases/download/v1.1/desktop-idle-i386.json",
+      "state": "uploaded",
+      "size": 22444,
+      "sha256": "74c230d4af16adc5cdc3ac72207183b884c7dfc940de453cfa25d7db0eb2ff30"
+    },
+    "pi-gen.lock.json": {
+      "id": 783403570,
+      "url": "https://github.com/PeraPlusbirPasha/OguzDows/releases/download/v1.1/pi-gen.lock.json",
+      "state": "uploaded",
+      "size": 1375,
+      "sha256": "cfcb91286ad0e894cb9d5fc2055751e83f2334c14110436670b07d40d24c03c1"
+    },
+    "release-manifest.json": {
+      "id": 783403616,
+      "url": "https://github.com/PeraPlusbirPasha/OguzDows/releases/download/v1.1/release-manifest.json",
+      "state": "uploaded",
+      "size": 26776,
+      "sha256": "0d718b275016cfd9945904341a986d5f0658ae241f56a528a56314946be7d492"
+    },
+    "test-evidence.tar.gz": {
+      "id": 783403669,
+      "url": "https://github.com/PeraPlusbirPasha/OguzDows/releases/download/v1.1/test-evidence.tar.gz",
+      "state": "uploaded",
+      "size": 17593,
+      "sha256": "e9792ae3d50714571d3c9bda4735afd64016e2ecbb214773051844868a77ae6b"
+    }
+  },
+  "image_digest_scope": "Actual .iso/.img.xz bytes; separate from the source Actions ZIP metadata.",
+  "pc_ram_vm": {
+    "amd64": [
+      {
+        "valid_idle_measurement": true,
+        "median_used_mb": 451.4,
+        "max_used_mb": 451.4,
+        "target_met": true,
+        "invalid_reasons": [],
+        "vm_ram_mib": 1024,
+        "low_ram_budget": {
+          "passed": true,
+          "minimum_available_bytes": 101405901,
+          "observed_min_available_bytes": 562700288,
+          "policy": "Geçerli tam Xfce boşta ölçümü + en çok 600 MB kullanım + en az max(32 MiB, MemTotal / 10) kullanılabilir RAM; aktif uygulama gecikmesi garantisi değil.",
+          "fail_reasons": []
+        }
+      },
+      {
+        "valid_idle_measurement": true,
+        "median_used_mb": 271.4,
+        "max_used_mb": 271.5,
+        "target_met": true,
+        "invalid_reasons": [],
+        "vm_ram_mib": 512,
+        "low_ram_budget": {
+          "passed": true,
+          "minimum_available_bytes": 48636314,
+          "observed_min_available_bytes": 214900736,
+          "policy": "Geçerli tam Xfce boşta ölçümü + en çok 600 MB kullanım + en az max(32 MiB, MemTotal / 10) kullanılabilir RAM; aktif uygulama gecikmesi garantisi değil.",
+          "fail_reasons": []
+        }
+      },
+      {
+        "valid_idle_measurement": true,
+        "median_used_mb": 472.9,
+        "max_used_mb": 472.9,
+        "target_met": true,
+        "invalid_reasons": [],
+        "vm_ram_mib": 2048
+      }
+    ],
+    "i386": [
+      {
+        "valid_idle_measurement": true,
+        "median_used_mb": 390.3,
+        "max_used_mb": 390.3,
+        "target_met": true,
+        "invalid_reasons": [],
+        "vm_ram_mib": 1024,
+        "low_ram_budget": {
+          "passed": true,
+          "minimum_available_bytes": 104513127,
+          "observed_min_available_bytes": 654782464,
+          "policy": "Geçerli tam Xfce boşta ölçümü + en çok 600 MB kullanım + en az max(32 MiB, MemTotal / 10) kullanılabilir RAM; aktif uygulama gecikmesi garantisi değil.",
+          "fail_reasons": []
+        }
+      },
+      {
+        "valid_idle_measurement": true,
+        "median_used_mb": 191.4,
+        "max_used_mb": 191.4,
+        "target_met": true,
+        "invalid_reasons": [],
+        "vm_ram_mib": 512,
+        "low_ram_budget": {
+          "passed": true,
+          "minimum_available_bytes": 51415860,
+          "observed_min_available_bytes": 322727936,
+          "policy": "Geçerli tam Xfce boşta ölçümü + en çok 600 MB kullanım + en az max(32 MiB, MemTotal / 10) kullanılabilir RAM; aktif uygulama gecikmesi garantisi değil.",
+          "fail_reasons": []
+        }
+      },
+      {
+        "valid_idle_measurement": true,
+        "median_used_mb": 479.3,
+        "max_used_mb": 479.3,
+        "target_met": true,
+        "invalid_reasons": [],
+        "vm_ram_mib": 2048
+      }
+    ]
+  },
+  "pi_user_qemu": {
+    "armhf": {
+      "scope": "ARM-qemu-user-with-host-Xvfb",
+      "physical_boot": false,
+      "hardware_gpu": false,
+      "performance_measurement": false,
+      "errors": [],
+      "arch": "armhf",
+      "minimum_cpu": "arm1176",
+      "gui": {
+        "gtk_window": true,
+        "gtk_version": [
+          3,
+          24,
+          38
+        ],
+        "xfce_version": "xfce4-session 4.18.1 (Xfce 4.18)",
+        "native_store_version": "OğuzDows Mağaza · GTK 3.24.38",
+        "native_news_version": "OğuzDows Haber · GTK 3.24.38"
+      },
+      "feature_presence": {
+        "groups": [
+          "desktop-start-menu",
+          "welcome-rifki-narration",
+          "independent-light-dark-and-xp",
+          "cultural-wallpapers-and-tools",
+          "native-store",
+          "device-and-file-inspection",
+          "web-office-media",
+          "network-bluetooth-audio",
+          "pi-kms-camera-gpio",
+          "lightweight-news",
+          "original-icons-and-budgeted-transitions"
+        ],
+        "asset_hashes": 31,
+        "wallpapers": 20,
+        "selected_narration": 11,
+        "speech_contexts": 25
+      },
+      "full_session": {
+        "scope": "non-root-Xfce-on-host-Xvfb",
+        "uid": 65534,
+        "lightdm_pam": false,
+        "physical_boot": false,
+        "performance_measurement": false,
+        "errors": [],
+        "xfwm4": true,
+        "xfce4-panel": true,
+        "xfdesktop": true,
+        "x11_window_manager": "Xfwm4",
+        "stable_samples": 5,
+        "panel_configuration": "Value is an array with 1 items:\n\n1",
+        "startup_profile": "full",
+        "news": {
+          "native_process_alive": true,
+          "worker_exited": true,
+          "cached_fixture_preserved": true,
+          "network_tested": false,
+          "performance_measurement": false,
+          "window_pixels_verified": false
+        },
+        "browser": {
+          "program": "netsurf-gtk",
+          "local_start_page_alive": true,
+          "network_tested": false,
+          "modern_sites_verified": false
+        }
+      },
+      "packages_checked": 115
+    },
+    "arm64": {
+      "scope": "ARM-qemu-user-with-host-Xvfb",
+      "physical_boot": false,
+      "hardware_gpu": false,
+      "performance_measurement": false,
+      "errors": [],
+      "arch": "arm64",
+      "minimum_cpu": "cortex-a53",
+      "gui": {
+        "gtk_window": true,
+        "gtk_version": [
+          3,
+          24,
+          38
+        ],
+        "xfce_version": "xfce4-session 4.18.1 (Xfce 4.18)",
+        "native_store_version": "OğuzDows Mağaza · GTK 3.24.38",
+        "native_news_version": "OğuzDows Haber · GTK 3.24.38"
+      },
+      "feature_presence": {
+        "groups": [
+          "desktop-start-menu",
+          "welcome-rifki-narration",
+          "independent-light-dark-and-xp",
+          "cultural-wallpapers-and-tools",
+          "native-store",
+          "device-and-file-inspection",
+          "web-office-media",
+          "network-bluetooth-audio",
+          "pi-kms-camera-gpio",
+          "lightweight-news",
+          "original-icons-and-budgeted-transitions"
+        ],
+        "asset_hashes": 31,
+        "wallpapers": 20,
+        "selected_narration": 11,
+        "speech_contexts": 25
+      },
+      "full_session": {
+        "scope": "non-root-Xfce-on-host-Xvfb",
+        "uid": 65534,
+        "lightdm_pam": false,
+        "physical_boot": false,
+        "performance_measurement": false,
+        "errors": [],
+        "xfwm4": true,
+        "xfce4-panel": true,
+        "xfdesktop": true,
+        "x11_window_manager": "Xfwm4",
+        "stable_samples": 5,
+        "panel_configuration": "Value is an array with 1 items:\n\n1",
+        "startup_profile": "full",
+        "news": {
+          "native_process_alive": true,
+          "worker_exited": true,
+          "cached_fixture_preserved": true,
+          "network_tested": false,
+          "performance_measurement": false,
+          "window_pixels_verified": false
+        }
+      },
+      "packages_checked": 121
+    }
+  },
+  "physical_boot_verified": false,
+  "physical_gpu_verified": false,
+  "pi_performance_measured": false,
+  "lightdm_pam_on_physical_pi_verified": false,
+  "live_news_publishers_verified": false,
+  "actual_apt_flatpak_install_launch_verified": false,
+  "known_issue": "First-generation ARMv6 Zero/Zero W using correct armhf: black screen after account setup remains physically unresolved.",
+  "public_link_checks": {
+    "public_page_http": 200,
+    "unauthenticated_asset_endpoints": 17,
+    "all_asset_endpoints_http": 302,
+    "redirect_hosts": [
+      "objects.githubusercontent.com"
+    ],
+    "cdn_bodies_downloaded_in_sandbox": false,
+    "passed": true
+  },
+  "v1_0_0_preserved": {
+    "release_id": 452038375,
+    "tag": "v1.0.0",
+    "tag_target": "bcd03315873f186ee25f9296afc44356defd0763",
+    "asset_count": 8,
+    "unchanged": true,
+    "comparison": "Entire REST release metadata, body and asset metadata excluding natural download counters. Latest marker moves to v1.1.",
+    "before_and_after_canonical_sha256": "833e8360701195764e8806d2e0302fe9c01e867bfe4d5bc6175cf1cd68620d55"
+  },
+  "local_regression_before_publication": {
+    "count": 462,
+    "seconds": 26.47,
+    "skipped_dependencies": 7,
+    "resource_warning_fatal": true
+  },
+  "limits": [
+    "PC VM idle is not a 512 MiB live installer/browser guarantee.",
+    "Pi QEMU-user/Xvfb is not kernel, firmware, PAM, GPU, SD or physical performance proof.",
+    "No universal ARM/phone boot images or measured Gala/Aero effect parity.",
+    "Source-dirty null on PC is unknown, not clean. Pi recorded false.",
+    "Sandbox cannot fetch redirected Actions or release CDN bodies; all byte hashing and release re-downloads ran independently on GitHub."
+  ],
+  "local_regression_after_publication": {
+    "count": 463,
+    "seconds": 26.922,
+    "skipped_dependencies": 7,
+    "resource_warning_fatal": true
+  }
+}

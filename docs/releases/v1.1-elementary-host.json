@@ -1323,18 +1323,20 @@
     {
       "run_id": 45170576727,
       "url": "https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/45170576727",
-      "status_at_recording": "in_progress",
-      "conclusion_at_recording": null,
+      "status_at_recording": "completed",
+      "conclusion_at_recording": "success",
       "do_not_redispatch": true,
       "target": "raspberrypi-armhf-and-arm64"
     },
     {
       "run_id": 45170572813,
       "url": "https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/45170572813",
-      "status_at_recording": "in_progress",
-      "conclusion_at_recording": null,
+      "status_at_recording": "completed",
+      "conclusion_at_recording": "success",
       "do_not_redispatch": true,
       "target": "pc-amd64-and-i386"
     }
-  ]
+  ],
+  "separate_image_release_evidence": "v1.1-release.json",
+  "image_evidence_scope_note": "This remains a host-only record. Completed manual image builds and release-byte inspection are reported separately; no physical ARM/GPU claim."
 }
