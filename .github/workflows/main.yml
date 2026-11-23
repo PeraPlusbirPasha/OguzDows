@@ -12,8 +12,12 @@ on:
         description: pc-diagnostics için tamamlanmış; pc-release için başarılı PC çalışması
         type: string
         default: ""
+      pi_evidence_run:
+        description: pc-release için isteğe bağlı, aynı kaynaklı başarılı Pi armhf+arm64 çalışması
+        type: string
+        default: ""
       release_tag:
-        description: pc-release için mevcut taslağın etiketi (ör. v2.0)
+        description: pc-release için mevcut taslağın etiketi (ör. v1.1 veya v2.0)
         type: string
         default: ""
       release_id:
@@ -422,10 +426,10 @@ jobs:
           PY
 
   release:
-    name: Doğrulanmış PC ISO → Release taslağı (derlemez)
+    name: Doğrulanmış PC / Pi imajları → Release taslağı (derlemez)
     if: github.event_name == 'workflow_dispatch' && github.event.inputs.target == 'pc-release'
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 45
     permissions:
       contents: write
       actions: read
@@ -437,15 +441,26 @@ jobs:
         with:
           persist-credentials: false
           fetch-depth: 0
+      - name: Salt okunur imaj inceleme araçları (imajdan kod çalıştırılmaz)
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends python3-yaml xorriso squashfs-tools xz-utils fdisk e2fsprogs udev
+      - name: Yayın aracı negatif / bütünlük regresyonları
+        run: |
+          python3 scripts/ci-run.py --title 'Yayın aracı regresyonu' -- \
+            python3 -W error::ResourceWarning -m unittest discover -s tests -p 'test_release*.py' -v
       - name: Kaynak, SHA-256 ve boot/RAM kanıtlarıyla taslağa aktar
         env:
           GH_TOKEN: ${{ github.token }}
           SOURCE_RUN: ${{ inputs.evidence_run }}
+          PI_SOURCE_RUN: ${{ inputs.pi_evidence_run }}
           RELEASE_TAG: ${{ inputs.release_tag }}
           RELEASE_ID: ${{ inputs.release_id }}
         run: |
-          python3 scripts/ci-run.py --title 'Release ISO aktarımı' -- \
-            python3 scripts/release-assets.py --run "$SOURCE_RUN" --release-id "$RELEASE_ID" --tag "$RELEASE_TAG"
+          extra=()
+          if [ -n "$PI_SOURCE_RUN" ]; then extra=(--pi-run "$PI_SOURCE_RUN"); fi
+          python3 scripts/ci-run.py --title 'Release imaj aktarımı' -- \
+            python3 scripts/release-assets.py --run "$SOURCE_RUN" --release-id "$RELEASE_ID" --tag "$RELEASE_TAG" "${extra[@]}"
 
   raspberrypi:
     name: Raspberry Pi
