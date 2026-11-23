@@ -31,7 +31,7 @@ Sol menülü **ayrı canlı / kurulu karşılama**, açık / koyu tema ve özgü
 
 **1.1 henüz Release olarak yayımlanmadı.** `79c6942` kaynağının amd64 / i386 geliştirme ISO’ları [PC Artifacts](https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/45084956906), armhf / arm64 imajları [Pi Artifacts](https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/45084959200) bölümündedir; geçici çıktılardır ve GitHub oturumu gerekebilir. PC tam Xfce **512 / 1024 MiB VM** kapıları iki mimaride geçti; 512 MiB’de en yüksek kullanım **amd64 277,4 MB / i386 194,8 MB**. Pi'de ARM kullanıcı-QEMU / host Xvfb üzerinde root olmayan tam Xfce ve armhf NetSurf yerel sayfası geçti; **fiziksel boot / GPU / hız kanıtı değildir**. [Kaynak kimlikli ölçüm kanıtı →](docs/V1.1-TEST-KANITI.md)
 
-Bu imajlardan sonraki yeni kaynakta **elementary esintili macOS düzeni**, içeriğe oturan Windows 11 Başlat / görev grubu, **15 ayrı özgün uygulama simgesi**, bütçeli kısa pencere geçişleri ve **C / GTK Haber okuyucusu** eklendi. Ortak PC / Pi / ARM tariflerine bağlıdır; Haberin geniş / 360px host GTK kapıları geçti; düzeltilen efekt / gerçek merkez ve yeni imaj sonuçları ayrıca beklenir. [Kapsam ve test sınırları →](docs/ELEMENTARY-HABER.md)
+Bu imajlardan sonraki yeni kaynakta **elementary esintili macOS düzeni**, içeriğe oturan Windows 11 Başlat / görev grubu, **15 ayrı özgün uygulama simgesi**, bütçeli kısa pencere geçişleri ve **C / GTK Haber okuyucusu** eklendi. Ortak PC / Pi / ARM tariflerine bağlıdır; **445 yerel test**, Haberin geniş / 360px C/GTK kapıları, gerçek Picom/Xfwm ve iki panel sürümünde üç çözünürlükte görünür Windows11 merkezi (**0–3px**) geçti. Bu kaynak için [yeni PC](https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/45170572813) / [Pi](https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/45170576727) imajları birer kez başlatıldı; sonuçları beklenir. [Kapsam ve test sınırları →](docs/ELEMENTARY-HABER.md)
 
 **Windows 11 dahil altı Xfce düzeni**, ayrı gerçek KDE/GNOME X11 kurulum / sonraki giriş seçimi ve kaynak bütçeli Aero bulunur. Mini/light başlangıç tam rehberi istek üzerine yükler; armhf temel web için NetSurf kullanır. **Pi Zero’da hesap ekranı sonrası siyah ekranın kök nedeni / fiziksel onarım sonucu henüz doğrulanmadı; yeni kod bu eski ISO’larda yoktur.** [Oturum ve Zero teşhisi →](docs/PI-ZERO-OTURUM.md)
 
@@ -144,9 +144,9 @@ Siyah ekranda **güvenli görüntü**, az bellekte **düşük bellek** açılı�
 
 - **Onay önce gelir.** Kurulum, ek sürücü, güncelleme ve isteğe bağlı depo işlemlerinde açık kullanıcı/yönetici onayı gerekir. Heybe/İmece dosyalarını otomatik göndermez.
 - **Pardus kanalı varsayılan kapalıdır.** Yalnızca uygun amd64/trixie tabanında, sabit anahtar ve güncel imza/mimari/tarih/pin denetimleriyle dar uygulama listesi değerlendirilir. Genel sistem deposu karıştırılmaz.
-- **KDE/GNOME tarzı ≠ gerçek KDE/GNOME.** Beş tarz Xfce görünümüdür. Gerçek masaüstleri amd64’te ayrıca, daha yüksek kaynak beklentisi ve onaylı paket planıyla sunulur; gerçek giriş oturumları henüz doğrulanmadı.
+- **KDE/GNOME tarzı ≠ gerçek KDE/GNOME.** 1.1 kaynak dalındaki altı tarz Xfce görünümüdür. Gerçek masaüstleri amd64 / ARM64’te ayrıca, daha yüksek kaynak beklentisi ve onaylı paket planıyla sunulur; gerçek giriş oturumları henüz doğrulanmadı.
 - **Sınırlar saklanmaz.** Gerçek yetkili APT/Flatpak kurulum işlemleri, şifreli tam kurulum ve her fiziksel aygıt bu testlerle doğrulanmış sayılmaz. i386/eski ARM için Flathub kapsamı varsayılmaz.
-- **Rıfkı bilinçli olarak hafiftir.** Pencere takip eden ağır animasyonlar kaldırıldı. Konuşmalar yapay zekâ ile hazırlanmış yerel kayıtlardır; bütün panellerin ve değişken hata ayrıntılarının seslendirmesi henüz tamamlanmadı.
+- **Rıfkı bilinçli olarak hafiftir.** Pencere takip eden ağır animasyonlar kaldırıldı. Konuşmalar yapay zekâ ile hazırlanmış yerel kayıtlardır; 1.1’de panel rehberleri yerel kayıtlara bağlıdır; değişken hata / haber metni otomatik seslendirilmez.
 
 [Masaüstü ve bakım rehberi →](docs/MASAUSTU-VE-BAKIM.md)
 
@@ -154,7 +154,7 @@ Siyah ekranda **güvenli görüntü**, az bellekte **düşük bellek** açılı�
 
 Zero–5 ailesi için ayrı `armhf` / `arm64` SD/USB imajı akışı bulunur. PC ISO’su Pi’ye yazılmaz; Pi’de ilk açılışta kişisel hesap oluşturulur, ortak canlı parola veya parolasız sudo yoktur.
 
-**Bu PC release’inde Pi imajı yoktur; fiziksel Pi açılışı ve performansı henüz doğrulanmadı.** Resmî Pi OS/pi-gen kaynaklarıyla mimari karşılaştırma yapıldı: başsız Xfce testi, teknik taban kimliği ve ağ bekleme sırası düzeltildi; ortak özellik / ARM ABI / 20 görsel + 10 doğal kayıt için her sürümde çalışan yapı kapıları eklendi. Yeni tam imaj sonucu ayrıca doğrulanmalıdır; ARMv6 / 512 MB için modern PC hızı vaat edilmez. [Mimari karşılaştırma ve portlama verisi →](docs/ARM-MIMARI-VE-PORTLAMA.md) · [Pi rehberi →](raspberrypi/README.md)
+**Bu PC release’inde Pi imajı yoktur; fiziksel Pi açılışı ve performansı henüz doğrulanmadı.** Resmî Pi OS/pi-gen kaynaklarıyla mimari karşılaştırma yapıldı: başsız Xfce testi, teknik taban kimliği ve ağ bekleme sırası düzeltildi; ortak özellik / ARM ABI / 20 görsel + seçili 11 doğal kayıt için her sürümde çalışan yapı kapıları eklendi. Yeni tam imaj sonucu ayrıca doğrulanmalıdır; ARMv6 / 512 MB için modern PC hızı vaat edilmez. [Mimari karşılaştırma ve portlama verisi →](docs/ARM-MIMARI-VE-PORTLAMA.md) · [Pi rehberi →](raspberrypi/README.md)
 
 ## Yeni bir sayfa, yeni bir ana sürüm
 

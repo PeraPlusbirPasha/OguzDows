@@ -134,6 +134,8 @@ Resmî `RPi-Distro/pi-gen` kaynakları `pi-gen.lock.json` içinde **tam commit +
 
 ## Doğrulama ve testlerin anlamı
 
+`29f7738` [Pi ortak host CI](https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/45169809200) **başarılı**; üretim/test C Haber, 1024×768/360×800 offline/iptal/timeout ve diğer GTK kapıları geçti. Bu ARM CPU / gerçek kart testi değildir. Yeni [armhf+arm64 imaj çalışması 45170576727](https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/45170576727) bir kez başlatıldı; hedef ARM Haber / tam imaj sonucu ayrıca beklenir. [Kaynak kimlikli host kanıtı](../docs/releases/v1.1-elementary-host.json).
+
 Ortak kaynak artık native C/GTK Haber okuyucusu, 15 ayrı simge ve doğal boyutlu iskele / bütçeli geçişleri de içerir. ARMv6'da kompozitör açılmaz; aynı uygulamalar ve statik düzen korunur. Yeni kapı hedef Haber ELF/sürümü ile non-root tam oturumda gerçek C istemcisi + üretim işçisi / ağsız TEST önbelleği ister. [Uygulama / sınırlar](../docs/ELEMENTARY-HABER.md).
 
 `79c6942` / [45084959200](https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/45084959200) önceki iki imajı, non-root tam Xfce ve armhf NetSurf yerel sayfasıyla başarıyla tamamladı. Bu kullanıcı-QEMU / host Xvfb kanıtıdır; fiziksel Zero siyahlığının çözüldüğü anlamına gelmez. Yeni Haber / simge / Picom kodu bu imajlarda yoktur.

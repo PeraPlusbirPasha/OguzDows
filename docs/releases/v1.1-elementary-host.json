@@ -1,0 +1,1340 @@
+{
+  "schema_version": 1,
+  "scope": "host-native-GTK-and-real-Xfce-and-XRender-only-not-images-or-physical-ARM",
+  "source_revision": "29f7738534cd00bd87887f530355ef45e01eb28c",
+  "origin": "GitHub Actions check annotations and successful job/step records; screenshots not independently downloaded",
+  "pc_run_id": 45169809208,
+  "pi_host_run_id": 45169809200,
+  "conclusion": "success",
+  "native_production_and_fixture_builds": true,
+  "actual_live_publishers_tested": false,
+  "physical_boot_verified": false,
+  "physical_gpu_verified": false,
+  "idle_or_device_performance_measurement": false,
+  "real_package_installation_tested": false,
+  "new_iso_or_img_verified": false,
+  "native_news_tests_use_fixture_not_real_network": true,
+  "screenshots_independently_downloaded": false,
+  "local_tests": {
+    "count": 445,
+    "skipped_dependencies": 7,
+    "seconds": 25.524,
+    "resource_warning_fatal": true
+  },
+  "pc_baselines": [
+    {
+      "suite": "bookworm",
+      "job_id": 137676078304,
+      "conclusion": "success",
+      "real_panels": [
+        {
+          "scope": "host-real-xfce-panels-private-xvfb",
+          "physical_boot": false,
+          "arm_runtime": false,
+          "performance_test": false,
+          "package_transaction": false,
+          "layouts": [
+            {
+              "profile": "mac",
+              "variant": "light",
+              "windows": [
+                {
+                  "x": 0,
+                  "y": 0,
+                  "width": 1920,
+                  "height": 31
+                },
+                {
+                  "x": 821,
+                  "y": 1026,
+                  "width": 278,
+                  "height": 54
+                }
+              ],
+              "icon_content": {
+                "left": 834,
+                "right": 1097,
+                "center_error_px": 5.5,
+                "screen_center": 960.0
+              },
+              "xfconf_arrays": true,
+              "all_plugins_preserved": true,
+              "sample_application_stayed_open": true
+            },
+            {
+              "profile": "mac",
+              "variant": "-dark",
+              "windows": [
+                {
+                  "x": 0,
+                  "y": 0,
+                  "width": 1920,
+                  "height": 31
+                },
+                {
+                  "x": 821,
+                  "y": 1026,
+                  "width": 278,
+                  "height": 54
+                }
+              ],
+              "icon_content": {
+                "left": 834,
+                "right": 1097,
+                "center_error_px": 5.5,
+                "screen_center": 960.0
+              },
+              "xfconf_arrays": true,
+              "all_plugins_preserved": true,
+              "sample_application_stayed_open": true
+            },
+            {
+              "profile": "gnome",
+              "variant": "light",
+              "windows": [
+                {
+                  "x": 0,
+                  "y": 0,
+                  "width": 1920,
+                  "height": 33
+                },
+                {
+                  "x": 0,
+                  "y": 411,
+                  "width": 50,
+                  "height": 258
+                }
+              ],
+              "icon_content": null,
+              "xfconf_arrays": true,
+              "all_plugins_preserved": true,
+              "sample_application_stayed_open": true
+            },
+            {
+              "profile": "oguzdows",
+              "variant": "light",
+              "windows": [
+                {
+                  "x": 0,
+                  "y": 1041,
+                  "width": 1920,
+                  "height": 39
+                }
+              ],
+              "icon_content": null,
+              "xfconf_arrays": true,
+              "all_plugins_preserved": true,
+              "sample_application_stayed_open": true
+            },
+            {
+              "profile": "kde",
+              "variant": "light",
+              "windows": [
+                {
+                  "x": 0,
+                  "y": 1035,
+                  "width": 1920,
+                  "height": 45
+                }
+              ],
+              "icon_content": null,
+              "xfconf_arrays": true,
+              "all_plugins_preserved": true,
+              "sample_application_stayed_open": true
+            },
+            {
+              "profile": "xfce",
+              "variant": "light",
+              "windows": [
+                {
+                  "x": 0,
+                  "y": 0,
+                  "width": 1920,
+                  "height": 31
+                }
+              ],
+              "icon_content": null,
+              "xfconf_arrays": true,
+              "all_plugins_preserved": true,
+              "sample_application_stayed_open": true
+            },
+            {
+              "profile": "windows11",
+              "variant": "light",
+              "windows": [
+                {
+                  "x": 0,
+                  "y": 0,
+                  "width": 1920,
+                  "height": 29
+                },
+                {
+                  "x": 797,
+                  "y": 1032,
+                  "width": 326,
+                  "height": 48
+                }
+              ],
+              "icon_content": {
+                "left": 799,
+                "right": 1121,
+                "center_error_px": 0.0,
+                "screen_center": 960.0
+              },
+              "xfconf_arrays": true,
+              "all_plugins_preserved": true,
+              "sample_application_stayed_open": true
+            },
+            {
+              "profile": "windows11",
+              "variant": "-three-windows",
+              "windows": [
+                {
+                  "x": 0,
+                  "y": 0,
+                  "width": 1920,
+                  "height": 29
+                },
+                {
+                  "x": 749,
+                  "y": 1032,
+                  "width": 422,
+                  "height": 48
+                }
+              ],
+              "icon_content": {
+                "left": 751,
+                "right": 1169,
+                "center_error_px": 0.0,
+                "screen_center": 960.0
+              },
+              "xfconf_arrays": true,
+              "all_plugins_preserved": true,
+              "sample_application_stayed_open": true
+            }
+          ],
+          "xfce_panel_version": "xfce4-panel 4.18.2 (Xfce 4.18)",
+          "restored": true
+        },
+        {
+          "scope": "host-real-xfce-panels-private-xvfb",
+          "physical_boot": false,
+          "arm_runtime": false,
+          "performance_test": false,
+          "package_transaction": false,
+          "layouts": [
+            {
+              "profile": "mac",
+              "variant": "light",
+              "windows": [
+                {
+                  "x": 0,
+                  "y": 0,
+                  "width": 1280,
+                  "height": 31
+                },
+                {
+                  "x": 501,
+                  "y": 846,
+                  "width": 278,
+                  "height": 54
+                }
+              ],
+              "icon_content": {
+                "left": 514,
+                "right": 777,
+                "center_error_px": 5.5,
+                "screen_center": 640.0
+              },
+              "xfconf_arrays": true,
+              "all_plugins_preserved": true,
+              "sample_application_stayed_open": true
+            },
+            {
+              "profile": "mac",
+              "variant": "-dark",
+              "windows": [
+                {
+                  "x": 0,
+                  "y": 0,
+                  "width": 1280,
+                  "height": 31
+                },
+                {
+                  "x": 501,
+                  "y": 846,
+                  "width": 278,
+                  "height": 54
+                }
+              ],
+              "icon_content": {
+                "left": 514,
+                "right": 777,
+                "center_error_px": 5.5,
+                "screen_center": 640.0
+              },
+              "xfconf_arrays": true,
+              "all_plugins_preserved": true,
+              "sample_application_stayed_open": true
+            },
+            {
+              "profile": "gnome",
+              "variant": "light",
+              "windows": [
+                {
+                  "x": 0,
+                  "y": 0,
+                  "width": 1280,
+                  "height": 33
+                },
+                {
+                  "x": 0,
+                  "y": 321,
+                  "width": 50,
+                  "height": 258
+                }
+              ],
+              "icon_content": null,
+              "xfconf_arrays": true,
+              "all_plugins_preserved": true,
+              "sample_application_stayed_open": true
+            },
+            {
+              "profile": "oguzdows",
+              "variant": "light",
+              "windows": [
+                {
+                  "x": 0,
+                  "y": 861,
+                  "width": 1280,
+                  "height": 39
+                }
+              ],
+              "icon_content": null,
+              "xfconf_arrays": true,
+              "all_plugins_preserved": true,
+              "sample_application_stayed_open": true
+            },
+            {
+              "profile": "kde",
+              "variant": "light",
+              "windows": [
+                {
+                  "x": 0,
+                  "y": 855,
+                  "width": 1280,
+                  "height": 45
+                }
+              ],
+              "icon_content": null,
+              "xfconf_arrays": true,
+              "all_plugins_preserved": true,
+              "sample_application_stayed_open": true
+            },
+            {
+              "profile": "xfce",
+              "variant": "light",
+              "windows": [
+                {
+                  "x": 0,
+                  "y": 0,
+                  "width": 1280,
+                  "height": 31
+                }
+              ],
+              "icon_content": null,
+              "xfconf_arrays": true,
+              "all_plugins_preserved": true,
+              "sample_application_stayed_open": true
+            },
+            {
+              "profile": "windows11",
+              "variant": "light",
+              "windows": [
+                {
+                  "x": 0,
+                  "y": 0,
+                  "width": 1280,
+                  "height": 29
+                },
+                {
+                  "x": 477,
+                  "y": 852,
+                  "width": 326,
+                  "height": 48
+                }
+              ],
+              "icon_content": {
+                "left": 479,
+                "right": 801,
+                "center_error_px": 0.0,
+                "screen_center": 640.0
+              },
+              "xfconf_arrays": true,
+              "all_plugins_preserved": true,
+              "sample_application_stayed_open": true
+            },
+            {
+              "profile": "windows11",
+              "variant": "-three-windows",
+              "windows": [
+                {
+                  "x": 0,
+                  "y": 0,
+                  "width": 1280,
+                  "height": 29
+                },
+                {
+                  "x": 429,
+                  "y": 852,
+                  "width": 422,
+                  "height": 48
+                }
+              ],
+              "icon_content": {
+                "left": 431,
+                "right": 849,
+                "center_error_px": 0.0,
+                "screen_center": 640.0
+              },
+              "xfconf_arrays": true,
+              "all_plugins_preserved": true,
+              "sample_application_stayed_open": true
+            }
+          ],
+          "xfce_panel_version": "xfce4-panel 4.18.2 (Xfce 4.18)",
+          "restored": true
+        },
+        {
+          "scope": "host-real-xfce-panels-private-xvfb",
+          "physical_boot": false,
+          "arm_runtime": false,
+          "performance_test": false,
+          "package_transaction": false,
+          "layouts": [
+            {
+              "profile": "mac",
+              "variant": "light",
+              "windows": [
+                {
+                  "x": 0,
+                  "y": 0,
+                  "width": 1024,
+                  "height": 31
+                },
+                {
+                  "x": 373,
+                  "y": 714,
+                  "width": 278,
+                  "height": 54
+                }
+              ],
+              "icon_content": {
+                "left": 386,
+                "right": 649,
+                "center_error_px": 5.5,
+                "screen_center": 512.0
+              },
+              "xfconf_arrays": true,
+              "all_plugins_preserved": true,
+              "sample_application_stayed_open": true
+            },
+            {
+              "profile": "mac",
+              "variant": "-dark",
+              "windows": [
+                {
+                  "x": 0,
+                  "y": 0,
+                  "width": 1024,
+                  "height": 31
+                },
+                {
+                  "x": 373,
+                  "y": 714,
+                  "width": 278,
+                  "height": 54
+                }
+              ],
+              "icon_content": {
+                "left": 386,
+                "right": 649,
+                "center_error_px": 5.5,
+                "screen_center": 512.0
+              },
+              "xfconf_arrays": true,
+              "all_plugins_preserved": true,
+              "sample_application_stayed_open": true
+            },
+            {
+              "profile": "gnome",
+              "variant": "light",
+              "windows": [
+                {
+                  "x": 0,
+                  "y": 0,
+                  "width": 1024,
+                  "height": 33
+                },
+                {
+                  "x": 0,
+                  "y": 255,
+                  "width": 50,
+                  "height": 258
+                }
+              ],
+              "icon_content": null,
+              "xfconf_arrays": true,
+              "all_plugins_preserved": true,
+              "sample_application_stayed_open": true
+            },
+            {
+              "profile": "oguzdows",
+              "variant": "light",
+              "windows": [
+                {
+                  "x": 0,
+                  "y": 729,
+                  "width": 1024,
+                  "height": 39
+                }
+              ],
+              "icon_content": null,
+              "xfconf_arrays": true,
+              "all_plugins_preserved": true,
+              "sample_application_stayed_open": true
+            },
+            {
+              "profile": "kde",
+              "variant": "light",
+              "windows": [
+                {
+                  "x": 0,
+                  "y": 723,
+                  "width": 1024,
+                  "height": 45
+                }
+              ],
+              "icon_content": null,
+              "xfconf_arrays": true,
+              "all_plugins_preserved": true,
+              "sample_application_stayed_open": true
+            },
+            {
+              "profile": "xfce",
+              "variant": "light",
+              "windows": [
+                {
+                  "x": 0,
+                  "y": 0,
+                  "width": 1024,
+                  "height": 31
+                }
+              ],
+              "icon_content": null,
+              "xfconf_arrays": true,
+              "all_plugins_preserved": true,
+              "sample_application_stayed_open": true
+            },
+            {
+              "profile": "windows11",
+              "variant": "light",
+              "windows": [
+                {
+                  "x": 0,
+                  "y": 0,
+                  "width": 1024,
+                  "height": 29
+                },
+                {
+                  "x": 349,
+                  "y": 720,
+                  "width": 326,
+                  "height": 48
+                }
+              ],
+              "icon_content": {
+                "left": 351,
+                "right": 673,
+                "center_error_px": 0.0,
+                "screen_center": 512.0
+              },
+              "xfconf_arrays": true,
+              "all_plugins_preserved": true,
+              "sample_application_stayed_open": true
+            },
+            {
+              "profile": "windows11",
+              "variant": "-three-windows",
+              "windows": [
+                {
+                  "x": 0,
+                  "y": 0,
+                  "width": 1024,
+                  "height": 29
+                },
+                {
+                  "x": 301,
+                  "y": 720,
+                  "width": 422,
+                  "height": 48
+                }
+              ],
+              "icon_content": {
+                "left": 303,
+                "right": 721,
+                "center_error_px": 0.0,
+                "screen_center": 512.0
+              },
+              "xfconf_arrays": true,
+              "all_plugins_preserved": true,
+              "sample_application_stayed_open": true
+            }
+          ],
+          "xfce_panel_version": "xfce4-panel 4.18.2 (Xfce 4.18)",
+          "restored": true
+        }
+      ],
+      "effects": {
+        "scope": "host-nonroot-private-Xvfb-real-XRender",
+        "resource_budget_simulated": true,
+        "physical_gpu": false,
+        "performance_measurement": false,
+        "gala_parity": false,
+        "one_owned_engine_reused": true,
+        "real_window_open_minimize_restore": true,
+        "low_memory_override_stopped_owned_engine": true,
+        "glass_selection_reused_without_toggling": true,
+        "foreign_compositor_preserved_no_competing_engine": true,
+        "picom_version": "v9.1"
+      },
+      "native_news": [
+        {
+          "native_gtk": true,
+          "fixture_not_network": true,
+          "cold_start_fetch": false,
+          "offline_after_error": true,
+          "font_limits": true,
+          "worker_exited": true,
+          "cancellation": true,
+          "deadline_callback": true,
+          "physical_device": false,
+          "screen_width": 360,
+          "screen_height": 800,
+          "window_width": 348
+        },
+        {
+          "native_gtk": true,
+          "fixture_not_network": true,
+          "cold_start_fetch": false,
+          "offline_after_error": true,
+          "font_limits": true,
+          "worker_exited": true,
+          "cancellation": true,
+          "deadline_callback": true,
+          "physical_device": false,
+          "screen_width": 1024,
+          "screen_height": 768,
+          "window_width": 890
+        }
+      ],
+      "raw_annotations_sha256": "ee2a81c5b178dda34278e22537b3f462e9c9b77791c01a77ae354f4fe6981b8b"
+    },
+    {
+      "suite": "trixie",
+      "job_id": 137676078323,
+      "conclusion": "success",
+      "real_panels": [
+        {
+          "scope": "host-real-xfce-panels-private-xvfb",
+          "physical_boot": false,
+          "arm_runtime": false,
+          "performance_test": false,
+          "package_transaction": false,
+          "layouts": [
+            {
+              "profile": "mac",
+              "variant": "light",
+              "windows": [
+                {
+                  "x": 0,
+                  "y": 0,
+                  "width": 1920,
+                  "height": 31
+                },
+                {
+                  "x": 821,
+                  "y": 1026,
+                  "width": 278,
+                  "height": 54
+                }
+              ],
+              "icon_content": {
+                "left": 834,
+                "right": 1097,
+                "center_error_px": 5.5,
+                "screen_center": 960.0
+              },
+              "xfconf_arrays": true,
+              "all_plugins_preserved": true,
+              "sample_application_stayed_open": true
+            },
+            {
+              "profile": "mac",
+              "variant": "-dark",
+              "windows": [
+                {
+                  "x": 0,
+                  "y": 0,
+                  "width": 1920,
+                  "height": 31
+                },
+                {
+                  "x": 821,
+                  "y": 1026,
+                  "width": 278,
+                  "height": 54
+                }
+              ],
+              "icon_content": {
+                "left": 834,
+                "right": 1097,
+                "center_error_px": 5.5,
+                "screen_center": 960.0
+              },
+              "xfconf_arrays": true,
+              "all_plugins_preserved": true,
+              "sample_application_stayed_open": true
+            },
+            {
+              "profile": "gnome",
+              "variant": "light",
+              "windows": [
+                {
+                  "x": 0,
+                  "y": 0,
+                  "width": 1920,
+                  "height": 33
+                },
+                {
+                  "x": 0,
+                  "y": 411,
+                  "width": 50,
+                  "height": 258
+                }
+              ],
+              "icon_content": null,
+              "xfconf_arrays": true,
+              "all_plugins_preserved": true,
+              "sample_application_stayed_open": true
+            },
+            {
+              "profile": "oguzdows",
+              "variant": "light",
+              "windows": [
+                {
+                  "x": 0,
+                  "y": 1041,
+                  "width": 1920,
+                  "height": 39
+                }
+              ],
+              "icon_content": null,
+              "xfconf_arrays": true,
+              "all_plugins_preserved": true,
+              "sample_application_stayed_open": true
+            },
+            {
+              "profile": "kde",
+              "variant": "light",
+              "windows": [
+                {
+                  "x": 0,
+                  "y": 1035,
+                  "width": 1920,
+                  "height": 45
+                }
+              ],
+              "icon_content": null,
+              "xfconf_arrays": true,
+              "all_plugins_preserved": true,
+              "sample_application_stayed_open": true
+            },
+            {
+              "profile": "xfce",
+              "variant": "light",
+              "windows": [
+                {
+                  "x": 0,
+                  "y": 0,
+                  "width": 1920,
+                  "height": 31
+                }
+              ],
+              "icon_content": null,
+              "xfconf_arrays": true,
+              "all_plugins_preserved": true,
+              "sample_application_stayed_open": true
+            },
+            {
+              "profile": "windows11",
+              "variant": "light",
+              "windows": [
+                {
+                  "x": 0,
+                  "y": 0,
+                  "width": 1920,
+                  "height": 29
+                },
+                {
+                  "x": 812,
+                  "y": 1032,
+                  "width": 296,
+                  "height": 48
+                }
+              ],
+              "icon_content": {
+                "left": 820,
+                "right": 1106,
+                "center_error_px": 3.0,
+                "screen_center": 960.0
+              },
+              "xfconf_arrays": true,
+              "all_plugins_preserved": true,
+              "sample_application_stayed_open": true
+            },
+            {
+              "profile": "windows11",
+              "variant": "-three-windows",
+              "windows": [
+                {
+                  "x": 0,
+                  "y": 0,
+                  "width": 1920,
+                  "height": 29
+                },
+                {
+                  "x": 764,
+                  "y": 1032,
+                  "width": 392,
+                  "height": 48
+                }
+              ],
+              "icon_content": {
+                "left": 772,
+                "right": 1142,
+                "center_error_px": 3.0,
+                "screen_center": 960.0
+              },
+              "xfconf_arrays": true,
+              "all_plugins_preserved": true,
+              "sample_application_stayed_open": true
+            }
+          ],
+          "xfce_panel_version": "xfce4-panel 4.20.4 (Xfce 4.20)",
+          "restored": true
+        },
+        {
+          "scope": "host-real-xfce-panels-private-xvfb",
+          "physical_boot": false,
+          "arm_runtime": false,
+          "performance_test": false,
+          "package_transaction": false,
+          "layouts": [
+            {
+              "profile": "mac",
+              "variant": "light",
+              "windows": [
+                {
+                  "x": 0,
+                  "y": 0,
+                  "width": 1280,
+                  "height": 31
+                },
+                {
+                  "x": 501,
+                  "y": 846,
+                  "width": 278,
+                  "height": 54
+                }
+              ],
+              "icon_content": {
+                "left": 514,
+                "right": 777,
+                "center_error_px": 5.5,
+                "screen_center": 640.0
+              },
+              "xfconf_arrays": true,
+              "all_plugins_preserved": true,
+              "sample_application_stayed_open": true
+            },
+            {
+              "profile": "mac",
+              "variant": "-dark",
+              "windows": [
+                {
+                  "x": 0,
+                  "y": 0,
+                  "width": 1280,
+                  "height": 31
+                },
+                {
+                  "x": 501,
+                  "y": 846,
+                  "width": 278,
+                  "height": 54
+                }
+              ],
+              "icon_content": {
+                "left": 514,
+                "right": 777,
+                "center_error_px": 5.5,
+                "screen_center": 640.0
+              },
+              "xfconf_arrays": true,
+              "all_plugins_preserved": true,
+              "sample_application_stayed_open": true
+            },
+            {
+              "profile": "gnome",
+              "variant": "light",
+              "windows": [
+                {
+                  "x": 0,
+                  "y": 0,
+                  "width": 1280,
+                  "height": 33
+                },
+                {
+                  "x": 0,
+                  "y": 321,
+                  "width": 50,
+                  "height": 258
+                }
+              ],
+              "icon_content": null,
+              "xfconf_arrays": true,
+              "all_plugins_preserved": true,
+              "sample_application_stayed_open": true
+            },
+            {
+              "profile": "oguzdows",
+              "variant": "light",
+              "windows": [
+                {
+                  "x": 0,
+                  "y": 861,
+                  "width": 1280,
+                  "height": 39
+                }
+              ],
+              "icon_content": null,
+              "xfconf_arrays": true,
+              "all_plugins_preserved": true,
+              "sample_application_stayed_open": true
+            },
+            {
+              "profile": "kde",
+              "variant": "light",
+              "windows": [
+                {
+                  "x": 0,
+                  "y": 855,
+                  "width": 1280,
+                  "height": 45
+                }
+              ],
+              "icon_content": null,
+              "xfconf_arrays": true,
+              "all_plugins_preserved": true,
+              "sample_application_stayed_open": true
+            },
+            {
+              "profile": "xfce",
+              "variant": "light",
+              "windows": [
+                {
+                  "x": 0,
+                  "y": 0,
+                  "width": 1280,
+                  "height": 31
+                }
+              ],
+              "icon_content": null,
+              "xfconf_arrays": true,
+              "all_plugins_preserved": true,
+              "sample_application_stayed_open": true
+            },
+            {
+              "profile": "windows11",
+              "variant": "light",
+              "windows": [
+                {
+                  "x": 0,
+                  "y": 0,
+                  "width": 1280,
+                  "height": 29
+                },
+                {
+                  "x": 492,
+                  "y": 852,
+                  "width": 296,
+                  "height": 48
+                }
+              ],
+              "icon_content": {
+                "left": 500,
+                "right": 786,
+                "center_error_px": 3.0,
+                "screen_center": 640.0
+              },
+              "xfconf_arrays": true,
+              "all_plugins_preserved": true,
+              "sample_application_stayed_open": true
+            },
+            {
+              "profile": "windows11",
+              "variant": "-three-windows",
+              "windows": [
+                {
+                  "x": 0,
+                  "y": 0,
+                  "width": 1280,
+                  "height": 29
+                },
+                {
+                  "x": 444,
+                  "y": 852,
+                  "width": 392,
+                  "height": 48
+                }
+              ],
+              "icon_content": {
+                "left": 452,
+                "right": 822,
+                "center_error_px": 3.0,
+                "screen_center": 640.0
+              },
+              "xfconf_arrays": true,
+              "all_plugins_preserved": true,
+              "sample_application_stayed_open": true
+            }
+          ],
+          "xfce_panel_version": "xfce4-panel 4.20.4 (Xfce 4.20)",
+          "restored": true
+        },
+        {
+          "scope": "host-real-xfce-panels-private-xvfb",
+          "physical_boot": false,
+          "arm_runtime": false,
+          "performance_test": false,
+          "package_transaction": false,
+          "layouts": [
+            {
+              "profile": "mac",
+              "variant": "light",
+              "windows": [
+                {
+                  "x": 0,
+                  "y": 0,
+                  "width": 1024,
+                  "height": 31
+                },
+                {
+                  "x": 373,
+                  "y": 714,
+                  "width": 278,
+                  "height": 54
+                }
+              ],
+              "icon_content": {
+                "left": 386,
+                "right": 649,
+                "center_error_px": 5.5,
+                "screen_center": 512.0
+              },
+              "xfconf_arrays": true,
+              "all_plugins_preserved": true,
+              "sample_application_stayed_open": true
+            },
+            {
+              "profile": "mac",
+              "variant": "-dark",
+              "windows": [
+                {
+                  "x": 0,
+                  "y": 0,
+                  "width": 1024,
+                  "height": 31
+                },
+                {
+                  "x": 373,
+                  "y": 714,
+                  "width": 278,
+                  "height": 54
+                }
+              ],
+              "icon_content": {
+                "left": 386,
+                "right": 649,
+                "center_error_px": 5.5,
+                "screen_center": 512.0
+              },
+              "xfconf_arrays": true,
+              "all_plugins_preserved": true,
+              "sample_application_stayed_open": true
+            },
+            {
+              "profile": "gnome",
+              "variant": "light",
+              "windows": [
+                {
+                  "x": 0,
+                  "y": 0,
+                  "width": 1024,
+                  "height": 33
+                },
+                {
+                  "x": 0,
+                  "y": 255,
+                  "width": 50,
+                  "height": 258
+                }
+              ],
+              "icon_content": null,
+              "xfconf_arrays": true,
+              "all_plugins_preserved": true,
+              "sample_application_stayed_open": true
+            },
+            {
+              "profile": "oguzdows",
+              "variant": "light",
+              "windows": [
+                {
+                  "x": 0,
+                  "y": 729,
+                  "width": 1024,
+                  "height": 39
+                }
+              ],
+              "icon_content": null,
+              "xfconf_arrays": true,
+              "all_plugins_preserved": true,
+              "sample_application_stayed_open": true
+            },
+            {
+              "profile": "kde",
+              "variant": "light",
+              "windows": [
+                {
+                  "x": 0,
+                  "y": 723,
+                  "width": 1024,
+                  "height": 45
+                }
+              ],
+              "icon_content": null,
+              "xfconf_arrays": true,
+              "all_plugins_preserved": true,
+              "sample_application_stayed_open": true
+            },
+            {
+              "profile": "xfce",
+              "variant": "light",
+              "windows": [
+                {
+                  "x": 0,
+                  "y": 0,
+                  "width": 1024,
+                  "height": 31
+                }
+              ],
+              "icon_content": null,
+              "xfconf_arrays": true,
+              "all_plugins_preserved": true,
+              "sample_application_stayed_open": true
+            },
+            {
+              "profile": "windows11",
+              "variant": "light",
+              "windows": [
+                {
+                  "x": 0,
+                  "y": 0,
+                  "width": 1024,
+                  "height": 29
+                },
+                {
+                  "x": 364,
+                  "y": 720,
+                  "width": 296,
+                  "height": 48
+                }
+              ],
+              "icon_content": {
+                "left": 372,
+                "right": 658,
+                "center_error_px": 3.0,
+                "screen_center": 512.0
+              },
+              "xfconf_arrays": true,
+              "all_plugins_preserved": true,
+              "sample_application_stayed_open": true
+            },
+            {
+              "profile": "windows11",
+              "variant": "-three-windows",
+              "windows": [
+                {
+                  "x": 0,
+                  "y": 0,
+                  "width": 1024,
+                  "height": 29
+                },
+                {
+                  "x": 316,
+                  "y": 720,
+                  "width": 392,
+                  "height": 48
+                }
+              ],
+              "icon_content": {
+                "left": 324,
+                "right": 694,
+                "center_error_px": 3.0,
+                "screen_center": 512.0
+              },
+              "xfconf_arrays": true,
+              "all_plugins_preserved": true,
+              "sample_application_stayed_open": true
+            }
+          ],
+          "xfce_panel_version": "xfce4-panel 4.20.4 (Xfce 4.20)",
+          "restored": true
+        }
+      ],
+      "effects": {
+        "scope": "host-nonroot-private-Xvfb-real-XRender",
+        "resource_budget_simulated": true,
+        "physical_gpu": false,
+        "performance_measurement": false,
+        "gala_parity": false,
+        "one_owned_engine_reused": true,
+        "real_window_open_minimize_restore": true,
+        "low_memory_override_stopped_owned_engine": true,
+        "glass_selection_reused_without_toggling": true,
+        "foreign_compositor_preserved_no_competing_engine": true,
+        "picom_version": "v12.5"
+      },
+      "native_news": [
+        {
+          "native_gtk": true,
+          "fixture_not_network": true,
+          "cold_start_fetch": false,
+          "offline_after_error": true,
+          "font_limits": true,
+          "worker_exited": true,
+          "cancellation": true,
+          "deadline_callback": true,
+          "physical_device": false,
+          "screen_width": 360,
+          "screen_height": 800,
+          "window_width": 346
+        },
+        {
+          "native_gtk": true,
+          "fixture_not_network": true,
+          "cold_start_fetch": false,
+          "offline_after_error": true,
+          "font_limits": true,
+          "worker_exited": true,
+          "cancellation": true,
+          "deadline_callback": true,
+          "physical_device": false,
+          "screen_width": 1024,
+          "screen_height": 768,
+          "window_width": 890
+        }
+      ],
+      "raw_annotations_sha256": "51e0787e83b83f2200e3b75c39e4524bccfba66d3eb5c6c0a4738ea0db827a37"
+    }
+  ],
+  "pi_host": {
+    "job_id": 137676077257,
+    "conclusion": "success",
+    "scope": "amd64-host-not-ARM-CPU",
+    "native_news": [
+      {
+        "native_gtk": true,
+        "fixture_not_network": true,
+        "cold_start_fetch": false,
+        "offline_after_error": true,
+        "font_limits": true,
+        "worker_exited": true,
+        "cancellation": true,
+        "deadline_callback": true,
+        "physical_device": false,
+        "screen_width": 360,
+        "screen_height": 800,
+        "window_width": 354
+      },
+      {
+        "native_gtk": true,
+        "fixture_not_network": true,
+        "cold_start_fetch": false,
+        "offline_after_error": true,
+        "font_limits": true,
+        "worker_exited": true,
+        "cancellation": true,
+        "deadline_callback": true,
+        "physical_device": false,
+        "screen_width": 1024,
+        "screen_height": 768,
+        "window_width": 890
+      }
+    ],
+    "raw_annotations_sha256": "966a5de66679769c76f90e1607980a281871fef6e1d789426622bef45d80f868"
+  },
+  "previous_failure": {
+    "source_revision": "a7e70997eb4b2e7c5c190a2495631b2a9a443ce9",
+    "pc_run_id": 45168989371,
+    "conclusion": "failure",
+    "pi_host_run_id": 45168989480,
+    "pi_host_conclusion": "success",
+    "images_built": false,
+    "reason": "xfwm test CLI disabled compositing support; own compositor CM-release race; fixed without weakening the gate",
+    "cancelled_or_restarted": false
+  },
+  "transport_only_probe": {
+    "scope": "direct-pinned-HTTPS-transport-to-public-GitHub-JSON-not-RSS",
+    "source_revision": "29f7738534cd00bd87887f530355ef45e01eb28c",
+    "live_publishers_tested": false,
+    "physical_device": false,
+    "rss_network_result": false,
+    "transport_passed": true,
+    "http_status": 200,
+    "bytes": 5864,
+    "sha256": "ed559f8ebefb822d55a076a96879697cfd5e4b7fb7df2a97dc2e53e7515e399a",
+    "system_ca": true,
+    "hostname_check": true,
+    "not_the_feed_download_test": "Direct TLS HTTP 200 from public GitHub JSON; RSS Accept header to the same JSON endpoint returned HTTP 415 as expected. No publisher reachability claim."
+  },
+  "new_manual_image_requests": [
+    {
+      "run_id": 45170576727,
+      "url": "https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/45170576727",
+      "status_at_recording": "in_progress",
+      "conclusion_at_recording": null,
+      "do_not_redispatch": true,
+      "target": "raspberrypi-armhf-and-arm64"
+    },
+    {
+      "run_id": 45170572813,
+      "url": "https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/45170572813",
+      "status_at_recording": "in_progress",
+      "conclusion_at_recording": null,
+      "do_not_redispatch": true,
+      "target": "pc-amd64-and-i386"
+    }
+  ]
+}
