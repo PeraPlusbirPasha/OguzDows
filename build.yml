@@ -24,6 +24,10 @@ on:
         description: pc-release için mevcut taslağın sayısal GitHub kimliği
         type: string
         default: ""
+      release_audit_only:
+        description: pc-release taslağını yalnız yeniden indir/doğrula; yükleme/değiştirme yok
+        type: boolean
+        default: false
       architecture:
         description: Yalnızca Raspberry Pi hedefi için
         type: choice
@@ -454,12 +458,14 @@ jobs:
           GH_TOKEN: ${{ github.token }}
           SOURCE_RUN: ${{ inputs.evidence_run }}
           PI_SOURCE_RUN: ${{ inputs.pi_evidence_run }}
+          AUDIT_ONLY: ${{ inputs.release_audit_only }}
           RELEASE_TAG: ${{ inputs.release_tag }}
           RELEASE_ID: ${{ inputs.release_id }}
         run: |
           extra=()
           if [ -n "$PI_SOURCE_RUN" ]; then extra=(--pi-run "$PI_SOURCE_RUN"); fi
-          python3 scripts/ci-run.py --title 'Release imaj aktarımı' -- \
+          if [ "$AUDIT_ONLY" = true ]; then extra+=(--audit); fi
+          python3 scripts/ci-run.py --title 'Release imaj aktarımı / denetimi' -- \
             python3 scripts/release-assets.py --run "$SOURCE_RUN" --release-id "$RELEASE_ID" --tag "$RELEASE_TAG" "${extra[@]}"
 
   raspberrypi:

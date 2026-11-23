@@ -1,6 +1,8 @@
 """Dört imajın yeniden derlenmeden, kaynak/hash doğrulamalı yayın aktarımı."""
+import contextlib
 import copy
 import hashlib
+import io
 import json
 import lzma
 import subprocess
@@ -328,6 +330,54 @@ class AllReleaseAssetsTests(unittest.TestCase):
                 release.validate_artifacts({'artifacts': [{**artifact, **change}]}, ['image'], 789, REVISION)
         with self.assertRaises(ValueError):
             release.validate_artifacts({'artifacts': [artifact, artifact]}, ['image'], 789, REVISION)
+
+    def audit_fixture(self, root, *, corrupt=False, changed_remote=False):
+        self.fixture(root)
+        expected = self.prepare(root)
+        draft = {'id': 456, 'draft': True, 'tag_name': 'v1.1', 'target_commitish': REVISION,
+                 'body': (ROOT / 'docs/releases/v1.1.md').read_text(),
+                 'assets': [{'name': name, 'size': data['size'], 'digest': 'sha256:' + data['sha256'], 'state': 'uploaded'}
+                            for name, data in expected.items()]}
+        def command(*args):
+            if args[:3] == ('gh', 'release', 'download'):
+                target = Path(args[args.index('--dir') + 1])
+                target.mkdir(parents=True)
+                pattern = args[args.index('--pattern') + 1]
+                files = list((root / 'output').iterdir()) if pattern == '*' else [root / 'output' / pattern]
+                for path in files:
+                    (target / path.name).write_bytes(path.read_bytes())
+                if pattern == '*' and corrupt:
+                    (target / 'OguzDows-rpi-armhf.img.xz').write_bytes(b'corrupted transfer')
+            elif args[:3] != ('git', 'merge-base', '--is-ancestor'):
+                raise AssertionError('Beklenmeyen/yazma komutu: ' + repr(args))
+            return ''
+        current = copy.deepcopy(draft)
+        if changed_remote:
+            current['assets'][0]['digest'] = 'sha256:' + 'f' * 64
+        output = io.StringIO()
+        with patch.object(release, 'command', side_effect=command) as called, patch.object(release, 'api', return_value=current), \
+                contextlib.redirect_stdout(output):
+            result = release.audit_release(draft, root / 'audit', repository=REPOSITORY, run_id=123, pi_run_id=789,
+                                           release_id=456, revision=REVISION, tag='v1.1', notes=draft['body'])
+        return result, called, output.getvalue()
+
+    def test_audit_redownloads_and_hashes_all_seventeen_assets_without_writing_release(self):
+        with tempfile.TemporaryDirectory() as directory:
+            result, called, output = self.audit_fixture(Path(directory))
+            self.assertEqual(len(result), 17)
+            self.assertEqual(sum(call.args[:3] == ('gh', 'release', 'download') for call in called.call_args_list), 2)
+            self.assertNotIn('upload', str(called.call_args_list))
+            notices = output.splitlines()
+            self.assertEqual(len(notices), 8)  # GitHub'ın 10 notice/adım sınırının altında.
+            self.assertTrue(all(len(line.split('::', 2)[-1]) <= 3500 for line in notices))
+            decoded = [json.loads(line.split('::', 2)[-1]) for line in notices if 'Release doğrulanmış dosyalar' in line]
+            self.assertEqual({row['name'] for batch in decoded for row in batch}, set(result))
+            self.assertIn('"all_release_assets_redownloaded_and_hashed": true', output)
+
+    def test_audit_rejects_corrupted_download_or_concurrent_remote_change(self):
+        for options in ({'corrupt': True}, {'changed_remote': True}):
+            with self.subTest(options=options), tempfile.TemporaryDirectory() as directory, self.assertRaises(ValueError):
+                self.audit_fixture(Path(directory), **options)
 
     def test_ci_pi_input_is_optional_and_does_not_add_build_or_publish_permissions_elsewhere(self):
         workflow = yaml.safe_load((ROOT / '.github/workflows/main.yml').read_text())

@@ -394,6 +394,84 @@ def check_remote(release, expected, *, complete):
     return set(expected) - set(actual)
 
 
+def emit_files(expected):
+    # GitHub aynı adımda yalnız ilk 10 notice'ı saklayabilir. Dosya başına
+    # notice yerine en çok üç küçük grup; JSON ne kesilir ne kaybolur.
+    records = [{'name': name, **data} for name, data in sorted(expected.items())]
+    for offset in range(0, len(records), 8):
+        text = json.dumps(records[offset:offset + 8], ensure_ascii=True)
+        if len(text) > 3500:
+            raise ValueError('Yayın envanteri kontrol notu sınırını aştı.')
+        print(f'::notice title=Release doğrulanmış dosyalar {offset // 8 + 1}::' + text, flush=True)
+
+
+def audit_release(release, work, *, repository, run_id, pi_run_id, release_id, revision, tag, notes):
+    """Yüklenmiş 17 dosyayı tekrar indir/hash'le; release'e hiçbir şey YAZMA."""
+    if not pi_run_id:
+        raise ValueError('Dört imajlı release denetiminde Pi kaynak çalışması gerekli.')
+    work.mkdir(parents=True, exist_ok=False)
+    metadata, downloaded = work / 'metadata', work / 'download'
+    command('gh', 'release', 'download', tag, '--repo', repository,
+            '--pattern', 'release-manifest.json', '--dir', str(metadata))
+    path = regular(metadata / 'release-manifest.json')
+    manifest = read_json(path)
+    allowed = {'INDIRME-REHBERI.md', 'SHA256SUMS', 'test-evidence.tar.gz', 'pi-gen.lock.json',
+               'desktop-idle-amd64.json', 'desktop-idle-i386.json'}
+    images = [f'OguzDows-{arch}.iso' for arch in ARCHES] + [f'OguzDows-rpi-{arch}.img.xz' for arch in PI_ARCHES]
+    allowed.update(images)
+    allowed.update(name + '.sha256' for name in images)
+    allowed.update(f'OguzDows-rpi-{arch}.packages.txt' for arch in PI_ARCHES)
+    expected = manifest.get('files', {})
+    if (set(expected) != allowed or manifest.get('format') != 2 or manifest.get('repository') != repository
+            or manifest.get('release_id') != release_id or manifest.get('tag') != tag
+            or manifest.get('source_revision') != revision or manifest.get('source_run_id') != run_id
+            or manifest.get('pi_source_run_id') != pi_run_id or manifest.get('images_rebuilt') is not False
+            or not re.fullmatch('[0-9a-f]{40}', manifest.get('publisher_revision', ''))):
+        raise ValueError('Yüklü manifestin kaynak/17 dosya/yayımlayıcı sözleşmesi geçersiz.')
+    command('git', 'merge-base', '--is-ancestor', manifest['publisher_revision'], 'HEAD')
+    expected['release-manifest.json'] = {'size': path.stat().st_size, 'sha256': sha256(path)}
+    validate_draft(release, release_id, tag, revision, notes)
+    check_remote(release, expected, complete=True)
+    # Manifestten yol/kalıp alınmaz; yalnız doğrulanmış sabit isimler indirilir.
+    command('gh', 'release', 'download', tag, '--repo', repository, '--pattern', '*', '--dir', str(downloaded))
+    if inventory(downloaded) != expected:
+        raise ValueError('Release yeniden indirme SHA-256/boyut doğrulaması başarısız.')
+    checksums = []
+    for name in images:
+        _, _, digest = checked_image(downloaded, name)
+        checksums.append(digest + '  ' + name + '\n')
+    if (downloaded / 'SHA256SUMS').read_text() != ''.join(checksums):
+        raise ValueError('Dört imajın birleşik SHA256SUMS listesi eşleşmiyor.')
+    if (downloaded / 'INDIRME-REHBERI.md').read_text() != notes:
+        raise ValueError('İndirilen rehber taslağın sürüm notlarıyla eşleşmiyor.')
+    evidence = manifest.get('evidence_files', {})
+    with tarfile.open(downloaded / 'test-evidence.tar.gz', 'r:gz') as archive:
+        members = archive.getmembers()
+        if (len(members) != len(evidence) or {item.name for item in members} != set(evidence)
+                or not all(item.isfile() and Path(item.name).name == item.name and item.size <= 2 * 1024**2 for item in members)):
+            raise ValueError('İndirilen kanıt arşivi düz/normal/beklenen dosya listesi değil.')
+        for item in members:
+            with archive.extractfile(item) as stream:
+                content = stream.read(2 * 1024**2 + 1)
+            if {'size': len(content), 'sha256': hashlib.sha256(content).hexdigest()} != evidence[item.name]:
+                raise ValueError('Kanıt arşivindeki özgün JSON hash/boyutu eşleşmiyor: ' + item.name)
+    current = api(f'repos/{repository}/releases/{release_id}')
+    validate_draft(current, release_id, tag, revision, notes)
+    check_remote(current, expected, complete=True)
+    emit_files(expected)
+    identities = manifest.get('image_identity', {})
+    if set(identities) != set(ARCHES) | {'rpi-' + arch for arch in PI_ARCHES}:
+        raise ValueError('Yüklü manifestte dört iç imaj kimliği gerekli.')
+    for arch, identity in identities.items():
+        print('::notice title=Salt okunur imaj kimliği::' + json.dumps({'arch': arch, **identity}, ensure_ascii=True), flush=True)
+    print('::notice title=Release yeniden indirme doğrulaması::' + json.dumps(
+        {'release_id': release_id, 'tag': tag, 'source_revision': revision,
+         'publisher_revision': manifest['publisher_revision'], 'asset_count': len(expected),
+         'evidence_json_count': len(evidence), 'all_release_assets_redownloaded_and_hashed': True,
+         'release_modified': False, 'draft': True}), flush=True)
+    return expected
+
+
 def command(*args):
     try:
         return subprocess.run(args, check=True, capture_output=True, text=True).stdout
@@ -411,6 +489,7 @@ def main():
     parser.add_argument('--run', type=int, required=True)
     parser.add_argument('--pi-run', type=int, help='Aynı kaynak/dalın başarılı armhf+arm64 çalışması; yeniden derlemez')
     parser.add_argument('--release-id', type=int, required=True)
+    parser.add_argument('--audit', action='store_true', help='Mevcut taslağı yeniden indir/doğrula; hiçbir dosya yükleme veya değiştirme')
     parser.add_argument('--tag', required=True)
     parser.add_argument('--work', type=Path, default=Path('.cache/release'))
     args = parser.parse_args()
@@ -431,7 +510,12 @@ def main():
     if command('git', 'status', '--porcelain', '--untracked-files=no').strip():
         raise ValueError('Yayın aracı çalışma ağacı değiştirilmiş; kaynak denetimi atlanmadı.')
     endpoint = f'repos/{repository}/releases/{args.release_id}'
-    validate_draft(api(endpoint), args.release_id, args.tag, revision, notes)
+    release = api(endpoint)
+    validate_draft(release, args.release_id, args.tag, revision, notes)
+    if args.audit:
+        audit_release(release, args.work, repository=repository, run_id=args.run, pi_run_id=args.pi_run,
+                      release_id=args.release_id, revision=revision, tag=args.tag, notes=notes)
+        return
     sources = [(args.run, ['OguzDows-' + arch for arch in ARCHES]
                 + ['OguzDows-ISO-hedef-test-' + arch for arch in ARCHES])]
     if args.pi_run:
@@ -464,8 +548,7 @@ def main():
     release = api(endpoint)
     validate_draft(release, args.release_id, args.tag, revision, notes)
     check_remote(release, expected, complete=True)
-    for name, data in sorted(expected.items()):
-        print('::notice title=Release dosya doğrulaması::' + json.dumps({'name': name, **data}), flush=True)
+    emit_files(expected)
     print('::notice title=Doğrulanmış release taslağı::' + json.dumps(
         {'release_id': args.release_id, 'tag': args.tag, 'draft': True, 'source_revision': revision,
          'pc_run_id': args.run, 'pi_run_id': args.pi_run, 'asset_count': len(expected)}), flush=True)
