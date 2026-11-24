@@ -20,6 +20,39 @@ from pathlib import Path
 from support import ROOT
 
 
+def legacy_animation_fixture(home, major):
+    """43'te force-animations CLI yok: yalnız test evinde ayrı uzantı.
+
+    Normal Shell'in yazılım-GPU inhibitörünü bir kez dengeler; üretim
+    uzantısına / kaynak bütçesine bypass koymaz, Shell Eval kullanmaz.
+    """
+    uuid = 'oguzdows-ci-software-animations@fixture.invalid'
+    target = home / '.local/share/gnome-shell/extensions' / uuid
+    target.mkdir(parents=True)
+    (target / 'metadata.json').write_text(json.dumps({'uuid': uuid, 'name': 'Private CI animations fixture',
+        'description': 'One-shot software GPU fixture; not a product extension', 'shell-version': [str(major)]}))
+    (target / 'extension.js').write_text('''const {GLib, St} = imports.gi;
+let source = 0;
+let released = false;
+function init() {}
+function enable() {
+    source = GLib.timeout_add(GLib.PRIORITY_DEFAULT, 500, () => {
+        source = 0;
+        if (!St.Settings.get().enable_animations) {
+            St.Settings.get().uninhibit_animations();
+            released = true;
+        }
+        return GLib.SOURCE_REMOVE;
+    });
+}
+function disable() {
+    if (source) { GLib.Source.remove(source); source = 0; }
+    if (released) { St.Settings.get().inhibit_animations(); released = false; }
+}
+''')
+    return uuid
+
+
 def child(directory, desktop):
     home = Path(os.environ.get('HOME', '/')).resolve()
     if (os.getuid() == 0 or not os.environ.get('DBUS_SESSION_BUS_ADDRESS')
@@ -78,11 +111,16 @@ def child(directory, desktop):
     try:
         if desktop == 'gnome':
             import desktop_gnome as gnome
-            shell = Gio.Settings.new('org.gnome.shell')
-            shell.set_strv('enabled-extensions', [gnome.UUID]); shell.set_boolean('disable-user-extensions', False)
-            Gio.Settings.sync()
             version = subprocess.run(['/usr/bin/gnome-shell', '--version'], text=True, capture_output=True, check=True, timeout=5).stdout.strip()
-            start(['/usr/bin/gnome-shell', '--x11'], 'gnome-shell')
+            major = int(version.split()[-1].split('.')[0])
+            enabled = [gnome.UUID]
+            options = ['--force-animations'] if major >= 45 else []
+            if not options: enabled.append(legacy_animation_fixture(home, major))
+            report['ci_only_software_gpu_animation_override'] = 'native-cli' if options else 'separate-one-shot-fixture-extension'
+            shell = Gio.Settings.new('org.gnome.shell')
+            shell.set_strv('enabled-extensions', enabled); shell.set_boolean('disable-user-extensions', False)
+            Gio.Settings.sync()
+            start(['/usr/bin/gnome-shell', '--x11', *options], 'gnome-shell')
             wait(lambda: owner('org.gnome.Shell'))
             wait(shell_state)
             report['shell'] = version

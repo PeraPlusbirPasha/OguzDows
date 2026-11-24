@@ -291,6 +291,10 @@ class BackendPlanTests(unittest.TestCase):
         self.assertEqual(defaults['glass-enabled'], 'false'); self.assertEqual(defaults['snap-animation'], 'false')
         metadata = json.loads((ROOT / 'system/usr/share/kwin/effects/oguzdows-aero/metadata.json').read_text())
         self.assertFalse(metadata['KPlugin']['EnabledByDefault'])
+        kconfig = ET.parse(ROOT / 'system/usr/share/kwin/effects/oguzdows-aero/contents/config/main.xml')
+        ns = {'k': 'http://www.kde.org/standards/kcfg/1.0'}
+        self.assertEqual(kconfig.find('k:group', ns).get('name'), '')
+        self.assertEqual(kconfig.find('k:kcfgfile', ns).get('name'), '')
         core = (ROOT / 'system/usr/share/oguzdows/gnome/core.js').read_text()
         self.assertIn('Shell.BlurMode.BACKGROUND', core)
         self.assertNotIn('setInterval', core); self.assertNotIn('completed_map(', core)
