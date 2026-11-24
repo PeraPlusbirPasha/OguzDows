@@ -1,5 +1,7 @@
 # OğuzDows · Masaüstü ve bakım
 
+> Bu rehberdeki XRender / “blur yoktur” açıklamaları yayımlanmış **v1.1** davranışını korur. Sonraki geliştirme kaynağının opt-in blur / yay / Snap, ortak GNOME–Plasma–Xfce tercihleri, yerel Başlat ve canlı grafikleri için **[Yerel masaüstü rehberi ve ayrı test kaydı](YEREL-MASAUSTU.md)**. v1.1 imajları yeniden üretilmedi.
+
 ## Bu sürümün kapsamı
 
 Çalışan Calamares mount / hedef / initramfs / GRUB zinciri değiştirilmez. Yeni özellikler varsayılan Xfce üzerine eklenir. PC: **amd64 → trixie, i386 → bookworm**. ISO kaynak kimliği yine `build-info.json` içindedir. Daha önce kurulmuş sisteme bu kaynak değişiklikleri kendiliğinden taşınmaz; Güncelleyici dağıtımın Git deposunu indirip root olarak çalıştırmaz.

@@ -119,9 +119,11 @@ menüsünde oturumu doğrulayın; gerektiğinde OğuzDows / Xfce'ye dönün.
 Aero esintisi **opak statik yansımalı başlık** sağlar. >2 GiB, ARMv6 olmayan,
 nomodeset olmayan ve tanınan DRM sürücülü full profilde, açık istekle alt çubuk /
 iskelede hafif alfa ve çerçeve gölgesi olabilir. Bilinen DRM sürücüsü tek başına
-hız ölçümü değildir. Yeni kaynakta açık Aero tercihi tek Picom XRender motoruyla
+hız ölçümü değildir. Yayımlanmış v1.1'de açık Aero tercihi tek Picom XRender motoruyla
 yaklaşık 100ms solma / hafif gölge ister; sürekli Python denetleyicisi, GLX / blur /
-yaylanma yoktur. Başka kompozitör korunur; motor açılamazsa statik görünüm kalır.
+yaylanma yoktur. Sonraki kaynağın opt-in gelişmiş efektleri [ayrı rehberdedir](YEREL-MASAUSTU.md);
+bu çalışma v1.1 imajını değiştirmez veya Zero'daki korumayı kaldırmaz.
+Başka kompozitör korunur; motor açılamazsa statik görünüm kalır.
 Zero'da aynı statik renk / yansıma kalır, compositor açılmaz. Üst çubuk, içerik, yazılar
 ve kapatma düğmeleri her bütçede okunaklı ve opaktır. Fiziksel GPU / RAM kazancı
 ayrıca ölçülmelidir.

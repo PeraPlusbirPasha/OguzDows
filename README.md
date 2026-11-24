@@ -35,6 +35,12 @@
 
 Gerçek Plasma/GNOME ayrı, mimari/kaynak koşullu oturumlardır; Xfce tarzlarıyla karıştırılmaz. Efektler düşük RAM/ARMv6’da statik kalır; uygulamalar kaldırılmaz. ARM/telefon katmanları hazır telefon ROM’u değildir. **[Kapsam/test sınırları →](docs/ELEMENTARY-HABER.md)** · [Cihaz / EXE / APK sınırları →](docs/CIHAZLAR-VE-UYUMLULUK.md)
 
+## Geliştirme dalında · yerel Aero ve ortak masaüstü
+
+**Yayımlanmış v1.1 imajlarından ayrı yeni kaynak çalışması:** Xfce / GNOME / Plasma için ortak açık-koyu tema, vurgu ve duvar kâğıdı; açık tercihle gerçek blur / yerel yay ve Snap; kabukların kendi panel ve widget kimliğini koruyan **Masaüstü Merkezi**. Yerel C/GTK **Başlat** ve C/GTK/Cairo **canlı CPU / RAM / ağ grafikleri** eklendi; düşük kaynak koruması ve geri alma korunur.
+
+`39e5f9a` için [gerçek masaüstü CI’ı](https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/45426010752) **6/6 başarılıdır**: iki hedef tabanda C/GTK ve ayrı GNOME 43.9 / 48.7, Plasma/KWin 5 / 6 özel X11 kabukları. **Bu, yeni ISO/IMG yayını, fiziksel GPU / FPS veya Wayland kanıtı değildir.** Mevcut v1.1 indirmeleri ve imaj kaynağı `29f7738` değişmedi. **[Kullanım, geri alma ayrıntıları ve test sınırları →](docs/YEREL-MASAUSTU.md)**
+
 <a id="indir"></a>
 
 ## Bir USB ile başla

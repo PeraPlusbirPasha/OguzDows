@@ -32,7 +32,7 @@ class ReadmeTests(unittest.TestCase):
     def test_local_markdown_html_images_and_explicit_navigation_anchors_resolve(self):
         for name in ('README.md', 'docs/TEKNIK-REHBER.md', 'docs/SURUM-POLITIKASI.md', 'docs/assets/README.md',
                      'docs/releases/v1.1.md', 'raspberrypi/README.md', 'docs/ELEMENTARY-HABER.md',
-                     'docs/V1.1-TEST-KANITI.md', 'docs/V1.1-GELISTIRME.md'):
+                     'docs/V1.1-TEST-KANITI.md', 'docs/V1.1-GELISTIRME.md', 'docs/YEREL-MASAUSTU.md'):
             path = ROOT / name
             text = re.sub(r'```.*?```', '', path.read_text(), flags=re.DOTALL)
             html = References()

@@ -1,5 +1,7 @@
 # OğuzDows · Teknik rehber
 
+> **Kaynak / yayın ayrımı:** güncel yayımlanmış imajların [v1.1 indirme ve kanıt kaydı](releases/v1.1.md) ayrıdır. Yeni kaynakta yerel Aero, ortak GNOME / Plasma / Xfce tercihleri ve C/GTK Başlat / canlı grafiklerin [kullanımı ve doğrulama sınırları](YEREL-MASAUSTU.md) için ayrı rehbere bakın. Aşağıdaki eski sürüm bağlantıları tarihsel kayıt olarak korunur.
+
 [← Proje vitrini](../README.md) · [İndir](https://github.com/PeraPlusbirPasha/OguzDows/releases/latest)
 
 **Köklerinden güç alır. Özgürce üretir.**
