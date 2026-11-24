@@ -53,73 +53,86 @@ def apply_xfce(identifier: str, items=None, state: Path | None = None, undo=None
         names = [match.group(1) for match in re.finditer(r"^(\S+) connected", monitors.stdout, re.MULTILINE)] or ["0"]
         properties = {f"/backdrop/screen0/monitor{monitor}/workspace{workspace}/last-image"
                       for monitor in names for workspace in range(4)}
+    from profiles import atomic_text, marker_text
     path = state or state_path()
-    if undo is not None:
-        if path.exists() and path.stat().st_size > 4096:
-            raise ValueError('Önceki duvar kâğıdı seçim kaydı çok büyük.')
-        old_marker = path.read_text() if path.exists() else None
-        rows = []
-        for prop in sorted(properties):
-            for key, kind, target in ((prop, 'string', item['path']),
-                    (prop.removesuffix('last-image') + 'image-style', 'int', '5')):
-                base = ['xfconf-query', '-c', 'xfce4-desktop', '-p', key]
-                result = run(base)
-                old = result.stdout.rstrip('\n') if result.returncode == 0 else None
-                if old is not None and (len(old) > 4096 or any(char in old for char in '\n\r\0')
-                        or kind == 'int' and not re.fullmatch(r'-?\d+', old)):
-                    raise ValueError('Önceki duvar kâğıdı ayarı güvenle yedeklenemedi.')
-                rows.append((base, kind, old, target))
-        def rollback():
-            errors = []
-            for base, kind, old, target in reversed(rows):
-                try:
-                    actual = run(base)
-                    if actual.returncode or actual.stdout.rstrip('\n') != target:
-                        continue  # İşlemden sonra haricen değişen anahtarı koru.
-                    if old is None:
-                        run([*base, '--reset'])
-                    elif run([*base, '-s', old]).returncode:
-                        run([*base, '-n', '-t', kind, '-s', old])
-                    restored = run(base)
-                    if (None if restored.returncode else restored.stdout.rstrip('\n')) != old:
-                        raise RuntimeError('Duvar kâğıdı geri alma geri okunarak doğrulanamadı: ' + base[-1])
-                except (OSError, ValueError, RuntimeError, subprocess.SubprocessError) as error:
-                    errors.append(str(error))
-            try:
-                if path.exists() and path.read_text() == identifier + '\n':
-                    if old_marker is None:
-                        path.unlink()
-                    else:
-                        temporary = path.with_suffix('.tmp'); temporary.write_text(old_marker); temporary.replace(path)
-            except OSError as error:
-                errors.append(str(error))
-            if errors:
-                raise RuntimeError('Duvar kâğıdı işlemi tam geri alınamadı: ' + '; '.join(errors))
-        undo.append(rollback)
-    applied = 0
+    old_marker = marker_text(path.parent, path.name)
+    if len(properties) > 128:
+        raise ValueError('Duvar kâğıdı ekran / çalışma alanı sınırını aşıyor.')
+    rows = []
     for prop in sorted(properties):
-        command = ["xfconf-query", "-c", "xfce4-desktop", "-p", prop]
-        result = run([*command, "-s", item["path"]])
-        if result.returncode:
-            result = run([*command, "-n", "-t", "string", "-s", item["path"]])
-        if result.returncode == 0:
-            applied += 1
-        style = ["xfconf-query", "-c", "xfce4-desktop", "-p", prop.removesuffix("last-image") + "image-style"]
-        if run([*style, "-s", "5"]).returncode:
-            run([*style, "-n", "-t", "int", "-s", "5"])
-    if not applied:
-        raise RuntimeError("Masaüstü ayarı değiştirilemedi. Xfce oturumunda yeniden dene.")
-    path.parent.mkdir(parents=True, exist_ok=True)
-    temporary = path.with_suffix(".tmp")
-    temporary.write_text(identifier + "\n", encoding="utf-8")
-    temporary.replace(path)
+        for key, kind, target in ((prop, 'string', item['path']),
+                (prop.removesuffix('last-image') + 'image-style', 'int', '5')):
+            base = ['xfconf-query', '-c', 'xfce4-desktop', '-p', key]
+            result = run(base)
+            old = result.stdout.removesuffix('\n') if result.returncode == 0 else None
+            if old is not None and (len(old) > 4096 or any(char in old for char in '\n\r\0')
+                    or kind == 'int' and not re.fullmatch(r'-?\d+', old)):
+                raise ValueError('Önceki duvar kâğıdı ayarı güvenle yedeklenemedi.')
+            rows.append((base, kind, old, target))
+    changed, marker_attempted = [], False
+    def rollback():
+        errors = []
+        for base, kind, old, target in reversed(changed):
+            try:
+                actual = run(base)
+                if actual.returncode or actual.stdout.removesuffix('\n') != target:
+                    continue  # İşlemden sonra haricen değişen anahtarı koru.
+                if old is None:
+                    run([*base, '--reset'])
+                elif run([*base, '-s', old]).returncode:
+                    run([*base, '-n', '-t', kind, '-s', old])
+                restored = run(base)
+                if (None if restored.returncode else restored.stdout.removesuffix('\n')) != old:
+                    raise RuntimeError('Duvar kâğıdı geri alma geri okunarak doğrulanamadı: ' + base[-1])
+            except (OSError, ValueError, RuntimeError, subprocess.SubprocessError) as error:
+                errors.append(str(error))
+        try:
+            if marker_attempted and marker_text(path.parent, path.name) == identifier + '\n':
+                if old_marker is None:
+                    path.unlink()
+                else:
+                    atomic_text(path, old_marker)
+                if marker_text(path.parent, path.name) != old_marker:
+                    raise RuntimeError('Duvar kâğıdı seçim kaydı geri alınamadı.')
+        except (OSError, ValueError, RuntimeError) as error:
+            errors.append(str(error))
+        if errors:
+            raise RuntimeError('Duvar kâğıdı işlemi tam geri alınamadı: ' + '; '.join(errors))
+    try:
+        for base, kind, old, target in rows:
+            if old == target:
+                continue
+            changed.append((base, kind, old, target))
+            result = run([*base, '-s', target])
+            if result.returncode:
+                result = run([*base, '-n', '-t', kind, '-s', target])
+            if result.returncode:
+                raise RuntimeError('Masaüstü ayarı değiştirilemedi: ' + base[-1])
+            actual = run(base)
+            if actual.returncode or actual.stdout.removesuffix('\n') != target:
+                raise RuntimeError('Duvar kâğıdı ayarı geri okunarak doğrulanamadı: ' + base[-1])
+        path.parent.mkdir(parents=True, exist_ok=True)
+        marker_attempted = True
+        atomic_text(path, identifier + '\n')
+        if marker_text(path.parent, path.name) != identifier + '\n':
+            raise RuntimeError('Duvar kâğıdı seçim kaydı doğrulanamadı.')
+    except Exception as failure:
+        try:
+            rollback()
+        except Exception as error:
+            raise RuntimeError('Duvar kâğıdı işlemi başarısız; geri alma da eksik kaldı: ' + str(error)) from failure
+        raise
+    if undo is not None:
+        undo.append(rollback)
 
 
 def initialize():
     # Sadece ilk giriş / emekliye ayrılan çizimden geçiş. Geçerli seçim veya
     # kullanıcının Xfce'den seçtiği başka görsel her girişte zorlanmaz.
+    from profiles import marker_text
     path = state_path()
-    selected = path.read_text().strip() if path.exists() else None
+    selected = marker_text(path.parent, path.name)
+    selected = selected.strip() if selected is not None else None
     if selected is None or selected in LEGACY:
         apply(LEGACY.get(selected, DEFAULT))
 

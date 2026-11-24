@@ -155,11 +155,11 @@ class EffectTests(unittest.TestCase):
             kill.assert_called_once_with(12345, signal.SIGTERM)
 
     def test_runtime_undo_stops_only_transaction_engine_and_restores_exact_native_preference(self):
-        current = {'value': None}; owner = {'value': 0}; preference = {'value': None}
-        def stop(_instance): owner['value'] = 0
+        current = {'value': None}; owner = {'value': 0}; preference = {'value': None}; alive = {'value': 'new'}
+        def stop(_instance): owner['value'] = 0; alive['value'] = None
         def restore(value): preference['value'] = value
         x11 = Mock(owner=lambda: owner['value'], wm_owner=lambda: 77)
-        with tempfile.TemporaryDirectory() as temporary, patch.object(effects, 'owned_state', side_effect=lambda _path: current['value']), patch.object(effects, 'xfwm_preference', side_effect=lambda: preference['value']), patch.object(effects, 'restore_xfwm_preference', side_effect=restore) as native, patch.object(effects, 'identity', return_value='new'), patch.object(effects, 'stop_instance', side_effect=stop) as stopped, patch.object(effects, 'wait_owner', return_value=0), patch.object(effects, 'spawn') as spawn:
+        with tempfile.TemporaryDirectory() as temporary, patch.object(effects, 'owned_state', side_effect=lambda _path: current['value'] if alive['value'] else None), patch.object(effects, 'xfwm_preference', side_effect=lambda: preference['value']), patch.object(effects, 'restore_xfwm_preference', side_effect=restore) as native, patch.object(effects, 'identity', side_effect=lambda _pid: alive['value']), patch.object(effects, 'stop_instance', side_effect=stop) as stopped, patch.object(effects, 'wait_owner', return_value=0), patch.object(effects, 'spawn') as spawn:
             directory = Path(temporary)
             checkpoint = effects.prepare_undo(policy.policy(8388608), directory=directory, connect=lambda: x11)
             current['value'] = {'pid': 32145, 'started': 'new', 'owner': 88}
@@ -200,6 +200,45 @@ class EffectTests(unittest.TestCase):
             spawn.assert_called_once_with(directory, Path(old['config']))
             restored = json.loads((directory / 'picom.json').read_text())
             self.assertEqual(restored, dict(old, pid=32147, started='restored', owner=99))
+
+    def test_failed_process_metadata_write_still_undoes_the_just_spawned_engine(self):
+        import desktop_state
+        owner = {'value': 0}; alive = {'value': 'new'}
+        x11 = Mock(owner=lambda: owner['value'], wm_owner=lambda: 77)
+        def spawn(_directory): owner['value'] = 88; return 32145
+        def stop(_instance): owner['value'] = 0; alive['value'] = None
+        with tempfile.TemporaryDirectory() as temporary, patch.dict(os.environ, {'DISPLAY': ':999', 'XDG_CURRENT_DESKTOP': 'XFCE', 'XDG_SESSION_TYPE': 'x11'}), patch.object(effects.os, 'getuid', return_value=1000), patch.object(effects, 'owned_state', return_value=None), patch.object(effects, 'xfwm_preference', return_value='false'), patch.object(effects, 'restore_xfwm_preference') as native, patch.object(effects, 'stop_owned'), patch.object(effects, 'stop_instance', side_effect=stop) as stopped, patch.object(effects, 'xfwm'), patch.object(effects.Path, 'is_file', return_value=True), patch.object(effects.os, 'access', return_value=True), patch.object(effects, 'wait_owner', side_effect=lambda *_args: owner['value']), patch.object(effects, 'spawn', side_effect=spawn), patch.object(effects, 'identity', side_effect=lambda _pid: alive['value']), patch.object(effects, 'atomic_text', side_effect=OSError('CI ownership metadata unavailable')):
+            directory = Path(temporary)
+            checkpoint = effects.prepare_undo(policy.policy(8388608), directory=directory, connect=lambda: x11)
+            with self.assertRaisesRegex(OSError, 'ownership metadata'):
+                effects.reconcile('aero', policy.policy(8388608), directory=directory, connect=lambda: x11,
+                                  preferences={**desktop_state.DEFAULTS, 'effects': 'aero'}, checkpoint=checkpoint)
+            self.assertTrue(checkpoint.captured)
+            checkpoint()
+            stopped.assert_called_once_with({'pid': 32145, 'started': 'new', 'owner': 88})
+            native.assert_called_once_with('false')
+            self.assertEqual(owner['value'], 0)
+            self.assertFalse((directory / 'picom.json').exists())
+
+    def test_runtime_undo_never_restarts_an_old_engine_under_low_budget(self):
+        current = {'value': {'pid': 32145, 'started': 'old', 'owner': 77}}
+        x11 = Mock(owner=Mock(return_value=77), wm_owner=Mock(return_value=76))
+        with tempfile.TemporaryDirectory() as temporary, patch.object(effects, 'owned_state', side_effect=lambda _path: current['value']), patch.object(effects, 'xfwm_preference', return_value='false'), patch.object(effects, 'spawn') as spawn:
+            checkpoint = effects.prepare_undo(policy.policy(524288), directory=Path(temporary), connect=lambda: x11)
+            current['value'] = None; x11.owner.return_value = 0
+            checkpoint.capture(x11)
+            with self.assertRaisesRegex(RuntimeError, 'düşük kaynak'):
+                checkpoint()
+            spawn.assert_not_called()
+
+    def test_stop_timeout_keeps_ownership_record_for_recovery_without_sigkill(self):
+        value = {'pid': 32145, 'started': 'old', 'owner': 77}
+        with tempfile.TemporaryDirectory() as temporary, patch.object(effects, 'owned_state', return_value=value), patch.object(effects, 'identity', return_value='old'), patch.object(effects.time, 'monotonic', side_effect=[0, 3]), patch.object(effects.os, 'kill') as kill:
+            directory = Path(temporary); (directory / 'picom.json').write_text(json.dumps(value))
+            with self.assertRaisesRegex(RuntimeError, 'sahiplik kaydı korundu'):
+                effects.stop_owned(directory)
+            self.assertEqual(json.loads((directory / 'picom.json').read_text()), value)
+            kill.assert_called_once_with(32145, signal.SIGTERM)
 
     def test_spawn_uses_absolute_argv_and_log_not_shell_daemon_or_user_config(self):
         with tempfile.TemporaryDirectory() as temporary, patch.object(effects.os, 'posix_spawn', return_value=12345) as spawn:

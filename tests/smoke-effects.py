@@ -87,6 +87,43 @@ def child(directory):
             assert shared_state.read_json(state / 'status.json') == before_status
             report['real_engine_and_xfconf_rollback_after_simulated_commit_failure'] = True
             owned = restored
+            # Gerçek xfconfd, yalnız özel/sentetik monitör anahtarları. Dosya
+            # yolu işleminin yarıda hata vermesi taklittir; xfdesktop render testi değil.
+            import wallpapers as shared_wallpapers
+            picture = directory / 'wallpaper.png'
+            from PIL import Image
+            Image.new('RGB', (4, 4), '#367fbb').save(picture)
+            props = [f'/backdrop/screen0/monitorCI-{name}/workspace0/last-image' for name in ('A', 'B')]
+            for prop in props:
+                shared_profiles.set_property('xfce4-desktop', prop, 'string', '/home/private/personal.jpg', shared_profiles.run)
+                shared_profiles.set_property('xfce4-desktop', prop.removesuffix('last-image') + 'image-style', 'int', '3', shared_profiles.run)
+            listing = shared_wallpapers.run(['xfconf-query', '-c', 'xfce4-desktop', '-l'])
+            props = sorted(line for line in listing.stdout.splitlines() if line.startswith('/backdrop/') and line.endswith('/last-image'))
+            def wallpaper_values():
+                return {key: shared_profiles.read_property('xfce4-desktop', key, kind, shared_profiles.run)
+                        for prop in props for key, kind in ((prop, 'string'), (prop.removesuffix('last-image') + 'image-style', 'int'))}
+            original_wallpaper = wallpaper_values()
+            marker = directory / 'wallpaper-selection'; marker.write_text('personal-marker\n\n')
+            real_wallpaper_run = shared_wallpapers.run
+            failed_native_write = False
+            def fail_native_write(command):
+                nonlocal failed_native_write
+                result = real_wallpaper_run(command)
+                if not failed_native_write and '-s' in command and command[command.index('-p') + 1] == '/backdrop/screen0/monitorCI-B/workspace0/image-style' and command[-1] == '5':
+                    failed_native_write = True
+                    raise OSError('CI simulated failure after real partial xfconf write')
+                return result
+            with patch.object(shared_wallpapers, 'run', side_effect=fail_native_write):
+                try:
+                    shared_wallpapers.apply_xfce('new', [{'id': 'new', 'path': str(picture)}], marker)
+                except OSError:
+                    pass
+                else:
+                    raise AssertionError('Partial wallpaper failure was reported as success')
+            assert failed_native_write and wallpaper_values() == original_wallpaper
+            assert marker.read_text() == 'personal-marker\n\n'
+            report['real_xfconf_wallpaper_rollback_after_simulated_partial_write_failure'] = True
+            report['wallpaper_rendering_verified'] = False
             # Gerçek pencere aç / küçült / geri getir. Piksel-zaman benchmark'ı değil.
             window = Gtk.Window(title='OğuzDows · kısa geçiş denetimi')
             window.set_default_size(480, 260)

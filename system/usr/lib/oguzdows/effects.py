@@ -119,6 +119,9 @@ def stop_instance(value):
         deadline = time.monotonic() + 2
         while identity(value['pid']) == value['started'] and time.monotonic() < deadline:
             time.sleep(.04)
+        # Süreç kapanmadıysa sahiplik kaydını silip ikinci motor açma.
+        if identity(value['pid']) == value['started']:
+            raise RuntimeError('OğuzDows Picom motoru henüz durmadı; sahiplik kaydı korundu.')
         # Mevcut veya başka kullanıcı sürecine SIGKILL / killall yok.
         try:
             os.waitpid(value['pid'], os.WNOHANG)
@@ -221,7 +224,7 @@ class RuntimeUndo:
 
     Picom yeniden açılacaksa yalnız önceden çalışan sabit reçete bir kez açılır;
     PID aynılığı değil aynı sahipli motor / reçete geri yüklenir. Xfwm tercihinin
-    tam eski değeri profiles işlemi tarafından daha sonra geri alınır.
+    tam eski değeri karşılaştırmalı geri alınır; profiles geri alması bunu ezmez.
     """
     def __init__(self, directory, x11, resources, connect):
         from desktop_state import read_json
@@ -266,10 +269,12 @@ class RuntimeUndo:
                 if before_config != after_config:
                     if self.after:
                         stop_instance(self.after)
-                        if owned_state(directory) == self.after:
-                            (directory / 'picom.json').unlink(missing_ok=True)
                         if wait_owner(x11, 0) != 0:
                             raise RuntimeError('İşlemin Picom motoru henüz durmadı; ikinci motor açılmadı.')
+                        # Duran PID artık owned_state ile doğrulanamaz. Diskte
+                        # yalnız bu işlemin bıraktığı aynı kaydı kaldır.
+                        if read_json(directory / 'picom.json') == self.after:
+                            (directory / 'picom.json').unlink(missing_ok=True)
                     if self.before:
                         if not self.resources['compositing']:
                             raise RuntimeError('Eski Picom düşük kaynak koruması nedeniyle yeniden açılmadı.')
@@ -428,8 +433,8 @@ def main():
     try:
         print(json.dumps(reconcile(), ensure_ascii=False))
         return 0
-    except (OSError, ValueError, subprocess.SubprocessError) as error:
-        print('OğuzDows efektleri statik kaldı: ' + str(error), file=sys.stderr)
+    except (OSError, ValueError, RuntimeError, subprocess.SubprocessError) as error:
+        print('OğuzDows efekt işlemi tamamlanamadı: ' + str(error), file=sys.stderr)
         return 1
 
 

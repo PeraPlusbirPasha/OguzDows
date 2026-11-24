@@ -226,6 +226,7 @@ def main():
             wm_process = subprocess.Popen(['xfwm4', '--compositor=off'], stdout=log, stderr=subprocess.STDOUT, start_new_session=True)
             settings_process = subprocess.Popen(['xfsettingsd', '--no-daemon'], stdout=log, stderr=subprocess.STDOUT, start_new_session=True)
             profiles.apply('mac', appearance='light')
+            original_native = profiles.validate_backup(json.loads((profiles.state_directory() / 'before-first-change.json').read_text()))
             sample = Gtk.Window(title='OğuzDows · gerçek panel denetimi')
             sample.set_wmclass('oguzdows-layout-primary', 'OguzDowsLayoutPrimary')
             sample.set_icon_name('oguzdows-news')
@@ -270,6 +271,12 @@ def main():
             assert any(item['y'] > screen_height / 2 and item['width'] > before + 20 for item in docks()), 'Gerçek görev grubu yeni pencerelerle büyümeli'
             capture('windows11', '-three-windows')
             profiles.restore()
+            for channel, path, kind, previous in original_native:
+                assert profiles.read_property(channel, path, kind, profiles.run) == previous, ('İlk tipli ayar geri alınmadı', channel, path)
+            report['restore_native_readback_verified'] = True
+            profiles.reload_panels()
+            capture('oguzdows', '-restored')
+            report['restored_panel_geometry_verified'] = True
             report['restored'] = True
             summary = {key: value for key, value in report.items() if key != 'plugin_descriptors_sha256'}
             print('::notice title=Gerçek Xfce panel düzenleri::' + json.dumps(summary, ensure_ascii=False), flush=True)
