@@ -270,7 +270,7 @@ static gboolean smoke_finish(gpointer data) {
     search_changed(GTK_SEARCH_ENTRY(search_entry), NULL);
     g_assert_nonnull(query);
     gtk_entry_set_text(GTK_ENTRY(search_entry), ""); search_changed(GTK_SEARCH_ENTRY(search_entry), NULL);
-    GtkWidget *first = gtk_flow_box_get_child_at_index(GTK_FLOW_BOX(flow), 0);
+    GtkFlowBoxChild *first = gtk_flow_box_get_child_at_index(GTK_FLOW_BOX(flow), 0);
     g_assert_nonnull(first);
     gchar *path = g_build_filename(smoke_directory, "hub.json", NULL);
     gchar *json = g_strdup_printf("{\"schema\":1,\"native\":true,\"app_count\":%u,\"unicode_search\":true,\"no_apps_launched\":true,\"physical_device_verified\":false}\n", apps->len);
@@ -293,7 +293,8 @@ static void activate(GtkApplication *application, gpointer data) {
     gtk_window_set_default_size(GTK_WINDOW(window), MIN(760, work.width - 20), MIN(680, work.height - 24));
     gtk_window_set_position(GTK_WINDOW(window), GTK_WIN_POS_CENTER); og_ui_setup(window);
     GtkWidget *header = gtk_header_bar_new(); gtk_header_bar_set_show_close_button(GTK_HEADER_BAR(header), TRUE);
-    gtk_header_bar_set_title(GTK_HEADER_BAR(header), "Başlat"); gtk_header_bar_set_subtitle(GTK_HEADER_BAR(header), "OĞUZDOWS · ELİNİN ALTINDA");
+    gtk_header_bar_set_title(GTK_HEADER_BAR(header), "Başlat");
+    if (work.width >= 600) gtk_header_bar_set_subtitle(GTK_HEADER_BAR(header), "OĞUZDOWS · ELİNİN ALTINDA");
     gtk_header_bar_pack_end(GTK_HEADER_BAR(header), control_button("preferences-system-symbolic", "Ayarlar", "settings"));
     gtk_window_set_titlebar(GTK_WINDOW(window), header);
     GtkWidget *box = gtk_box_new(GTK_ORIENTATION_VERTICAL, 12); gtk_container_set_border_width(GTK_CONTAINER(box), 16);

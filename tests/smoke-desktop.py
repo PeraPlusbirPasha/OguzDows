@@ -13,8 +13,10 @@ import shutil
 import subprocess
 import sys
 import tempfile
+import threading
 import time
 from pathlib import Path
+from unittest.mock import patch
 
 from support import ROOT
 
@@ -53,6 +55,11 @@ def child(directory, binaries, appearance):
                        check=True, timeout=20, env={**os.environ, 'G_DEBUG': 'fatal-warnings'})
         data = json.loads((directory / (target + '.json')).read_text())
         assert data['native'] is True, data
+        from PIL import Image
+        with Image.open(directory / (target + '.png')) as image:
+            assert image.width <= Gdk.Screen.get_default().get_width(), (target, image.size)
+            assert image.height <= Gdk.Screen.get_default().get_height(), (target, image.size)
+            data['window_size'] = list(image.size)
         report[target] = data
     # Gerçek bellek GSettings arka ucu: başka uzantı üyelikleri korunur.
     shell = Gio.Settings.new('org.gnome.shell')
@@ -100,17 +107,33 @@ def child(directory, binaries, appearance):
     assert record == [True, False], record
     assert 'tamamlanamadı' in panel.status.get_text()
     assert panel.apply_button.get_sensitive()
+    with patch('desktop_ui.threading.Thread.start', side_effect=RuntimeError('CI thread start failed')):
+        panel.work(lambda: {'message': 'başlamamalı'})
+    assert not panel.busy and record == [True, False, True, False]
+    assert 'CI thread start failed' in panel.status.get_text()
+    panel.work(lambda: (_ for _ in ()).throw(KeyError('CI unexpected backend error')))
+    pump(lambda: not panel.busy)
+    assert record == [True, False] * 3
+    assert 'CI unexpected backend error' in panel.status.get_text()
     panel.allowed = lambda: False
     panel.work(lambda: (_ for _ in ()).throw(AssertionError('installer gate ignored')))
-    assert not panel.busy and record == [True, False]
+    assert not panel.busy and record == [True, False] * 3
     pump(lambda: window.get_allocated_width() > 0)
     assert window.get_allocated_width() <= width, (window.get_allocated_width(), width)
     surface = window.get_window()
     image = Gdk.pixbuf_get_from_window(surface, 0, 0, surface.get_width(), surface.get_height())
     assert image is not None
     image.savev(str(directory / 'preferences.png'), 'png', [], [])
-    window.destroy()
+    release = threading.Event()
+    panel.allowed = lambda: True
+    panel.work(lambda: (release.wait(5), {'message': 'CI completed after close'})[1])
+    window.destroy(); release.set()
+    pump(lambda: not panel.busy)
+    assert record == [True, False] * 4
+    panel.work(lambda: (_ for _ in ()).throw(AssertionError('closed panel started worker')))
+    assert record == [True, False] * 4
     report['preferences_gtk_timeout_recovery_and_install_gate'] = True
+    report['worker_start_unexpected_error_and_destroy_recovery'] = True
     report['preferences_fits_screen'] = width
     (directory / 'desktop-native.json').write_text(json.dumps(report, ensure_ascii=False, indent=2) + '\n')
     print(json.dumps(report, ensure_ascii=False), flush=True)

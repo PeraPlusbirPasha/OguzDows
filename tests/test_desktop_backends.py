@@ -199,6 +199,19 @@ class BackendPlanTests(unittest.TestCase):
         for rows in ([], [dict(row, id=True)], [dict(row, plugin='x;exec()')], [row, row], [dict(row, extra='x')]):
             with self.subTest(rows=rows), self.assertRaises(ValueError): plasma.validate_wallpapers(rows)
 
+    def test_aurorae_discovery_matches_the_real_kde5_and_6_library_names(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            for major, relative in ((5, 'x86_64-linux-gnu/qt5/plugins/org.kde.kdecoration2/kwin5_aurorae.so'),
+                                    (6, 'aarch64-linux-gnu/qt6/plugins/org.kde.kdecoration3/org.kde.kwin.aurorae.so')):
+                self.assertFalse(decoration.available(major, root))
+                library = root / relative; library.parent.mkdir(parents=True)
+                library.touch()
+                self.assertTrue(decoration.available(major, root))
+            self.assertFalse(decoration.available(7, root))
+        source = (ROOT / 'system/usr/lib/oguzdows/maintenance.py').read_text()
+        self.assertNotIn("'kwin-decoration-aurorae'", source)
+
     def test_original_aurorae_frames_have_alpha_mask_and_opaque_controls(self):
         for dark in (False, True):
             svg = ET.fromstring(decoration.decoration_svg('#36b6c5', dark))

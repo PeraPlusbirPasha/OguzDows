@@ -1,6 +1,7 @@
 """Karşılayıcı ve bağımsız Masaüstü Merkezi'nin ortak yerel GTK bileşenleri."""
 from __future__ import annotations
 
+import logging
 import subprocess
 import threading
 
@@ -60,6 +61,9 @@ class PreferencesPanel(Gtk.Box):
         self.apply_button.connect('clicked', self.apply)
         self.restore_button = Gtk.Button(label='Bu masaüstünün önceki ayarlarını geri al…')
         self.restore_button.connect('clicked', self.restore)
+        for button in (self.apply_button, self.restore_button):
+            button.get_child().set_line_wrap(True)
+            button.get_child().set_max_width_chars(32)
         row.pack_start(self.apply_button, True, True, 0); row.pack_start(self.restore_button, True, True, 0)
         self.pack_start(row, False, False, 0)
         self.status = note(error or 'Henüz değişiklik yapılmadı. Donanım / fiziksel animasyon doğrulaması bu pencereden iddia edilmez.')
@@ -68,8 +72,8 @@ class PreferencesPanel(Gtk.Box):
             self.apply_button.set_sensitive(False)
 
     def combo(self, title, choices, selected):
-        row = Gtk.Box(spacing=10)
-        row.pack_start(note(title), True, True, 0)
+        row = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=5)
+        row.pack_start(note(title), False, False, 0)
         combo = Gtk.ComboBoxText()
         for identifier, label in choices.items():
             combo.append(identifier, label)
@@ -81,12 +85,24 @@ class PreferencesPanel(Gtk.Box):
         self.pack_start(row, False, False, 0)
         return combo
 
+    def finished(self, message):
+        self.busy = False
+        try:
+            self.on_busy(False)
+        except Exception:
+            logging.exception('Masaüstü görünüm kilidi geri bildirimi başarısız')
+        if not self.closed:
+            self.apply_button.set_sensitive(True); self.restore_button.set_sensitive(True)
+            self.status.set_text(message)
+        return GLib.SOURCE_REMOVE
+
     def work(self, operation):
+        if self.closed:
+            return
         if self.busy or not self.allowed():
             self.status.set_text('Başka bir görünüm / kurulum işlemi bitmeden yeni efekt uygulanmaz.')
             return
         self.busy = True
-        self.on_busy(True)
         self.apply_button.set_sensitive(False); self.restore_button.set_sensitive(False)
         self.status.set_text('Yalnız bu hesabın masaüstü ayarları uygulanıyor…')
         def run():
@@ -95,17 +111,18 @@ class PreferencesPanel(Gtk.Box):
                 message = result['message'] + ('\n' + '\n'.join(result['notes']) if result.get('notes') else '')
                 if result.get('preserved_external_changes'):
                     message += '\nSonradan değiştirdiğin kişisel anahtarlar korunarak atlandı: ' + ', '.join(result['preserved_external_changes'])
-            except (OSError, ValueError, RuntimeError, ImportError, subprocess.SubprocessError) as error:
+            except Exception as error:
+                # Beklenmeyen bir arka uç / biçim hatası da busy'yi sonsuza
+                # kilitlemez. Hata gizlenmez; konsolda iz, panelde açık uyarı.
+                logging.exception('Masaüstü tercih işlemi tamamlanamadı')
                 message = 'İşlem tamamlanamadı: ' + str(error)
-            def done():
-                self.busy = False
-                self.on_busy(False)
-                if not self.closed:
-                    self.apply_button.set_sensitive(True); self.restore_button.set_sensitive(True)
-                    self.status.set_text(message)
-                return GLib.SOURCE_REMOVE
-            GLib.idle_add(done)
-        threading.Thread(target=run, daemon=True).start()
+            GLib.idle_add(self.finished, message)
+        try:
+            self.on_busy(True)
+            threading.Thread(target=run, daemon=True).start()
+        except Exception as error:
+            logging.exception('Masaüstü tercih işçisi başlatılamadı')
+            self.finished('İşlem tamamlanamadı: ' + str(error))
 
     def apply(self, *_):
         rgba = self.color.get_rgba()

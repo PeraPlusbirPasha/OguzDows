@@ -15,7 +15,14 @@ from profiles import atomic_text
 
 
 def available(major, root=Path('/usr/lib')):
-    relative = f'qt{6 if major == 6 else 5}/plugins/org.kde.kdecoration*/org.kde.kwin.aurorae.so'
+    # KPlugin kimliği aynı kalsa da .so adı / namespace ABI ile değişir.
+    # Debian bunu ayrı, hayalî bir aurorae paketinde değil kwin-common'da taşır.
+    if major == 5:
+        relative = 'qt5/plugins/org.kde.kdecoration2/kwin5_aurorae.so'
+    elif major == 6:
+        relative = 'qt6/plugins/org.kde.kdecoration3/org.kde.kwin.aurorae.so'
+    else:
+        return False
     return any(path.is_file() for pattern in (relative, '*/' + relative) for path in root.glob(pattern))
 
 

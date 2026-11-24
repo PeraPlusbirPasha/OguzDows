@@ -26,7 +26,7 @@ APT = ['/usr/bin/apt-get', '-o', 'Dpkg::Lock::Timeout=60', '-o', 'Acquire::Retri
 PARDUS_APPS = ('pardus-image-writer', 'pardus-night-light', 'pardus-pen')
 DESKTOPS = {
     'kde': ('plasma-desktop', 'plasma-workspace', 'kwin-x11', 'dolphin', 'konsole', 'systemsettings',
-            'breeze', 'kwin-decoration-aurorae', 'plasma-pa', 'plasma-nm', 'powerdevil', 'kde-config-gtk-style', 'kde-cli-tools'),
+            'breeze', 'kwin-common', 'plasma-pa', 'plasma-nm', 'powerdevil', 'kde-config-gtk-style', 'kde-cli-tools'),
     'gnome': ('gnome-session', 'gnome-session-xsession', 'gnome-shell', 'gnome-control-center', 'nautilus',
               'gnome-terminal', 'gnome-tweaks', 'gnome-shell-extension-prefs'),
 }

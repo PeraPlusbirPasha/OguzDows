@@ -280,9 +280,11 @@ static void activate(GtkApplication *application, gpointer data) {
     gtk_window_set_icon_name(GTK_WINDOW(window), "oguzdows-monitor");
     og_ui_setup(window);
     GtkWidget *header = gtk_header_bar_new(); gtk_header_bar_set_show_close_button(GTK_HEADER_BAR(header), TRUE);
-    gtk_header_bar_set_title(GTK_HEADER_BAR(header), "Sistem İzleyici");
-    gtk_header_bar_set_subtitle(GTK_HEADER_BAR(header), "OĞUZDOWS · CANLI PERFORMANS");
-    GtkWidget *pause = gtk_toggle_button_new_with_label("Duraklat");
+    gtk_header_bar_set_title(GTK_HEADER_BAR(header), work.width < 600 ? "İzleyici" : "Sistem İzleyici");
+    if (work.width >= 600) gtk_header_bar_set_subtitle(GTK_HEADER_BAR(header), "OĞUZDOWS · CANLI PERFORMANS");
+    GtkWidget *pause = work.width < 600 ? gtk_toggle_button_new() : gtk_toggle_button_new_with_label("Duraklat");
+    if (work.width < 600) gtk_button_set_image(GTK_BUTTON(pause), gtk_image_new_from_icon_name("media-playback-pause-symbolic", GTK_ICON_SIZE_BUTTON));
+    gtk_widget_set_tooltip_text(pause, "Canlı ölçümü duraklat / sürdür");
     gtk_header_bar_pack_end(GTK_HEADER_BAR(header), pause); g_signal_connect(pause, "toggled", G_CALLBACK(pause_clicked), NULL);
     gtk_window_set_titlebar(GTK_WINDOW(window), header);
     GtkWidget *box = gtk_box_new(GTK_ORIENTATION_VERTICAL, 16); gtk_container_set_border_width(GTK_CONTAINER(box), 18);
