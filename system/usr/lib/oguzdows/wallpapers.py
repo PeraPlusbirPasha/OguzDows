@@ -70,23 +70,31 @@ def apply_xfce(identifier: str, items=None, state: Path | None = None, undo=None
                     raise ValueError('Önceki duvar kâğıdı ayarı güvenle yedeklenemedi.')
                 rows.append((base, kind, old, target))
         def rollback():
+            errors = []
             for base, kind, old, target in reversed(rows):
-                actual = run(base)
-                if actual.returncode or actual.stdout.rstrip('\n') != target:
-                    continue  # İşlemden sonra haricen değişen anahtarı koru.
-                if old is None:
-                    result = run([*base, '--reset'])
-                else:
-                    result = run([*base, '-s', old])
-                    if result.returncode:
-                        result = run([*base, '-n', '-t', kind, '-s', old])
-                if result.returncode:
-                    raise RuntimeError('Duvar kâğıdı işlemi tam geri alınamadı.')
-            if path.exists() and path.read_text() == identifier + '\n':
-                if old_marker is None:
-                    path.unlink()
-                else:
-                    temporary = path.with_suffix('.tmp'); temporary.write_text(old_marker); temporary.replace(path)
+                try:
+                    actual = run(base)
+                    if actual.returncode or actual.stdout.rstrip('\n') != target:
+                        continue  # İşlemden sonra haricen değişen anahtarı koru.
+                    if old is None:
+                        run([*base, '--reset'])
+                    elif run([*base, '-s', old]).returncode:
+                        run([*base, '-n', '-t', kind, '-s', old])
+                    restored = run(base)
+                    if (None if restored.returncode else restored.stdout.rstrip('\n')) != old:
+                        raise RuntimeError('Duvar kâğıdı geri alma geri okunarak doğrulanamadı: ' + base[-1])
+                except (OSError, ValueError, RuntimeError, subprocess.SubprocessError) as error:
+                    errors.append(str(error))
+            try:
+                if path.exists() and path.read_text() == identifier + '\n':
+                    if old_marker is None:
+                        path.unlink()
+                    else:
+                        temporary = path.with_suffix('.tmp'); temporary.write_text(old_marker); temporary.replace(path)
+            except OSError as error:
+                errors.append(str(error))
+            if errors:
+                raise RuntimeError('Duvar kâğıdı işlemi tam geri alınamadı: ' + '; '.join(errors))
         undo.append(rollback)
     applied = 0
     for prop in sorted(properties):

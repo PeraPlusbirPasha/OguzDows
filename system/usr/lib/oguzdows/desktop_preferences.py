@@ -101,7 +101,8 @@ def apply_current(preferences, directory, resources, *, wallpaper=False, undo=No
         import desktop_decoration
         decoration = desktop_decoration.available(backend.major)
         changes = {**plasma.palette(preferences), **plasma.changes(preferences, resources, backend.major, decoration)}
-        for token in ('scale', 'fading', 'scale5', 'fading5', 'magiclamp', 'theme', 'decoration-library', 'decoration-theme'):
+        for token in ('scale', 'fading', 'scale5', 'fading5', 'magiclamp', 'squash', 'squash5',
+                      'maximize', 'maximize5', 'theme', 'decoration-library', 'decoration-theme'):
             if token not in changes and token in journal.rows:
                 row = journal.rows[token]
                 # Yalnız bizim son değerimiz hâlâ duruyorsa geçici override'ı bırak.

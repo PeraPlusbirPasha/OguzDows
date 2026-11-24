@@ -24,6 +24,10 @@ KEYS = {
     'scale5': ('kwinrc', 'Plugins', 'kwin4_effect_scaleEnabled'),
     'fading5': ('kwinrc', 'Plugins', 'kwin4_effect_fadeEnabled'),
     'magiclamp': ('kwinrc', 'Plugins', 'magiclampEnabled'),
+    'squash': ('kwinrc', 'Plugins', 'squashEnabled'),
+    'squash5': ('kwinrc', 'Plugins', 'kwin4_effect_squashEnabled'),
+    'maximize': ('kwinrc', 'Plugins', 'maximizeEnabled'),
+    'maximize5': ('kwinrc', 'Plugins', 'kwin4_effect_maximizeEnabled'),
     'theme': ('plasmarc', 'Theme', 'name'),
     'decoration-library': ('kwinrc', 'org.kde.kdecoration2', 'library'),
     'decoration-theme': ('kwinrc', 'org.kde.kdecoration2', 'theme'),
@@ -156,7 +160,10 @@ def changes(preferences, resources, major=6, decoration=False):
         # Kendi efektimizle aynı pencerede iki açılma / küçülme animasyonu yok.
         # Bu değişiklikler de günlükten karşılaştırılarak geri alınır.
         result.update({'scale5' if major == 5 else 'scale': 'false',
-                       'fading5' if major == 5 else 'fading': 'false', 'magiclamp': 'false'})
+                       'fading5' if major == 5 else 'fading': 'false', 'magiclamp': 'false',
+                       'squash5' if major == 5 else 'squash': 'false'})
+        if preferences['snap_animation']:
+            result['maximize5' if major == 5 else 'maximize'] = 'false'
     if enabled and preferences['blur']:
         result['theme'] = theme_name(preferences)
         if decoration:

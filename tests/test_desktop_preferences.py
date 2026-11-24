@@ -148,6 +148,23 @@ class SharedPreferencesTests(unittest.TestCase):
             self.assertEqual(backend.values, before)
             self.assertEqual(markers, {name: (directory / name).read_text() if (directory / name).exists() else None for name in markers})
 
+    def test_deferred_xfce_rollback_preserves_intervening_external_changes(self):
+        from xfconf_fixture import Xfconf
+        with tempfile.TemporaryDirectory() as temporary:
+            directory = Path(temporary); backend = Xfconf(profiles.settings('oguzdows'))
+            profiles.apply('windows11', directory, backend)
+            before = dict(backend.values)
+            marker = directory / 'appearance'; marker.write_text('light\n\n')
+            undo = []
+            profiles.set_shared({**state.DEFAULTS, 'appearance': 'dark'}, directory, backend, policy(8388608), undo=undo)
+            backend.values['xsettings', '/Net/ThemeName'] = 'ExternalAfterApply'
+            (directory / 'effects').write_text('external-after-apply\n')
+            undo[0]()
+            before['xsettings', '/Net/ThemeName'] = 'ExternalAfterApply'
+            self.assertEqual(backend.values, before)
+            self.assertEqual(marker.read_text(), 'light\n\n')
+            self.assertEqual((directory / 'effects').read_text(), 'external-after-apply\n')
+
     def test_current_protocol_status_is_honest_about_unsaved_applications(self):
         result = preferences.status()
         self.assertEqual(result['desktop'], 'gnome')

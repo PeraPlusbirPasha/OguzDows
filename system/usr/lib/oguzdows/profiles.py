@@ -13,6 +13,7 @@ import os
 import re
 import subprocess
 import tempfile
+from contextlib import contextmanager
 from pathlib import Path
 
 from resource_policy import current_policy
@@ -203,14 +204,68 @@ def set_property(channel, path, kind, value, execute):
         raise RuntimeError('Xfce ayarı uygulanamadı: ' + path)
 
 
-def transaction(choices, directory, execute, metadata, layout=False, undo=None):
-    choices = [tuple(row) for row in choices]
+@contextmanager
+def locked(directory):
     directory.mkdir(parents=True, exist_ok=True)
     with (directory / '.lock').open('a') as lock:
         try:
             fcntl.flock(lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
         except BlockingIOError as error:
             raise RuntimeError('Başka bir görünüm işlemi devam ediyor.') from error
+        yield
+
+
+def marker_text(directory, name):
+    path = directory / name
+    if path.is_symlink() or path.exists() and (not path.is_file() or path.stat().st_size > 4096):
+        raise ValueError('Görünüm seçim kaydı güvenle yedeklenemedi.')
+    return path.read_text() if path.exists() else None
+
+
+def normalized(kind, value):
+    if value is None:
+        return None
+    # xfconf-query'nin wire metni %f (6 hane). Daha çok ondalıklı
+    # vurgu hesabını CLI'nin gerçekten gösterebildiği hassasiyetle karşılaştır.
+    if kind == 'double-array':
+        return [decimal_value(format(float(item), '.6f')) for item in value]
+    return decimal_value(format(float(value), '.6f')) if kind == 'double' else value
+
+
+def rollback_values(previous, targets, directory, execute, old_metadata, metadata):
+    errors = []
+    for channel, path, kind, old in reversed(previous):
+        key = (channel, path)
+        if key not in targets:
+            continue
+        try:
+            # Haricî ayar aracı işlemden sonra yazdıysa onu geri alma.
+            if read_property(channel, path, kind, execute) != normalized(kind, targets[key]):
+                continue
+            set_property(channel, path, kind, old, execute)
+            if read_property(channel, path, kind, execute) != old:
+                raise RuntimeError('Xfce geri alma geri okunarak doğrulanamadı: ' + path)
+        except (OSError, ValueError, RuntimeError, subprocess.SubprocessError) as error:
+            errors.append(str(error))
+    for name, old in old_metadata.items():
+        try:
+            if marker_text(directory, name) != metadata[name]:
+                continue
+            if old is None:
+                (directory / name).unlink(missing_ok=True)
+            else:
+                atomic_text(directory / name, old)
+            if marker_text(directory, name) != old:
+                raise RuntimeError('Görünüm seçim kaydı geri alınamadı: ' + name)
+        except (OSError, ValueError, RuntimeError) as error:
+            errors.append(str(error))
+    if errors:
+        raise RuntimeError('Xfce işlemi tam geri alınamadı: ' + '; '.join(errors))
+
+
+def transaction(choices, directory, execute, metadata, layout=False, undo=None):
+    choices = [tuple(row) for row in choices]
+    with locked(directory):
         previous = [(channel, path, kind, read_property(channel, path, kind, execute))
                     for channel, path, kind, _ in settings('oguzdows')]
         owned = read_state(directory, 'layout-v2') == 'owned'
@@ -232,7 +287,7 @@ def transaction(choices, directory, execute, metadata, layout=False, undo=None):
         # Önceki sürümün ilk yedeğini koru; yeni anahtarları ilk değiştirmeden ekle.
         saved.extend(list(row) for row in previous if row[:2] not in saved_keys)
         atomic_text(backup, json.dumps(saved, ensure_ascii=False))
-        old_metadata = {name: read_state(directory, name, None) for name in metadata}
+        old_metadata = {name: marker_text(directory, name) for name in metadata}
         previous_by_key = {(ch, path): value for ch, path, _kind, value in previous}
         if layout:
             current_panels = previous_by_key.get(('xfce4-panel', '/panels')) or ['1']
@@ -248,38 +303,28 @@ def transaction(choices, directory, execute, metadata, layout=False, undo=None):
                         value[:value.index('3')] + extras + value[value.index('3'):] if
                         ch == 'xfce4-panel' and path == '/panels/panel-1/plugin-ids' else value)
                        for ch, path, kind, value in choices]
-        changed = []
+        changed = {}
         try:
             for row in choices:
-                if previous_by_key.get(row[:2]) == row[3]:
+                if previous_by_key.get(row[:2]) == normalized(row[2], row[3]):
                     continue
-                changed.append(row[:2])
+                changed[row[:2]] = row[3]
                 set_property(*row, execute)
+                if read_property(*row[:3], execute) != normalized(row[2], row[3]):
+                    raise RuntimeError('Xfce ayarı geri okunarak doğrulanamadı: ' + row[1])
             for name, value in metadata.items():
                 if value is None:
                     (directory / name).unlink(missing_ok=True)
                 else:
                     atomic_text(directory / name, value)
         except (OSError, ValueError, RuntimeError, subprocess.SubprocessError):
-            for row in reversed(previous):
-                if row[:2] in changed:
-                    try:
-                        set_property(*row, execute)
-                    except (OSError, RuntimeError, subprocess.SubprocessError):
-                        pass
-            for name, value in old_metadata.items():
-                try:
-                    if value is None:
-                        (directory / name).unlink(missing_ok=True)
-                    else:
-                        atomic_text(directory / name, value + '\n')
-                except OSError:
-                    pass
+            rollback_values(previous, changed, directory, execute, old_metadata, metadata)
             raise
         if undo is not None:
-            rows = [row for row in previous if row[:2] in changed]
-            metadata_before = {name: None if value is None else value + '\n' for name, value in old_metadata.items()}
-            undo.append(lambda: transaction(rows, directory, execute, metadata_before))
+            def rollback():
+                with locked(directory):
+                    rollback_values(previous, changed, directory, execute, old_metadata, metadata)
+            undo.append(rollback)
 
 
 def apply(identifier, directory=None, execute=run, appearance=None):

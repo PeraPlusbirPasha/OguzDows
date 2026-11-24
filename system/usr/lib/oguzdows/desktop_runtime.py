@@ -163,9 +163,24 @@ def snap(direction):
     if desktop == 'gnome':
         return dbus('org.gnome.Shell', '/org/oguzdows/Desktop', 'org.oguzdows.Desktop', 'Snap', '(s)', (direction,))
     if desktop == 'kde':
-        shortcuts = {'left': 'Window Quick Tile Left', 'right': 'Window Quick Tile Right',
-                     'maximize': 'Window Maximize', 'restore': 'Window Maximize', 'minimize': 'Window Minimize'}
-        return dbus('org.kde.kglobalaccel', '/component/kwin', 'org.kde.kglobalaccel.Component',
-                    'invokeShortcut', '(s)', (shortcuts[direction],))
+        # Yerel Window Maximize kısayolu bir TOGGLE'dır; restore diye
+        # çağırmak normal pencereyi büyütür. Sabit dahili KWin köprüsü beş
+        # idempotent işlem sunar. Kullanıcı kodu / serbest JS / shell metni yok.
+        import desktop_state
+        with desktop_state.locked():
+            identifier = dbus('org.kde.KWin', '/Scripting', 'org.kde.kwin.Scripting',
+                              'loadScript', '(ss)', ('/usr/share/oguzdows/kwin/snap.js', 'oguzdows-snap-v1'))[0]
+            if type(identifier) is not int or not -1 <= identifier < 1000000:
+                raise RuntimeError('KWin sabit Snap köprüsünü yükleyemedi.')
+            if identifier >= 0:
+                try:
+                    dbus('org.kde.KWin', '/Scripting/Script' + str(identifier), 'org.kde.kwin.Script', 'run')
+                except RuntimeError as error:
+                    if 'UnknownObject' not in str(error):
+                        raise
+                    # KWin 5 Script D-Bus yolu /<id>; 6 /Scripting/Script<id>.
+                    dbus('org.kde.KWin', '/' + str(identifier), 'org.kde.kwin.Script', 'run')
+            return dbus('org.kde.kglobalaccel', '/component/kwin', 'org.kde.kglobalaccel.Component',
+                        'invokeShortcut', '(s)', ('OguzDows Snap ' + direction,))
     from desktop_x11 import snap as x11_snap
     return x11_snap(direction)

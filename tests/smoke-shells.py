@@ -93,6 +93,16 @@ def child(directory, desktop):
             report['kconfig_major'] = backend.major
             report['ci_only_software_gpu_animation_override'] = os.environ.get('KWIN_EFFECTS_FORCE_ANIMATIONS') == '1'
             assert decoration.available(backend.major), 'Hedef ABI Aurorae kütüphanesi bulunamadı'
+            if backend.major == 6:
+                # Bu fixture tam startplasma oturumu değildir; KWin başlamadan
+                # normalde oturumun açtığı kısayol daemon'unu açıkça hazırla.
+                accelerator = runtime.binary(('kglobalacceld',))
+                if not accelerator:
+                    candidates = sorted(Path('/usr/lib').glob('*/libexec/kglobalacceld')) + [Path('/usr/libexec/kglobalacceld')]
+                    accelerator = next((str(path) for path in candidates if path.is_file()), None)
+                assert accelerator, 'Özel test için kglobalacceld kurulu değil'
+                start([accelerator], 'kglobalacceld')
+                wait(lambda: owner('org.kde.kglobalaccel'))
             start(['/usr/bin/kwin_x11'], 'kwin')
             wait(lambda: owner('org.kde.KWin'))
             def compositor_state():
@@ -152,19 +162,37 @@ def child(directory, desktop):
             report['aurorae_selected'] = backend.read('decoration-theme')
         pump(1)
         window.show_all(); window.present(); pump(1)
-        for direction in ('left', 'right', 'maximize', 'restore'):
+        def frame():
+            rectangle = window.get_window().get_frame_extents()
+            return [rectangle.x, rectangle.y, rectangle.width, rectangle.height]
+        original_frame = frame(); last_direction = None; last_frame = None
+        report['original_frame'] = original_frame
+        if desktop == 'gnome': report['extension_after_open'] = shell_state()
+        for direction in ('restore', 'left', 'left', 'right', 'right', 'maximize', 'maximize', 'restore', 'restore'):
             window.present(); pump(.2)
             runtime.snap(direction); pump(.6)
-            rectangle = window.get_window().get_frame_extents()
-            assert rectangle.width > 0 and rectangle.height > 0
+            rectangle = frame()
+            assert min(rectangle[2:]) > 0
             if direction in ('left', 'right'):
-                assert rectangle.width < 1024 * .65, (direction, rectangle.width)
-            report.setdefault('snap_frame_rectangles', {})[direction] = [rectangle.x, rectangle.y, rectangle.width, rectangle.height]
-        window.iconify(); pump(.5); window.deiconify(); window.present(); pump(.7)
+                assert rectangle[2] < 1024 * .65, (direction, rectangle)
+            if direction == last_direction:
+                assert rectangle == last_frame, ('Snap idempotent değil', direction, last_frame, rectangle)
+            if direction == 'restore':
+                assert all(abs(a - b) <= 2 for a, b in zip(original_frame, rectangle)), ('Snap eski geometriyi geri almadı', original_frame, rectangle)
+            report.setdefault('snap_frame_rectangles', {})[direction] = rectangle
+            last_direction, last_frame = direction, rectangle
+        report['snap_repeated_actions_idempotent_and_exact_frame_restored'] = True
+        runtime.snap('minimize'); pump(.5); window.deiconify(); window.present(); pump(.7)
         if desktop == 'gnome':
             report['extension_after_window_transitions'] = shell_state()
             assert report['extension_after_window_transitions']['spring_transitions_attached'] > 0
             assert report['extension_after_window_transitions']['early_window_hook'] is True
+        else:
+            text = (directory / 'kwin.log').read_text(errors='replace')
+            callbacks = {event: 'oguzdows-aero: ' + event in text for event in
+                         ('transition-attached', 'transition-completed', 'snap-transition-attached')}
+            assert all(callbacks.values()), callbacks
+            report['native_kwin_transition_callbacks'] = callbacks
         root = Gdk.get_default_root_window()
         capture = Gdk.pixbuf_get_from_window(root, 0, 0, root.get_width(), root.get_height())
         assert capture is not None

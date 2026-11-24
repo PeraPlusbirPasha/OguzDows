@@ -60,6 +60,7 @@ jobs:
           shellcheck scripts/build-desktop.sh system/usr/lib/oguzdows/session.sh
           node --check system/usr/share/oguzdows/gnome/core.js
           node --check system/usr/share/kwin/effects/oguzdows-aero/contents/code/main.js
+          node --check system/usr/share/oguzdows/kwin/snap.js
           cp system/usr/share/glib-2.0/schemas/org.oguzdows.desktop.gschema.xml /usr/share/glib-2.0/schemas/
           glib-compile-schemas --strict /usr/share/glib-2.0/schemas
           for component in desktop hub monitor; do
@@ -142,7 +143,7 @@ jobs:
       - name: Yerel kaynakları yerleştir (üretim hesabı / imaj / Release yok)
         run: |
           mkdir -p /usr/share/oguzdows /usr/share/kwin/effects
-          cp -a system/usr/share/oguzdows/gnome /usr/share/oguzdows/
+          cp -a system/usr/share/oguzdows/gnome system/usr/share/oguzdows/kwin /usr/share/oguzdows/
           cp -a system/usr/share/kwin/effects/oguzdows-aero /usr/share/kwin/effects/
           cp -a system/usr/share/themes/. /usr/share/themes/
           cp system/usr/share/glib-2.0/schemas/org.oguzdows.desktop.gschema.xml /usr/share/glib-2.0/schemas/

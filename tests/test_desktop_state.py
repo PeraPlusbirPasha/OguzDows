@@ -166,6 +166,33 @@ class DesktopStateTests(unittest.TestCase):
             self.assertEqual(journal.rows, rows)
             self.assertEqual(state.read_json(journal.path), rows)
 
+    def test_restore_readback_keeps_failed_row_and_attempts_other_keys(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            backend = Backend({'theme': 'personal', 'motion': 'smooth'})
+            journal = state.Journal(backend, Path(temporary))
+            journal.apply({'theme': 'glass', 'motion': 'spring'})
+            write = backend.write
+            backend.write = lambda key, value: write(key, value) if key != 'motion' else None
+            with self.assertRaisesRegex(RuntimeError, 'doğrulanamadı'):
+                journal.restore()
+            self.assertEqual(backend.values, {'theme': 'personal', 'motion': 'spring'})
+            self.assertEqual(state.read_json(journal.path), {'motion': {'before': 'smooth', 'applied': 'spring'}})
+            backend.write = write
+            self.assertEqual(state.Journal(backend, Path(temporary)).restore(), [])
+            self.assertEqual(backend.values['motion'], 'smooth')
+
+    def test_failed_deferred_rollback_is_not_success_and_keeps_recovery_journal(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            backend = Backend({'theme': 'personal', 'motion': 'smooth'})
+            journal = state.Journal(backend, Path(temporary)); undo = []
+            journal.apply({'theme': 'glass', 'motion': 'spring'}, undo=undo)
+            write = backend.write
+            backend.write = lambda key, value: write(key, value) if key != 'motion' else None
+            with self.assertRaisesRegex(RuntimeError, 'yarım kaldı'):
+                undo[0]()
+            self.assertEqual(backend.values, {'theme': 'personal', 'motion': 'spring'})
+            self.assertIn('motion', state.read_json(journal.path))
+
     def test_untrusted_journal_cannot_target_arbitrary_backend_or_commands(self):
         with tempfile.TemporaryDirectory() as temporary:
             backend = Backend(); root = Path(temporary)

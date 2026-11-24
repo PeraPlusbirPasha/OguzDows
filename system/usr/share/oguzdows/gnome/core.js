@@ -74,6 +74,7 @@ var OguzDowsGlass = class {
             GetState: () => JSON.stringify({accent: this.settings.get_string('accent'),
                 blur_attached: this.materials.length > 0, spring_enabled: this.animations() && this.settings.get_string('motion') === 'spring',
                 spring_transitions_attached: this.springTransitions, early_window_hook: this.earlyWindowHook,
+                spring_curve_api: this.springCurveApi || 'not-yet-used', wrapped_windows: this.wrappers.size,
                 scope: 'GNOME Shell açılır menüleri; opak üst çubuk ve uygulama içerikleri korunur.'}),
             Snap: direction => this.snap(direction),
             Open: target => this.open(target),
@@ -98,7 +99,7 @@ var OguzDowsGlass = class {
     animations() {
         return !Main.sessionMode.isLocked && !Main.sessionMode.isGreeter &&
             this.settings.get_string('motion') !== 'reduced' &&
-            this.interfaceSettings.get_boolean('enable-animations');
+            this.interfaceSettings.get_boolean('enable-animations') && St.Settings.get().enable_animations;
     }
 
     wrap(actor) {
@@ -121,10 +122,19 @@ var OguzDowsGlass = class {
             const result = original.call(this, values);
             for (const property of ['scale-x', 'scale-y', 'opacity', 'x', 'y', 'translation-x', 'translation-y']) {
                 const transition = this.get_transition(property);
-                if (transition && typeof transition.set_progress_func === 'function') {
+                if (!transition) continue;
+                if (typeof transition.set_progress_func === 'function') {
                     transition.set_progress_func(OguzDowsGlass.response);
-                    self.springTransitions++;
+                    self.springCurveApi = 'native-custom-critical-damping';
+                } else {
+                    // Yeni GI ABI'si callback'i dışarı açmıyorsa Clutter'ın
+                    // yerel elastik eğrisi. JS frame döngüsü yok; opaklıkta
+                    // overshoot / parlama yok, Shell completion'ı değişmez.
+                    transition.set_progress_mode(property === 'opacity' ?
+                        Clutter.AnimationMode.EASE_OUT_CUBIC : Clutter.AnimationMode.EASE_OUT_ELASTIC);
+                    self.springCurveApi = 'native-clutter-elastic';
                 }
+                self.springTransitions++;
             }
             return result;
         };

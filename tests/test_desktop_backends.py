@@ -113,6 +113,23 @@ class RuntimeTests(unittest.TestCase):
             self.assertNotIn('remove(', bus.call_args.args[-1][0])
             runtime.native_control('apps', 'gnome'); self.assertEqual(bus.call_args.args[3], 'ShowApplications')
 
+    def test_plasma_snap_loads_only_fixed_bridge_and_uses_versioned_script_paths_not_maximize_toggle(self):
+        for major in (5, 6):
+            replies = [(7,)] + ([RuntimeError('UnknownObject')] if major == 5 else []) + [(), ()]
+            with self.subTest(major=major), patch.object(runtime, 'normal_session'), patch.object(runtime, 'current', return_value='kde'), patch.object(state, 'locked'), patch.object(runtime, 'dbus', side_effect=replies) as bus:
+                runtime.snap('restore')
+                calls = bus.call_args_list
+                self.assertEqual(calls[0].args[-1], ('/usr/share/oguzdows/kwin/snap.js', 'oguzdows-snap-v1'))
+                self.assertEqual(calls[-1].args[-1], ('OguzDows Snap restore',))
+                self.assertEqual(calls[-2].args[1], '/7' if major == 5 else '/Scripting/Script7')
+                self.assertNotIn('Window Maximize', str(calls))
+        with patch.object(runtime, 'normal_session'), patch.object(runtime, 'current', return_value='kde'), patch.object(state, 'locked'), patch.object(runtime, 'dbus', side_effect=[(-1,), ()]) as bus:
+            runtime.snap('maximize')
+            self.assertEqual(bus.call_count, 2)
+        with patch.object(runtime, 'normal_session'), patch.object(runtime, 'current', return_value='kde'), patch.object(state, 'locked'), patch.object(runtime, 'dbus', side_effect=[(9,), RuntimeError('AccessDenied')]) as bus:
+            with self.assertRaisesRegex(RuntimeError, 'AccessDenied'): runtime.snap('left')
+            self.assertEqual(bus.call_count, 2)
+
     def test_installation_gate_only_queries_existing_actions_and_does_not_start_apps(self):
         with patch.object(runtime, 'dbus', side_effect=[(True, '', [False]), (True, '', [True])]) as bus:
             self.assertTrue(runtime.installation_busy())

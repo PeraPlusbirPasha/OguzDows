@@ -6,6 +6,7 @@
 class OguzDowsAero {
     constructor() {
         this.active = new Map();
+        this.reported = new Set();
         this.readConfig();
         effect.configChanged.connect(() => this.readConfig());
         effects.windowAdded.connect(window => { this.watch(window); this.transition(window, true, false); });
@@ -16,9 +17,13 @@ class OguzDowsAero {
             if (row && row.role === role && effect.isGrabbed(window, role)) this.stop(window);
         });
         effect.animationEnded.connect(window => {
+            // 5/6 bu sinyali ID=0 ile HER ÖZNİTELİK için yayar; ilk Scale
+            // bitince Opacity'nin grab'ını bırakmak ikinci efektle yarışır.
             const row = this.active.get(window);
-            if (row && row.role) effect.ungrab(window, row.role);
+            if (!row || --row.remaining > 0) return;
             this.active.delete(window);
+            if (row.role) effect.ungrab(window, row.role);
+            this.reportOnce('transition-completed');
         });
         if (effects.windowMinimized) {
             effects.windowMinimized.connect(window => this.transition(window, false, true));
@@ -27,6 +32,14 @@ class OguzDowsAero {
         if (effects.windowFrameGeometryChanged)
             effects.windowFrameGeometryChanged.connect((window, old) => this.geometry(window, old));
         for (const window of effects.stackingOrder) this.watch(window);
+    }
+
+    reportOnce(event) {
+        // En fazla üç debug satırı / yükleme. Frame polling veya kalıcı
+        // telemetri yok; gerçek compositor testinde callback kanıtı sağlar.
+        if (this.reported.has(event)) return;
+        this.reported.add(event);
+        console.debug('oguzdows-aero: ' + event);
     }
 
     readConfig() {
@@ -77,7 +90,8 @@ class OguzDowsAero {
                 {type: Effect.Opacity, from: opening ? 0 : 1, to: opening ? 1 : 0,
                     curve: QEasingCurve.OutCubic},
             ]});
-        this.active.set(window, {ids, role});
+        this.active.set(window, {ids, role, remaining: 2});
+        this.reportOnce('transition-attached');
     }
 
     geometry(window, old) {
@@ -92,7 +106,8 @@ class OguzDowsAero {
                 {type: Effect.Translation, from: {value1: old.x - now.x + (old.width - now.width) / 2,
                     value2: old.y - now.y + (old.height - now.height) / 2}, to: {value1: 0, value2: 0}},
             ]});
-        this.active.set(window, {ids, role: null});
+        this.active.set(window, {ids, role: null, remaining: 2});
+        this.reportOnce('snap-transition-attached');
     }
 }
 new OguzDowsAero();

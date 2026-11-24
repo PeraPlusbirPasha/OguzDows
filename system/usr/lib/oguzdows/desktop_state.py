@@ -150,6 +150,7 @@ class Journal:
         # Kalıcı ortak tercih / oturum makbuzu yazılamazsa da aynı kesin
         # işlem-öncesi değerlere dön. Önceki tercihi tekrar uygulamak kişisel
         # yerel tema veya ilk giriş varsayılanını yanlışlıkla ezebilir.
+        errors = []
         for key, old, target in reversed(changed):
             try:
                 if self.backend.read(key) == target:
@@ -157,8 +158,11 @@ class Journal:
                     if self.backend.read(key) != old:
                         raise RuntimeError('Geri alma geri okunarak doğrulanamadı: ' + key)
             except (OSError, ValueError, RuntimeError) as error:
-                # Write-ahead kayıt kurtarma için diskte kalır.
-                raise RuntimeError('Ayar işlemi yarım kaldı; masaüstü merkezinden geri almayı deneyin.') from error
+                errors.append(str(error))
+        if errors:
+            # Bir bozuk anahtar diğer geri almaları engellemez. Write-ahead
+            # kayıt doğrulanmamış yazı için diskte kalır, başarı uydurulmaz.
+            raise RuntimeError('Ayar işlemi yarım kaldı; kalıcı günlükten geri almayı deneyin: ' + '; '.join(errors))
         self.rows = copy.deepcopy(previous_rows)
         atomic_json(self.path, self.rows)
 
@@ -191,12 +195,19 @@ class Journal:
             undo.append(lambda: self.rollback(previous_rows, changed))
 
     def restore(self):
-        skipped = []
+        skipped, errors = [], []
         for key, row in list(self.rows.items())[::-1]:
-            if self.backend.read(key) == row['applied']:
-                self.backend.write(key, row['before'])
-            else:
-                skipped.append(key)
-            del self.rows[key]
-            atomic_json(self.path, self.rows)
+            try:
+                if self.backend.read(key) == row['applied']:
+                    self.backend.write(key, row['before'])
+                    if self.backend.read(key) != row['before']:
+                        raise RuntimeError('Geri alma geri okunarak doğrulanamadı: ' + key)
+                else:
+                    skipped.append(key)
+                del self.rows[key]
+                atomic_json(self.path, self.rows)
+            except (OSError, ValueError, RuntimeError) as error:
+                errors.append(str(error))
+        if errors:
+            raise RuntimeError('Geri alma tamamlanamadı; doğrulanmayan ayarlar günlükte korundu: ' + '; '.join(errors))
         return skipped
