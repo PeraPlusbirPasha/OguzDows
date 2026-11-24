@@ -124,6 +124,20 @@ class RuntimeTests(unittest.TestCase):
 class BackendPlanTests(unittest.TestCase):
     def prefs(self, **changes): return {**state.DEFAULTS, **changes}
 
+    def test_false_and_empty_gsettings_user_variants_are_not_absent_values(self):
+        backend = object.__new__(gnome.GnomeSettings)
+        setting = Mock()
+        backend.setting = Mock(return_value=(setting, 'fixture'))
+        for token, value in (('snap-animation', False), ('glass-enabled', False), ('picture-uri', '')):
+            # GLib.Variant.__bool__ değeri açar; saf Mock bunu taklit etmez.
+            class FalsyVariant:
+                def __bool__(self): return False
+                def unpack(self): return value
+            setting.get_user_value.return_value = FalsyVariant()
+            self.assertEqual(backend.read(token), value)
+        setting.get_user_value.return_value = None
+        self.assertIsNone(backend.read('snap-animation'))
+
     def test_gnome_membership_not_whole_extension_list_and_native_accent_is_nearest(self):
         backend = Mock(supports=lambda token: token != 'native-accent')
         result = gnome.changes(self.prefs(effects='aero', blur=True, motion='spring'), policy(8388608), backend)

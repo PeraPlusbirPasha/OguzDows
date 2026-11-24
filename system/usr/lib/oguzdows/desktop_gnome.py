@@ -69,7 +69,9 @@ class GnomeSettings:
         if token == 'extension-enabled':
             return UUID in settings.get_strv(key)
         value = settings.get_user_value(key)
-        return value.unpack() if value else None
+        # GLib.Variant(False) ve Variant('') Python'da falsy'dir; yok
+        # sayılmaları write/readback ve karşılaştırmalı geri almayı bozar.
+        return value.unpack() if value is not None else None
 
     def write(self, token, value):
         self.validate(token, value)

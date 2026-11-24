@@ -136,7 +136,7 @@ def child(directory, binaries, appearance):
     report['worker_start_unexpected_error_and_destroy_recovery'] = True
     report['preferences_fits_screen'] = width
     (directory / 'desktop-native.json').write_text(json.dumps(report, ensure_ascii=False, indent=2) + '\n')
-    print(json.dumps(report, ensure_ascii=False), flush=True)
+    print('::notice title=Gerçek yerel GTK ve ayar API sonucu::' + json.dumps(report, ensure_ascii=False).replace('%', '%25'), flush=True)
 
 
 def main():

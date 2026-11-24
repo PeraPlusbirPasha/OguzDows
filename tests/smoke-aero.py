@@ -125,7 +125,7 @@ def child(directory):
         stop(compositor); stop(wm)
         if x11: x11.close()
         (directory / 'aero.json').write_text(json.dumps(report, ensure_ascii=False, indent=2) + '\n')
-    print(json.dumps(report, ensure_ascii=False), flush=True)
+    print('::notice title=Gerçek Picom GLX ve ARGB blur sonucu::' + json.dumps(report, ensure_ascii=False).replace('%', '%25'), flush=True)
 
 
 def main():

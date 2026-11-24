@@ -85,14 +85,17 @@ jobs:
           python3 scripts/ci-run.py --title 'Yerel cam materyalleri' -- python3 scripts/render-assets.py --root /
           cp system/usr/share/applications/oguzdows-{desktop,hub,monitor}.desktop /usr/share/applications/
           gtk-update-icon-cache -f -t /usr/share/icons/hicolor
+          result=0
           for spec in '1024x768 light' '360x800 dark'; do
             read -r screen appearance <<< "$spec"
             python3 scripts/ci-run.py --title "Yerel GTK ve ayar API $screen · ${{ matrix.suite }}" -- \
               xvfb-run -a -s "-screen 0 ${screen}x24 -nolisten tcp" \
               python3 tests/smoke-desktop.py --binaries test-results/bin \
-              --appearance "$appearance" --output "test-results/desktop-$screen"
+              --appearance "$appearance" --output "test-results/desktop-$screen" || result=1
           done
+          exit "$result"
       - name: Gerçek Picom parser / GLX shader / ARGB arkaplan blur (yazılım GPU'su)
+        if: ${{ !cancelled() }}
         run: |
           cp -a system/usr/share/oguzdows/compositor /usr/share/oguzdows/
           python3 scripts/ci-run.py --title 'Picom GLX gerçek blur · ${{ matrix.suite }}' -- \
@@ -104,5 +107,57 @@ jobs:
           name: native-desktop-${{ matrix.suite }}
           path: |
             test-results/desktop-*/
+          if-no-files-found: warn
+          retention-days: 14
+
+  shells:
+    name: Gerçek kabuk · ${{ matrix.desktop }} · ${{ matrix.suite }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        suite: [bookworm, trixie]
+        desktop: [gnome, kde]
+    container:
+      image: debian:${{ matrix.suite }}
+    env:
+      NO_AT_BRIDGE: '1'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Yalnız özel container'a gerçek kabuk / Mesa / ayar araçları
+        run: |
+          apt-get update
+          apt-get install -y --no-install-recommends python3 python3-gi python3-pil python3-gi-cairo \
+            gir1.2-gtk-3.0 libglib2.0-bin gsettings-desktop-schemas dconf-gsettings-backend \
+            xauth xvfb dbus-x11 fonts-dejavu-core adwaita-icon-theme librsvg2-common \
+            mesa-utils libgl1-mesa-dri x11-xserver-utils
+          case '${{ matrix.desktop }}:${{ matrix.suite }}' in
+            gnome:*) apt-get install -y --no-install-recommends gnome-shell ;;
+            kde:bookworm) apt-get install -y --no-install-recommends plasma-desktop plasma-workspace kwin-x11 kwin-common breeze plasma-integration libkf5config-bin python3-pyqt5 ;;
+            kde:trixie) apt-get install -y --no-install-recommends plasma-desktop plasma-workspace kwin-x11 kwin-common breeze plasma-integration libkf6config-bin python3-pyqt6 ;;
+          esac
+      - name: Yerel kaynakları yerleştir (üretim hesabı / imaj / Release yok)
+        run: |
+          mkdir -p /usr/share/oguzdows /usr/share/kwin/effects
+          cp -a system/usr/share/oguzdows/gnome /usr/share/oguzdows/
+          cp -a system/usr/share/kwin/effects/oguzdows-aero /usr/share/kwin/effects/
+          cp -a system/usr/share/themes/. /usr/share/themes/
+          cp system/usr/share/glib-2.0/schemas/org.oguzdows.desktop.gschema.xml /usr/share/glib-2.0/schemas/
+          glib-compile-schemas --strict /usr/share/glib-2.0/schemas
+          python3 scripts/install-desktop-assets.py --root / --suite '${{ matrix.suite }}'
+          python3 scripts/render-assets.py --root /
+      - name: Uzantı / KWin scripted effect / Aurorae / canlı Qt paleti / Snap / geri alma
+        run: |
+          python3 scripts/ci-run.py --title 'Gerçek ${{ matrix.desktop }} · ${{ matrix.suite }}' -- \
+            xvfb-run -a -s '-screen 0 1024x768x24 -nolisten tcp +extension GLX +extension COMPOSITE' \
+            python3 tests/smoke-shells.py --desktop '${{ matrix.desktop }}' --output test-results/shell
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: real-shell-${{ matrix.desktop }}-${{ matrix.suite }}
+          path: test-results/shell/
           if-no-files-found: warn
           retention-days: 14

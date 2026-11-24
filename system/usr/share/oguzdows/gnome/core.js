@@ -78,6 +78,7 @@ var OguzDowsGlass = class {
         if (target === 'notifications') Main.panel.statusArea.dateMenu.menu.toggle();
         else if (target === 'quick-settings') Main.panel.statusArea.quickSettings.menu.toggle();
         else if (target === 'apps') Main.overview.showApps();
+        else if (target === 'hide-overview') Main.overview.hide();
         else throw new Error('İzin verilmeyen masaüstü hedefi');
     }
 
