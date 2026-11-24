@@ -91,6 +91,7 @@ def child(directory, desktop):
             import desktop_decoration as decoration
             backend = plasma.PlasmaSettings()
             report['kconfig_major'] = backend.major
+            report['ci_only_software_gpu_animation_override'] = os.environ.get('KWIN_EFFECTS_FORCE_ANIMATIONS') == '1'
             assert decoration.available(backend.major), 'Hedef ABI Aurorae kütüphanesi bulunamadı'
             start(['/usr/bin/kwin_x11'], 'kwin')
             wait(lambda: owner('org.kde.KWin'))
@@ -160,6 +161,10 @@ def child(directory, desktop):
                 assert rectangle.width < 1024 * .65, (direction, rectangle.width)
             report.setdefault('snap_frame_rectangles', {})[direction] = [rectangle.x, rectangle.y, rectangle.width, rectangle.height]
         window.iconify(); pump(.5); window.deiconify(); window.present(); pump(.7)
+        if desktop == 'gnome':
+            report['extension_after_window_transitions'] = shell_state()
+            assert report['extension_after_window_transitions']['spring_transitions_attached'] > 0
+            assert report['extension_after_window_transitions']['early_window_hook'] is True
         root = Gdk.get_default_root_window()
         capture = Gdk.pixbuf_get_from_window(root, 0, 0, root.get_width(), root.get_height())
         assert capture is not None
@@ -192,8 +197,10 @@ def child(directory, desktop):
         (directory / 'shell-incomplete.json').write_text(json.dumps(report, ensure_ascii=False, indent=2) + '\n')
         print('::error title=Eksik kabuk kontrol durumu::' + json.dumps(report, ensure_ascii=False).replace('%', '%25'), flush=True)
         for path in directory.glob('*.log'):
-            text = path.read_text(errors='replace')[-2500:]
-            print('::error title=' + path.stem + ' runtime::' + text.replace('%', '%25').replace('\n', '%0A'), flush=True)
+            text = path.read_text(errors='replace')
+            own = [line for line in text.splitlines() if any(name in line.casefold() for name in ('oguzdows', 'aurorae', 'scripted effect'))]
+            diagnostic = '\n'.join(own[-25:]) + '\n' + text[-2500:]
+            print('::error title=' + path.stem + ' runtime::' + diagnostic.replace('%', '%25').replace('\n', '%0A'), flush=True)
         raise
     finally:
         window.destroy()
@@ -226,7 +233,11 @@ def main():
             XDG_CURRENT_DESKTOP='GNOME' if args.desktop == 'gnome' else 'KDE', XDG_SESSION_TYPE='x11',
             GDK_BACKEND='x11', LIBGL_ALWAYS_SOFTWARE='1', NO_AT_BRIDGE='1',
             QT_QPA_PLATFORM='xcb', QT_QPA_PLATFORMTHEME='kde', QT_QUICK_BACKEND='software', QT_NO_GLIB='1',
-            KWIN_COMPOSE='O2', KWIN_X11_NO_SYNC_TO_VBLANK='1')
+            # KWin script efektleri yazılım renderer'da normalde desteklemez.
+            # Yalnız özel fixture native callback/curve yolunu bu açık bayrakla
+            # çalıştırır; üretim ortamına / backend'e hiçbir bypass eklenmez.
+            KWIN_COMPOSE='O2', KWIN_X11_NO_SYNC_TO_VBLANK='1', KWIN_EFFECTS_FORCE_ANIMATIONS='1',
+            QT_LOGGING_RULES='kwin_core.debug=true;kwin_scripting.debug=true')
         address = 'unix:path=' + str(directory / 'system-bus')
         configuration = directory / 'system-bus.conf'
         configuration.write_text('<busconfig><type>system</type><auth>EXTERNAL</auth><listen>' + address +

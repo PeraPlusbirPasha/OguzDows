@@ -10,6 +10,8 @@ var OguzDowsGlass = class {
         this.wrappers = new Map();
         this.sources = new Set();
         this.restoreRects = new WeakMap();
+        this.springTransitions = 0;
+        this.earlyWindowHook = false;
     }
 
     connect(object, signal, callback) {
@@ -51,6 +53,16 @@ var OguzDowsGlass = class {
         this.connect(this.settings, 'changed', () => this.refresh());
         this.connect(this.interfaceSettings, 'changed::enable-animations', () => this.refresh());
         this.connect(Main.sessionMode, 'updated', () => this.refresh());
+        // Shell'in kendi map dinleyicisi bizden önce kayıtlıdır. İlk açılış
+        // geçişini de yakalamak için aktör gruba eklenir eklenmez bağlan;
+        // eski ClutterContainer ile yeni Actor sinyal adları farklıdır.
+        for (const signal of ['child-added', 'actor-added']) {
+            try {
+                this.connect(global.window_group, signal, (_group, actor) => this.wrap(actor));
+                this.earlyWindowHook = true;
+                break;
+            } catch (_error) { /* ABI'nin diğer sinyalini dene. */ }
+        }
         this.connect(global.window_manager, 'map', (_wm, actor) => this.wrap(actor));
         for (const actor of global.get_window_actors()) this.wrap(actor);
         const xml = '<node><interface name="org.oguzdows.Desktop">' +
@@ -61,6 +73,7 @@ var OguzDowsGlass = class {
         this.exported = Gio.DBusExportedObject.wrapJSObject(xml, {
             GetState: () => JSON.stringify({accent: this.settings.get_string('accent'),
                 blur_attached: this.materials.length > 0, spring_enabled: this.animations() && this.settings.get_string('motion') === 'spring',
+                spring_transitions_attached: this.springTransitions, early_window_hook: this.earlyWindowHook,
                 scope: 'GNOME Shell açılır menüleri; opak üst çubuk ve uygulama içerikleri korunur.'}),
             Snap: direction => this.snap(direction),
             Open: target => this.open(target),
@@ -108,8 +121,10 @@ var OguzDowsGlass = class {
             const result = original.call(this, values);
             for (const property of ['scale-x', 'scale-y', 'opacity', 'x', 'y', 'translation-x', 'translation-y']) {
                 const transition = this.get_transition(property);
-                if (transition && typeof transition.set_progress_func === 'function')
+                if (transition && typeof transition.set_progress_func === 'function') {
                     transition.set_progress_func(OguzDowsGlass.response);
+                    self.springTransitions++;
+                }
             }
             return result;
         };
