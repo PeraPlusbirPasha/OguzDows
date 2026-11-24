@@ -21,6 +21,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from profiles import atomic_text, effect_selection, read_state, state_directory as profile_directory
 from resource_policy import current_policy
+from aero import CONFIGS, plan as aero_plan
 
 BINARY = Path('/usr/bin/picom')
 CONFIG = Path('/usr/share/oguzdows/picom.conf')
@@ -84,7 +85,8 @@ def identity(pid, proc=Path('/proc')):
             return None
         fields = (path / 'stat').read_text().rsplit(') ', 1)[1].split()
         argv = (path / 'cmdline').read_bytes().rstrip(b'\0').split(b'\0')
-        if fields[0] == 'Z' or argv != [os.fsencode(BINARY), b'--config', os.fsencode(CONFIG)]:
+        if (fields[0] == 'Z' or len(argv) != 3 or argv[:2] != [os.fsencode(BINARY), b'--config']
+                or argv[2] not in {os.fsencode(path) for path in CONFIGS}):
             return None
         return fields[19]  # /proc stat field 22, PID reuse guard.
     except (OSError, ValueError, IndexError):
@@ -160,16 +162,19 @@ def release_owned(directory, current, x11):
         wait_owner(x11, 0)
 
 
-def spawn(directory):
+def spawn(directory, configuration=CONFIG):
     # posix_spawn: uzun yaşayan tek süreç Picom'dur; Popen / Python daemon yok.
     # Sabit sistem config'i; ~/.config/picom.conf veya shell metni çalıştırılmaz.
+    configuration = Path(configuration)
+    if configuration not in CONFIGS:
+        raise ValueError('Efekt reçetesi sistem izin listesinde değil.')
     descriptor = os.open(directory / 'picom.log', os.O_WRONLY | os.O_CREAT | os.O_TRUNC | os.O_NOFOLLOW | os.O_NONBLOCK, 0o600)
     null = os.open('/dev/null', os.O_RDONLY)
     try:
         if not stat.S_ISREG(os.fstat(descriptor).st_mode):
             raise ValueError('Efekt günlüğü normal dosya olmalı.')
         os.fchmod(descriptor, 0o600)
-        return os.posix_spawn(str(BINARY), [str(BINARY), '--config', str(CONFIG)], os.environ,
+        return os.posix_spawn(str(BINARY), [str(BINARY), '--config', str(configuration)], os.environ,
                               file_actions=[(os.POSIX_SPAWN_DUP2, null, 0),
                                             (os.POSIX_SPAWN_DUP2, descriptor, 1),
                                             (os.POSIX_SPAWN_DUP2, descriptor, 2)], setsid=True)
@@ -178,7 +183,7 @@ def spawn(directory):
         os.close(null)
 
 
-def reconcile(effect=None, resources=None, *, directory=None, connect=X11):
+def reconcile(effect=None, resources=None, *, directory=None, connect=X11, preferences=None, capability=None):
     if effect is None:
         # İlk giriş / kişisel xfwm ayarı: kullanıcı tercih etmeden kapatma.
         if read_state(profile_directory(), 'effects') not in ('off', 'glass', 'aero'):
@@ -193,6 +198,11 @@ def reconcile(effect=None, resources=None, *, directory=None, connect=X11):
         return {'engine': 'unchanged', 'transitions': False, 'message': 'Yalnızca Xfce / X11 oturumu yönetilir; diğer masaüstü korunur.'}
     resources = current_policy() if resources is None else resources
     budget = bool(resources['compositing'])
+    if preferences is None:
+        from desktop_state import load
+        preferences = dict(load(), effects=effect)
+    plan = aero_plan(preferences, resources, capability)
+    configuration = plan['config']
     directory = state_directory() if directory is None else Path(directory)
     descriptor = os.open(directory / '.lock', os.O_WRONLY | os.O_CREAT | os.O_NOFOLLOW | os.O_NONBLOCK, 0o600)
     with os.fdopen(descriptor, 'w') as lock:
@@ -218,8 +228,8 @@ def reconcile(effect=None, resources=None, *, directory=None, connect=X11):
                     engine = apply_xfwm(x11, enabled)
                     result = {'engine': engine, 'transitions': False,
                               'message': 'Hafif cam; pencere geçişleri kapalı.' if engine == 'xfwm4' else 'Opak / statik görünüm; düşük kaynak koruması veya kompozitör kullanılabilirliği önceliklidir.'}
-            elif current and x11.owner() == current['owner']:
-                result = {'engine': 'picom', 'transitions': True, 'message': 'Kısa pencere geçişleri ve hafif gölge açık; metin / üst panel opak.'}
+            elif current and x11.owner() == current['owner'] and current.get('config', str(CONFIG)) == str(configuration):
+                result = {'engine': 'picom', 'transitions': preferences['motion'] != 'reduced', 'message': 'Kullanıcının seçtiği tek Picom motoru çalışıyor; metin / üst panel opak.'}
             else:
                 release_owned(directory, current, x11)
                 owner = x11.owner()
@@ -232,31 +242,51 @@ def reconcile(effect=None, resources=None, *, directory=None, connect=X11):
                 else:
                     pid = None
                     owner = 0
-                    if BINARY.is_file() and os.access(BINARY, os.X_OK) and CONFIG.is_file():
+                    # Zengin GLX açılamazsa yalnız BİR sabit XRender denemesi.
+                    # Otomatik restart / GPU testi döngüsü / yabancı PID sinyali yok.
+                    fallback = CONFIG.parent / 'compositor/still.conf' if preferences['motion'] == 'reduced' else CONFIG
+                    candidates = [configuration] + ([fallback] if configuration != fallback else [])
+                    for candidate in candidates:
+                        if x11.owner() or not BINARY.is_file() or not os.access(BINARY, os.X_OK):
+                            break
+                        if not candidate.is_file():
+                            continue
                         try:
-                            pid = spawn(directory)
+                            pid = spawn(directory) if candidate == CONFIG else spawn(directory, candidate)
                         except OSError:
                             pid = None
                         owner = wait_owner(x11, None) if pid else 0
                         started = identity(pid)
                         if owner and started:
-                            atomic_text(directory / 'picom.json', json.dumps({'pid': pid, 'started': started, 'owner': owner}) + '\n')
-                        else:
-                            # Yalnızca az önce bu işçinin oluşturduğu çocuk.
-                            if started:
-                                os.kill(pid, signal.SIGTERM)
-                            if pid:
-                                try:
-                                    os.waitpid(pid, os.WNOHANG)
-                                except ChildProcessError:
-                                    pass
+                            value = {'pid': pid, 'started': started, 'owner': owner}
+                            if candidate != CONFIG:
+                                value['config'] = str(candidate)
+                            atomic_text(directory / 'picom.json', json.dumps(value) + '\n')
+                            configuration = candidate
+                            break
+                        # Yalnızca az önce bu işçinin oluşturduğu çocuk.
+                        if started:
+                            os.kill(pid, signal.SIGTERM)
+                            wait_owner(x11, 0)
+                        if pid:
+                            try:
+                                os.waitpid(pid, os.WNOHANG)
+                            except ChildProcessError:
+                                pass
+                        pid = None
                     if pid and owner and identity(pid):
-                        result = {'engine': 'picom', 'transitions': True,
-                                  'message': 'Kısa açma / kapama geçişleri ve hafif gölge açık; blur / sürekli animasyon yok.'}
+                        result = {'engine': 'picom', 'transitions': preferences['motion'] != 'reduced' and configuration.name != 'still.conf',
+                                  'message': 'İsteğe bağlı Aero motoru çalışıyor; zengin efektler sürüm / hızlandırma kapısından geçirilir.'}
                     else:
                         engine = apply_xfwm(x11, True) if x11.owner() == 0 else 'external'
                         result = {'engine': engine, 'transitions': False,
                                   'message': 'Geçiş motoru açılamadı; statik Aero / uygun olduğunda xfwm gölgesi korundu. Efekt günlüğünü inceleyebilirsin.'}
+            rich_running = result['engine'] == 'picom' and configuration == plan['config']
+            result.update({key: bool(plan[key] and rich_running) for key in ('blur_configured', 'spring_configured', 'snap_configured')})
+            if plan['note']:
+                result['message'] += ' ' + plan['note']
+            if result['engine'] == 'picom':
+                result['config'] = str(configuration)
             atomic_text(directory / 'status.json', json.dumps({**result, 'physical_gpu_verified': False}, ensure_ascii=False) + '\n')
             return result
         finally:

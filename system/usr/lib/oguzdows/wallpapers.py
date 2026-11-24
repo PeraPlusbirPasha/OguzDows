@@ -32,6 +32,15 @@ def run(command):
 
 
 def apply(identifier: str, items=None, state: Path | None = None) -> None:
+    import desktop_runtime
+    if items is None and state is None and desktop_runtime.current() in ('gnome', 'kde'):
+        from desktop_preferences import update_and_apply
+        update_and_apply({'wallpaper': identifier})
+        return
+    apply_xfce(identifier, items, state)
+
+
+def apply_xfce(identifier: str, items=None, state: Path | None = None) -> None:
     entries = catalog() if items is None else items
     item = next((entry for entry in entries if entry["id"] == identifier), None)
     if item is None or not Path(item["path"]).is_file():

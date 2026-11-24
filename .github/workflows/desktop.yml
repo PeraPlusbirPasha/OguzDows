@@ -1,0 +1,95 @@
+name: OğuzDows Yerel Masaüstü
+
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - 'native/**'
+      - 'system/**'
+      - 'scripts/**'
+      - 'packages/**'
+      - 'hooks/**'
+      - 'raspberrypi/**'
+      - 'tests/**'
+      - '.github/workflows/desktop.yml'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: oguzdows-native-desktop-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  native:
+    name: Yerel C · GTK · ayar API'leri · ${{ matrix.suite }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        suite: [bookworm, trixie]
+    container:
+      image: debian:${{ matrix.suite }}
+    env:
+      NO_AT_BRIDGE: '1'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Hedef tabanın gerçek GTK / GSettings / KConfig araçları
+        run: |
+          apt-get update
+          apt-get install -y --no-install-recommends build-essential pkg-config libgtk-3-dev libjson-glib-dev \
+            python3 python3-gi python3-pil python3-yaml python3-pyflakes python3-cairo \
+            gir1.2-gtk-3.0 libglib2.0-bin gsettings-desktop-schemas gnome-shell-common \
+            breeze xauth xvfb dbus-x11 fonts-dejavu-core librsvg2-common adwaita-icon-theme \
+            shared-mime-info desktop-file-utils shellcheck nodejs
+          case '${{ matrix.suite }}' in
+            bookworm) apt-get install -y --no-install-recommends libkf5config-bin ;;
+            trixie) apt-get install -y --no-install-recommends libkf6config-bin ;;
+          esac
+      - name: Kaynak, JSON / şema ve ABI yükleyicileri
+        run: |
+          python3 -m pyflakes system/usr/lib/oguzdows/desktop_*.py \
+            system/usr/lib/oguzdows/aero.py tests/test_desktop_*.py tests/smoke-desktop.py \
+            scripts/install-desktop-assets.py
+          python3 -W error::ResourceWarning -m unittest discover -s tests -p 'test_desktop_*.py' -v
+          shellcheck scripts/build-desktop.sh system/usr/lib/oguzdows/session.sh
+          node --check system/usr/share/oguzdows/gnome/core.js
+          node --check system/usr/share/kwin/effects/oguzdows-aero/contents/code/main.js
+          cp system/usr/share/glib-2.0/schemas/org.oguzdows.desktop.gschema.xml /usr/share/glib-2.0/schemas/
+          glib-compile-schemas --strict /usr/share/glib-2.0/schemas
+          for component in desktop hub monitor; do
+            desktop-file-validate "system/usr/share/applications/oguzdows-$component.desktop"
+          done
+      - name: Yerel hedef ABI'sinde derle; mock C / HTML yok
+        shell: bash
+        run: |
+          mkdir -p test-results/bin
+          for component in monitor hub; do
+            sh scripts/build-desktop.sh "$component" "test-results/bin/$component"
+            sh scripts/build-desktop.sh "$component" "test-results/bin/$component-test" --test
+            "test-results/bin/$component" --version
+          done
+      - name: Çevrimdışı görseller ve gerçek GTK (özel normal kullanıcı, fiziksel GPU değil)
+        shell: bash
+        run: |
+          cp -a system/usr/share/themes/. /usr/share/themes/
+          python3 scripts/render-assets.py --root /
+          cp system/usr/share/applications/oguzdows-{desktop,hub,monitor}.desktop /usr/share/applications/
+          gtk-update-icon-cache -f -t /usr/share/icons/hicolor
+          for spec in '1024x768 light' '360x800 dark'; do
+            read -r screen appearance <<< "$spec"
+            xvfb-run -a -s "-screen 0 ${screen}x24 -nolisten tcp" \
+              python3 tests/smoke-desktop.py --binaries test-results/bin \
+              --appearance "$appearance" --output "test-results/desktop-$screen"
+          done
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: native-desktop-${{ matrix.suite }}
+          path: |
+            test-results/desktop-*/
+          if-no-files-found: warn
+          retention-days: 14

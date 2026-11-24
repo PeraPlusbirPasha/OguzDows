@@ -79,6 +79,7 @@ def configure(arch: str, output: Path) -> None:
             shutil.rmtree(path)
         else:
             path.unlink(missing_ok=True)
+    SHARED.install_desktop_assets(overlay, LOCK['suite'])
     shutil.copytree(ROOT / "raspberrypi/system", overlay, dirs_exist_ok=True,
                     ignore=shutil.ignore_patterns("__pycache__", "*.py[cod]"))
     shutil.copytree(ROOT / "boot", overlay / "usr/share/plymouth/themes/oguzdows")
@@ -94,6 +95,8 @@ def configure(arch: str, output: Path) -> None:
     (overlay / 'usr/share/oguzdows/scripts').mkdir(parents=True, exist_ok=True)
     shutil.copy2(ROOT / 'scripts/build-native.sh', overlay / 'usr/share/oguzdows/scripts/build-native.sh')
     shutil.copy2(ROOT / 'scripts/build-news.sh', overlay / 'usr/share/oguzdows/scripts/build-news.sh')
+    shutil.copy2(ROOT / 'scripts/build-desktop.sh', overlay / 'usr/share/oguzdows/scripts/build-desktop.sh')
+    (overlay / 'usr/share/oguzdows/scripts/build-desktop.sh').chmod(0o755)
     (overlay / 'usr/share/oguzdows/scripts/build-news.sh').chmod(0o755)
     (overlay / 'usr/share/oguzdows/scripts/build-native.sh').chmod(0o755)
     shutil.copy2(ROOT / "scripts/verify-pi.py", overlay / "usr/lib/oguzdows/verify-pi.py")

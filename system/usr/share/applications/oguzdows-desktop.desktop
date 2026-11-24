@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Application
+Name=OğuzDows Masaüstü Merkezi
+Comment=Xfce, GNOME ve Plasma için yerel ayarlar, ortak tercihler ve isteğe bağlı Aero
+Exec=/usr/local/bin/oguzdows-desktop
+Icon=oguzdows-desktop
+Terminal=false
+Categories=Settings;DesktopSettings;
+StartupNotify=true

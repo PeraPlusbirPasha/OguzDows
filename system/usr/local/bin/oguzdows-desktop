@@ -1,0 +1,3 @@
+#!/bin/sh
+# Ortak tercihler / masaüstünün kendi araçları; sürekli süreç değil.
+exec /usr/bin/python3 -I /usr/lib/oguzdows/desktop_center.py "$@"

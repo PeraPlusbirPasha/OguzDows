@@ -7,6 +7,7 @@ import json
 import math
 import shutil
 import struct
+import wave
 from pathlib import Path
 
 from PIL import Image, ImageColor, ImageDraw, ImageFont
@@ -142,7 +143,7 @@ def boot_background(width: int, height: int) -> Image.Image:
     return image.convert("RGB").resize((width, height), Image.Resampling.LANCZOS)
 
 
-def window_theme(root: Path, name='OguzDows', light=False, xp=False) -> None:
+def window_theme(root: Path, name='OguzDows', light=False, xp=False, accent=None) -> None:
     base = f'usr/share/themes/{name}/xfwm4/'
     active_bg = '#245ca5' if xp and light else ('#183352' if xp else ('#e9edf2' if light else '#1c202a'))
     mac, gnome = name.startswith('OguzDowsMac'), name.startswith('OguzDowsGnome')
@@ -157,6 +158,12 @@ def window_theme(root: Path, name='OguzDows', light=False, xp=False) -> None:
         active_bg, inactive_bg = ('#eef0f4', '#e1e5ec') if light else ('#292c33', '#24272e')
     elif gnome:
         active_bg, inactive_bg = ('#f0edf3', '#e2dfe9') if light else ('#322f3d', '#292733')
+
+    glass = name.startswith('OguzDowsAeroGlass')
+    if glass and accent:
+        color = ImageColor.getrgb(accent)
+        blend = lambda weight: '#' + ''.join(f'{round(component * weight + (255 if light else 12) * (1 - weight)):02x}' for component in color)
+        active_bg, inactive_bg = blend(.22 if light else .31), blend(.13 if light else .22)
 
     def tile(size, color):
         image = Image.new('RGBA', size, color)
@@ -173,11 +180,20 @@ def window_theme(root: Path, name='OguzDows', light=False, xp=False) -> None:
         bg = active_bg if state == "active" else inactive_bg
         edge = ('#b0b9c5' if light else '#535e6e') if mac else ("#75aadd" if name.startswith(("OguzDowsAero", "OguzDowsEleven")) else RED) if state == "active" else "#363b49"
         for part in ("title-1", "title-2", "title-3", "title-4", "title-5", "top-left", "top-right"):
-            image = tile((5, 32), bg)
-            ImageDraw.Draw(image).line((0, 0, 5, 0), fill=edge)
+            image = tile((128 if glass and part == 'title-3' else 5, 32), bg)
+            ImageDraw.Draw(image).line((0, 0, image.width, 0), fill=edge)
+            if glass:
+                # Yalnız dekoratif üst/alt şerit alfa alır. Başlık yazısının
+                # arkasındaki 4..27 px ve tüm kontrol düğmeleri opaktır.
+                for y in (0, 1, 2, 28, 29, 30, 31):
+                    for x in range(image.width):
+                        red, green, blue, _alpha = image.getpixel((x, y))
+                        streak = max(0, 1 - abs((x / image.width + y / 32) - .72) * 12)
+                        image.putpixel((x, y), (min(255, round(red + 24 * streak)), min(255, round(green + 24 * streak)), min(255, round(blue + 24 * streak)), 210))
             save(image, root, base + f"{part}-{state}.png")
         for part, size in (("left", (3, 1)), ("right", (3, 1)), ("bottom", (1, 3)), ("bottom-left", (3, 3)), ("bottom-right", (3, 3))):
-            save(Image.new("RGBA", size, bg), root, base + f"{part}-{state}.png")
+            color = (*ImageColor.getrgb(bg), 210) if glass else bg
+            save(Image.new("RGBA", size, color), root, base + f"{part}-{state}.png")
     for state in ("active", "inactive", "prelight", "pressed"):
         color = inactive_text if state == "inactive" else active_text
         for button in ("close", "hide", "maximize", "maximize-toggled", "menu"):
@@ -354,6 +370,21 @@ def own_app_icon(identifier: str, size: int) -> Image.Image:
     else:
         raise ValueError('Özgün simge kimliği bilinmiyor: ' + identifier)
     return image.resize((size, size), Image.Resampling.LANCZOS)
+
+
+def render_desktop_assets(root: Path) -> None:
+    vectors = Path(__file__).resolve().parents[1] / 'system/usr/share/icons/hicolor/scalable'
+    if vectors.is_dir() and vectors.resolve() != (root / 'usr/share/icons/hicolor/scalable').resolve():
+        shutil.copytree(vectors, root / 'usr/share/icons/hicolor/scalable', dirs_exist_ok=True)
+    # Kısa, özgün onay sesi: yalnız açık feedback tercihiyle paplay tarafından
+    # çalınır. Boot / kurulum / normal hover sırasında ses veya işçi yoktur.
+    target = root / 'usr/share/oguzdows/ui/confirm.wav'
+    target.parent.mkdir(parents=True, exist_ok=True)
+    rate, duration = 16000, .085
+    with wave.open(str(target), 'wb') as sound:
+        sound.setnchannels(1); sound.setsampwidth(2); sound.setframerate(rate)
+        frames = [round(1700 * math.sin(math.pi * n / (rate * duration))**2 * math.sin(2 * math.pi * 880 * n / rate)) for n in range(round(rate * duration))]
+        sound.writeframes(struct.pack('<' + 'h' * len(frames), *frames))
 
 
 def render_own_app_icons(root: Path) -> None:
@@ -567,13 +598,15 @@ def render(root: Path) -> None:
     save(boot_background(640, 480).crop((80, 20, 560, 210)), root, installer + "welcome.png")
     render_store_icons(root)
     render_own_app_icons(root)
+    render_desktop_assets(root)
     window_theme(root)
     window_theme(root, 'OguzDowsLight', light=True)
     window_theme(root, 'OguzDowsXP', light=True, xp=True)
     window_theme(root, 'OguzDowsXPDark', xp=True)
     for name, light in (('OguzDowsMac', True), ('OguzDowsMacDark', False), ('OguzDowsGnome', True), ('OguzDowsGnomeDark', False),
                         ('OguzDowsEleven', True), ('OguzDowsElevenDark', False),
-                        ('OguzDowsAero', True), ('OguzDowsAeroDark', False)):
+                        ('OguzDowsAero', True), ('OguzDowsAeroDark', False),
+                        ('OguzDowsAeroGlass', True), ('OguzDowsAeroGlassDark', False)):
         window_theme(root, name, light=light)
 
 

@@ -317,6 +317,46 @@ def set_effects(effects, directory=None, execute=run, resources=None):
     transaction(choices, directory, execute, {'effects': effects + '\n'})
 
 
+def set_shared(preferences, directory=None, execute=run, resources=None, material_theme=None, surface_only=False):
+    """Ortak temayı uygula; panel dizileri, kısayollar ve imleç değişmez.
+
+    Zengin cam ayrı temadır: yalnız GPU bütçesi + açık blur onayıyla. Eski
+    Aero ve düşük kaynak döşemeleri opak kalır; başlık yazısı / düğmeler her
+    iki temada da opaktır.
+    """
+    directory = state_directory() if directory is None else directory
+    resources = current_policy() if resources is None else resources
+    identifier, _appearance = selection(directory)
+    appearance, effect = preferences['appearance'], preferences['effects']
+    keys = {('xsettings', '/Net/ThemeName'), ('xsettings', '/Gtk/ApplicationPreferDarkTheme'),
+            ('xsettings', '/Gtk/EnableAnimations'), ('xfwm4', '/general/theme'),
+            ('xfwm4', '/general/show_frame_shadow'), ('xfwm4', '/general/shadow_opacity'),
+            ('xfwm4', '/general/use_compositing'), ('xfce4-panel', '/panels/panel-1/background-style'),
+            ('xfce4-panel', '/panels/panel-1/background-rgba')}
+    if identifier in DOCK_PROFILES and read_state(directory, 'layout-v2') == 'owned':
+        keys.add(('xfce4-panel', '/panels/panel-90/background-rgba'))
+    glass = effect == 'aero' and preferences['blur'] and resources['compositing']
+    if surface_only:
+        keys = {key for key in keys if key[1] in ('/Net/ThemeName', '/general/theme') or key[1].endswith('background-rgba')}
+    choices = []
+    for channel, path, kind, value in settings(identifier, appearance, effect, resources):
+        if (channel, path) not in keys:
+            continue
+        if glass and identifier != 'mac' and path in ('/Net/ThemeName', '/general/theme'):
+            value = material_theme or ('OguzDowsAeroGlassDark' if appearance == 'dark' else 'OguzDowsAeroGlass')
+        if path == '/Gtk/EnableAnimations' and preferences['motion'] == 'reduced':
+            value = 'false'
+        if glass and path.endswith('background-rgba'):
+            # Üst durum çubuğuna alfa uygulanmaz. Metin / ikon katmanı opak.
+            panel = 1 if '/panel-1/' in path else 90
+            if panel == 90 or PROFILES[identifier]['position'] == 10:
+                color = [int(preferences['accent'][i:i + 2], 16) / 255 for i in (1, 3, 5)]
+                base = .13 if appearance == 'dark' else .94
+                value = [decimal_value(.12 * component + .88 * base) for component in color] + ['0.84']
+        choices.append((channel, path, kind, value))
+    transaction(choices, directory, execute, {'appearance': appearance + '\n', 'effects': effect + '\n'})
+
+
 def validate_backup(values):
     allowed = {(channel, path, kind) for channel, path, kind, _ in settings('oguzdows')}
     allowed.add(('xfce4-panel', '/panels/panel-1/length', 'uint'))  # 1.1 ilk yedek biçimi

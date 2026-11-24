@@ -9,6 +9,7 @@ import argparse
 import json
 import os
 import re
+import runpy
 import shutil
 import subprocess
 from pathlib import Path
@@ -59,12 +60,17 @@ def source_identity():
     return {'source_revision': revision, 'source_dirty': dirty}
 
 
+def install_desktop_assets(overlay, suite):
+    runpy.run_path(str(ROOT / 'scripts/install-desktop-assets.py'))['install'](overlay, suite)
+
+
 def configure(arch: str, output: Path) -> None:
     info = ARCHITECTURES[arch]
     overlay = output / "includes.chroot"
     output.mkdir(parents=True, exist_ok=True)
     shutil.copytree(ROOT / "system", overlay, dirs_exist_ok=True,
                     ignore=shutil.ignore_patterns("__pycache__", "*.py[cod]", "rifki_pet.py", "rifki_scene.py", "rifki_motion.py", "rig", "envelopes.json", "intro-full.wav", "hello.wav", "help.wav", "disk.wav", "talk-blink.png"))
+    install_desktop_assets(overlay, info['suite'])
     shutil.copytree(ROOT / "installer" / "modules", overlay / "etc/calamares/modules", dirs_exist_ok=True,
                     ignore=shutil.ignore_patterns("__pycache__", "*.py[cod]"))
     # Bookworm Calamares 3.2 ile trixie 3.3 bazı anahtarları farklı okur.
@@ -97,6 +103,8 @@ def configure(arch: str, output: Path) -> None:
     (overlay / 'usr/share/oguzdows/scripts').mkdir(parents=True, exist_ok=True)
     shutil.copy2(ROOT / 'scripts/build-native.sh', overlay / 'usr/share/oguzdows/scripts/build-native.sh')
     shutil.copy2(ROOT / 'scripts/build-news.sh', overlay / 'usr/share/oguzdows/scripts/build-news.sh')
+    shutil.copy2(ROOT / 'scripts/build-desktop.sh', overlay / 'usr/share/oguzdows/scripts/build-desktop.sh')
+    (overlay / 'usr/share/oguzdows/scripts/build-desktop.sh').chmod(0o755)
     (overlay / 'usr/share/oguzdows/scripts/build-news.sh').chmod(0o755)
     (overlay / 'usr/share/oguzdows/scripts/build-native.sh').chmod(0o755)
 

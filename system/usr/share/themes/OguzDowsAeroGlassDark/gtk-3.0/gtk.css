@@ -1,0 +1,3 @@
+@import url("../../OguzDowsAeroDark/gtk-3.0/gtk.css");
+/* Gerçek backdrop blur Picom’dadır. Başlık ve düğmeler opak kalır. */
+.xfce4-panel.background { background-image: none; }

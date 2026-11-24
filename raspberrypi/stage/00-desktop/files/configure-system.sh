@@ -44,6 +44,10 @@ python3 /usr/lib/oguzdows/render-assets.py --root /
 /usr/lib/oguzdows/seal-app-store.sh
 /usr/share/oguzdows/scripts/build-native.sh /usr/lib/oguzdows/oguzdows-store-native
 /usr/share/oguzdows/scripts/build-news.sh /usr/lib/oguzdows/oguzdows-news-native
+for component in monitor hub; do
+    /usr/share/oguzdows/scripts/build-desktop.sh "$component" "/usr/lib/oguzdows/oguzdows-$component-native"
+done
+glib-compile-schemas --strict /usr/share/glib-2.0/schemas
 update-desktop-database /usr/share/applications
 install -d /usr/share/icons/hicolor/scalable/apps
 install -m 0644 /usr/share/oguzdows/assets/oguzdows.svg /usr/share/icons/hicolor/scalable/apps/oguzdows.svg

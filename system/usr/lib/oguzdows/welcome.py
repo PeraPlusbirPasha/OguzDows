@@ -16,6 +16,8 @@ import boot_report
 import install_status as installer_state
 import profiles
 import effects
+import desktop_preferences
+import desktop_runtime
 import welcome_model
 import device_support
 from rifki_speech import Speaker, ready_clip
@@ -69,6 +71,8 @@ class Welcome(Gtk.Application):
         self.launcher_group = None
         self.launcher_signals = []
         self.launcher_watch = None
+        self.installing_action = Gio.SimpleAction.new_stateful('installing', None, GLib.Variant('b', False))
+        self.add_action(self.installing_action)
 
     def do_startup(self):
         Gtk.Application.do_startup(self)
@@ -118,6 +122,7 @@ class Welcome(Gtk.Application):
     def set_external_installing(self,value):
         self.external_installing=bool(value)
         busy=self.install_busy or self.external_installing
+        self.installing_action.set_state(GLib.Variant('b', busy or self.driver_busy))
         if busy:
             self.cancel_narration()
             if self.speaker:
@@ -374,7 +379,7 @@ class Welcome(Gtk.Application):
                               'Diskine dokunmadan masaüstünü ve uygulamalarını keşfet.' if self.context.offers_installer else 'Karşılayıcıyı kapat ve kendi masaüstünü kullanmaya başla.',
                               'user-desktop-symbolic', lambda *_: self.window.close(), primary=True))
         if is_pi():
-            self.install_button = self.card("Pi masaüstü ayarları", "Sistem zaten kurulu. Görünüm, ekran, ses ve güç ayarlarını düzenle.", "preferences-system-symbolic", lambda *_: self.launch(["/usr/bin/xfce4-settings-manager"]))
+            self.install_button = self.card("Pi masaüstü ayarları", "Sistem zaten kurulu. Görünüm, ekran, ses ve güç ayarlarını düzenle.", "preferences-system-symbolic", lambda *_: self.launch(["/usr/local/bin/oguzdows-desktop", "--control", "settings"]))
         else:
             self.install_button = self.card("OğuzDows'u kur", "Canlı USB'den, internet gerekmeden bilgisayarına yerleştir.", "system-software-install-symbolic", self.install)
             self.install_button.set_sensitive(self.can_install())
@@ -622,21 +627,19 @@ class Welcome(Gtk.Application):
             self.theme_buttons[mode] = button
             row.pack_start(button, True, True, 0)
         page.pack_start(row, False, False, 0)
-        self.theme_status = label('Tema sistemdeki GTK 3 / Xfce uygulamalarına uygulanır. Kendi temasını kullanan uygulamalar farklı görünebilir; tüm üçüncü taraf pencerelere garanti verilmez.', 'muted', 75)
+        self.theme_status = label('Tema etkin Xfce / GNOME / Plasma oturumunun kendi ayarlarına uygulanır. Kendi temasını kullanan uygulamalar farklı görünebilir; tüm üçüncü taraf pencerelere garanti verilmez.', 'muted', 75)
         page.pack_start(self.theme_status, False, False, 0)
-        self.effect_choice = Gtk.ComboBoxText()
-        for identifier, title in profiles.EFFECTS.items():
-            self.effect_choice.append(identifier, title)
-        self.effect_choice.set_active_id(profiles.effect_selection())
-        page.pack_start(self.effect_choice, False, False, 0)
-        self.effect_apply = Gtk.Button(label='Efekt tercihini uygula')
-        self.effect_apply.connect('clicked', self.change_effects)
-        page.pack_start(self.effect_apply, False, False, 0)
-        page.pack_start(label('Aero: opak yansımalı başlıklar; uygun bütçede iskele camı, hafif gölge ve yaklaşık 100 ms açma / kapama geçişi. Tek kompozitör kullanılır; Picom açılamazsa statik Xfwm görünümüne dönülür. Blur, yaylanma ve sürekli animasyon yoktur. 512 MiB–2 GiB RAM, ARMv6, nomodeset veya tanınan DRM sürücüsü yoksa kompozitör açılmaz; aynı düzen ve statik yansımalar korunur. Donanım hızı cihazda ayrıca ölçülmelidir.', 'muted', 75), False, False, 0)
-        page.pack_start(label('Yazı tipi, ekran ölçeği veya çözünürlük için:', 'section-title'), False, False, 0)
-        for title, command in (('Görünüm ve yazı tipleri', ['/usr/bin/xfce4-appearance-settings']),
-                               ('Ekran ayarları', ['/usr/bin/xfce4-display-settings'])):
+        from desktop_ui import PreferencesPanel
+        self.material_panel = PreferencesPanel(self.window, allowed=lambda: not (
+            self.theme_busy or self.profile_busy or self.install_busy or self.external_installing or self.driver_busy),
+            on_busy=lambda busy: setattr(self, 'theme_busy', busy))
+        page.pack_start(self.material_panel, False, False, 0)
+        self.effect_choice = self.material_panel.effects
+        self.effect_apply = self.material_panel.apply_button
+        for title, action in (('Görünüm ve yazı tipleri', 'appearance'), ('Ekran ayarları', 'display'),
+                              ('Panel / widget / kısayol merkezi', None), ('Canlı CPU / RAM / ağ', 'monitor')):
             button = Gtk.Button(label=title)
+            command = ['/usr/local/bin/oguzdows-desktop'] + (['--control', action] if action else [])
             button.connect('clicked', lambda _button, value=command: self.launch(value))
             page.pack_start(button, False, False, 0)
         return page
@@ -649,9 +652,8 @@ class Welcome(Gtk.Application):
         effect = self.effect_choice.get_active_id()
         def work():
             try:
-                profiles.set_effects(effect)
-                message = effects.reconcile(effect)['message']
-            except (OSError, ValueError, RuntimeError, subprocess.SubprocessError) as error:
+                message = desktop_preferences.update_and_apply({'effects': effect})['message']
+            except (OSError, ValueError, RuntimeError, ImportError, subprocess.SubprocessError) as error:
                 message = 'Efekt değiştirilemedi: ' + str(error)
             def done():
                 self.theme_busy = False
@@ -662,6 +664,9 @@ class Welcome(Gtk.Application):
         threading.Thread(target=work, daemon=True).start()
 
     def reload_panels(self, *_):
+        if desktop_runtime.current() in ('gnome', 'kde'):
+            self.launch(['/usr/local/bin/oguzdows-desktop', '--control', 'panels'])
+            return
         if self.profile_busy or self.theme_busy or self.install_busy or self.external_installing or self.driver_busy:
             return
         dialog = Gtk.MessageDialog(transient_for=self.window, modal=True,
@@ -693,8 +698,8 @@ class Welcome(Gtk.Application):
         def work():
             error = None
             try:
-                profiles.set_appearance(mode)
-            except (OSError, ValueError, RuntimeError, subprocess.SubprocessError) as failure:
+                desktop_preferences.update_and_apply({'appearance': mode})
+            except (OSError, ValueError, RuntimeError, ImportError, subprocess.SubprocessError) as failure:
                 error = str(failure)
             GLib.idle_add(self.appearance_finished, mode, error)
         threading.Thread(target=work, daemon=True).start()
@@ -706,12 +711,12 @@ class Welcome(Gtk.Application):
         if error:
             self.theme_status.set_text('Tema değiştirilemedi: ' + error)
         else:
-            identifier, selected = profiles.selection()
-            active_theme = next(value for channel, key, _kind, value in profiles.settings(identifier, selected, profiles.effect_selection())
-                                if channel == 'xsettings' and key == '/Net/ThemeName')
-            Gtk.Settings.get_default().set_property('gtk-theme-name', active_theme)
-            Gtk.Settings.get_default().set_property('gtk-application-prefer-dark-theme', selected == 'dark')
-            self.theme_status.set_text(profiles.APPEARANCES[mode] + ' tema uygulandı. Tarzın ve panel yerleşimin korundu.')
+            # Tema XSettings / GSettings arka ucundan gelir. Elle sabit Xfce
+            # teması atayıp GNOME / Plasma veya renkli cam adını geri ezme.
+            Gtk.Settings.get_default().set_property('gtk-application-prefer-dark-theme', mode == 'dark')
+            if hasattr(self, 'material_panel'):
+                self.material_panel.appearance.set_active_id(mode)
+            self.theme_status.set_text(profiles.APPEARANCES[mode] + ' tema yerel masaüstüne uygulandı. Panel düzeni korundu.')
         return GLib.SOURCE_REMOVE
 
     def applications_page(self):
@@ -728,6 +733,8 @@ class Welcome(Gtk.Application):
         page.pack_start(self.card('Cihaz ve ARM merkezi', 'Pi Zero–5, diğer ARM kartları ve deneysel telefon katmanlarının gerçek sınırları.', 'oguzdows-device', lambda *_: self.launch(['/usr/local/bin/oguzdows-device'])), False, False, 0)
         page.pack_start(self.card('Çay Molası · Heybe · İmece', 'İstek üzerine yerel kültür ve paylaşım araçları.', 'oguzdows-imece', lambda *_: self.launch(['/usr/local/bin/oguzdows-imece'])), False, False, 0)
         page.pack_start(self.card('OğuzDows Haber', 'Hafif RSS / Atom okuyucu. Büyük yazı, çevrimdışı metin ve yalnızca istekle yenileme; webview yok.', 'oguzdows-news', lambda *_: self.launch(['/usr/local/bin/oguzdows-news'])), False, False, 0)
+        page.pack_start(self.card('OğuzDows Başlat ve Masaüstü Merkezi', 'Yerel uygulama araması, sabitlenenler ve gerçek masaüstünün panel / widget / kısayol araçları.', 'oguzdows-hub', lambda *_: self.launch(['/usr/local/bin/oguzdows-desktop'])), False, False, 0)
+        page.pack_start(self.card('Canlı Sistem İzleyici', 'CPU, RAM ve ağ grafikleri. Küçültünce / performans sekmesi gizlenince örnekleme durur.', 'oguzdows-monitor', lambda *_: self.launch(['/usr/local/bin/oguzdows-monitor'])), False, False, 0)
         page.pack_start(label('Mağaza, derlenen yerel GTK arayüzüdür. Sistem ve Flathub ayrı kaynaklardır; paketler plan ve açık onay olmadan kurulmaz. Açılışta mağaza servisi veya indirme çalışmaz.', 'muted', 75), False, False, 0)
         return page
 
@@ -746,6 +753,9 @@ class Welcome(Gtk.Application):
         return page
 
     def change_style(self, identifier):
+        if desktop_runtime.current() in ('gnome', 'kde'):
+            self.profile_status.set_text('Bu kartlar yalnız Xfce düzenidir. Etkin kabuğun kendi paneli için Masaüstü Merkezi’ni kullan; gerçek GNOME / Plasma paneli değiştirilmedi.')
+            return
         if self.profile_busy or self.theme_busy or self.install_busy or self.external_installing or self.driver_busy:
             return
         self.profile_busy = True
@@ -758,15 +768,18 @@ class Welcome(Gtk.Application):
                 if identifier is None:
                     # Önce yalnız bizim motoru bırak; en son tipli ilk ayarlar
                     # yüklensin. Geri alınan kişisel kompozitör tekrar ezilmez.
-                    effects.reconcile('off')
-                    profiles.restore()
+                    desktop_preferences.restore()
                 else:
                     profiles.apply(identifier)
-                    effects.reconcile()
+                    from desktop_state import config_path
+                    if config_path().exists():
+                        desktop_preferences.session()
+                    else:
+                        effects.reconcile()
                 if reload_now:
                     profiles.reload_panels()
                 message = 'İlk görünüm ayarların geri yüklendi.' if identifier is None else profiles.PROFILES[identifier]['name'] + (' uygulandı; paneller yenilendi.' if reload_now else ' kaydedildi; yeni iskele sonraki girişte yüklenir.')
-            except (OSError, ValueError, RuntimeError, subprocess.SubprocessError) as error:
+            except (OSError, ValueError, RuntimeError, ImportError, subprocess.SubprocessError) as error:
                 message = 'Görünüm değiştirilemedi: ' + str(error)
             GLib.idle_add(self.style_finished, message)
         threading.Thread(target=work, daemon=True).start()
@@ -801,19 +814,23 @@ class Welcome(Gtk.Application):
         grid.show_all()
 
     def apply_wallpaper(self, item):
+        if self.install_busy or self.external_installing or self.theme_busy or self.profile_busy or self.driver_busy:
+            return
+        self.theme_busy = True
         for button in self.wallpaper_buttons:
             button.set_sensitive(False)
         self.wallpaper_status.set_text("Duvar kâğıdı uygulanıyor…")
         def work():
             try:
-                wallpapers.apply(item["id"])
+                desktop_preferences.update_and_apply({'wallpaper': item['id']})
                 text = item["name"] + " uygulandı; seçimin kaydedildi."
-            except (OSError, ValueError, RuntimeError, subprocess.TimeoutExpired) as error:
+            except (OSError, ValueError, RuntimeError, ImportError, subprocess.SubprocessError) as error:
                 text = str(error)
             GLib.idle_add(self.wallpaper_finished, text)
         threading.Thread(target=work, daemon=True).start()
 
     def wallpaper_finished(self, text):
+        self.theme_busy = False
         self.wallpaper_status.set_text(text)
         if self.rifki:
             self.rifki.say(text)
@@ -891,13 +908,14 @@ class Welcome(Gtk.Application):
         return self.pc and is_live() and Path("/usr/local/sbin/oguzdows-installer").is_file()
 
     def install(self, *_):
-        if self.install_busy or self.external_installing or self.driver_busy:
+        if self.install_busy or self.external_installing or self.driver_busy or self.theme_busy or self.profile_busy:
             self.message("Başka bir işlem devam ediyor.", "Kurucu veya sürücü işlemi tamamlanana kadar bekle.")
             return GLib.SOURCE_REMOVE
         if not self.can_install():
             self.message("Kurulum canlı USB'den başlatılır.", "Canlı OğuzDows USB'siyle açıldığından emin ol.")
             return GLib.SOURCE_REMOVE
         self.install_busy = True
+        self.installing_action.set_state(GLib.Variant('b', True))
         self.stop_narration()
         self.previous_session = installer_state.read_status().get('session')
         self.install_data = {}
@@ -1049,7 +1067,7 @@ class Welcome(Gtk.Application):
             self.message("Uygulama başlatılamadı.", "Gerekli bileşenin kurulu olduğunu kontrol et.")
 
     def install_driver(self, action):
-        if self.driver_busy or self.report_loading or self.install_busy or self.external_installing:
+        if self.driver_busy or self.report_loading or self.install_busy or self.external_installing or self.theme_busy or self.profile_busy:
             return
         text = offline.license_text(action)
         if not text:
@@ -1085,6 +1103,7 @@ class Welcome(Gtk.Application):
         if answer != Gtk.ResponseType.OK or not agreed:
             return
         self.driver_busy = True
+        self.installing_action.set_state(GLib.Variant('b', True))
         self.broadcom_button.set_sensitive(False)
         self.intel_button.set_sensitive(False)
         self.refresh_button.set_sensitive(False)

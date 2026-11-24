@@ -45,7 +45,7 @@ class Desktops(Gtk.Application):
         self.window.set_default_size(650, 530)
         self.window.connect('delete-event', lambda *_: self.busy)
         box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=12, margin=20)
-        note = Gtk.Label(xalign=0, wrap=True, label='Xfce düzeni ≠ KDE Plasma / GNOME oturumu.\n\nmacOS ve Windows 11 esintili kartlar yalnızca Xfce düzenleridir. Gerçek Plasma / GNOME burada ayrıca kurulur ve sonraki girişte seçilir. Açık uygulamalar otomatik kapatılmaz.\n\nGerçek oturumlar: amd64 / ARM64, en az 2 GiB sınıfı cihaz; 4 GiB ve çalışan 3B sürücü önerilir. 600 MB hedefi bu oturumları kapsamaz. Pi Zero / armhf / 512 MiB / 1 GiB için hafif Xfce korunur.')
+        note = Gtk.Label(xalign=0, wrap=True, label='Xfce düzeni ≠ KDE Plasma / GNOME oturumu.\n\nmacOS ve Windows 11 esintili kartlar yalnızca Xfce düzenleridir. Gerçek Plasma / GNOME burada ayrıca kurulur ve sonraki girişte seçilir. Bu seçim açık uygulamaları kapatmaz. Ancak normal çıkışta uygulamalar kapanır; kaydedilmemiş belge belleği başka kabuğa taşınamaz. Önce kaydet. Ortak tema / renk / galeri tercihleri korunur; paneller ve kısayollar kabuğa özeldir.\n\nGerçek oturumlar: amd64 / ARM64, en az 2 GiB sınıfı cihaz; 4 GiB ve çalışan 3B sürücü önerilir. 600 MB hedefi bu oturumları kapsamaz. Pi Zero / armhf / 512 MiB / 1 GiB için hafif Xfce korunur.')
         note.set_max_width_chars(76)
         box.pack_start(note, False, False, 0)
         self.choice = Gtk.ComboBoxText()
@@ -105,7 +105,7 @@ class Desktops(Gtk.Application):
             except ValueError as error:
                 self.status.set_text(str(error))
                 return
-        if not self.confirm('Sonraki girişin gerçek oturumu değişsin mi?', 'Açık uygulamalar kapanmaz. Kaydet, sonra normal çıkış yap. Giriş ekranındaki oturum menüsünde bu tercihi doğrula. Sorunda OğuzDows / Xfce oturumuna dönebilirsin.'):
+        if not self.confirm('Sonraki girişin gerçek oturumu değişsin mi?', 'Bu düğme açık uygulamaları kapatmaz. Normal çıkışta uygulamalar kapanır: kaydet, sonra çıkış yap; kaydedilmemiş durum diğer kabuğa taşınamaz. Giriş ekranındaki oturum menüsünde bu tercihi doğrula. Sorunda OğuzDows / Xfce oturumuna dönebilirsin.'):
             return
         self.busy = True
         self.sensitive(False)

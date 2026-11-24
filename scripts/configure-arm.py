@@ -36,6 +36,7 @@ def configure(identifier, output):
             shutil.rmtree(path)
         else:
             path.unlink(missing_ok=True)
+    pi_config.SHARED.install_desktop_assets(overlay, 'trixie')
     info = {'schema': 1, 'platform': 'arm', 'arch': 'arm64', 'suite': 'trixie',
             'device_profile': identifier, 'status': 'experimental-overlay-not-boot-image'}
     (overlay / 'etc/oguzdows').mkdir(parents=True, exist_ok=True)
@@ -48,6 +49,8 @@ def configure(identifier, output):
     (overlay / 'usr/share/oguzdows/scripts').mkdir(parents=True, exist_ok=True)
     shutil.copy2(ROOT / 'scripts/build-native.sh', overlay / 'usr/share/oguzdows/scripts/build-native.sh')
     shutil.copy2(ROOT / 'scripts/build-news.sh', overlay / 'usr/share/oguzdows/scripts/build-news.sh')
+    shutil.copy2(ROOT / 'scripts/build-desktop.sh', overlay / 'usr/share/oguzdows/scripts/build-desktop.sh')
+    (overlay / 'usr/share/oguzdows/scripts/build-desktop.sh').chmod(0o755)
     (overlay / 'usr/share/oguzdows/scripts/build-news.sh').chmod(0o755)
     shutil.copy2(ROOT / 'scripts/render-assets.py', overlay / 'usr/lib/oguzdows/render-assets.py')
     shutil.copytree(ROOT / 'assets', overlay / 'usr/share/oguzdows/assets')

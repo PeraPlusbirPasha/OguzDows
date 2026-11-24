@@ -1,0 +1,13 @@
+[Desktop Entry]
+Name=OğuzDows Aero
+Comment=İsteğe bağlı yerel yay geçişleri; panel ve plasmoidler korunur
+Type=Service
+X-KDE-ServiceTypes=KWin/Effect
+X-KDE-PluginInfo-Name=oguzdows-aero
+X-KDE-PluginInfo-Version=1
+X-KDE-PluginInfo-License=GPL-3.0-or-later
+X-KDE-PluginInfo-EnabledByDefault=false
+X-KDE-Ordering=60
+X-Plasma-API=javascript
+X-Plasma-MainScript=code/main.js
+X-KWin-Exclusive-Category=toplevel-open-close-animation

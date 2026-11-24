@@ -1,0 +1,29 @@
+/* Native GTK 3; backdrop blur lives in Picom / Mutter / KWin, not CSS. */
+window.oguzdows-modern { background-color: #f3f6fb; color: #203249; }
+.oguzdows-modern headerbar { background-image: linear-gradient(to bottom, #ffffff, #ecf2fa); color: #203249; border-bottom: 1px solid #d7e0ec; }
+.oguzdows-modern .title { font-size: 23px; font-weight: 800; letter-spacing: -0.5px; }
+.oguzdows-modern .subtitle { color: #5b7088; font-size: 11px; }
+.oguzdows-modern .accent { color: #187e91; }
+.oguzdows-modern .metric { background-image: linear-gradient(to bottom right, #ffffff, #f0f6ff); border: 1px solid #d7e2ef; border-radius: 16px; padding: 14px; box-shadow: 0 2px 4px rgba(20,40,70,0.06), 0 8px 20px rgba(20,40,70,0.04), inset 0 1px rgba(255,255,255,0.9); }
+.oguzdows-modern .metric-value { font-size: 24px; font-weight: 800; }
+.oguzdows-modern button { border-radius: 10px; transition: background-color 140ms ease-out, border-color 140ms ease-out, box-shadow 140ms ease-out; }
+.oguzdows-modern .oguz-action { background-image: none; background-color: transparent; border: 1px solid transparent; padding: 12px 8px; box-shadow: none; color: inherit; }
+.oguzdows-modern .oguz-action:hover { background-color: #ffffff; border-color: #71bbd1; box-shadow: 0 5px 14px rgba(37,121,164,0.13), inset 0 1px rgba(255,255,255,0.9); }
+.oguzdows-modern .oguz-action:active { background-color: #daeaf6; box-shadow: inset 0 2px 4px rgba(20,40,70,0.16); }
+.oguzdows-modern .oguz-action:focus { border-color: #187e91; outline-width: 2px; }
+.oguzdows-modern entry { border-radius: 12px; min-height: 32px; padding: 4px 12px; }
+.oguzdows-modern popover, .oguzdows-modern menu { border-radius: 12px; padding: 6px; background-color: #f7faff; color: #203249; border: 1px solid #c2d4e8; box-shadow: 0 10px 24px rgba(14,32,59,0.18); }
+.oguzdows-modern .status-strip { background-color: #e5edf7; border-radius: 12px; padding: 8px 12px; }
+window.oguzdows-modern.oguzdows-dark { background-color: #111e2d; color: #ecf4ff; }
+.oguzdows-modern.oguzdows-dark headerbar { background-image: linear-gradient(to bottom, #23354a, #172738); color: #ecf4ff; border-color: #384e65; }
+.oguzdows-modern.oguzdows-dark .metric { background-image: linear-gradient(to bottom right, #203348, #16283b); border-color: #38526c; box-shadow: 0 3px 5px rgba(0,0,0,0.16), 0 10px 24px rgba(0,0,0,0.16), inset 0 1px rgba(255,255,255,0.06); }
+.oguzdows-modern.oguzdows-dark .subtitle { color: #a9bdd3; }
+.oguzdows-modern.oguzdows-dark .accent { color: #77d9e4; }
+.oguzdows-modern.oguzdows-dark .oguz-action:hover { background-color: #263d55; }
+.oguzdows-modern.oguzdows-dark .oguz-action:active { background-color: #304b65; }
+.oguzdows-modern.oguzdows-dark .status-strip { background-color: #203348; }
+/* Material alpha is limited to a compositor-confirmed bottom launcher.
+   Headers and the close button stay opaque; without a compositor no class. */
+window.oguzdows-modern.oguzdows-glass { background-color: rgba(237,246,255,0.88); }
+window.oguzdows-modern.oguzdows-dark.oguzdows-glass { background-color: rgba(20,37,55,0.90); }
+.oguzdows-modern.reduced-motion button { transition: none; }

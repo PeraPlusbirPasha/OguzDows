@@ -7,4 +7,9 @@ if [ "${OGUZDOWS_SESSION_PREPARED:-0}" != 1 ] && ! python3 /usr/lib/oguzdows/pro
 fi
 # Yalnızca ilk girişte uygula; sonraki girişler duvar kâğıdı seçimini korur.
 python3 /usr/lib/oguzdows/wallpapers.py --initialize
+# Tek sıralı uzlaştırıcı: profil / galeri ile iki autostart yarışıp cam
+# temasını veya kompozitör seçimini karşılıklı geri ezmez.
+if ! /usr/bin/python3 -I /usr/lib/oguzdows/desktop_center.py --effects-session; then
+    echo "OğuzDows ortak tercihleri uzlaştırılamadı; masaüstü oturumu korunuyor." >&2
+fi
 exit 0

@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schemalist>
+  <schema id="org.oguzdows.desktop" path="/org/oguzdows/desktop/">
+    <key name="glass-enabled" type="b"><default>false</default><summary>Explicit opt-in and resource-gated compositor backdrop blur</summary></key>
+    <key name="motion" type="s"><choices><choice value="reduced"/><choice value="smooth"/><choice value="spring"/></choices><default>'reduced'</default><summary>Motion policy; no idle animation loop</summary></key>
+    <key name="snap-animation" type="b"><default>false</default><summary>Explicit opt-in geometry animation</summary></key>
+    <key name="accent" type="s"><default>'#36b6c5'</default><summary>Validated six digit RGB tint</summary></key>
+    <key name="dark" type="b"><default>false</default><summary>Readable dark shell material</summary></key>
+  </schema>
+</schemalist>
