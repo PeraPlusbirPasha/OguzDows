@@ -50,7 +50,7 @@ def gtk_theme(preferences):
         if channel == 'xsettings' and key == '/Net/ThemeName')
 
 
-def apply_current(preferences, directory, resources, *, wallpaper=False, undo=None, previous=None):
+def apply_current(preferences, directory, resources, *, wallpaper=False, undo=None):
     desktop = runtime.current()
     budget = bool(resources['compositing'])
     notes = []
@@ -59,7 +59,7 @@ def apply_current(preferences, directory, resources, *, wallpaper=False, undo=No
         import effects
         import profiles
         import aero
-        old_preferences = dict(previous or state.load(), effects=profiles.effect_selection()) if undo is not None else None
+        checkpoint = effects.prepare_undo(resources) if undo is not None else None
         capability = (aero.probe() if budget and preferences['effects'] == 'aero' and
                       (preferences['blur'] or preferences['motion'] == 'spring') else None)
         planned = aero.plan(preferences, resources, capability)
@@ -72,9 +72,9 @@ def apply_current(preferences, directory, resources, *, wallpaper=False, undo=No
         if wallpaper and preferences['wallpaper']:
             import wallpapers
             wallpapers.apply_xfce(preferences['wallpaper'], undo=undo)
-        if undo is not None:
-            undo.append(lambda: effects.reconcile(old_preferences['effects'], resources, preferences=old_preferences))
-        result.update(effects.reconcile(preferences['effects'], resources, preferences=preferences, capability=capability))
+        if checkpoint is not None:
+            undo.append(checkpoint)
+        result.update(effects.reconcile(preferences['effects'], resources, preferences=preferences, capability=capability, checkpoint=checkpoint))
         if surface['blur'] and not result['blur_configured']:
             profiles.set_shared(dict(preferences, blur=False), resources=resources, surface_only=True, undo=undo)
     elif desktop == 'gnome':
@@ -156,8 +156,7 @@ def update_and_apply(changes, resources=None):
                      path: preferences}
         undo = []
         try:
-            result = apply_current(preferences, directory, resources, wallpaper='wallpaper' in changes,
-                                   undo=undo, previous=original)
+            result = apply_current(preferences, directory, resources, wallpaper='wallpaper' in changes, undo=undo)
             # Ortak tercih en son görünür olur. Önceki native DE değerleri
             # ortak varsayılanlarla tahmin edilmez: tam işlem kaydı geri alınır.
             for target, value in new_files.items():

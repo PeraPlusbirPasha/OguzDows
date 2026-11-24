@@ -104,6 +104,7 @@ jobs:
             python3 scripts/render-assets.py --root /
           gtk-update-icon-cache -f -t /usr/share/icons/hicolor
           cp system/usr/share/oguzdows/picom.conf /usr/share/oguzdows/picom.conf
+          cp -a system/usr/share/oguzdows/compositor /usr/share/oguzdows/
           python3 scripts/ci-run.py --title 'GTK arayüz kontrolü' -- \
             xvfb-run -a -s '-screen 0 1024x768x24' dbus-run-session -- \
             python3 tests/smoke-welcome.py --output test-results

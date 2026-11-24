@@ -16,6 +16,7 @@ import stat
 import subprocess
 import sys
 import time
+from contextlib import contextmanager
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
@@ -108,8 +109,8 @@ def owned_state(directory):
     return None
 
 
-def stop_owned(directory):
-    value = owned_state(directory)
+def stop_instance(value):
+    # Çağıran /proc kimliğini hemen önce doğrular; genel PID sinyali yok.
     if value:
         try:
             os.kill(value['pid'], signal.SIGTERM)
@@ -123,6 +124,10 @@ def stop_owned(directory):
             os.waitpid(value['pid'], os.WNOHANG)
         except ChildProcessError:
             pass
+
+
+def stop_owned(directory):
+    stop_instance(owned_state(directory))
     (directory / 'picom.json').unlink(missing_ok=True)
 
 
@@ -183,7 +188,132 @@ def spawn(directory, configuration=CONFIG):
         os.close(null)
 
 
-def reconcile(effect=None, resources=None, *, directory=None, connect=X11, preferences=None, capability=None):
+@contextmanager
+def locked(directory):
+    descriptor = os.open(directory / '.lock', os.O_WRONLY | os.O_CREAT | os.O_NOFOLLOW | os.O_NONBLOCK, 0o600)
+    with os.fdopen(descriptor, 'w') as lock:
+        if not stat.S_ISREG(os.fstat(lock.fileno()).st_mode):
+            raise ValueError('Efekt kilidi normal dosya olmalı.')
+        try:
+            fcntl.flock(lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
+        except BlockingIOError as error:
+            raise ValueError('Başka bir efekt işlemi devam ediyor; ikinci motor başlatılmadı.') from error
+        yield
+
+
+def xfwm_preference():
+    from profiles import read_property, run
+    value = read_property('xfwm4', '/general/use_compositing', 'bool', run)
+    if value not in (None, 'true', 'false'):
+        raise ValueError('Xfwm kompozitör tercihi güvenle yedeklenemedi.')
+    return value
+
+
+def restore_xfwm_preference(value):
+    from profiles import set_property, run
+    set_property('xfwm4', '/general/use_compositing', 'bool', value, run)
+    if xfwm_preference() != value:
+        raise RuntimeError('Xfwm kompozitör tercihi geri okunarak doğrulanamadı.')
+
+
+class RuntimeUndo:
+    """Tek işlem / sahiplik kanıtı. Eski ortak varsayılanlar tekrar uygulanmaz.
+
+    Picom yeniden açılacaksa yalnız önceden çalışan sabit reçete bir kez açılır;
+    PID aynılığı değil aynı sahipli motor / reçete geri yüklenir. Xfwm tercihinin
+    tam eski değeri profiles işlemi tarafından daha sonra geri alınır.
+    """
+    def __init__(self, directory, x11, resources, connect):
+        from desktop_state import read_json
+        self.directory, self.resources, self.connect = directory, resources, connect
+        current = owned_state(directory)
+        self.before = current if current and current['owner'] == x11.owner() else None
+        self.before_status = read_json(directory / 'status.json')
+        self.before_preference = xfwm_preference()
+        self.after_preference = self.before_preference
+        self.after = None
+        self.owner = x11.owner()
+        self.after_status = None
+        self.captured = False
+
+    def capture(self, x11, spawned=None):
+        from desktop_state import read_json
+        self.owner = x11.owner()
+        current = owned_state(self.directory)
+        if spawned and identity(spawned['pid']) == spawned['started'] and spawned['owner'] == self.owner:
+            current = spawned  # Metadata yazımı arızalı olsa da bu çocuğun kanıtı var.
+        self.after = current if current and current['owner'] == self.owner else None
+        self.after_preference = xfwm_preference()
+        self.captured = True
+        self.after_status = read_json(self.directory / 'status.json')
+
+    def __call__(self):
+        if not self.captured:
+            return
+        from desktop_state import read_json, atomic_json
+        directory = self.directory
+        with locked(directory):
+            x11 = self.connect()
+            try:
+                # Araya başka bir kompozitör / işlem girdiyse ona dokunma.
+                if x11.owner() != self.owner or xfwm_preference() != self.after_preference:
+                    return
+                expected_preference = self.after_preference
+                if self.after and identity(self.after['pid']) != self.after['started']:
+                    return
+                before_config = Path(self.before.get('config', CONFIG)) if self.before else None
+                after_config = Path(self.after.get('config', CONFIG)) if self.after else None
+                if before_config != after_config:
+                    if self.after:
+                        stop_instance(self.after)
+                        if owned_state(directory) == self.after:
+                            (directory / 'picom.json').unlink(missing_ok=True)
+                        if wait_owner(x11, 0) != 0:
+                            raise RuntimeError('İşlemin Picom motoru henüz durmadı; ikinci motor açılmadı.')
+                    if self.before:
+                        if not self.resources['compositing']:
+                            raise RuntimeError('Eski Picom düşük kaynak koruması nedeniyle yeniden açılmadı.')
+                        if before_config not in CONFIGS:
+                            raise ValueError('Geri alınacak motor reçetesi izin listesinde değil.')
+                        if x11.owner() == x11.wm_owner():
+                            xfwm(False)
+                            expected_preference = 'false'
+                        if wait_owner(x11, 0) != 0:
+                            raise RuntimeError('Geri alma sırasında başka kompozitör korunuyor.')
+                        pid = spawn(directory, before_config)
+                        started = identity(pid)
+                        owner = wait_owner(x11, None)
+                        if not started or not owner:
+                            if started: stop_instance({'pid': pid, 'started': started})
+                            raise RuntimeError('Önceki Picom reçetesi geri açılamadı.')
+                        restored = dict(self.before, pid=pid, started=started, owner=owner)
+                        try:
+                            atomic_text(directory / 'picom.json', json.dumps(restored) + '\n')
+                        except OSError:
+                            stop_instance(restored)
+                            raise
+                if xfwm_preference() == expected_preference:
+                    restore_xfwm_preference(self.before_preference)
+                if read_json(directory / 'status.json') == self.after_status:
+                    if self.before_status is None:
+                        (directory / 'status.json').unlink(missing_ok=True)
+                    else:
+                        atomic_json(directory / 'status.json', self.before_status)
+            finally:
+                x11.close()
+
+
+def prepare_undo(resources, *, directory=None, connect=X11):
+    directory = state_directory() if directory is None else Path(directory)
+    with locked(directory):
+        x11 = connect()
+        try:
+            return RuntimeUndo(directory, x11, resources, connect)
+        finally:
+            x11.close()
+
+
+def reconcile(effect=None, resources=None, *, directory=None, connect=X11, preferences=None, capability=None, checkpoint=None):
     if effect is None:
         # İlk giriş / kişisel xfwm ayarı: kullanıcı tercih etmeden kapatma.
         if read_state(profile_directory(), 'effects') not in ('off', 'glass', 'aero'):
@@ -204,15 +334,9 @@ def reconcile(effect=None, resources=None, *, directory=None, connect=X11, prefe
     plan = aero_plan(preferences, resources, capability)
     configuration = plan['config']
     directory = state_directory() if directory is None else Path(directory)
-    descriptor = os.open(directory / '.lock', os.O_WRONLY | os.O_CREAT | os.O_NOFOLLOW | os.O_NONBLOCK, 0o600)
-    with os.fdopen(descriptor, 'w') as lock:
-        if not stat.S_ISREG(os.fstat(lock.fileno()).st_mode):
-            raise ValueError('Efekt kilidi normal dosya olmalı.')
-        try:
-            fcntl.flock(lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
-        except BlockingIOError as error:
-            raise ValueError('Başka bir efekt işlemi devam ediyor; ikinci motor başlatılmadı.') from error
+    with locked(directory):
         x11 = connect()
+        spawned = None
         try:
             current = owned_state(directory)
             if effect != 'aero' or not budget:
@@ -261,6 +385,7 @@ def reconcile(effect=None, resources=None, *, directory=None, connect=X11, prefe
                             value = {'pid': pid, 'started': started, 'owner': owner}
                             if candidate != CONFIG:
                                 value['config'] = str(candidate)
+                            spawned = value
                             atomic_text(directory / 'picom.json', json.dumps(value) + '\n')
                             configuration = candidate
                             break
@@ -290,7 +415,11 @@ def reconcile(effect=None, resources=None, *, directory=None, connect=X11, prefe
             atomic_text(directory / 'status.json', json.dumps({**result, 'physical_gpu_verified': False}, ensure_ascii=False) + '\n')
             return result
         finally:
-            x11.close()
+            try:
+                if checkpoint is not None:
+                    checkpoint.capture(x11, spawned)
+            finally:
+                x11.close()
 
 
 def main():

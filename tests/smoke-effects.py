@@ -53,6 +53,40 @@ def child(directory):
             second = effects.reconcile('aero', full)
             assert second['engine'] == 'picom' and effects.owned_state(state)['pid'] == owned['pid']
             report['one_owned_engine_reused'] = True
+            # Gerçek xfconf + süreç değişikliği, yalnız son JSON commit arızası
+            # taklittir. Başarısız yeni still reçetesi kapanıp daha önce gerçekten
+            # çalışan XRender reçetesi geri açılır; ortak varsayılan tahmini yok.
+            import desktop_preferences as shared
+            import desktop_state as shared_state
+            import profiles as shared_profiles
+            from unittest.mock import patch
+            def native_values():
+                return {(channel, key): shared_profiles.read_property(channel, key, kind, shared_profiles.run)
+                        for channel, key, kind, _value in shared_profiles.settings('oguzdows', resources=full)}
+            before_native = native_values()
+            before_config = shared_state.read_json(shared_state.config_path())
+            before_status = shared_state.read_json(state / 'status.json')
+            previous_recipe = owned.get('config', str(effects.CONFIG))
+            atomic = shared_state.atomic_json
+            def fail_commit(path, value):
+                if Path(path) == shared_state.config_path():
+                    raise OSError('CI simulated final preference commit failure')
+                atomic(path, value)
+            with patch.object(shared_state, 'atomic_json', side_effect=fail_commit):
+                try:
+                    shared.update_and_apply({'effects': 'aero', 'motion': 'reduced', 'blur': False}, full)
+                except OSError:
+                    pass
+                else:
+                    raise AssertionError('Preference commit failure was reported as success')
+            restored = effects.owned_state(state)
+            assert restored and restored.get('config', str(effects.CONFIG)) == previous_recipe, restored
+            assert restored['pid'] != owned['pid'] and effects.identity(restored['pid']) == restored['started']
+            assert native_values() == before_native
+            assert shared_state.read_json(shared_state.config_path()) == before_config
+            assert shared_state.read_json(state / 'status.json') == before_status
+            report['real_engine_and_xfconf_rollback_after_simulated_commit_failure'] = True
+            owned = restored
             # Gerçek pencere aç / küçült / geri getir. Piksel-zaman benchmark'ı değil.
             window = Gtk.Window(title='OğuzDows · kısa geçiş denetimi')
             window.set_default_size(480, 260)
@@ -152,7 +186,7 @@ def main():
             for path in [directory, *directory.rglob('*')]: os.chown(path, 65534, 65534, follow_symlinks=False)
             command = ['/usr/bin/setpriv', '--reuid=65534', '--regid=65534', '--clear-groups', *command]
         try:
-            subprocess.run(command, env=env, check=True, timeout=40)
+            subprocess.run(command, env=env, check=True, timeout=60)
         finally:
             key = hashlib.sha256(env['DISPLAY'].encode()).hexdigest()[:16]
             state = home / '.local/state/oguzdows/effects' / key

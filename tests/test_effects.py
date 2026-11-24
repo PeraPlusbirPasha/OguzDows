@@ -154,6 +154,53 @@ class EffectTests(unittest.TestCase):
             effects.stop_owned(Path(temporary))
             kill.assert_called_once_with(12345, signal.SIGTERM)
 
+    def test_runtime_undo_stops_only_transaction_engine_and_restores_exact_native_preference(self):
+        current = {'value': None}; owner = {'value': 0}; preference = {'value': None}
+        def stop(_instance): owner['value'] = 0
+        def restore(value): preference['value'] = value
+        x11 = Mock(owner=lambda: owner['value'], wm_owner=lambda: 77)
+        with tempfile.TemporaryDirectory() as temporary, patch.object(effects, 'owned_state', side_effect=lambda _path: current['value']), patch.object(effects, 'xfwm_preference', side_effect=lambda: preference['value']), patch.object(effects, 'restore_xfwm_preference', side_effect=restore) as native, patch.object(effects, 'identity', return_value='new'), patch.object(effects, 'stop_instance', side_effect=stop) as stopped, patch.object(effects, 'wait_owner', return_value=0), patch.object(effects, 'spawn') as spawn:
+            directory = Path(temporary)
+            checkpoint = effects.prepare_undo(policy.policy(8388608), directory=directory, connect=lambda: x11)
+            current['value'] = {'pid': 32145, 'started': 'new', 'owner': 88}
+            owner['value'] = 88; preference['value'] = 'false'
+            (directory / 'picom.json').write_text(json.dumps(current['value']))
+            (directory / 'status.json').write_text(json.dumps({'engine': 'picom'}))
+            checkpoint.capture(x11)
+            checkpoint()
+            stopped.assert_called_once_with(current['value']); spawn.assert_not_called()
+            native.assert_called_once_with(None)
+            self.assertIsNone(preference['value'])
+            self.assertFalse((directory / 'picom.json').exists()); self.assertFalse((directory / 'status.json').exists())
+
+    def test_runtime_undo_preserves_replaced_compositor_reused_pid_or_external_native_preference(self):
+        for external in ('owner', 'pid', 'preference'):
+            with self.subTest(external=external), tempfile.TemporaryDirectory() as temporary, patch.object(effects, 'owned_state', return_value=None), patch.object(effects, 'xfwm_preference', return_value='false') as preference, patch.object(effects, 'restore_xfwm_preference') as native, patch.object(effects, 'identity', return_value='started') as identity, patch.object(effects, 'stop_instance') as stop, patch.object(effects, 'spawn') as spawn:
+                x11 = Mock(owner=Mock(return_value=88), wm_owner=Mock(return_value=77))
+                checkpoint = effects.RuntimeUndo(Path(temporary), x11, policy.policy(8388608), lambda: x11)
+                checkpoint.capture(x11, {'pid': 32145, 'started': 'started', 'owner': 88})
+                if external == 'owner': x11.owner.return_value = 99
+                elif external == 'pid': identity.return_value = 'reused'
+                else: preference.return_value = 'true'
+                checkpoint()
+                stop.assert_not_called(); spawn.assert_not_called(); native.assert_not_called()
+
+    def test_runtime_undo_restores_previously_running_recipe_not_guessed_common_defaults(self):
+        old = {'pid': 32145, 'started': 'old', 'owner': 77, 'config': str(effects.CONFIG.parent / 'compositor/still.conf')}
+        new = {'pid': 32146, 'started': 'new', 'owner': 88}
+        current = {'value': old}; owner = {'value': 77}
+        def stop(_instance): current['value'] = None; owner['value'] = 0
+        x11 = Mock(owner=lambda: owner['value'], wm_owner=lambda: 76)
+        with tempfile.TemporaryDirectory() as temporary, patch.object(effects, 'owned_state', side_effect=lambda _path: current['value']), patch.object(effects, 'xfwm_preference', return_value='false'), patch.object(effects, 'restore_xfwm_preference'), patch.object(effects, 'stop_instance', side_effect=stop), patch.object(effects, 'identity', side_effect=lambda pid: 'new' if pid == 32146 else 'restored'), patch.object(effects, 'wait_owner', side_effect=[0, 0, 99]), patch.object(effects, 'spawn', return_value=32147) as spawn:
+            directory = Path(temporary)
+            checkpoint = effects.prepare_undo(policy.policy(8388608), directory=directory, connect=lambda: x11)
+            current['value'] = new; owner['value'] = 88
+            checkpoint.capture(x11)
+            checkpoint()
+            spawn.assert_called_once_with(directory, Path(old['config']))
+            restored = json.loads((directory / 'picom.json').read_text())
+            self.assertEqual(restored, dict(old, pid=32147, started='restored', owner=99))
+
     def test_spawn_uses_absolute_argv_and_log_not_shell_daemon_or_user_config(self):
         with tempfile.TemporaryDirectory() as temporary, patch.object(effects.os, 'posix_spawn', return_value=12345) as spawn:
             self.assertEqual(effects.spawn(Path(temporary)), 12345)
