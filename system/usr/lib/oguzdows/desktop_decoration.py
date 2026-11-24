@@ -16,7 +16,7 @@ from profiles import atomic_text
 
 def available(major, root=Path('/usr/lib')):
     # KPlugin kimliği aynı kalsa da .so adı / namespace ABI ile değişir.
-    # Debian bunu ayrı, hayalî bir aurorae paketinde değil kwin-common'da taşır.
+    # Hedef taban bunu ayrı bir aurorae paketinde değil kwin-common'da taşır.
     if major == 5:
         relative = 'qt5/plugins/org.kde.kdecoration2/kwin5_aurorae.so'
     elif major == 6:

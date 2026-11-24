@@ -56,10 +56,14 @@ def child(directory, binaries, appearance):
         data = json.loads((directory / (target + '.json')).read_text())
         assert data['native'] is True, data
         from PIL import Image
+        screen = Gdk.Screen.get_default()
+        # Gdk yüzeyi GTK'nın CSD gölgesini de taşır. Ekrana sığması gereken
+        # gerçek başlık + istemci boyutunu GtkWindow API'sinden ölçeriz.
+        assert data['window_width'] <= screen.get_width(), (target, data)
+        assert data['window_height'] <= screen.get_height(), (target, data)
         with Image.open(directory / (target + '.png')) as image:
-            assert image.width <= Gdk.Screen.get_default().get_width(), (target, image.size)
-            assert image.height <= Gdk.Screen.get_default().get_height(), (target, image.size)
-            data['window_size'] = list(image.size)
+            assert image.width >= data['window_width'] and image.height >= data['window_height']
+            data['surface_including_csd_shadow'] = list(image.size)
         report[target] = data
     # Gerçek bellek GSettings arka ucu: başka uzantı üyelikleri korunur.
     shell = Gio.Settings.new('org.gnome.shell')

@@ -120,6 +120,11 @@ def child(directory):
                 report['recipes'][name]['native_ewmh_snap_requests'] = True
             assert compositor.poll() is None
             stop(compositor); compositor = None; wait_owner(x11, False)
+    except Exception:
+        for path in directory.glob('*.log'):
+            text = path.read_text(errors='replace')[-2400:]
+            print('::error title=Picom ' + path.stem + '::' + text.replace('%', '%25').replace('\n', '%0A'), flush=True)
+        raise
     finally:
         front.destroy(); background.destroy()
         stop(compositor); stop(wm)

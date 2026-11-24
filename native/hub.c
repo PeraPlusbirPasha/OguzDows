@@ -273,7 +273,8 @@ static gboolean smoke_finish(gpointer data) {
     GtkFlowBoxChild *first = gtk_flow_box_get_child_at_index(GTK_FLOW_BOX(flow), 0);
     g_assert_nonnull(first);
     gchar *path = g_build_filename(smoke_directory, "hub.json", NULL);
-    gchar *json = g_strdup_printf("{\"schema\":1,\"native\":true,\"app_count\":%u,\"unicode_search\":true,\"no_apps_launched\":true,\"physical_device_verified\":false}\n", apps->len);
+    gint width, height; gtk_window_get_size(GTK_WINDOW(window), &width, &height);
+    gchar *json = g_strdup_printf("{\"schema\":1,\"native\":true,\"app_count\":%u,\"unicode_search\":true,\"no_apps_launched\":true,\"window_width\":%d,\"window_height\":%d,\"physical_device_verified\":false}\n", apps->len, width, height);
     g_file_set_contents(path, json, -1, NULL); g_free(path); g_free(json);
     GdkWindow *surface = gtk_widget_get_window(window);
     GdkPixbuf *capture = gdk_pixbuf_get_from_window(surface, 0, 0, gdk_window_get_width(surface), gdk_window_get_height(surface));

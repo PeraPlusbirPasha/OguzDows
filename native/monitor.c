@@ -252,7 +252,8 @@ static gboolean smoke_finish(gpointer data) {
     paused = FALSE; minimized = TRUE; scheduling(); g_assert_cmpuint(timer, ==, 0);
     minimized = FALSE; obscured = TRUE; scheduling(); g_assert_cmpuint(timer, ==, 0);
     obscured = FALSE; scheduling();
-    gchar *result = g_strdup_printf("{\"schema\":1,\"native\":true,\"samples\":%u,\"history_limit\":90,\"hidden_sampling_stops\":true,\"source\":\"/proc\",\"physical_device_verified\":false}\n", samples);
+    gint width, height; gtk_window_get_size(GTK_WINDOW(window), &width, &height);
+    gchar *result = g_strdup_printf("{\"schema\":1,\"native\":true,\"samples\":%u,\"history_limit\":90,\"hidden_sampling_stops\":true,\"source\":\"/proc\",\"window_width\":%d,\"window_height\":%d,\"physical_device_verified\":false}\n", samples, width, height);
     gchar *path = g_build_filename(smoke_directory, "monitor.json", NULL);
     g_file_set_contents(path, result, -1, NULL); g_free(path); g_free(result);
     GdkWindow *surface = gtk_widget_get_window(window);
@@ -290,6 +291,7 @@ static void activate(GtkApplication *application, gpointer data) {
     GtkWidget *box = gtk_box_new(GTK_ORIENTATION_VERTICAL, 16); gtk_container_set_border_width(GTK_CONTAINER(box), 18);
     gtk_container_add(GTK_CONTAINER(window), box);
     pages = gtk_stack_new(); gtk_stack_set_transition_type(GTK_STACK(pages), GTK_STACK_TRANSITION_TYPE_NONE);
+    gtk_stack_set_hhomogeneous(GTK_STACK(pages), FALSE);
     GtkWidget *switcher = gtk_stack_switcher_new(); gtk_stack_switcher_set_stack(GTK_STACK_SWITCHER(switcher), GTK_STACK(pages));
     gtk_box_pack_start(GTK_BOX(box), switcher, FALSE, FALSE, 0);
     GtkWidget *overview = gtk_box_new(GTK_ORIENTATION_VERTICAL, 14);

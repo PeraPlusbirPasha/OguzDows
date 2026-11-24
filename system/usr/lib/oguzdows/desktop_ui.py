@@ -28,6 +28,10 @@ class PreferencesPanel(Gtk.Box):
         self.parent_window, self.allowed, self.on_busy = parent, allowed, on_busy
         self.busy, self.closed = False, False
         self.connect('destroy', lambda *_: setattr(self, 'closed', True))
+        if parent is not None:
+            # Gtk.ScrolledWindow Python tarafında çocuk referansını tutabilir;
+            # üst pencere yok edildikten sonra yeni işçi başlatmak yine yasak.
+            parent.connect('destroy', lambda *_: setattr(self, 'closed', True))
         self.pack_start(note('Aero · ortak tercihler', True), False, False, 0)
         self.pack_start(note('Xfce, GNOME ve Plasma arasında renk / tema / duvar kâğıdı seçimi ortak; her kabuğun paneli, widget düzeni ve kısayolları kendi yerinde kalır. Yeni efektler kendiliğinden açılmaz.'), False, False, 0)
         try:

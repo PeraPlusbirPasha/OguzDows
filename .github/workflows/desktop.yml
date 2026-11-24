@@ -136,8 +136,8 @@ jobs:
             mesa-utils libgl1-mesa-dri x11-xserver-utils
           case '${{ matrix.desktop }}:${{ matrix.suite }}' in
             gnome:*) apt-get install -y --no-install-recommends gnome-shell ;;
-            kde:bookworm) apt-get install -y --no-install-recommends plasma-desktop plasma-workspace kwin-x11 kwin-common breeze plasma-integration libkf5config-bin python3-pyqt5 ;;
-            kde:trixie) apt-get install -y --no-install-recommends plasma-desktop plasma-workspace kwin-x11 kwin-common breeze plasma-integration libkf6config-bin python3-pyqt6 ;;
+            kde:bookworm) apt-get install -y --no-install-recommends plasma-desktop plasma-workspace kwin-x11 kwin-common breeze plasma-integration libkf5config-bin libkf5globalaccel-bin python3-pyqt5 ;;
+            kde:trixie) apt-get install -y --no-install-recommends plasma-desktop plasma-workspace kwin-x11 kwin-common breeze plasma-integration libkf6config-bin kglobalacceld python3-pyqt6 ;;
           esac
       - name: Yerel kaynakları yerleştir (üretim hesabı / imaj / Release yok)
         run: |

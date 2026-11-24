@@ -36,6 +36,7 @@ def child(directory, desktop):
     processes = []
     qt = None
     report = {'scope': 'private-nonroot-real-shell-X11-software-GPU', 'desktop': desktop,
+              'system_bus': 'private-empty-bus-no-logind-no-hardware-services',
               'physical_device_verified': False, 'wayland_verified': False,
               'performance_benchmark': False, 'resource_budget_simulated': True}
 
@@ -54,8 +55,8 @@ def child(directory, desktop):
             try:
                 value = predicate()
                 if value: return value
-            except (RuntimeError, IndexError):
-                pass
+            except (RuntimeError, IndexError, ValueError):
+                pass  # İlk masaüstü henüz yaratılmadıysa boş katalog geçicidir.
             pump(.12)
         raise AssertionError('Yerel kabuk API yanıtı / geçişi süre sınırında tamamlanmadı')
 
@@ -93,6 +94,12 @@ def child(directory, desktop):
             assert decoration.available(backend.major), 'Hedef ABI Aurorae kütüphanesi bulunamadı'
             start(['/usr/bin/kwin_x11'], 'kwin')
             wait(lambda: owner('org.kde.KWin'))
+            # Normal Plasma girişinde oturum yöneticisi bunu önce hazırlar.
+            # Yalnız bu özel test bus'ında açıkça başlat; kabuk başlangıç
+            # yarışını üretim backend'inin NO_AUTO_START kapısına yükleme.
+            runtime.dbus('org.freedesktop.DBus', '/org/freedesktop/DBus', 'org.freedesktop.DBus',
+                         'StartServiceByName', '(su)', ('org.kde.ActivityManager', 0))
+            wait(lambda: owner('org.kde.ActivityManager'))
             start(['/usr/bin/plasmashell'], 'plasmashell')
             wait(lambda: owner('org.kde.plasmashell'))
             wait(lambda: plasma.wallpaper_state())
@@ -213,12 +220,30 @@ def main():
             GDK_BACKEND='x11', LIBGL_ALWAYS_SOFTWARE='1', NO_AT_BRIDGE='1',
             QT_QPA_PLATFORM='xcb', QT_QPA_PLATFORMTHEME='kde', QT_QUICK_BACKEND='software',
             KWIN_COMPOSE='O2', KWIN_X11_NO_SYNC_TO_VBLANK='1')
+        address = 'unix:path=' + str(directory / 'system-bus')
+        configuration = directory / 'system-bus.conf'
+        configuration.write_text('<busconfig><type>system</type><auth>EXTERNAL</auth><listen>' + address +
+            '</listen><policy context="default"><allow user="*"/><allow own="*"/>'
+            '<allow send_destination="*"/><allow receive_sender="*"/></policy></busconfig>')
+        env['DBUS_SYSTEM_BUS_ADDRESS'] = address
         command = ['/usr/bin/dbus-run-session', '--', sys.executable, str(ROOT / 'tests/smoke-shells.py'), '--desktop', args.desktop, '--child', str(directory)]
+        bus_command = ['/usr/bin/dbus-daemon', '--nofork', '--config-file=' + str(configuration)]
         if os.getuid() == 0:
             for path in [directory, *directory.rglob('*')]: os.chown(path, 65534, 65534, follow_symlinks=False)
-            command = ['/usr/bin/setpriv', '--reuid=65534', '--regid=65534', '--clear-groups', *command]
-        try: subprocess.run(command, env=env, check=True, timeout=150)
+            privilege = ['/usr/bin/setpriv', '--reuid=65534', '--regid=65534', '--clear-groups']
+            command = [*privilege, *command]; bus_command = [*privilege, *bus_command]
+        with (directory / 'private-system-bus.log').open('w') as log:
+            system_bus = subprocess.Popen(bus_command, env=env, stdout=log, stderr=subprocess.STDOUT, start_new_session=True)
+        try:
+            deadline = time.monotonic() + 5
+            while not (directory / 'system-bus').exists():
+                if system_bus.poll() is not None or time.monotonic() >= deadline:
+                    raise RuntimeError('Özel test sistem bus adresi açılamadı.')
+                time.sleep(.01)
+            subprocess.run(command, env=env, check=True, timeout=150)
         finally:
+            if system_bus.poll() is None:
+                os.killpg(system_bus.pid, signal.SIGTERM); system_bus.wait(timeout=5)
             for path in directory.iterdir():
                 if path.is_file() and path.suffix in ('.png', '.json', '.log'): shutil.copy2(path, output / path.name)
 
