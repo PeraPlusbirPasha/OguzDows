@@ -41,10 +41,11 @@ jobs:
         run: |
           apt-get update
           apt-get install -y --no-install-recommends build-essential pkg-config libgtk-3-dev libjson-glib-dev \
-            python3 python3-gi python3-pil python3-yaml python3-pyflakes python3-cairo \
+            python3 python3-gi python3-gi-cairo python3-pil python3-yaml python3-pyflakes python3-cairo \
             gir1.2-gtk-3.0 libglib2.0-bin gsettings-desktop-schemas gnome-shell-common \
             breeze xauth xvfb dbus-x11 fonts-dejavu-core librsvg2-common adwaita-icon-theme \
-            shared-mime-info desktop-file-utils shellcheck nodejs
+            shared-mime-info desktop-file-utils shellcheck nodejs \
+            xfconf xfwm4 picom mesa-utils libgl1-mesa-dri x11-xserver-utils
           case '${{ matrix.suite }}' in
             bookworm) apt-get install -y --no-install-recommends libkf5config-bin ;;
             trixie) apt-get install -y --no-install-recommends libkf6config-bin ;;
@@ -52,9 +53,10 @@ jobs:
       - name: Kaynak, JSON / şema ve ABI yükleyicileri
         run: |
           python3 -m pyflakes system/usr/lib/oguzdows/desktop_*.py \
-            system/usr/lib/oguzdows/aero.py tests/test_desktop_*.py tests/smoke-desktop.py \
+            system/usr/lib/oguzdows/aero.py tests/test_desktop_*.py tests/smoke-desktop.py tests/smoke-aero.py \
             scripts/install-desktop-assets.py
-          python3 -W error::ResourceWarning -m unittest discover -s tests -p 'test_desktop_*.py' -v
+          python3 scripts/ci-run.py --title 'Yerel masaüstü birim testleri' -- \
+            python3 -W error::ResourceWarning -m unittest discover -s tests -p 'test_desktop_*.py' -v
           shellcheck scripts/build-desktop.sh system/usr/lib/oguzdows/session.sh
           node --check system/usr/share/oguzdows/gnome/core.js
           node --check system/usr/share/kwin/effects/oguzdows-aero/contents/code/main.js
@@ -67,24 +69,35 @@ jobs:
         shell: bash
         run: |
           mkdir -p test-results/bin
+          result=0
           for component in monitor hub; do
-            sh scripts/build-desktop.sh "$component" "test-results/bin/$component"
-            sh scripts/build-desktop.sh "$component" "test-results/bin/$component-test" --test
-            "test-results/bin/$component" --version
+            python3 scripts/ci-run.py --title "C $component · ${{ matrix.suite }}" -- \
+              sh scripts/build-desktop.sh "$component" "test-results/bin/$component" || result=1
+            python3 scripts/ci-run.py --title "C $component test · ${{ matrix.suite }}" -- \
+              sh scripts/build-desktop.sh "$component" "test-results/bin/$component-test" --test || result=1
+            if test -x "test-results/bin/$component"; then "test-results/bin/$component" --version; fi
           done
+          exit "$result"
       - name: Çevrimdışı görseller ve gerçek GTK (özel normal kullanıcı, fiziksel GPU değil)
         shell: bash
         run: |
           cp -a system/usr/share/themes/. /usr/share/themes/
-          python3 scripts/render-assets.py --root /
+          python3 scripts/ci-run.py --title 'Yerel cam materyalleri' -- python3 scripts/render-assets.py --root /
           cp system/usr/share/applications/oguzdows-{desktop,hub,monitor}.desktop /usr/share/applications/
           gtk-update-icon-cache -f -t /usr/share/icons/hicolor
           for spec in '1024x768 light' '360x800 dark'; do
             read -r screen appearance <<< "$spec"
-            xvfb-run -a -s "-screen 0 ${screen}x24 -nolisten tcp" \
+            python3 scripts/ci-run.py --title "Yerel GTK ve ayar API $screen · ${{ matrix.suite }}" -- \
+              xvfb-run -a -s "-screen 0 ${screen}x24 -nolisten tcp" \
               python3 tests/smoke-desktop.py --binaries test-results/bin \
               --appearance "$appearance" --output "test-results/desktop-$screen"
           done
+      - name: Gerçek Picom parser / GLX shader / ARGB arkaplan blur (yazılım GPU'su)
+        run: |
+          cp -a system/usr/share/oguzdows/compositor /usr/share/oguzdows/
+          python3 scripts/ci-run.py --title 'Picom GLX gerçek blur · ${{ matrix.suite }}' -- \
+            xvfb-run -a -s '-screen 0 1024x768x24 -nolisten tcp +extension GLX +extension COMPOSITE' \
+            python3 tests/smoke-aero.py --output test-results/desktop-aero
       - uses: actions/upload-artifact@v4
         if: always()
         with:

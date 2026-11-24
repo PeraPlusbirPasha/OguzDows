@@ -42,13 +42,13 @@ class AeroPlanTests(unittest.TestCase):
     def test_glx_and_version_gates_select_only_fixed_supported_recipes(self):
         cases = [({'major': 12, 'accelerated': False}, {}, 'picom.conf', False, False),
                  ({'major': 8, 'accelerated': True}, {}, 'picom.conf', False, False),
-                 ({'major': 9, 'accelerated': True}, {}, 'blur.conf', True, False),
+                 ({'major': 9, 'accelerated': True}, {}, 'blur9.conf', True, False),
                  ({'major': 11, 'accelerated': True}, {'snap_animation': True}, 'blur.conf', True, False),
                  ({'major': 12, 'accelerated': True}, {}, 'full.conf', True, True),
                  ({'major': 12, 'accelerated': True}, {'snap_animation': True}, 'full-snap.conf', True, True),
                  ({'major': 12, 'accelerated': True}, {'blur': False}, 'motion.conf', False, True),
                  ({'major': 12, 'accelerated': True}, {'blur': False, 'snap_animation': True}, 'snap.conf', False, True),
-                 ({'major': 9, 'accelerated': True}, {'motion': 'reduced'}, 'blur-still.conf', True, False)]
+                 ({'major': 9, 'accelerated': True}, {'motion': 'reduced'}, 'blur9-still.conf', True, False)]
         for capability, extra, filename, blur, spring in cases:
             with self.subTest(capability=capability, extra=extra):
                 result = aero.plan(self.prefs(**extra), policy(8388608), capability)
@@ -80,7 +80,7 @@ class AeroPlanTests(unittest.TestCase):
             self.assertIn("window_type = 'dock'\"; shadow = false; fade = false", text)
             self.assertEqual('triggers = [ "geometry" ]' in text, name in ('snap', 'full-snap'))
             self.assertIn('user-response', text); self.assertNotIn('eval(', text)
-        for name in ('blur', 'blur-still', 'still'):
+        for name in ('blur', 'blur-still', 'blur9', 'blur9-still', 'still'):
             text = (ROOT / 'system/usr/share/oguzdows/compositor' / (name + '.conf')).read_text()
             self.assertNotIn('animations =', text); self.assertNotIn('window_shader', text)
 

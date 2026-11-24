@@ -8,7 +8,7 @@ from pathlib import Path
 
 BASE = Path('/usr/share/oguzdows/picom.conf')
 ROOT = BASE.parent / 'compositor'
-CONFIGS = {BASE, *(ROOT / (name + '.conf') for name in ('blur', 'blur-still', 'still', 'motion', 'full', 'snap', 'full-snap'))}
+CONFIGS = {BASE, *(ROOT / (name + '.conf') for name in ('blur', 'blur-still', 'blur9', 'blur9-still', 'still', 'motion', 'full', 'snap', 'full-snap'))}
 
 
 def probe():
@@ -53,6 +53,8 @@ def plan(preferences, resources, capability=None):
     snap = spring and preferences['snap_animation']
     name = ('full-snap' if blur else 'snap') if snap else 'full' if blur and spring else 'blur' if blur else 'motion' if spring else 'still' if reduced else None
     if name:
-        result['config'] = ROOT / ('blur-still.conf' if name == 'blur' and reduced else name + '.conf')
+        if name == 'blur':
+            name = ('blur9' if capability['major'] == 9 else 'blur') + ('-still' if reduced else '')
+        result['config'] = ROOT / (name + '.conf')
         result.update(blur_configured=blur, spring_configured=spring, snap_configured=snap)
     return result
