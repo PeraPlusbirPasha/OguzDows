@@ -131,11 +131,26 @@ class RuntimeTests(unittest.TestCase):
             self.assertEqual(bus.call_count, 2)
 
     def test_installation_gate_only_queries_existing_actions_and_does_not_start_apps(self):
-        with patch.object(runtime, 'dbus', side_effect=[(True, '', [False]), (True, '', [True])]) as bus:
+        # org.gtk.Actions.Describe has ONE out parameter: a (bgav) struct.
+        # GDBus.unpack() therefore returns ((enabled, signature, states),),
+        # not the old flat mock which hid failure whenever Rehber was open.
+        with patch.object(runtime, 'dbus', side_effect=[((True, '', [False]),), ((True, '', [True]),)]) as bus:
             self.assertTrue(runtime.installation_busy())
             self.assertTrue(all(call.args[3] == 'Describe' for call in bus.call_args_list))
         with patch.object(runtime, 'dbus', side_effect=RuntimeError('no owner')):
             self.assertFalse(runtime.installation_busy())
+
+    def test_open_idle_rehber_allows_apply_but_busy_action_state_still_blocks(self):
+        for enabled in (False, True):
+            for busy in (False, True):
+                with self.subTest(enabled=enabled, busy=busy), patch.object(runtime, 'dbus',
+                        side_effect=[RuntimeError('no launcher owner'), ((enabled, '', [busy]),)]):
+                    self.assertIs(runtime.installation_busy(), busy)
+
+    def test_invalid_installation_state_is_reported_not_indexed_or_treated_as_idle(self):
+        for response in ((), (True, '', [False]), ((True, '', []),), ((True, '', [1]),), ((True, '', ['false']),)):
+            with self.subTest(response=response), patch.object(runtime, 'dbus', return_value=response), self.assertRaisesRegex(RuntimeError, 'Kurulum durumu'):
+                runtime.installation_busy()
 
 
 class BackendPlanTests(unittest.TestCase):

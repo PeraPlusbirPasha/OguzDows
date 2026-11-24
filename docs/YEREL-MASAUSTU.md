@@ -77,6 +77,7 @@ Başarısız bir **tercih uygulamasının geri sarılması**, yukarıdaki açık
 
 ### Xfce’de “Uygula” ve meşgul uyarısı
 
+- Açık Rehber / hafif kurucunun `org.gtk.Actions.Describe` yanıtı `((enabled, signature, [state]),)` biçimindedir. Kurulum kontrolü bu dış yapıyı açıp **boolean durum değerini** okur; eylemin enabled alanını meşgul sanmaz. Eski düz-tuple okuması, Rehber boştayken bile `tuple index out of range` üretip görünüm işini engelliyordu. Bozuk durum yanıtı da kurulum yokmuş gibi kabul edilmez.
 - Aynı Uygula sürerken ikinci çağrı yeni işçi / motor açmaz; devam eden isteğin mesajını “başka işlem” uyarısıyla ezmez.
 - Rehber’de tema, tarz, panel yenileme veya duvar kâğıdı işi bitince görünüm kapısı bırakılır. İşçi başlatma hatası ve beklenmeyen arka uç hatası da görünür biçimde bildirilir; bir sonraki Uygula kalıcı meşgul işaretinde kalmaz. Sürmekte olan kurucu / sürücü işleminin kapısı ise kaldırılmaz. Düğmelerin durumu olayla yenilenir; boşta anket yoktur.
 - Ortak Xfce tema / yüzey yazımı kompozitör tercihini değiştirmez. Picom → hafif cam devrinde önce **yalnız bize ait Picom** bırakılır, sonra Xfwm açılır. Böylece Xfwm, başka motor hâlâ seçim sahibiyken erkenden açılmaya çalışılmaz. Rehber’de tarz değişimi de aynı motor uzlaştırıcısını kullanır.

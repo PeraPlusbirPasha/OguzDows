@@ -73,6 +73,14 @@ def gtk_apply_checks(resources):
             panel.apply()
             assert not panel.busy and shared_state.load()['revision'] == before
             assert 'Kurulum' in panel.status.get_text()
+            # Yalnız testte UI kapısını aşarak arka ucun GERÇEK D-Bus busy
+            # durumunu da reddettiğini kanıtla; üretim kapısı değiştirilmez.
+            with patch.object(panel, 'allowed', return_value=True):
+                panel.apply()
+                pump(lambda: not panel.busy)
+                assert 'Kurucu / sürücü işlemi sürüyor' in panel.status.get_text(), panel.status.get_text()
+                assert shared_state.load()['revision'] == before
+                assert app.external_installing and not app.theme_busy
             app.set_external_installing(False)
             assert panel.apply_button.get_sensitive()
             x11 = effects.X11()
@@ -113,7 +121,8 @@ def gtk_apply_checks(resources):
             assert not errors, errors
             return {'shared_apply_repeated_glass_aero_off_single_compositor_handoff': True,
                     'real_welcome_gtk_busy_recovery_and_repeated_apply': True,
-                    'real_welcome_installation_gate_preserved': True}
+                    'real_welcome_installation_gate_preserved': True,
+                    'real_dbus_idle_allows_apply_and_busy_blocks_backend': True}
     finally:
         if app is not None and app.window is not None:
             app.window.destroy()

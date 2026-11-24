@@ -76,11 +76,23 @@ def installation_busy():
             ('org.oguzdows.Rehber', '/org/oguzdows/Rehber', 'installing')):
         try:
             result = dbus(name, path, 'org.gtk.Actions', 'Describe', '(s)', (action,))
-            states = result[2]
-            if states and (states[0].unpack() if hasattr(states[0], 'unpack') else states[0]) is True:
-                return True
         except RuntimeError:
-            pass  # Eski / kapalı uygulamada bu isteğe bağlı durum yoktur.
+            continue  # Eski / kapalı uygulamada bu isteğe bağlı durum yoktur.
+        try:
+            # Describe'ın TEK çıkışı (bgav) yapısıdır. GDBus yanıtı bir de
+            # dış tuple ile sarar: ((enabled, signature, [state]),).
+            # Doğrudan result[2] açık Rehber'de IndexError üretip Uygula'yı
+            # daha native ayarlara ulaşmadan durduruyordu.
+            (_enabled, _signature, states), = result
+            value, = states
+            value = value.unpack() if hasattr(value, 'unpack') else value
+            if type(value) is not bool:
+                raise ValueError('Boolean action state required')
+        except (TypeError, ValueError) as error:
+            # Bozuk / beklenmeyen bir yanıtı "kurulum yok" sayıp kapıyı aşma.
+            raise RuntimeError('Kurulum durumu güvenle okunamadı; görünüm işlemi başlatılmadı.') from error
+        if value:
+            return True
     return False
 
 
