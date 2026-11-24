@@ -146,7 +146,23 @@ class Journal:
             backend.validate(key, row['applied'])
         self.rows = value
 
-    def apply(self, changes):
+    def rollback(self, previous_rows, changed):
+        # Kalıcı ortak tercih / oturum makbuzu yazılamazsa da aynı kesin
+        # işlem-öncesi değerlere dön. Önceki tercihi tekrar uygulamak kişisel
+        # yerel tema veya ilk giriş varsayılanını yanlışlıkla ezebilir.
+        for key, old, target in reversed(changed):
+            try:
+                if self.backend.read(key) == target:
+                    self.backend.write(key, old)
+                    if self.backend.read(key) != old:
+                        raise RuntimeError('Geri alma geri okunarak doğrulanamadı: ' + key)
+            except (OSError, ValueError, RuntimeError) as error:
+                # Write-ahead kayıt kurtarma için diskte kalır.
+                raise RuntimeError('Ayar işlemi yarım kaldı; masaüstü merkezinden geri almayı deneyin.') from error
+        self.rows = copy.deepcopy(previous_rows)
+        atomic_json(self.path, self.rows)
+
+    def apply(self, changes, undo=None):
         if not set(changes) <= self.backend.keys:
             raise ValueError('Arka uç izin vermediği bir ayara yazamaz.')
         for key, value in changes.items():
@@ -169,16 +185,10 @@ class Journal:
                 if self.backend.read(key) != value:
                     raise RuntimeError('Masaüstü ayarı geri okunarak doğrulanamadı: ' + key)
         except Exception:
-            for key, old, target in reversed(changed):
-                try:
-                    if self.backend.read(key) == target:
-                        self.backend.write(key, old)
-                except (OSError, ValueError, RuntimeError):
-                    # Tam geri alınamadıysa write-ahead kayıt kurtarma içindir.
-                    raise RuntimeError('Ayar işlemi yarım kaldı; masaüstü merkezinden geri almayı deneyin.')
-            self.rows = previous_rows
-            atomic_json(self.path, self.rows)
+            self.rollback(previous_rows, changed)
             raise
+        if undo is not None:
+            undo.append(lambda: self.rollback(previous_rows, changed))
 
     def restore(self):
         skipped = []

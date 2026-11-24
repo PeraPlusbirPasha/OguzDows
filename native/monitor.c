@@ -92,6 +92,11 @@ static void scheduling(void) {
 
 static void mapped(GtkWidget *widget, gpointer data) { (void)widget; (void)data; scheduling(); }
 static void page_changed(GObject *object, GParamSpec *parameter, gpointer data) { (void)object; (void)parameter; (void)data; scheduling(); }
+static void select_page(GtkComboBox *selector, gpointer data) {
+    (void)data;
+    const char *name = gtk_combo_box_get_active_id(selector);
+    if (name) gtk_stack_set_visible_child_name(GTK_STACK(pages), name);
+}
 static gboolean window_state(GtkWidget *widget, GdkEventWindowState *event, gpointer data) {
     (void)widget; (void)data;
     minimized = (event->new_window_state & GDK_WINDOW_STATE_ICONIFIED) != 0;
@@ -221,6 +226,8 @@ static GtkWidget *processes(void) {
     GtkWidget *box = gtk_box_new(GTK_ORIENTATION_VERTICAL, 10);
     gtk_box_pack_start(GTK_BOX(box), text("Belleğe göre ilk 128 süreç. Yalnız Yenile ile okunur; süreç öldürme / root işlemi yok. RSS paylaşılan sayfaları da içerir, süreç toplamı fiziksel RAM toplamı değildir.", "subtitle"), FALSE, FALSE, 0);
     GtkWidget *refresh = gtk_button_new_with_label("Süreç anlık görüntüsünü yenile");
+    gtk_label_set_line_wrap(GTK_LABEL(gtk_bin_get_child(GTK_BIN(refresh))), TRUE);
+    gtk_label_set_max_width_chars(GTK_LABEL(gtk_bin_get_child(GTK_BIN(refresh))), 28);
     g_signal_connect(refresh, "clicked", G_CALLBACK(refresh_processes), NULL);
     gtk_box_pack_start(GTK_BOX(box), refresh, FALSE, FALSE, 0);
     GtkListStore *model = gtk_list_store_new(3, G_TYPE_UINT, G_TYPE_STRING, G_TYPE_STRING);
@@ -228,7 +235,12 @@ static GtkWidget *processes(void) {
     const char *names[] = {"PID", "Uygulama / süreç", "RSS"};
     for (int i = 0; i < 3; i++) {
         GtkCellRenderer *renderer = gtk_cell_renderer_text_new();
-        gtk_tree_view_append_column(GTK_TREE_VIEW(process_view), gtk_tree_view_column_new_with_attributes(names[i], renderer, "text", i, NULL));
+        g_object_set(renderer, "ellipsize", PANGO_ELLIPSIZE_END, NULL);
+        GtkTreeViewColumn *column = gtk_tree_view_column_new_with_attributes(names[i], renderer, "text", i, NULL);
+        gtk_tree_view_column_set_sizing(column, GTK_TREE_VIEW_COLUMN_FIXED);
+        gtk_tree_view_column_set_fixed_width(column, i == 0 ? 60 : i == 1 ? 126 : 84);
+        if (i == 1) gtk_tree_view_column_set_expand(column, TRUE);
+        gtk_tree_view_append_column(GTK_TREE_VIEW(process_view), column);
     }
     GtkWidget *scroll = gtk_scrolled_window_new(NULL, NULL);
     gtk_scrolled_window_set_min_content_height(GTK_SCROLLED_WINDOW(scroll), 280);
@@ -292,7 +304,17 @@ static void activate(GtkApplication *application, gpointer data) {
     gtk_container_add(GTK_CONTAINER(window), box);
     pages = gtk_stack_new(); gtk_stack_set_transition_type(GTK_STACK(pages), GTK_STACK_TRANSITION_TYPE_NONE);
     gtk_stack_set_hhomogeneous(GTK_STACK(pages), FALSE);
-    GtkWidget *switcher = gtk_stack_switcher_new(); gtk_stack_switcher_set_stack(GTK_STACK_SWITCHER(switcher), GTK_STACK(pages));
+    GtkWidget *switcher;
+    if (work.width < 600) {
+        switcher = gtk_combo_box_text_new();
+        gtk_combo_box_text_append(GTK_COMBO_BOX_TEXT(switcher), "overview", "Performans");
+        gtk_combo_box_text_append(GTK_COMBO_BOX_TEXT(switcher), "processes", "Süreçler");
+        gtk_combo_box_text_append(GTK_COMBO_BOX_TEXT(switcher), "system", "Sistem");
+        gtk_combo_box_set_active_id(GTK_COMBO_BOX(switcher), "overview");
+        g_signal_connect(switcher, "changed", G_CALLBACK(select_page), NULL);
+    } else {
+        switcher = gtk_stack_switcher_new(); gtk_stack_switcher_set_stack(GTK_STACK_SWITCHER(switcher), GTK_STACK(pages));
+    }
     gtk_box_pack_start(GTK_BOX(box), switcher, FALSE, FALSE, 0);
     GtkWidget *overview = gtk_box_new(GTK_ORIENTATION_VERTICAL, 14);
     GtkWidget *flow = gtk_flow_box_new(); gtk_flow_box_set_selection_mode(GTK_FLOW_BOX(flow), GTK_SELECTION_NONE);

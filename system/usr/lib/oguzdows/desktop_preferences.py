@@ -50,7 +50,7 @@ def gtk_theme(preferences):
         if channel == 'xsettings' and key == '/Net/ThemeName')
 
 
-def apply_current(preferences, directory, resources, *, wallpaper=False):
+def apply_current(preferences, directory, resources, *, wallpaper=False, undo=None, previous=None):
     desktop = runtime.current()
     budget = bool(resources['compositing'])
     notes = []
@@ -59,6 +59,7 @@ def apply_current(preferences, directory, resources, *, wallpaper=False):
         import effects
         import profiles
         import aero
+        old_preferences = dict(previous or state.load(), effects=profiles.effect_selection()) if undo is not None else None
         capability = (aero.probe() if budget and preferences['effects'] == 'aero' and
                       (preferences['blur'] or preferences['motion'] == 'spring') else None)
         planned = aero.plan(preferences, resources, capability)
@@ -67,20 +68,22 @@ def apply_current(preferences, directory, resources, *, wallpaper=False):
         if surface['blur'] and profiles.selection()[0] != 'mac':
             from desktop_material import install
             material = install(preferences['accent'], preferences['appearance'] == 'dark')
-        profiles.set_shared(surface, resources=resources, material_theme=material)
+        profiles.set_shared(surface, resources=resources, material_theme=material, undo=undo)
         if wallpaper and preferences['wallpaper']:
             import wallpapers
-            wallpapers.apply_xfce(preferences['wallpaper'])
+            wallpapers.apply_xfce(preferences['wallpaper'], undo=undo)
+        if undo is not None:
+            undo.append(lambda: effects.reconcile(old_preferences['effects'], resources, preferences=old_preferences))
         result.update(effects.reconcile(preferences['effects'], resources, preferences=preferences, capability=capability))
         if surface['blur'] and not result['blur_configured']:
-            profiles.set_shared(dict(preferences, blur=False), resources=resources, surface_only=True)
+            profiles.set_shared(dict(preferences, blur=False), resources=resources, surface_only=True, undo=undo)
     elif desktop == 'gnome':
         import desktop_gnome as gnome
         backend = gnome.GnomeSettings()
         changes = gnome.changes(preferences, resources, backend)
         if wallpaper and preferences['wallpaper']:
             changes.update(gnome.wallpaper_changes(wallpaper_entry(preferences['wallpaper'])['path'], backend))
-        state.Journal(backend, directory).apply(changes)
+        state.Journal(backend, directory).apply(changes, undo=undo)
         result.update(gnome.status())
         result['message'] = ('GNOME tercihleri uygulandı; Etkinlikler ve üst çubuk korunuyor. '
             'Yeni uzantı ilk kez kurulmuşsa sonraki giriş gerekir. GNOME 43/44 ile 45–48 için ayrı yükleyiciler kullanılır.')
@@ -114,7 +117,12 @@ def apply_current(preferences, directory, resources, *, wallpaper=False):
             current = plasma.wallpaper_state()
             uri = Path(wallpaper_entry(preferences['wallpaper'])['path']).resolve().as_uri()
             changes['wallpaper'] = [dict(row, plugin='org.kde.image', image=uri) for row in current]
-        journal.apply(changes)
+        if undo is not None:
+            def refresh_rollback():
+                plasma.notify_settings()
+                runtime.dbus('org.kde.KWin', '/KWin', 'org.kde.KWin', 'reconfigure')
+            undo.append(refresh_rollback)
+        journal.apply(changes, undo=undo)
         try:
             result.update(plasma.refresh(preferences, resources))
         except (RuntimeError, ImportError) as error:
@@ -140,15 +148,38 @@ def update_and_apply(changes, resources=None):
         preferences = state.merged(original, changes)
         if preferences['accent_source'] == 'wallpaper' and preferences['wallpaper']:
             preferences['accent'] = wallpaper_accent(wallpaper_entry(preferences['wallpaper'])['path'])
-        # Tercih yazımı başarısızsa DE değişikliklerinin geri alınabilmesi için
-        # eski ortak tercih kaydı korunur. Yerel jurnal de ilk değerleri saklar.
-        result = apply_current(preferences, directory, resources, wallpaper='wallpaper' in changes)
+        path = state.config_path()
+        receipt = directory / (runtime.current() + '-applied.json')
+        old_files = {path: state.read_json(path), receipt: state.read_json(receipt)}
+        new_files = {receipt: {'revision': preferences['revision'], 'compositing': bool(resources['compositing'])},
+                     path: preferences}
+        undo = []
         try:
-            state.atomic_json(state.config_path(), preferences)
-            state.atomic_json(directory / (runtime.current() + '-applied.json'),
-                              {'revision': preferences['revision'], 'compositing': bool(resources['compositing'])})
-        except OSError:
-            apply_current(original, directory, resources, wallpaper='wallpaper' in changes)
+            result = apply_current(preferences, directory, resources, wallpaper='wallpaper' in changes,
+                                   undo=undo, previous=original)
+            # Ortak tercih en son görünür olur. Önceki native DE değerleri
+            # ortak varsayılanlarla tahmin edilmez: tam işlem kaydı geri alınır.
+            for target, value in new_files.items():
+                state.atomic_json(target, value)
+        except Exception as failure:
+            errors = []
+            for rollback in reversed(undo):
+                try:
+                    rollback()
+                except Exception as error:
+                    errors.append(str(error))
+            for target, value in new_files.items():
+                try:
+                    if state.read_json(target) == value:
+                        if old_files[target] is None:
+                            target.unlink(missing_ok=True)
+                        else:
+                            state.atomic_json(target, old_files[target])
+                except (OSError, ValueError) as error:
+                    errors.append(str(error))
+            if errors:
+                raise RuntimeError('İşlem tamamlanamadı; geri alma da eksik kaldı. Kalıcı günlükten geri almayı deneyin: '
+                                   + '; '.join(errors)) from failure
             raise
         result['revision'] = preferences['revision']
         return result

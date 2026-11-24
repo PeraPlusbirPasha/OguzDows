@@ -89,6 +89,65 @@ class SharedPreferencesTests(unittest.TestCase):
         preferences.update_and_apply({'appearance': 'light'}, policy(8388608))
         self.assertEqual(self.backend.values['gtk-theme'], 'OguzDowsLight')
 
+    def test_persistence_failures_restore_exact_native_values_receipts_and_revision(self):
+        atomic = state.atomic_json
+        for stage in ('receipt', 'preferences', 'after-replace'):
+            with self.subTest(stage=stage):
+                preferences.update_and_apply({'appearance': 'light'}, policy(8388608))
+                self.backend.values['gtk-theme'] = 'PersonalBeforeFailedApply'
+                old_config = state.read_json(state.config_path())
+                receipt = state.state_directory() / 'gnome-applied.json'
+                old_receipt = state.read_json(receipt)
+                journal = state.state_directory() / 'gnome-settings.json'
+                old_journal = state.read_json(journal)
+                old_native = dict(self.backend.values)
+                failed = False
+                def write(path, value):
+                    nonlocal failed
+                    target = receipt if stage == 'receipt' else state.config_path()
+                    if not failed and Path(path) == target and value.get('revision') == old_config['revision'] + 1:
+                        failed = True
+                        if stage == 'after-replace': atomic(path, value)
+                        raise OSError('CI storage unavailable')
+                    atomic(path, value)
+                with patch.object(state, 'atomic_json', side_effect=write), self.assertRaisesRegex(OSError, 'CI storage'):
+                    preferences.update_and_apply({'appearance': 'dark', 'blur': True}, policy(8388608))
+                self.assertTrue(failed)
+                self.assertEqual(self.backend.values, old_native)
+                self.assertEqual(state.read_json(state.config_path()), old_config)
+                self.assertEqual(state.read_json(receipt), old_receipt)
+                self.assertEqual(state.read_json(journal), old_journal)
+
+    def test_failed_first_shared_save_keeps_personal_theme_and_absent_files_absent(self):
+        self.backend.values.update({'gtk-theme': 'PreExistingPersonalTheme', 'extension-enabled': False})
+        atomic = state.atomic_json
+        def fail_config(path, value):
+            if Path(path) == state.config_path(): raise OSError('CI first save unavailable')
+            atomic(path, value)
+        with patch.object(state, 'atomic_json', side_effect=fail_config), self.assertRaises(OSError):
+            preferences.update_and_apply({'appearance': 'dark'}, policy(8388608))
+        self.assertEqual(self.backend.read('gtk-theme'), 'PreExistingPersonalTheme')
+        self.assertFalse(self.backend.read('extension-enabled'))
+        self.assertFalse(state.config_path().exists())
+        self.assertFalse((state.state_directory() / 'gnome-applied.json').exists())
+        self.assertEqual(state.read_json(state.state_directory() / 'gnome-settings.json'), {})
+
+    def test_deferred_xfce_undo_restores_native_surface_and_only_changed_markers(self):
+        from xfconf_fixture import Xfconf
+        with tempfile.TemporaryDirectory() as temporary:
+            directory = Path(temporary); backend = Xfconf(profiles.settings('oguzdows'))
+            profiles.apply('windows11', directory, backend)
+            backend.values['xsettings', '/Net/ThemeName'] = 'PersonalBeforeApply'
+            before = dict(backend.values)
+            markers = {name: (directory / name).read_text() if (directory / name).exists() else None
+                       for name in ('selected', 'appearance', 'effects', 'layout-v2')}
+            undo = []
+            profiles.set_shared({**state.DEFAULTS, 'appearance': 'dark'}, directory, backend, policy(8388608), undo=undo)
+            self.assertNotEqual(before, backend.values); self.assertEqual(len(undo), 1)
+            undo[0]()
+            self.assertEqual(backend.values, before)
+            self.assertEqual(markers, {name: (directory / name).read_text() if (directory / name).exists() else None for name in markers})
+
     def test_current_protocol_status_is_honest_about_unsaved_applications(self):
         result = preferences.status()
         self.assertEqual(result['desktop'], 'gnome')

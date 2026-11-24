@@ -152,6 +152,27 @@ class BackendPlanTests(unittest.TestCase):
             self.assertIn(token, gnome.KEYS)
         self.assertFalse(any('panel' in token or 'binding' in token for token in result))
 
+    def test_kwin_reconfigure_tolerates_only_a_bounded_transient_effects_object_gap(self):
+        attempts = 0
+        def bus(_destination, path, _interface, method, *_args):
+            nonlocal attempts
+            if path == '/Effects' and method == 'loadEffect':
+                attempts += 1
+                if attempts == 1: raise RuntimeError('org.freedesktop.DBus.Error.UnknownObject')
+            return (True,) if method == 'isEffectLoaded' else ()
+        with patch.object(plasma, 'dbus', side_effect=bus), patch.object(plasma, 'notify_settings'), patch.object(plasma.time, 'sleep') as sleep:
+            result = plasma.refresh(self.prefs(effects='aero', blur=True, motion='spring'), policy(8388608))
+            self.assertTrue(result['blur_active']); self.assertTrue(result['spring_active'])
+            self.assertEqual(sleep.call_count, 1)
+        with patch.object(plasma, 'dbus', side_effect=[(), RuntimeError('AccessDenied')]), patch.object(plasma.time, 'sleep') as sleep:
+            with self.assertRaisesRegex(RuntimeError, 'AccessDenied'):
+                plasma.refresh(self.prefs(), policy(8388608))
+            sleep.assert_not_called()
+        with patch.object(plasma, 'dbus', side_effect=[(), RuntimeError('UnknownObject')]), patch.object(plasma.time, 'monotonic', side_effect=[0, 3]), patch.object(plasma.time, 'sleep') as sleep:
+            with self.assertRaisesRegex(RuntimeError, 'UnknownObject'):
+                plasma.refresh(self.prefs(), policy(8388608))
+            sleep.assert_not_called()
+
     def test_plasma5_and_6_use_real_distinct_effect_ids_and_restoreable_tokens(self):
         for major in (5, 6):
             result = plasma.changes(self.prefs(effects='aero', blur=True, motion='spring'), policy(8388608), major, True)

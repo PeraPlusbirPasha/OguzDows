@@ -6,6 +6,7 @@ import hashlib
 import json
 import os
 import re
+import time
 from pathlib import Path
 
 from desktop_runtime import binary, dbus, run
@@ -170,11 +171,22 @@ def refresh(preferences, resources):
     results = {}
     for name, wanted in (('blur', enabled and preferences['blur']),
                          ('oguzdows-aero', enabled and preferences['motion'] == 'spring')):
-        # Config yazısı, çalışan efekt kanıtı değildir. Her motor ayrı sorgulanır.
-        dbus('org.kde.KWin', '/Effects', 'org.kde.kwin.Effects',
-             'loadEffect' if wanted else 'unloadEffect', '(s)', (name,))
-        results[name] = bool(dbus('org.kde.KWin', '/Effects', 'org.kde.kwin.Effects',
-                                'isEffectLoaded', '(s)', (name,))[0])
+        # KWin reconfigure Q_NOREPLY'dır; kendi kısa yeniden yapılandırması
+        # sırasında /Effects nesnesi geçici olarak kalkabilir. Yalnız bu
+        # duruma en çok 2 saniye tolerans: Shell / compositor başlatma veya
+        # yeniden başlatma yok, kalıcı polling / süresiz retry yok.
+        deadline = time.monotonic() + 2
+        while True:
+            try:
+                dbus('org.kde.KWin', '/Effects', 'org.kde.kwin.Effects',
+                     'loadEffect' if wanted else 'unloadEffect', '(s)', (name,))
+                results[name] = bool(dbus('org.kde.KWin', '/Effects', 'org.kde.kwin.Effects',
+                                        'isEffectLoaded', '(s)', (name,))[0])
+                break
+            except RuntimeError as error:
+                if 'UnknownObject' not in str(error) or time.monotonic() >= deadline:
+                    raise
+                time.sleep(.06)
     notify_settings()
     return {'blur_active': results['blur'], 'spring_active': results['oguzdows-aero'],
             'blur_scope': 'Plasma paneli / menüleri; Aurorae varsa OğuzDows cam dekoratif kenarları; diğer blur bölgesi bildiren pencereler. CSD başlıkları değişmez.'}

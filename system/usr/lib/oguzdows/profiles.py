@@ -203,7 +203,7 @@ def set_property(channel, path, kind, value, execute):
         raise RuntimeError('Xfce ayarı uygulanamadı: ' + path)
 
 
-def transaction(choices, directory, execute, metadata, layout=False):
+def transaction(choices, directory, execute, metadata, layout=False, undo=None):
     choices = [tuple(row) for row in choices]
     directory.mkdir(parents=True, exist_ok=True)
     with (directory / '.lock').open('a') as lock:
@@ -276,6 +276,10 @@ def transaction(choices, directory, execute, metadata, layout=False):
                 except OSError:
                     pass
             raise
+        if undo is not None:
+            rows = [row for row in previous if row[:2] in changed]
+            metadata_before = {name: None if value is None else value + '\n' for name, value in old_metadata.items()}
+            undo.append(lambda: transaction(rows, directory, execute, metadata_before))
 
 
 def apply(identifier, directory=None, execute=run, appearance=None):
@@ -317,7 +321,7 @@ def set_effects(effects, directory=None, execute=run, resources=None):
     transaction(choices, directory, execute, {'effects': effects + '\n'})
 
 
-def set_shared(preferences, directory=None, execute=run, resources=None, material_theme=None, surface_only=False):
+def set_shared(preferences, directory=None, execute=run, resources=None, material_theme=None, surface_only=False, undo=None):
     """Ortak temayı uygula; panel dizileri, kısayollar ve imleç değişmez.
 
     Zengin cam ayrı temadır: yalnız GPU bütçesi + açık blur onayıyla. Eski
@@ -354,7 +358,7 @@ def set_shared(preferences, directory=None, execute=run, resources=None, materia
                 base = .13 if appearance == 'dark' else .94
                 value = [decimal_value(.12 * component + .88 * base) for component in color] + ['0.84']
         choices.append((channel, path, kind, value))
-    transaction(choices, directory, execute, {'appearance': appearance + '\n', 'effects': effect + '\n'})
+    transaction(choices, directory, execute, {'appearance': appearance + '\n', 'effects': effect + '\n'}, undo=undo)
 
 
 def validate_backup(values):

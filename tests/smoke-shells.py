@@ -94,6 +94,10 @@ def child(directory, desktop):
             assert decoration.available(backend.major), 'Hedef ABI Aurorae kütüphanesi bulunamadı'
             start(['/usr/bin/kwin_x11'], 'kwin')
             wait(lambda: owner('org.kde.KWin'))
+            def compositor_state():
+                return runtime.dbus('org.kde.KWin', '/Compositor', 'org.freedesktop.DBus.Properties',
+                                    'GetAll', '(s)', ('org.kde.kwin.Compositing',))[0]
+            report['compositor_before'] = wait(lambda: (value if (value := compositor_state()).get('active') else False))
             # Normal Plasma girişinde oturum yöneticisi bunu önce hazırlar.
             # Yalnız bu özel test bus'ında açıkça başlat; kabuk başlangıç
             # yarışını üretim backend'inin NO_AUTO_START kapısına yükleme.
@@ -130,6 +134,7 @@ def child(directory, desktop):
             # Sadece sabit köprü API'si; Shell Eval / unsafe-mode YOK.
             runtime.dbus('org.gnome.Shell', '/org/oguzdows/Desktop', 'org.oguzdows.Desktop', 'Open', '(s)', ('hide-overview',))
         else:
+            report['compositor_after'] = compositor_state()
             assert result.get('blur_active') is True, result
             assert result.get('spring_active') is True, result
             assert backend.read('decoration-library') == 'org.kde.kwin.aurorae'
@@ -184,6 +189,8 @@ def child(directory, desktop):
         (directory / 'shell.json').write_text(json.dumps(report, ensure_ascii=False, indent=2) + '\n')
         print('::notice title=Gerçek yerel kabuk kontrolü::' + json.dumps(report, ensure_ascii=False).replace('%', '%25'), flush=True)
     except Exception:
+        (directory / 'shell-incomplete.json').write_text(json.dumps(report, ensure_ascii=False, indent=2) + '\n')
+        print('::error title=Eksik kabuk kontrol durumu::' + json.dumps(report, ensure_ascii=False).replace('%', '%25'), flush=True)
         for path in directory.glob('*.log'):
             text = path.read_text(errors='replace')[-2500:]
             print('::error title=' + path.stem + ' runtime::' + text.replace('%', '%25').replace('\n', '%0A'), flush=True)
@@ -218,7 +225,7 @@ def main():
             XDG_RUNTIME_DIR=str(directory / 'runtime'), XAUTHORITY=str(authority), GSETTINGS_BACKEND='dconf',
             XDG_CURRENT_DESKTOP='GNOME' if args.desktop == 'gnome' else 'KDE', XDG_SESSION_TYPE='x11',
             GDK_BACKEND='x11', LIBGL_ALWAYS_SOFTWARE='1', NO_AT_BRIDGE='1',
-            QT_QPA_PLATFORM='xcb', QT_QPA_PLATFORMTHEME='kde', QT_QUICK_BACKEND='software',
+            QT_QPA_PLATFORM='xcb', QT_QPA_PLATFORMTHEME='kde', QT_QUICK_BACKEND='software', QT_NO_GLIB='1',
             KWIN_COMPOSE='O2', KWIN_X11_NO_SYNC_TO_VBLANK='1')
         address = 'unix:path=' + str(directory / 'system-bus')
         configuration = directory / 'system-bus.conf'

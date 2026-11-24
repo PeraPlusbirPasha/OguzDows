@@ -44,6 +44,7 @@ def child(directory, binaries, appearance):
     import desktop_gnome as gnome
     import desktop_plasma as plasma
     import desktop_runtime as runtime
+    import desktop_preferences as shared_preferences
     from desktop_ui import PreferencesPanel
     from resource_policy import policy
     state.atomic_json(state.config_path(), {**state.DEFAULTS, 'appearance': appearance})
@@ -96,6 +97,23 @@ def child(directory, binaries, appearance):
     assert backend.read('palette:Window:BackgroundNormal') == '11,22,33'
     report['real_kconfig_compare_restore'] = True; report['kconfig_major'] = backend.major
     assert runtime.installation_busy() is False
+    # Yalnız kalıcı JSON yazımı arızalı fixture: GSettings API'si ve geri
+    # alma gerçektir; ortak varsayılanı tekrar uygulayıp kişisel temayı ezmez.
+    before_file = state.read_json(state.config_path())
+    before_native = {key: gsettings.read(key) for key in gnome.KEYS if gsettings.supports(key)}
+    atomic = state.atomic_json
+    def fail_preferences_file(path, value):
+        if Path(path) == state.config_path() and value.get('revision') == before_file['revision'] + 1:
+            raise OSError('CI simulated preference-file write failure')
+        atomic(path, value)
+    with patch.object(state, 'atomic_json', side_effect=fail_preferences_file):
+        try: shared_preferences.update_and_apply({'appearance': 'dark'}, policy(8388608))
+        except OSError: pass
+        else: raise AssertionError('failed commit was reported as success')
+    assert state.read_json(state.config_path()) == before_file
+    assert {key: gsettings.read(key) for key in before_native} == before_native
+    assert not (state.state_directory() / 'gnome-applied.json').exists()
+    report['real_gsettings_rollback_after_simulated_file_commit_failure'] = True
     # Zaman aşımı da busy'yi bırakmalı; normal GTK thread'i bloklanmaz.
     record = []
     window = Gtk.Window(title='OğuzDows · Yerel Aero tercihleri')

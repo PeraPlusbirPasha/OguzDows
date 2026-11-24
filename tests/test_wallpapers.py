@@ -41,6 +41,27 @@ class WallpaperTests(unittest.TestCase):
             self.assertIn(["xfconf-query", "-c", "xfce4-desktop", "-p", prop, "-s", str(image)], calls)
             self.assertFalse(any("monitor0" in " ".join(call) for call in calls))
 
+    def test_deferred_rollback_restores_custom_native_path_not_a_guessed_catalog_default(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary); image = root / 'new.png'; image.touch()
+            prop = '/backdrop/screen0/monitorHDMI-1/workspace0/last-image'
+            style = prop.removesuffix('last-image') + 'image-style'
+            values = {prop: '/home/user/My personal wallpaper.jpg', style: '3'}
+            marker = root / 'state'; marker.write_text('personal-old-marker\n')
+            def run(command):
+                if command[-1] == '-l': return subprocess.CompletedProcess(command, 0, prop + '\n')
+                key = command[command.index('-p') + 1]
+                if '--reset' in command: values.pop(key, None)
+                elif '-s' in command: values[key] = command[command.index('-s') + 1]
+                return subprocess.CompletedProcess(command, int(key not in values), values.get(key, '') + '\n')
+            undo = []
+            with patch.object(wallpapers, 'run', side_effect=run):
+                wallpapers.apply_xfce('new', [{'id': 'new', 'path': str(image)}], marker, undo=undo)
+                self.assertEqual(values[prop], str(image)); self.assertEqual(values[style], '5')
+                undo[0]()
+            self.assertEqual(values, {prop: '/home/user/My personal wallpaper.jpg', style: '3'})
+            self.assertEqual(marker.read_text(), 'personal-old-marker\n')
+
     def test_initialize_migrates_retired_ids_once_without_resetting_valid_or_custom_choices(self):
         with tempfile.TemporaryDirectory() as directory:
             state = Path(directory) / 'wallpaper'

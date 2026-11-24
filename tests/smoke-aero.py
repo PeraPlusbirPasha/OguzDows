@@ -94,8 +94,13 @@ def child(directory):
         if major >= 12: names += ['motion', 'full', 'snap', 'full-snap']
         for name in names:
             config = Path('/usr/share/oguzdows/compositor') / (name + '.conf')
+            # Xvfb'de GLX swap-control uzantısı yok. 9'un legacy GLX'i
+            # bu yüzden çıkmasın diye yalnız test komutunda VSync kapalı;
+            # kurulan reçete, üretim kapısı ve blur/shader aynen sınanır.
+            options = ['--no-vsync'] if major == 9 else []
+            if options: report['ci_only_vsync_override'] = True
             with (directory / (name + '.log')).open('w') as log:
-                compositor = subprocess.Popen(['/usr/bin/picom', '--config', str(config)], stdout=log, stderr=subprocess.STDOUT, start_new_session=True)
+                compositor = subprocess.Popen(['/usr/bin/picom', '--config', str(config), *options], stdout=log, stderr=subprocess.STDOUT, start_new_session=True)
             wait_owner(x11, True, compositor); pump(.8)
             assert compositor.poll() is None
             origin = front.get_window().get_origin()[-2:]

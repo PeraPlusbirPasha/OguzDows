@@ -40,7 +40,7 @@ def apply(identifier: str, items=None, state: Path | None = None) -> None:
     apply_xfce(identifier, items, state)
 
 
-def apply_xfce(identifier: str, items=None, state: Path | None = None) -> None:
+def apply_xfce(identifier: str, items=None, state: Path | None = None, undo=None) -> None:
     entries = catalog() if items is None else items
     item = next((entry for entry in entries if entry["id"] == identifier), None)
     if item is None or not Path(item["path"]).is_file():
@@ -53,6 +53,41 @@ def apply_xfce(identifier: str, items=None, state: Path | None = None) -> None:
         names = [match.group(1) for match in re.finditer(r"^(\S+) connected", monitors.stdout, re.MULTILINE)] or ["0"]
         properties = {f"/backdrop/screen0/monitor{monitor}/workspace{workspace}/last-image"
                       for monitor in names for workspace in range(4)}
+    path = state or state_path()
+    if undo is not None:
+        if path.exists() and path.stat().st_size > 4096:
+            raise ValueError('Önceki duvar kâğıdı seçim kaydı çok büyük.')
+        old_marker = path.read_text() if path.exists() else None
+        rows = []
+        for prop in sorted(properties):
+            for key, kind, target in ((prop, 'string', item['path']),
+                    (prop.removesuffix('last-image') + 'image-style', 'int', '5')):
+                base = ['xfconf-query', '-c', 'xfce4-desktop', '-p', key]
+                result = run(base)
+                old = result.stdout.rstrip('\n') if result.returncode == 0 else None
+                if old is not None and (len(old) > 4096 or any(char in old for char in '\n\r\0')
+                        or kind == 'int' and not re.fullmatch(r'-?\d+', old)):
+                    raise ValueError('Önceki duvar kâğıdı ayarı güvenle yedeklenemedi.')
+                rows.append((base, kind, old, target))
+        def rollback():
+            for base, kind, old, target in reversed(rows):
+                actual = run(base)
+                if actual.returncode or actual.stdout.rstrip('\n') != target:
+                    continue  # İşlemden sonra haricen değişen anahtarı koru.
+                if old is None:
+                    result = run([*base, '--reset'])
+                else:
+                    result = run([*base, '-s', old])
+                    if result.returncode:
+                        result = run([*base, '-n', '-t', kind, '-s', old])
+                if result.returncode:
+                    raise RuntimeError('Duvar kâğıdı işlemi tam geri alınamadı.')
+            if path.exists() and path.read_text() == identifier + '\n':
+                if old_marker is None:
+                    path.unlink()
+                else:
+                    temporary = path.with_suffix('.tmp'); temporary.write_text(old_marker); temporary.replace(path)
+        undo.append(rollback)
     applied = 0
     for prop in sorted(properties):
         command = ["xfconf-query", "-c", "xfce4-desktop", "-p", prop]
@@ -66,7 +101,6 @@ def apply_xfce(identifier: str, items=None, state: Path | None = None) -> None:
             run([*style, "-n", "-t", "int", "-s", "5"])
     if not applied:
         raise RuntimeError("Masaüstü ayarı değiştirilemedi. Xfce oturumunda yeniden dene.")
-    path = state or state_path()
     path.parent.mkdir(parents=True, exist_ok=True)
     temporary = path.with_suffix(".tmp")
     temporary.write_text(identifier + "\n", encoding="utf-8")

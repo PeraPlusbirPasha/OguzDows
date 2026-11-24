@@ -148,6 +148,24 @@ class DesktopStateTests(unittest.TestCase):
                 journal.apply({'theme': 'glass', 'motion': 'spring'})
             self.assertEqual(backend.values, {'theme': 'before', 'motion': 'smooth'})
 
+    def test_deferred_rollback_restores_immediate_values_not_first_run_values(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            backend = Backend({'theme': 'original', 'motion': 'smooth'})
+            journal = state.Journal(backend, Path(temporary))
+            journal.apply({'theme': 'first-oguzdows'})
+            rows = copy.deepcopy(journal.rows)
+            backend.values['theme'] = 'personal-between-operations'
+            undo = []
+            journal.apply({'theme': 'dark-glass', 'motion': 'spring'}, undo=undo)
+            self.assertEqual(len(undo), 1)
+            # İşlem sırasında başka bir araç yeni bir hareket değeri yazarsa
+            # yalnız bizim son değerimiz hâlâ duran tema geri alınır.
+            backend.values['motion'] = 'personal-after-operation'
+            undo[0]()
+            self.assertEqual(backend.values, {'theme': 'personal-between-operations', 'motion': 'personal-after-operation'})
+            self.assertEqual(journal.rows, rows)
+            self.assertEqual(state.read_json(journal.path), rows)
+
     def test_untrusted_journal_cannot_target_arbitrary_backend_or_commands(self):
         with tempfile.TemporaryDirectory() as temporary:
             backend = Backend(); root = Path(temporary)
