@@ -75,6 +75,15 @@ Başarısız bir **tercih uygulamasının geri sarılması**, yukarıdaki açık
 
 İşlem eksik geri alma uyarısı verirse günlüğü silerek veya başka kullanıcının süreçlerini öldürerek düzeltmeye çalışmayın. Mesajı ve `oguzdows-desktop --status` çıktısını, kişisel yolları ayıklayarak hata kaydına ekleyin. Bu araç bir disk / önyükleme onarıcısı değildir.
 
+### Xfce’de “Uygula” ve meşgul uyarısı
+
+- Aynı Uygula sürerken ikinci çağrı yeni işçi / motor açmaz; devam eden isteğin mesajını “başka işlem” uyarısıyla ezmez.
+- Rehber’de tema, tarz, panel yenileme veya duvar kâğıdı işi bitince görünüm kapısı bırakılır. İşçi başlatma hatası ve beklenmeyen arka uç hatası da görünür biçimde bildirilir; bir sonraki Uygula kalıcı meşgul işaretinde kalmaz. Sürmekte olan kurucu / sürücü işleminin kapısı ise kaldırılmaz. Düğmelerin durumu olayla yenilenir; boşta anket yoktur.
+- Ortak Xfce tema / yüzey yazımı kompozitör tercihini değiştirmez. Picom → hafif cam devrinde önce **yalnız bize ait Picom** bırakılır, sonra Xfwm açılır. Böylece Xfwm, başka motor hâlâ seçim sahibiyken erkenden açılmaya çalışılmaz. Rehber’de tarz değişimi de aynı motor uzlaştırıcısını kullanır.
+- “Başka bir masaüstü / görünüm / efekt işlemi…” mesajları farklı gerçek kilitlerden gelebilir. Uyarı sürüyorsa tam metin gerekir; `.lock` dosyasının diskte durması tek başına etkin kilit kanıtı değildir. Dosya silmek veya kişisel kompozitörü öldürmek güvenli çözüm sayılmaz.
+
+Bunlar kaynak düzeltmeleridir; daha önce indirilmiş ISO’ya veya yayımlanmış v1.1’e kendiliğinden geçmez. Seçimin kaydolması, kaynak / GPU koruması nedeniyle statik kalan efektin fiziksel olarak çizildiği anlamına gelmez.
+
 ## Canlı grafikler ve Başlat
 
 **Performans** C/GTK/Cairo’dur; HTML/WebView veya rastgele çizilmiş demo verisi yoktur:

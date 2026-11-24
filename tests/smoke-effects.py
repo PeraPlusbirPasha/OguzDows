@@ -21,6 +21,105 @@ from pathlib import Path
 from support import ROOT, load
 
 
+def pump(predicate, seconds=10):
+    from gi.repository import GLib
+    deadline = time.monotonic() + seconds
+    while time.monotonic() < deadline:
+        while GLib.MainContext.default().iteration(False):
+            pass
+        if predicate():
+            return
+        time.sleep(.01)
+    raise AssertionError('Gerçek GTK görünüm işçisi tamamlanmadı')
+
+
+def gtk_apply_checks(resources):
+    """Gerçek Rehber -> GTK düğmesi -> ortak işlem -> Picom / Xfwm zinciri."""
+    from unittest.mock import patch
+    import desktop_preferences as shared
+    import desktop_state as shared_state
+    import effects
+    import profiles
+    import welcome
+    errors = []
+    original_hook = sys.excepthook
+    def hook(kind, value, trace):
+        errors.append(str(value))
+        original_hook(kind, value, trace)
+    sys.excepthook = hook
+    app = None
+    try:
+        # Yalnız donanım raporunun bu görünüm testinde ilgisiz arka plan işini
+        # atla. Gerçek GTK, GApplication / D-Bus, tercihler ve motorlar çalışır.
+        with patch.object(welcome.Welcome, 'load_report'), patch.object(shared, 'current_policy', return_value=resources):
+            app = welcome.Welcome(); app.register(None); app.activate()
+            app.navigate('appearance')
+            panel = app.material_panel
+            assert not panel.busy and not app.theme_busy and panel.apply_button.get_sensitive()
+            with patch.object(shared, 'update_and_apply', side_effect=KeyError('CI unexpected theme failure')):
+                app.change_appearance('dark')
+                pump(lambda: not app.theme_busy)
+            assert 'CI unexpected theme failure' in app.theme_status.get_text()
+            assert panel.apply_button.get_sensitive()
+            app.ensure_page('styles'); app.profile_reload.set_active(False)
+            with patch.object(welcome.threading.Thread, 'start', side_effect=RuntimeError('CI worker start failed')):
+                app.change_style('oguzdows')
+            assert not app.profile_busy and panel.apply_button.get_sensitive()
+            assert 'CI worker start failed' in app.profile_status.get_text()
+            # Gerçek kurucu sinyaliyle aynı kapı; sahte disk / root işi açılmaz.
+            before = shared_state.load()['revision']
+            app.set_external_installing(True)
+            assert not panel.apply_button.get_sensitive()
+            panel.apply()
+            assert not panel.busy and shared_state.load()['revision'] == before
+            assert 'Kurulum' in panel.status.get_text()
+            app.set_external_installing(False)
+            assert panel.apply_button.get_sensitive()
+            x11 = effects.X11()
+            original_set = profiles.set_property
+            directory = effects.state_directory()
+            def guarded_set(channel, key, kind, value, execute):
+                if channel == 'xfwm4' and key == '/general/use_compositing' and value == 'true':
+                    running = effects.owned_state(directory)
+                    assert not running or x11.owner() != running['owner'], 'Picom durmadan Xfwm etkinleştirildi'
+                return original_set(channel, key, kind, value, execute)
+            try:
+                previous_effect = None; previous_pid = None
+                with patch.object(profiles, 'set_property', side_effect=guarded_set):
+                    for requested in ('glass', 'glass', 'aero', 'aero', 'off', 'glass', 'aero'):
+                        before = shared_state.load()['revision']
+                        panel.effects.set_active_id(requested); panel.motion.set_active_id('smooth'); panel.blur.set_active(False)
+                        panel.apply_button.clicked()
+                        assert panel.busy and app.theme_busy and not panel.apply_button.get_sensitive()
+                        message = panel.status.get_text()
+                        panel.apply()  # Yinelenen çağrı ayrı motor veya sahte çakışma üretmez.
+                        assert panel.status.get_text() == message
+                        pump(lambda: not panel.busy)
+                        assert not app.theme_busy and panel.apply_button.get_sensitive(), panel.status.get_text()
+                        assert shared_state.load()['revision'] == before + 1, panel.status.get_text()
+                        applied = shared_state.read_json(directory / 'status.json')
+                        current = effects.owned_state(directory)
+                        if requested == 'aero':
+                            assert applied['engine'] == 'picom' and current and x11.owner() == current['owner'], applied
+                            if previous_effect == requested:
+                                assert current['pid'] == previous_pid
+                        elif requested == 'glass':
+                            assert applied['engine'] == 'xfwm4' and not current and x11.owner() == x11.wm_owner(), applied
+                        else:
+                            assert applied['engine'] == 'none' and not current and effects.wait_owner(x11, 0) == 0, applied
+                        previous_effect = requested; previous_pid = current['pid'] if current else None
+            finally:
+                x11.close()
+            assert not errors, errors
+            return {'shared_apply_repeated_glass_aero_off_single_compositor_handoff': True,
+                    'real_welcome_gtk_busy_recovery_and_repeated_apply': True,
+                    'real_welcome_installation_gate_preserved': True}
+    finally:
+        if app is not None and app.window is not None:
+            app.window.destroy()
+        sys.excepthook = original_hook
+
+
 def child(directory):
     if os.getuid() == 0 or not os.environ.get('DBUS_SESSION_BUS_ADDRESS'):
         raise ValueError('Özel normal kullanıcı ve D-Bus gerekli.')
@@ -87,6 +186,10 @@ def child(directory):
             assert shared_state.read_json(state / 'status.json') == before_status
             report['real_engine_and_xfconf_rollback_after_simulated_commit_failure'] = True
             owned = restored
+            # Yalnız alt motor değil, gerçek Rehber düğmesi ve meşgul kapısı.
+            report.update(gtk_apply_checks(full))
+            owned = effects.owned_state(state)
+            assert owned
             # Gerçek xfconfd, yalnız özel/sentetik monitör anahtarları. Dosya
             # yolu işleminin yarıda hata vermesi taklittir; xfdesktop render testi değil.
             import wallpapers as shared_wallpapers
@@ -223,7 +326,7 @@ def main():
             for path in [directory, *directory.rglob('*')]: os.chown(path, 65534, 65534, follow_symlinks=False)
             command = ['/usr/bin/setpriv', '--reuid=65534', '--regid=65534', '--clear-groups', *command]
         try:
-            subprocess.run(command, env=env, check=True, timeout=60)
+            subprocess.run(command, env=env, check=True, timeout=90)
         finally:
             key = hashlib.sha256(env['DISPLAY'].encode()).hexdigest()[:16]
             state = home / '.local/state/oguzdows/effects' / key

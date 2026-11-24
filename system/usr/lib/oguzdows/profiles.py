@@ -327,12 +327,15 @@ def transaction(choices, directory, execute, metadata, layout=False, undo=None):
             undo.append(rollback)
 
 
-def apply(identifier, directory=None, execute=run, appearance=None):
+def apply(identifier, directory=None, execute=run, appearance=None, *, manage_compositor=True):
     directory = state_directory() if directory is None else directory
     if appearance is None:
         value = read_state(directory, 'appearance')
         appearance = value if value in APPEARANCES else None
-    transaction(settings(identifier, appearance, effect_selection(directory)), directory, execute,
+    choices = settings(identifier, appearance, effect_selection(directory))
+    if not manage_compositor:
+        choices = [row for row in choices if row[:2] != ('xfwm4', '/general/use_compositing')]
+    transaction(choices, directory, execute,
                 {'selected': identifier + '\n', 'layout-v2': 'owned\n' if identifier in DOCK_PROFILES else None}, layout=True)
 
 
@@ -377,10 +380,13 @@ def set_shared(preferences, directory=None, execute=run, resources=None, materia
     resources = current_policy() if resources is None else resources
     identifier, _appearance = selection(directory)
     appearance, effect = preferences['appearance'], preferences['effects']
+    # Motor devri effects.reconcile'a aittir. Picom henüz seçim sahibiyken
+    # Xfwm'ı burada açmak çakışır; aynı true tercihini sonra tekrar yazmak da
+    # xfconf değişiklik sinyali üretmeyip camı kompozitörsüz bırakabilir.
     keys = {('xsettings', '/Net/ThemeName'), ('xsettings', '/Gtk/ApplicationPreferDarkTheme'),
             ('xsettings', '/Gtk/EnableAnimations'), ('xfwm4', '/general/theme'),
             ('xfwm4', '/general/show_frame_shadow'), ('xfwm4', '/general/shadow_opacity'),
-            ('xfwm4', '/general/use_compositing'), ('xfce4-panel', '/panels/panel-1/background-style'),
+            ('xfce4-panel', '/panels/panel-1/background-style'),
             ('xfce4-panel', '/panels/panel-1/background-rgba')}
     if identifier in DOCK_PROFILES and read_state(directory, 'layout-v2') == 'owned':
         keys.add(('xfce4-panel', '/panels/panel-90/background-rgba'))

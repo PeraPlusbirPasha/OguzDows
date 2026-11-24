@@ -23,9 +23,10 @@ def note(text, title=False):
 
 
 class PreferencesPanel(Gtk.Box):
-    def __init__(self, parent=None, allowed=lambda: True, on_busy=lambda _busy: None):
+    def __init__(self, parent=None, allowed=lambda: True, on_busy=lambda _busy: None, *, blocked_reason=None):
         super().__init__(orientation=Gtk.Orientation.VERTICAL, spacing=12)
         self.parent_window, self.allowed, self.on_busy = parent, allowed, on_busy
+        self.blocked_reason, self.gate_message = blocked_reason, None
         self.busy, self.closed = False, False
         self.connect('destroy', lambda *_: setattr(self, 'closed', True))
         if parent is not None:
@@ -72,8 +73,24 @@ class PreferencesPanel(Gtk.Box):
         self.pack_start(row, False, False, 0)
         self.status = note(error or 'Henüz değişiklik yapılmadı. Donanım / fiziksel animasyon doğrulaması bu pencereden iddia edilmez.')
         self.pack_start(self.status, False, False, 0)
-        if error:
-            self.apply_button.set_sensitive(False)
+        self.load_error = error
+        self.refresh_gate()
+
+    def refresh_gate(self):
+        """Yalnız olaylarda çağrılır; boşta anket / zamanlayıcı yoktur."""
+        if self.closed:
+            return
+        allowed = self.allowed()
+        self.apply_button.set_sensitive(not self.busy and allowed and not self.load_error)
+        self.restore_button.set_sensitive(not self.busy and allowed)
+        if not self.busy and not allowed:
+            self.gate_message = (self.blocked_reason() if self.blocked_reason else
+                'Başka bir görünüm / kurulum işlemi bitmeden yeni efekt uygulanmaz.')
+            self.status.set_text(self.gate_message)
+        elif not self.busy and self.gate_message:
+            if self.status.get_text() == self.gate_message:
+                self.status.set_text(self.load_error or 'Önceki işlem bitti; seçili tercihleri şimdi uygulayabilirsin.')
+            self.gate_message = None
 
     def combo(self, title, choices, selected):
         row = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=5)
@@ -96,15 +113,17 @@ class PreferencesPanel(Gtk.Box):
         except Exception:
             logging.exception('Masaüstü görünüm kilidi geri bildirimi başarısız')
         if not self.closed:
-            self.apply_button.set_sensitive(True); self.restore_button.set_sensitive(True)
             self.status.set_text(message)
+            self.refresh_gate()
         return GLib.SOURCE_REMOVE
 
     def work(self, operation):
-        if self.closed:
+        # Aynı Uygula henüz bitmediyse ikinci işçi açma; devam eden isteği
+        # "başka işlem" sanıp asıl ilerleme / hata mesajını da ezme.
+        if self.closed or self.busy:
             return
-        if self.busy or not self.allowed():
-            self.status.set_text('Başka bir görünüm / kurulum işlemi bitmeden yeni efekt uygulanmaz.')
+        if not self.allowed():
+            self.refresh_gate()
             return
         self.busy = True
         self.apply_button.set_sensitive(False); self.restore_button.set_sensitive(False)

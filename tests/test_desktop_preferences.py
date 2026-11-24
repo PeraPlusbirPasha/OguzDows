@@ -4,7 +4,7 @@ import os
 import tempfile
 import unittest
 from pathlib import Path
-from unittest.mock import patch
+from unittest.mock import Mock, patch
 
 from support import ROOT
 import desktop_gnome as gnome
@@ -183,6 +183,59 @@ class SharedPreferencesTests(unittest.TestCase):
                     self.assertTrue(shared.call_args.kwargs['surface_only'])
                     self.assertFalse(shared.call_args.args[0]['blur'])
                 self.assertEqual(reconcile.call_args.kwargs['capability']['accelerated'], accelerated)
+
+    def test_shared_apply_releases_picom_before_enabling_xfwm(self):
+        from xfconf_fixture import Xfconf
+        backend = Xfconf(profiles.settings('oguzdows'))
+        backend.values['xfwm4', '/general/use_compositing'] = 'false'
+        owner = {'value': 88}; events = []
+        owned = {'pid': 32145, 'started': 'old', 'owner': 88}
+        x11 = Mock(owner=lambda: owner['value'], wm_owner=lambda: 77)
+        directory = self.root / 'effects'; directory.mkdir()
+        surface, reconcile = profiles.set_shared, effects.reconcile
+        def native(command):
+            if '-s' in command and command[2:5] == ['xfwm4', '-p', '/general/use_compositing']:
+                enabled = command[command.index('-s') + 1] == 'true'
+                if enabled and owner['value'] == 88:
+                    raise RuntimeError('Fixture: Picom hâlâ seçim sahibiyken Xfwm başlatıldı')
+            return backend(command)
+        def stop(_directory):
+            events.append('stop-picom'); owner['value'] = 0
+        def xfwm(enabled):
+            events.append('xfwm:' + str(enabled).lower())
+            native(['xfconf-query', '-c', 'xfwm4', '-p', '/general/use_compositing', '-t', 'bool', '-s', str(enabled).lower()])
+            owner['value'] = 77 if enabled else 0
+        with patch.dict(os.environ, {'XDG_CURRENT_DESKTOP': 'XFCE', 'XDG_SESSION_TYPE': 'x11'}), patch.object(effects.os, 'getuid', return_value=1000), patch.object(profiles, 'state_directory', return_value=self.root / 'profiles'), patch.object(profiles, 'set_shared', side_effect=lambda prefs, **kwargs: surface(prefs, directory=self.root / 'profiles', execute=native, **kwargs)), patch.object(effects, 'reconcile', side_effect=lambda effect, resources, **kwargs: reconcile(effect, resources, directory=directory, connect=lambda: x11, **kwargs)), patch.object(effects, 'owned_state', side_effect=lambda _directory: owned if owner['value'] == 88 else None), patch.object(effects, 'stop_owned', side_effect=stop), patch.object(effects, 'xfwm', side_effect=xfwm), patch.object(effects, 'wait_owner', side_effect=lambda *_args: owner['value']):
+            result = preferences.apply_current({**state.DEFAULTS, 'effects': 'glass'}, self.root, policy(8388608))
+        self.assertEqual(events, ['stop-picom', 'xfwm:true'])
+        self.assertEqual(result['engine'], 'xfwm4')
+        self.assertEqual(owner['value'], 77)
+
+    def test_shared_surface_never_rewrites_a_personal_compositor_preference(self):
+        from xfconf_fixture import Xfconf
+        for effect in ('off', 'glass', 'aero'):
+            for memory in (524288, 8388608):
+                for before in ('false', 'true'):
+                    with self.subTest(effect=effect, memory=memory, before=before), tempfile.TemporaryDirectory() as temporary:
+                        backend = Xfconf(profiles.settings('oguzdows'))
+                        backend.values['xfwm4', '/general/use_compositing'] = before
+                        profiles.set_shared({**state.DEFAULTS, 'effects': effect}, Path(temporary), backend, policy(memory))
+                        self.assertEqual(backend.values['xfwm4', '/general/use_compositing'], before)
+                        self.assertFalse(any(command[2:5] == ['xfwm4', '-p', '/general/use_compositing'] and '-s' in command
+                                             for command in backend.calls))
+
+    def test_layout_apply_can_leave_compositor_ownership_to_the_runtime(self):
+        from xfconf_fixture import Xfconf
+        for identifier in profiles.PROFILES:
+            with self.subTest(identifier=identifier), tempfile.TemporaryDirectory() as temporary:
+                directory = Path(temporary); backend = Xfconf(profiles.settings('oguzdows'))
+                backend.values['xfwm4', '/general/use_compositing'] = 'true'
+                profiles.apply(identifier, directory, backend, manage_compositor=False)
+                self.assertEqual(backend.values['xfwm4', '/general/use_compositing'], 'true')
+                self.assertFalse(any(command[2:5] == ['xfwm4', '-p', '/general/use_compositing'] and '-s' in command
+                                     for command in backend.calls))
+        source = (ROOT / 'system/usr/lib/oguzdows/welcome.py').read_text()
+        self.assertIn('profiles.apply(identifier, manage_compositor=False)', source)
 
     def test_all_six_xfce_layouts_keep_arrays_shortcuts_and_controls_in_shared_surface_changes(self):
         from test_profile_layouts import Xfconf
