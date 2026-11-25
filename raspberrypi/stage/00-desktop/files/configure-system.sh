@@ -71,3 +71,6 @@ PY
 # Derleme anındaki donanıma göre profil uygulanmaz; gerçek Pi açılışında seçilir.
 install -d -m 0700 /var/lib/oguzdows
 rm -f /var/lib/oguzdows/firstboot.done /var/lib/oguzdows/firstboot.pending.json
+
+# Yerel Xfce görev grubu / Dock ve olay tabanlı renk izleyicisi.
+/usr/share/oguzdows/scripts/build-panel.sh /

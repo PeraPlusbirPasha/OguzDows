@@ -16,3 +16,9 @@ headerbar button.titlebutton, headerbar button.titlebutton:backdrop { border-rad
 headerbar button.titlebutton.close, headerbar button.titlebutton.close:backdrop { background-color: #f16e68; color: #20252d; border-color: #ab4240; }
 headerbar button.titlebutton.minimize, headerbar button.titlebutton.minimize:backdrop { background-color: #f4cf72; }
 headerbar button.titlebutton.maximize, headerbar button.titlebutton.maximize:backdrop { background-color: #81c79a; }
+
+/* macOS esintisi: left traffic lights, restrained unified toolbar, separate Dock. */
+headerbar { min-height: 30px; padding: 3px 8px; border-bottom-width: 1px; }
+headerbar button.titlebutton, headerbar button.titlebutton:backdrop { min-width: 12px; min-height: 12px; padding: 0; margin: 0 4px; border-radius: 50%; border-width: 1px; }
+headerbar button.titlebutton image { -gtk-icon-transform: scale(.65); }
+.xfce4-panel.background { border-bottom: 1px solid alpha(@theme_fg_color, .18); }

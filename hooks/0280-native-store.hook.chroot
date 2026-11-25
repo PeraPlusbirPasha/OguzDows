@@ -17,3 +17,6 @@ for component in monitor hub; do
     chown root:root "/usr/lib/oguzdows/oguzdows-$component-native"
     chmod 0755 "/usr/lib/oguzdows/oguzdows-$component-native"
 done
+
+# Yerel Xfce görev grubu / Dock ve olay tabanlı renk izleyicisi.
+/usr/share/oguzdows/scripts/build-panel.sh /

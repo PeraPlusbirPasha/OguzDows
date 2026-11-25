@@ -29,7 +29,7 @@ SKELETON = ROOT / 'system/etc/skel/.config/xfce4/xfconf/xfce-perchannel-xml/xfce
 def plugin_manifest(directory=Path('/usr/share/xfce4/panel/plugins'), skeleton=SKELETON):
     """4.18'in eksik eklentiyi silerek testi yanlış geçirmesine izin verme."""
     plugins = {node.attrib['value'] for node in ET.parse(skeleton).getroot().findall('./property[@name="plugins"]/property')
-               if node.get('type') == 'string'} | {'launcher', 'separator', 'tasklist'}
+               if node.get('type') == 'string'} | {'launcher', 'separator', 'tasklist', 'directorymenu', 'oguzdows-tasks'}
     missing = sorted(name for name in plugins if not (directory / (name + '.desktop')).is_file())
     if missing:
         raise RuntimeError('Test ortamında gerekli Xfce eklentileri eksik: ' + ', '.join(missing)
@@ -177,7 +177,7 @@ def main():
                             x += frame.x + frame.border_width
                             y += frame.y + frame.border_width
                             ancestor = ancestor.query_tree().parent
-                        result.append({'x': x, 'y': y, 'width': geometry.width, 'height': geometry.height})
+                        result.append({'x': x, 'y': y, 'width': geometry.width, 'height': geometry.height, 'xid': int(identifier)})
                 except xerror.XError:
                     continue  # Yenileme sırasında eski X penceresi silinmiş olabilir.
             return result
@@ -187,7 +187,10 @@ def main():
             if len(windows) != expected:
                 return False
             horizontal = [item for item in windows if item['width'] > item['height']]
-            if identifier in ('mac', 'windows11'):
+            if identifier == 'windows11':
+                return (len(horizontal) == 1 and horizontal[0]['y'] >= screen_height - horizontal[0]['height'] - 3
+                        and horizontal[0]['width'] >= screen_width - 6 and horizontal[0]['x'] <= 3)
+            if identifier == 'mac':
                 return (len(horizontal) == 2 and any(item['y'] <= 3 for item in windows)
                         and any(item['y'] >= screen_height - item['height'] - 3
                                 and abs(item['x'] + item['width'] / 2 - screen_width / 2) <= 4 for item in windows))
@@ -195,6 +198,14 @@ def main():
                 return (len(horizontal) == 1 and horizontal[0]['y'] <= 3
                         and any(item['x'] <= 3 and item['height'] > item['width'] for item in windows))
             return len(horizontal) == 1
+
+        def task_bounds():
+            for panel in docks():
+                window = connection.create_resource_object('window', panel['xid'])
+                prop = window.get_full_property(connection.intern_atom('_OGUZDOWS_TASK_BOUNDS'), X.AnyPropertyType)
+                if prop is not None and len(prop.value) == 5:
+                    return list(map(int, prop.value))
+            return None
 
         def capture(identifier, suffix=''):
             deadline = time.monotonic() + 30
@@ -212,7 +223,7 @@ def main():
             while time.monotonic() - start < .4:
                 pump()
                 time.sleep(.02)
-            if identifier in profiles.DOCK_PROFILES:
+            if identifier == 'gnome':
                 deadline = time.monotonic() + 10
                 imported = None
                 while time.monotonic() < deadline:
@@ -228,7 +239,10 @@ def main():
             assert profiles.read_property('xfce4-panel', '/panels', 'int-array', profiles.run) == (['1', '90'] if identifier in profiles.DOCK_PROFILES else ['1'])
             plugin_names = {node.attrib['name'].removeprefix('plugin-'): node.attrib['value'] for node in
                             ET.parse(SKELETON).getroot().findall('./property[@name="plugins"]/property')}
-            if identifier in profiles.DOCK_PROFILES:
+            if identifier in profiles.NATIVE_PROFILES:
+                plugin_names['95'] = 'oguzdows-tasks'
+                if identifier == 'mac': plugin_names['96'] = 'directorymenu'
+            if identifier == 'gnome':
                 plugin_names.update({str(key): 'launcher' for key in profiles.LAUNCHERS})
                 plugin_names['94'] = 'separator'
             for plugin, expected in plugin_names.items():
@@ -243,19 +257,31 @@ def main():
             path = output / ('panels-' + identifier + suffix + '.png')
             pixels.savev(str(path), 'png', [], [])
             content = None
-            if identifier in ('mac', 'windows11'):
+            if identifier in profiles.NATIVE_PROFILES:
                 from PIL import Image
-                dock = next(item for item in windows if item['y'] > screen_height / 2)
+                deadline = time.monotonic() + 8
+                bounds = task_bounds()
+                while (not bounds or bounds[2] < 120 or bounds[4] < 4) and time.monotonic() < deadline:
+                    pump(); time.sleep(.04); bounds = task_bounds()
+                assert bounds and bounds[4] >= 4, ('Native görev grubu yüklenmedi', bounds)
+                bx, by, bw, bh, count = bounds
+                assert bx >= 0 and bx + bw <= screen_width and bh >= 24, bounds
+                pixels = Gdk.pixbuf_get_from_window(Gdk.get_default_root_window(), 0, 0, screen_width, screen_height)
+                pixels.savev(str(path), 'png', [], [])
                 with Image.open(path) as screenshot:
-                    strip = screenshot.crop((dock['x'], dock['y'], dock['x'] + dock['width'], dock['y'] + dock['height']))
+                    strip = screenshot.crop((bx, by, bx + bw, by + bh))
                     left, right = icon_pixel_bounds(strip)
-                center = dock['x'] + (left + right) / 2
-                content = {'left': dock['x'] + left, 'right': dock['x'] + right,
+                center = bx + (left + right) / 2
+                content = {'left': bx + left, 'right': bx + right, 'native_items': count,
                            'center_error_px': abs(center - screen_width / 2), 'screen_center': screen_width / 2}
                 assert content['center_error_px'] <= 12, ('Gerçek simge grubu merkezde değil', content)
-                assert dock['width'] < screen_width * .9, ('İskele gereksiz boş alanla dolduruldu', dock)
+                if identifier == 'mac':
+                    dock = next(item for item in windows if item['y'] > screen_height / 2)
+                    assert dock['width'] < screen_width * .9, ('İskele gereksiz boş alanla dolduruldu', dock)
+                else:
+                    assert bx + bw < screen_width - 80, ('Merkez grup sağ saat / tepsi alanını kapattı', bounds)
             report['layouts'].append({'profile': identifier, 'variant': suffix or 'light', 'windows': windows,
-                                      'icon_content': content, 'launcher_import_readback_verified': identifier in profiles.DOCK_PROFILES, 'xfconf_arrays': True, 'all_plugins_preserved': True, 'sample_application_stayed_open': True})
+                                      'icon_content': content, 'launcher_import_readback_verified': identifier == 'gnome', 'xfconf_arrays': True, 'all_plugins_preserved': True, 'sample_application_stayed_open': True})
 
         try:
             if connection.get_selection_owner(connection.intern_atom('WM_S0')):
@@ -282,7 +308,7 @@ def main():
             assert ready, 'Private foreground xfconfd never became ready'
             wm_process = subprocess.Popen(['xfwm4', '--compositor=off'], stdout=log, stderr=subprocess.STDOUT, start_new_session=True)
             settings_process = subprocess.Popen(['xfsettingsd', '--no-daemon'], stdout=log, stderr=subprocess.STDOUT, start_new_session=True)
-            profiles.apply('mac', appearance='light')
+            profiles.apply('gnome', appearance='light')
             original_native = profiles.validate_backup(json.loads((profiles.state_directory() / 'before-first-change.json').read_text()))
             sample = Gtk.Window(title='OğuzDows · gerçek panel denetimi')
             sample.set_wmclass('oguzdows-layout-primary', 'OguzDowsLayoutPrimary')
@@ -296,11 +322,14 @@ def main():
             sample.add(words)
             sample.show_all()
             panel_process = subprocess.Popen(['xfce4-panel', '--disable-wm-check'], stdout=log, stderr=subprocess.STDOUT, start_new_session=True)
-            capture('mac')
+            capture('gnome', '-launcher-import')
             for plugin in profiles.LAUNCHERS:
                 assert profiles.read_property('xfce4-panel', f'/plugins/plugin-{plugin}', 'string', profiles.run) == 'launcher'
                 imported = list((home / 'config/xfce4/panel' / f'launcher-{plugin}').glob('*.desktop'))
                 assert imported, 'Paket kısayolu gerçek launcher tarafından içe aktarılmalı'
+            profiles.apply('mac', appearance='light')
+            profiles.reload_panels()
+            capture('mac')
             profiles.set_appearance('dark')
             capture('mac', '-dark')
             profiles.set_appearance('light')
@@ -309,7 +338,7 @@ def main():
                 profiles.reload_panels()  # Yalnızca bu testin özel veri yolu.
                 capture(identifier)
             # İki ek sınıf ile görev grubu büyürken merkez gerçekten kalmalı.
-            before = next(item['width'] for item in docks() if item['y'] > screen_height / 2)
+            before = task_bounds()[2]
             for index in range(2):
                 extra = Gtk.Window(title='Merkez denetimi ' + str(index))
                 extra.set_wmclass('oguzdows-layout-extra-' + str(index), 'OguzDowsLayoutExtra' + str(index))
@@ -322,10 +351,10 @@ def main():
             deadline = time.monotonic() + 5
             while time.monotonic() < deadline:
                 pump()
-                if any(item['y'] > screen_height / 2 and item['width'] > before + 20 for item in docks()):
+                if task_bounds() and task_bounds()[2] > before + 20:
                     break
                 time.sleep(.05)
-            assert any(item['y'] > screen_height / 2 and item['width'] > before + 20 for item in docks()), 'Gerçek görev grubu yeni pencerelerle büyümeli'
+            assert task_bounds() and task_bounds()[2] > before + 20, 'Gerçek görev grubu yeni pencerelerle büyümeli'
             capture('windows11', '-three-windows')
             profiles.restore()
             for channel, path, kind, previous in original_native:

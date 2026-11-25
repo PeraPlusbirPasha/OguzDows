@@ -143,98 +143,114 @@ def boot_background(width: int, height: int) -> Image.Image:
     return image.convert("RGB").resize((width, height), Image.Resampling.LANCZOS)
 
 
-def window_theme(root: Path, name='OguzDows', light=False, xp=False, accent=None) -> None:
-    base = f'usr/share/themes/{name}/xfwm4/'
-    active_bg = '#245ca5' if xp and light else ('#183352' if xp else ('#e9edf2' if light else '#1c202a'))
-    mac, gnome = name.startswith('OguzDowsMac'), name.startswith('OguzDowsGnome')
-    inactive_bg = '#385d88' if xp and light else ('#1b3048' if xp else ('#dce3ed' if light else '#191c24'))
-    active_text = '#1e2a3a' if light and not xp else PAPER
-    inactive_text = '#334155' if light and not xp else '#e1e6ef'
-    if name.startswith('OguzDowsAero'):
-        active_bg, inactive_bg = ('#bfd9f3', '#d6e2ef') if light else ('#204568', '#25374d')
-    elif name.startswith('OguzDowsEleven'):
-        active_bg, inactive_bg = ('#e9f1fb', '#e0e7ef') if light else ('#172a42', '#1c2b3e')
-    elif mac:
-        active_bg, inactive_bg = ('#eef0f4', '#e1e5ec') if light else ('#292c33', '#24272e')
-    elif gnome:
-        active_bg, inactive_bg = ('#f0edf3', '#e2dfe9') if light else ('#322f3d', '#292733')
+def window_theme(root: Path, name='OguzDows', light=False, xp=False, accent=None, glass=None) -> None:
+    """One contiguous 32px title baseline, 1px frame and shaped top corners.
 
-    glass = name.startswith('OguzDowsAeroGlass')
-    if glass and accent:
-        color = ImageColor.getrgb(accent)
-        blend = lambda weight: '#' + ''.join(f'{round(component * weight + (255 if light else 12) * (1 - weight)):02x}' for component in color)
-        active_bg, inactive_bg = blend(.22 if light else .31), blend(.13 if light else .22)
+    GTK owns CSD geometry, Xfwm owns SSD assets; Picom optionally clips outer
+    SSD corners once. No painted rectangular button patch across a corner.
+    """
+    base = f'usr/share/themes/{name}/xfwm4/'
+    mac = name.startswith('OguzDowsMac')
+    eleven = name.startswith('OguzDowsEleven')
+    glass = name.startswith('OguzDowsAeroGlass') if glass is None else glass
+    accent = accent or ('#2469ad' if mac else '#276bc1' if eleven else RED)
+    active_bg = '#245ca5' if xp and light else '#183352' if xp else '#e9edf2' if light else '#1c202a'
+    if mac:
+        active_bg = '#eef0f4' if light else '#292c33'
+    elif eleven:
+        active_bg = '#edf2f9' if light else '#202d40'
+    elif name.startswith('OguzDowsGnome'):
+        active_bg = '#f0edf3' if light else '#322f3d'
+    elif name.startswith('OguzDowsAero'):
+        active_bg = '#c6dbef' if light else '#204568'
+    rgb = ImageColor.getrgb(accent)
+    if not xp:
+        weight = .10 if light else .16
+        active_bg = '#' + ''.join(f'{round(c * weight + b * (1-weight)):02x}' for c, b in zip(rgb, ImageColor.getrgb(active_bg)))
+    inactive_bg = '#e4e7ed' if light else '#252b34'
+    active_text = '#1d293b' if light and not xp else PAPER
+    inactive_text = '#536074' if light and not xp else '#c1c8d2'
 
     def tile(size, color):
+        # Vertical gradients share the same endpoints across title / buttons.
         image = Image.new('RGBA', size, color)
-        if xp or mac or name.startswith('OguzDowsAero'):
-            # Reflet çizime gömülüdür; çalışma anında blur / animasyon yoktur.
-            rgb = ImageColor.getrgb(color)
-            draw = ImageDraw.Draw(image)
-            for y in range(size[1]):
-                shine = (1 - y / max(1, size[1] - 1)) * (.27 if name.startswith('OguzDowsAero') else .16 if xp else .05)
-                draw.line((0, y, size[0], y), fill=tuple(round(c + (255 - c) * shine) for c in rgb) + (255,))
+        draw = ImageDraw.Draw(image)
+        components = ImageColor.getrgb(color)
+        for y in range(size[1]):
+            shine = (1 - y / max(1, size[1] - 1)) * (.10 if glass else .035 if mac else 0)
+            draw.line((0, y, size[0], y), fill=tuple(round(c + (255 - c) * shine) for c in components) + (255,))
         return image
 
-    for state in ("active", "inactive"):
-        bg = active_bg if state == "active" else inactive_bg
-        edge = ('#b0b9c5' if light else '#535e6e') if mac else ("#75aadd" if name.startswith(("OguzDowsAero", "OguzDowsEleven")) else RED) if state == "active" else "#363b49"
-        for part in ("title-1", "title-2", "title-3", "title-4", "title-5", "top-left", "top-right"):
-            image = tile((128 if glass and part == 'title-3' else 5, 32), bg)
+    for state in ('active', 'inactive'):
+        bg = active_bg if state == 'active' else inactive_bg
+        edge = (*ImageColor.getrgb(accent), 190) if state == 'active' else ((70, 83, 102, 110) if light else (180, 193, 213, 90))
+        for part in ('title-1', 'title-2', 'title-3', 'title-4', 'title-5'):
+            image = tile((32 if part == 'title-3' else 5, 32), bg)
             ImageDraw.Draw(image).line((0, 0, image.width, 0), fill=edge)
             if glass:
-                # Yalnız dekoratif üst/alt şerit alfa alır. Başlık yazısının
-                # arkasındaki 4..27 px ve tüm kontrol düğmeleri opaktır.
-                for y in (0, 1, 2, 28, 29, 30, 31):
+                # Alpha only on decorative strips, behind no title glyphs.
+                for y in (1, 2, 29, 30, 31):
                     for x in range(image.width):
                         red, green, blue, _alpha = image.getpixel((x, y))
-                        streak = max(0, 1 - abs((x / image.width + y / 32) - .72) * 12)
-                        image.putpixel((x, y), (min(255, round(red + 24 * streak)), min(255, round(green + 24 * streak)), min(255, round(blue + 24 * streak)), 210))
-            save(image, root, base + f"{part}-{state}.png")
-        for part, size in (("left", (3, 1)), ("right", (3, 1)), ("bottom", (1, 3)), ("bottom-left", (3, 3)), ("bottom-right", (3, 3))):
-            color = (*ImageColor.getrgb(bg), 210) if glass else bg
-            save(Image.new("RGBA", size, color), root, base + f"{part}-{state}.png")
-    for state in ("active", "inactive", "prelight", "pressed"):
-        color = inactive_text if state == "inactive" else active_text
-        for button in ("close", "hide", "maximize", "maximize-toggled", "menu"):
-            # Eski GPU'da da bütün düğme döşemesi tamamen opaktır.
-            image = tile((28 * 3, 32 * 3), inactive_bg if state == "inactive" else active_bg)
+                        image.putpixel((x, y), (red, green, blue, 220))
+            save(image, root, base + f'{part}-{state}.png')
+        for part in ('top-left', 'top-right'):
+            scale, radius = 4, 10
+            image = tile((radius * scale, 32 * scale), bg)
+            mask = Image.new('L', (radius * scale * 2, 64 * scale), 0)
+            ImageDraw.Draw(mask).rounded_rectangle((0, 0, radius * scale * 2 - 1, 64 * scale - 1), radius=radius * scale, fill=255)
+            outline = Image.new('RGBA', mask.size)
+            ImageDraw.Draw(outline).rounded_rectangle((0, 0, radius * scale * 2 - 1, 64 * scale - 1), radius=radius * scale, outline=edge, width=scale)
+            image.alpha_composite(outline.crop((0, 0, radius * scale, 32 * scale)))
+            image.putalpha(mask.crop((0, 0, radius * scale, 32 * scale)))
+            if part == 'top-right': image = image.transpose(Image.Transpose.FLIP_LEFT_RIGHT)
+            save(image.resize((radius, 32), Image.Resampling.LANCZOS), root, base + f'{part}-{state}.png')
+        for part, size in (('left', (1, 1)), ('right', (1, 1)), ('bottom', (1, 1)), ('bottom-left', (1, 1)), ('bottom-right', (1, 1))):
+            # SSD fallback is square at the 1px bottom rail. Picom radius=10
+            # clips all four outer corners; do not fake 10px of client padding.
+            save(Image.new('RGBA', size, edge), root, base + f'{part}-{state}.png')
+    for state in ('active', 'inactive', 'prelight', 'pressed'):
+        for button in ('close', 'hide', 'maximize', 'maximize-toggled', 'menu'):
+            color = inactive_text if state == 'inactive' else active_text
+            width = 26 if mac else 44 if eleven else 28
+            image = tile((width * 3, 96), inactive_bg if state == 'inactive' else active_bg)
             draw = ImageDraw.Draw(image)
-            if mac and button in ("close", "hide", "maximize", "maximize-toggled"):
-                fill = {"close": "#f16e68", "hide": "#f4cf72", "maximize": "#81c79a", "maximize-toggled": "#81c79a"}[button]
-                draw.ellipse((12, 21, 72, 81), fill=fill, outline="#68717d", width=2)
-                color = "#20252d"
-            elif button == "close" or state in ("prelight", "pressed"):
-                fill = ("#9f293e" if state == "inactive" else RED) if button == "close" else "#37424b"
-                draw.rounded_rectangle((6, 12, 78, 84), radius=15, fill=fill)
-            if button == "close":
-                draw.line((30, 36, 54, 60), fill=color if mac else PAPER, width=4)
-                draw.line((54, 36, 30, 60), fill=color if mac else PAPER, width=4)
-            elif button == "hide":
-                draw.line((27, 57, 57, 57), fill=color, width=4)
-            elif button.startswith("maximize"):
-                draw.rectangle((28, 34, 56, 62), outline=color, width=3)
-                if button.endswith("toggled"):
-                    draw.line((34, 28, 62, 28, 62, 56), fill=color, width=3)
-            else:
-                for y in (36, 48, 60):
-                    draw.line((27, y, 57, y), fill=TURQUOISE if state != "inactive" else color, width=3)
-            save(image.resize((28, 32), Image.Resampling.LANCZOS), root, base + f"{button}-{state}.png")
-    path = root / base / "themerc"
-    path.write_text(f"""active_text_color={active_text}
+            cx = width * 1.5
+            if mac and button != 'menu':
+                fill = {'close': '#ed6a5f', 'hide': '#f5bf4f', 'maximize': '#61c454', 'maximize-toggled': '#61c454'}[button]
+                draw.ellipse((cx - 18, 30, cx + 18, 66), fill=fill, outline='#82645b', width=2)
+                color = '#352c2b'
+            elif state in ('prelight', 'pressed'):
+                fill = '#c62b3d' if button == 'close' else ('#d4dfec' if light else '#405067')
+                draw.rectangle((0, 3, width * 3, 95), fill=fill)
+                if button == 'close': color = PAPER
+            # Traffic lights display glyphs only under hover / keyboard press.
+            glyph = not mac or button == 'menu' or state in ('prelight', 'pressed')
+            if glyph and button == 'close':
+                draw.line((cx - 12, 36, cx + 12, 60), fill=color, width=3)
+                draw.line((cx + 12, 36, cx - 12, 60), fill=color, width=3)
+            elif glyph and button == 'hide':
+                draw.line((cx - 14, 49, cx + 14, 49), fill=color, width=3)
+            elif glyph and button.startswith('maximize'):
+                draw.rectangle((cx - 13, 35, cx + 13, 61), outline=color, width=3)
+                if button.endswith('toggled'): draw.line((cx - 7, 29, cx + 19, 29, cx + 19, 55), fill=color, width=3)
+            elif button == 'menu':
+                for y in (36, 48, 60): draw.line((cx - 13, y, cx + 13, y), fill=color, width=3)
+            save(image.resize((width, 32), Image.Resampling.LANCZOS), root, base + f'{button}-{state}.png')
+    (root / base / 'themerc').write_text(f'''active_text_color={active_text}
 inactive_text_color={inactive_text}
 active_text_shadow_color={active_bg}
 inactive_text_shadow_color={inactive_bg}
-button_offset=3
-button_spacing=1
+button_offset=0
+button_spacing=0
 full_width_title=true
 title_horizontal_offset=8
 title_vertical_offset=0
-shadow_delta_height=2
-shadow_delta_width=2
+shadow_delta_height=0
+shadow_delta_width=0
 shadow_delta_x=0
-shadow_delta_y=2
-""")
+shadow_delta_y=0
+''')
 
 
 def own_app_icon(identifier: str, size: int) -> Image.Image:
@@ -570,6 +586,11 @@ def render_cursor(root: Path) -> None:
 
 
 def render(root: Path) -> None:
+    geometry = Path(__file__).resolve().parents[1] / 'system/usr/share/oguzdows/ui/window-geometry.css'
+    target_geometry = root / 'usr/share/oguzdows/ui/window-geometry.css'
+    if geometry.is_file() and geometry.resolve() != target_geometry.resolve():
+        target_geometry.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copy2(geometry, target_geometry)
     render_wallpapers(root)
     render_nazar(root)
     render_cursor(root)

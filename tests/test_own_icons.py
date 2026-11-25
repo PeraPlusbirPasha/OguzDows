@@ -48,20 +48,17 @@ class OwnIconTests(unittest.TestCase):
 
     def test_windows11_center_cluster_contains_neither_tray_clock_nor_expanding_spacer(self):
         values = {key: value for _ch, key, _kind, value in profiles.settings('windows11')}
-        self.assertEqual(values['/panels'], ['1', '90'])
-        cluster = values['/panels/panel-90/plugin-ids']
-        self.assertEqual(cluster[0], '1')
-        self.assertEqual(cluster[-1], '2')
-        self.assertTrue(all(str(key) in cluster for key in profiles.LAUNCHERS))
-        self.assertFalse(set(cluster) & {'3', '4', '5', '6', '7'})
-        self.assertEqual(values['/panels/panel-90/length'], '1')
-        self.assertEqual(values['/panels/panel-90/length-adjust'], 'true')
-        self.assertEqual(values['/panels/panel-90/nrows'], '1')
-        self.assertEqual(values['/plugins/plugin-94/expand'], 'false')
-        self.assertEqual(values['/panels/panel-1/plugin-ids'], ['3', '4', '5', '6', '7'])
-        self.assertGreater(float(values['/panels/panel-90/background-rgba'][0]), .9)
+        self.assertEqual(values['/panels'], ['1'])
+        self.assertEqual(values['/panels/panel-1/position'], 'p=10;x=0;y=0')
+        self.assertEqual(values['/panels/panel-1/length'], '100')
+        self.assertEqual(values['/panels/panel-1/plugin-ids'], ['95', '3', '4', '5', '6', '7'])
+        self.assertEqual(values['/plugins/plugin-95'], 'oguzdows-tasks')
+        self.assertEqual(values['/plugins/plugin-95/style'], 'windows11')
+        self.assertEqual(values['/plugins/plugin-3/expand'], 'false')
+        self.assertIsNone(values['/panels/panel-90/position'])
+        self.assertGreater(float(values['/panels/panel-1/background-rgba'][0]), .9)
         dark = {key: value for _ch, key, _kind, value in profiles.settings('windows11', appearance='dark')}
-        self.assertLess(float(dark['/panels/panel-90/background-rgba'][0]), .2)
+        self.assertLess(float(dark['/panels/panel-1/background-rgba'][0]), .2)
 
     def test_mac_and_ubuntu_docks_shrink_to_contents_not_a_large_fixed_blank_strip(self):
         for identifier in ('mac', 'gnome'):
@@ -74,7 +71,7 @@ class OwnIconTests(unittest.TestCase):
             for eligible in (False, True):
                 values = {key: value for _ch, key, _kind, value in profiles.settings('mac', appearance, effects='aero', resources={'compositing': eligible})}
                 self.assertEqual(values['/Net/ThemeName'], expected)
-                self.assertEqual(values['/general/button_layout'], 'CHM|O')
+                self.assertEqual(values['/general/button_layout'], 'CHM|')
                 self.assertEqual(values['/Gtk/EnableAnimations'], str(eligible).lower())
 
 

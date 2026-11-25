@@ -177,7 +177,9 @@ class SharedPreferencesTests(unittest.TestCase):
             with self.subTest(accelerated=accelerated, running=running), patch.dict(os.environ, {'XDG_CURRENT_DESKTOP': 'XFCE'}), patch.object(profiles, 'selection', return_value=('windows11', 'light')), patch.object(profiles, 'set_shared') as shared, patch.object(aero, 'probe', return_value={'major': 12, 'accelerated': accelerated}), patch('desktop_material.install', return_value='OguzDowsAeroGlassUser-0123456789ab') as material, patch.object(effects, 'reconcile', return_value={'engine': 'picom' if running else 'xfwm4', 'blur_configured': running, 'message': 'test'}) as reconcile:
                 preferences.apply_current(prefs, self.root, policy(8388608))
                 self.assertEqual(shared.call_args_list[0].args[0]['blur'], accelerated)
-                self.assertEqual(material.call_count, int(accelerated))
+                self.assertEqual(material.call_count, 2 if accelerated and not running else 1)
+                self.assertEqual(material.call_args_list[0].kwargs['identifier'], 'windows11')
+                self.assertEqual(material.call_args_list[0].kwargs['glass'], accelerated)
                 self.assertEqual(shared.call_count, 2 if accelerated and not running else 1)
                 if accelerated and not running:
                     self.assertTrue(shared.call_args.kwargs['surface_only'])
@@ -205,7 +207,7 @@ class SharedPreferencesTests(unittest.TestCase):
             events.append('xfwm:' + str(enabled).lower())
             native(['xfconf-query', '-c', 'xfwm4', '-p', '/general/use_compositing', '-t', 'bool', '-s', str(enabled).lower()])
             owner['value'] = 77 if enabled else 0
-        with patch.dict(os.environ, {'XDG_CURRENT_DESKTOP': 'XFCE', 'XDG_SESSION_TYPE': 'x11'}), patch.object(effects.os, 'getuid', return_value=1000), patch.object(profiles, 'state_directory', return_value=self.root / 'profiles'), patch.object(profiles, 'set_shared', side_effect=lambda prefs, **kwargs: surface(prefs, directory=self.root / 'profiles', execute=native, **kwargs)), patch.object(effects, 'reconcile', side_effect=lambda effect, resources, **kwargs: reconcile(effect, resources, directory=directory, connect=lambda: x11, **kwargs)), patch.object(effects, 'owned_state', side_effect=lambda _directory: owned if owner['value'] == 88 else None), patch.object(effects, 'stop_owned', side_effect=stop), patch.object(effects, 'xfwm', side_effect=xfwm), patch.object(effects, 'wait_owner', side_effect=lambda *_args: owner['value']):
+        with patch('desktop_material.install', return_value='OguzDowsXPUser-test'), patch.dict(os.environ, {'XDG_CURRENT_DESKTOP': 'XFCE', 'XDG_SESSION_TYPE': 'x11'}), patch.object(effects.os, 'getuid', return_value=1000), patch.object(profiles, 'state_directory', return_value=self.root / 'profiles'), patch.object(profiles, 'set_shared', side_effect=lambda prefs, **kwargs: surface(prefs, directory=self.root / 'profiles', execute=native, **kwargs)), patch.object(effects, 'reconcile', side_effect=lambda effect, resources, **kwargs: reconcile(effect, resources, directory=directory, connect=lambda: x11, **kwargs)), patch.object(effects, 'owned_state', side_effect=lambda _directory: owned if owner['value'] == 88 else None), patch.object(effects, 'stop_owned', side_effect=stop), patch.object(effects, 'xfwm', side_effect=xfwm), patch.object(effects, 'wait_owner', side_effect=lambda *_args: owner['value']):
             result = preferences.apply_current({**state.DEFAULTS, 'effects': 'glass'}, self.root, policy(8388608))
         self.assertEqual(events, ['stop-picom', 'xfwm:true'])
         self.assertEqual(result['engine'], 'xfwm4')
@@ -235,7 +237,7 @@ class SharedPreferencesTests(unittest.TestCase):
                 self.assertFalse(any(command[2:5] == ['xfwm4', '-p', '/general/use_compositing'] and '-s' in command
                                      for command in backend.calls))
         source = (ROOT / 'system/usr/lib/oguzdows/welcome.py').read_text()
-        self.assertIn('profiles.apply(identifier, manage_compositor=False)', source)
+        self.assertIn('desktop_preferences.update_and_apply({}, profile=identifier)', source)
 
     def test_all_six_xfce_layouts_keep_arrays_shortcuts_and_controls_in_shared_surface_changes(self):
         from test_profile_layouts import Xfconf

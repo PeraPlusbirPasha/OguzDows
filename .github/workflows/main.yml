@@ -76,8 +76,16 @@ jobs:
             xfce4-pulseaudio-plugin xfce4-power-manager xfce4-power-manager-plugins libxcursor1 python3-apt python3-xlib \
             gpgv ca-certificates flatpak gnome-software gnome-software-plugin-flatpak libglib2.0-bin \
             librsvg2-common shared-mime-info iso-codes gdb \
-            build-essential pkg-config libgtk-3-dev libjson-glib-dev gir1.2-flatpak-1.0 \
+            build-essential pkg-config libgtk-3-dev libjson-glib-dev libxfce4panel-2.0-dev libxfconf-0-dev libwnck-3-dev gir1.2-flatpak-1.0 \
             initramfs-tools-core cpio gzip xz-utils
+
+      - name: Yerel görev çubuğu / Dock ve otomatik renk izleyicisini derle
+        run: |
+          sh scripts/build-panel.sh /
+          cp system/usr/share/xfce4/panel/plugins/oguzdows-tasks.desktop /usr/share/xfce4/panel/plugins/
+          mkdir -p /usr/lib/oguzdows
+          cp system/usr/lib/oguzdows/*.py /usr/lib/oguzdows/
+          cp scripts/render-assets.py /usr/lib/oguzdows/render-assets.py
 
       - name: Mağaza varsayılanlarını gerçek şemalarla derle
         run: |

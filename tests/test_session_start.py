@@ -216,13 +216,12 @@ class RealDesktopTests(unittest.TestCase):
 class AeroTests(unittest.TestCase):
     def test_windows11_changes_geometry_icons_and_theme_not_merely_a_name(self):
         values = {path: value for _ch, path, _kind, value in profiles.settings('windows11')}
-        self.assertEqual(values['/panels/panel-90/position'], 'p=10;x=0;y=0')
-        self.assertEqual(values['/panels/panel-90/length'], '1')
-        self.assertEqual(values['/panels/panel-90/length-adjust'], 'true')
-        self.assertEqual(values['/panels/panel-1/position'], 'p=9;x=0;y=0')
-        self.assertIn('1', values['/panels/panel-90/plugin-ids'])
-        self.assertNotIn('3', values['/panels/panel-90/plugin-ids'])
-        self.assertNotIn('7', values['/panels/panel-90/plugin-ids'])
+        self.assertEqual(values['/panels/panel-1/position'], 'p=10;x=0;y=0')
+        self.assertEqual(values['/panels/panel-1/length'], '100')
+        self.assertEqual(values['/panels'], ['1'])
+        self.assertEqual(values['/panels/panel-1/plugin-ids'], ['95', '3', '4', '5', '6', '7'])
+        self.assertEqual(values['/plugins/plugin-95/style'], 'windows11')
+        self.assertIsNone(values['/panels/panel-90/position'])
         self.assertEqual(values['/plugins/plugin-2/show-labels'], 'false')
         self.assertEqual(values['/plugins/plugin-1/show-button-title'], 'false')
         self.assertEqual(values['/Net/ThemeName'], 'OguzDowsEleven')
@@ -230,7 +229,7 @@ class AeroTests(unittest.TestCase):
     def test_aero_static_theme_remains_on_zero_and_opaque_controls_on_full(self):
         for memory in (524288, 1048576, 8388608):
             values = {path: value for _ch, path, _kind, value in profiles.settings('windows11', 'dark', 'aero', policy.policy(memory))}
-            self.assertEqual(values['/Net/ThemeName'], 'OguzDowsAeroDark')
+            self.assertEqual(values['/Net/ThemeName'], 'OguzDowsElevenDark')
             self.assertEqual(values['/general/frame_opacity'], '100')
             self.assertEqual(values['/general/inactive_opacity'], '100')
             self.assertEqual(values['/general/popup_opacity'], '100')
@@ -248,7 +247,7 @@ class AeroTests(unittest.TestCase):
             position = xfconf.values['xfce4-panel', '/panels/panel-1/position']
             profiles.set_effects('aero', root, xfconf, policy.policy(524288))
             profiles.set_appearance('dark', root, xfconf)
-            self.assertEqual(xfconf.values['xsettings', '/Net/ThemeName'], 'OguzDowsAeroDark')
+            self.assertEqual(xfconf.values['xsettings', '/Net/ThemeName'], 'OguzDowsElevenDark')
             self.assertEqual(xfconf.values['xfce4-panel', '/panels/panel-1/position'], position)
             profiles.set_effects('off', root, xfconf)
             self.assertEqual(xfconf.values['xsettings', '/Net/ThemeName'], 'OguzDowsElevenDark')

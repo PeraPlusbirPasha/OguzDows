@@ -62,7 +62,11 @@ class AssetTests(unittest.TestCase):
             for name in ('OguzDowsAero', 'OguzDowsAeroDark', 'OguzDowsEleven', 'OguzDowsElevenDark'):
                 for part in ('title-1-active', 'close-active', 'close-inactive'):
                     with Image.open(root / f'usr/share/themes/{name}/xfwm4/{part}.png') as image:
-                        self.assertEqual(image.getchannel('A').getextrema(), (255, 255))
+                        if part.startswith('title-'):
+                            self.assertEqual(image.crop((0, 1, image.width, image.height)).getchannel('A').getextrema(), (255, 255))
+                            self.assertEqual(image.getpixel((0, 0))[3], 190)  # 1px alpha border
+                        else:
+                            self.assertEqual(image.getchannel('A').getextrema(), (255, 255))
             original = bios.read_bytes()
             renderer.render(root)
             self.assertEqual(bios.read_bytes(), original)

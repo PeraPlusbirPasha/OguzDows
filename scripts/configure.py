@@ -91,6 +91,7 @@ def configure(arch: str, output: Path) -> None:
     shutil.copy2(ROOT / "docs/PI-ZERO-OTURUM.md", documentation / "PI-ZERO-OTURUM.md")
     shutil.copy2(ROOT / "docs/ELEMENTARY-HABER.md", documentation / "ELEMENTARY-HABER.md")
     shutil.copy2(ROOT / "docs/NATIVE-MATERYAL-HABER-MAGAZA.md", documentation / "NATIVE-MATERYAL-HABER-MAGAZA.md")
+    shutil.copy2(ROOT / 'docs/MODLAR-VE-OTOMATIK-RENK.md', documentation / 'MODLAR-VE-OTOMATIK-RENK.md')
     shutil.copy2(ROOT / "docs/CIHAZLAR-VE-UYUMLULUK.md", documentation / "cihazlar-ve-uyumluluk.md")
     shutil.copy2(ROOT / "scripts/render-assets.py", overlay / "usr/lib/oguzdows/render-assets.py")
     if arch == 'amd64':
@@ -106,6 +107,8 @@ def configure(arch: str, output: Path) -> None:
     shutil.copy2(ROOT / 'scripts/build-news.sh', overlay / 'usr/share/oguzdows/scripts/build-news.sh')
     shutil.copy2(ROOT / 'scripts/build-desktop.sh', overlay / 'usr/share/oguzdows/scripts/build-desktop.sh')
     (overlay / 'usr/share/oguzdows/scripts/build-desktop.sh').chmod(0o755)
+    shutil.copy2(ROOT / 'scripts/build-panel.sh', overlay / 'usr/share/oguzdows/scripts/build-panel.sh')
+    (overlay / 'usr/share/oguzdows/scripts/build-panel.sh').chmod(0o755)
     (overlay / 'usr/share/oguzdows/scripts/build-news.sh').chmod(0o755)
     (overlay / 'usr/share/oguzdows/scripts/build-native.sh').chmod(0o755)
 

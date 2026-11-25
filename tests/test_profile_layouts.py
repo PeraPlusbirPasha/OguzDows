@@ -23,13 +23,13 @@ class LayoutTests(unittest.TestCase):
             self.assertEqual(values['xfce4-panel', '/panels/panel-90/position'], position)
             self.assertEqual(values['xfce4-panel', '/panels/panel-90/mode'], mode)
             self.assertNotIn('2', values['xfce4-panel', '/panels/panel-1/plugin-ids'])
-            self.assertIn('2', values['xfce4-panel', '/panels/panel-90/plugin-ids'])
+            self.assertIn('95' if name == 'mac' else '2', values['xfce4-panel', '/panels/panel-90/plugin-ids'])
             self.assertEqual(values['xfce4-panel', '/plugins/plugin-2/show-labels'], 'false')
             for identifier, desktop in profiles.LAUNCHERS.items():
                 self.assertTrue((ROOT / 'system/usr/share/applications' / desktop).is_file())
-                self.assertEqual(values['xfce4-panel', f'/plugins/plugin-{identifier}'], 'launcher')
+                self.assertEqual(values['xfce4-panel', f'/plugins/plugin-{identifier}'], 'launcher' if name == 'gnome' else None)
         mac = dict((key, value) for _ch, key, _kind, value in profiles.settings('mac'))
-        self.assertEqual(mac['/general/button_layout'], 'CHM|O')
+        self.assertEqual(mac['/general/button_layout'], 'CHM|')
         self.assertEqual(mac['/general/title_alignment'], 'center')
 
     def test_arrays_round_trip_and_unrelated_panels_and_settings_survive(self):

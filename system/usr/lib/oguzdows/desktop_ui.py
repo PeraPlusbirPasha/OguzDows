@@ -40,6 +40,15 @@ class PreferencesPanel(Gtk.Box):
             error = ''
         except (OSError, ValueError) as failure:
             value, error = state.DEFAULTS, str(failure)
+        self.profile = None
+        self.reload_profile = None
+        if runtime.current() == 'xfce':
+            import profiles
+            self.profile = self.combo('Masaüstü düzeni', {key: item['name'] for key, item in profiles.PROFILES.items()}, profiles.selection()[0])
+            self.reload_profile = Gtk.CheckButton(label='Düzen değişirse paneli şimdi yenile · açık uygulamalar kapanmaz')
+            self.reload_profile.get_child().set_line_wrap(True)
+            self.pack_start(self.reload_profile, False, False, 0)
+            self.pack_start(note('Windows 11 esintisi: tek alt görev çubuğu. macOS esintisi: üst uygulama / yerler menüsü + altta büyüyen Dock. Bu gerçek bir macOS global uygulama menüsü değildir.'), False, False, 0)
         self.appearance = self.combo('Açık / koyu tema', {'light': 'Açık', 'dark': 'Koyu'}, value['appearance'])
         self.effects = self.combo('Efekt düzeyi', {'off': 'Kapalı · en hafif', 'glass': 'Hafif cam', 'aero': 'Aero · gelişmiş seçenekler'}, value['effects'])
         self.motion = self.combo('Hareket', {'reduced': 'Azaltılmış · animasyon yok', 'smooth': 'Kısa / yerel geçişler', 'spring': 'Yay · desteklenen kompozitörde'}, value['motion'])
@@ -49,7 +58,7 @@ class PreferencesPanel(Gtk.Box):
         self.snap = Gtk.CheckButton(label='Deneysel geometri / Aero Snap animasyonu · sürüklemeyi de etkileyebilir')
         self.snap.set_active(value['snap_animation']); self.snap.get_child().set_line_wrap(True)
         self.pack_start(self.snap, False, False, 0)
-        self.source = self.combo('Cam rengi', {'theme': 'Seçtiğim vurgu rengi', 'wallpaper': 'Seçili galeri görselinden tek seferlik çıkar'}, value['accent_source'])
+        self.source = self.combo('Otomatik vurgu', {'theme': 'Elle seçtiğim renk · otomatik kapalı', 'wallpaper': 'Her duvar kâğıdında otomatik · Xfce dahil'}, value['accent_source'])
         row = Gtk.Box(spacing=10)
         row.pack_start(note('Vurgu rengi'), True, True, 0)
         self.color = Gtk.ColorButton()
@@ -154,7 +163,23 @@ class PreferencesPanel(Gtk.Box):
             'motion': self.motion.get_active_id(), 'blur': self.blur.get_active(),
             'snap_animation': self.snap.get_active(), 'accent': color,
             'accent_source': self.source.get_active_id(), 'feedback': self.feedback.get_active()}
-        self.work(lambda: preferences.update_and_apply(changes))
+        profile = None
+        if self.profile is not None:
+            import profiles
+            selected = self.profile.get_active_id()
+            if selected != profiles.selection()[0]:
+                profile = selected
+        refresh = profile is not None and self.reload_profile.get_active()
+        def operation():
+            result = preferences.update_and_apply(changes, profile=profile)
+            if refresh:
+                import profiles
+                profiles.reload_panels()
+                result['message'] += ' Panel yenilendi.'
+            elif profile:
+                result['message'] += ' Yeni panel düzeni sonraki girişte yüklenir; ayrıca paneli yenileyebilirsiniz.'
+            return result
+        self.work(operation)
 
     def restore(self, *_):
         if self.busy or not self.allowed():

@@ -17,7 +17,7 @@ from pathlib import Path
 
 DEFAULTS = {'schema': 1, 'revision': 0, 'appearance': 'light', 'effects': 'off',
             'blur': False, 'motion': 'smooth', 'snap_animation': False,
-            'accent': '#36b6c5', 'accent_source': 'theme', 'feedback': False,
+            'accent': '#36b6c5', 'accent_source': 'wallpaper', 'feedback': False,
             'wallpaper': ''}
 LIMIT = 65536
 

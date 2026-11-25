@@ -99,7 +99,7 @@ class ResourcePolicyTests(unittest.TestCase):
             self.assertEqual(values['xfce4-panel', '/panels/panel-1/enter-opacity'], '100')
         values = {(ch, path): value for ch, path, _kind, value in profiles.settings('mac', effects='glass', resources=resources.policy(8388608))}
         self.assertEqual(values['xfwm4', '/general/use_compositing'], 'true')
-        self.assertEqual(values['xfce4-panel', '/panels/panel-1/background-style'], '0')
+        self.assertEqual(values['xfce4-panel', '/panels/panel-1/background-style'], '1')
         self.assertEqual(values['xfce4-panel', '/panels/panel-90/background-rgba'][-1], '0.94')
 
     def test_default_style_or_login_does_not_force_compositing_on(self):

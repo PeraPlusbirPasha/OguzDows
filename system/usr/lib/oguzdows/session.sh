@@ -12,4 +12,5 @@ python3 /usr/lib/oguzdows/wallpapers.py --initialize
 if ! /usr/bin/python3 -I /usr/lib/oguzdows/desktop_center.py --effects-session; then
     echo "OğuzDows ortak tercihleri uzlaştırılamadı; masaüstü oturumu korunuyor." >&2
 fi
+/usr/bin/python3 -I /usr/lib/oguzdows/accent.py --session
 exit 0

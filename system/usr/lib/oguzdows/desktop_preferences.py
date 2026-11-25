@@ -1,9 +1,9 @@
 """Xfce / GNOME / Plasma ortak tercihleri; kabuk ve panel düzenleri ayrı kalır."""
 from __future__ import annotations
 
-import colorsys
 import json
 import os
+import subprocess
 from pathlib import Path
 
 import desktop_runtime as runtime
@@ -20,24 +20,8 @@ def wallpaper_entry(identifier):
 
 
 def wallpaper_accent(path):
-    # Yalnız kullanıcı seçtiğinde tek küçük örnekleme; masaüstü tarama döngüsü yok.
-    from PIL import Image
-    if Path(path).stat().st_size > 40 * 1024 * 1024:
-        raise ValueError('Duvar kâğıdı renk örnekleme sınırını aşıyor.')
-    with Image.open(path) as source:
-        source.thumbnail((64, 64))
-        image = source.convert('RGB').quantize(colors=12).convert('RGB')
-        colors = image.getcolors(4096) or []
-    candidates = []
-    for count, (r, g, b) in colors:
-        h, saturation, brightness = colorsys.rgb_to_hsv(r / 255, g / 255, b / 255)
-        if .14 < brightness < .98:
-            candidates.append((count * (.25 + saturation), h, saturation, brightness))
-    if not candidates:
-        return state.DEFAULTS['accent']
-    _weight, h, saturation, brightness = max(candidates)
-    color = colorsys.hsv_to_rgb(h, min(.72, max(.38, saturation)), min(.78, max(.48, brightness)))
-    return '#' + ''.join(f'{round(value * 255):02x}' for value in color)
+    from accent import extract
+    return extract(path)
 
 
 def gtk_theme(preferences):
@@ -64,10 +48,10 @@ def apply_current(preferences, directory, resources, *, wallpaper=False, undo=No
                       (preferences['blur'] or preferences['motion'] == 'spring') else None)
         planned = aero.plan(preferences, resources, capability)
         surface = dict(preferences, blur=planned['blur_configured'])
-        material = None
-        if surface['blur'] and profiles.selection()[0] != 'mac':
-            from desktop_material import install
-            material = install(preferences['accent'], preferences['appearance'] == 'dark')
+        from desktop_material import install
+        identifier = profiles.selection()[0]
+        material = install(preferences['accent'], preferences['appearance'] == 'dark',
+                           identifier=identifier, glass=surface['blur'], base_theme=gtk_theme(preferences))
         profiles.set_shared(surface, resources=resources, material_theme=material, undo=undo)
         if wallpaper and preferences['wallpaper']:
             import wallpapers
@@ -76,7 +60,9 @@ def apply_current(preferences, directory, resources, *, wallpaper=False, undo=No
             undo.append(checkpoint)
         result.update(effects.reconcile(preferences['effects'], resources, preferences=preferences, capability=capability, checkpoint=checkpoint))
         if surface['blur'] and not result['blur_configured']:
-            profiles.set_shared(dict(preferences, blur=False), resources=resources, surface_only=True, undo=undo)
+            fallback = install(preferences['accent'], preferences['appearance'] == 'dark',
+                               identifier=identifier, glass=False, base_theme=gtk_theme(preferences))
+            profiles.set_shared(dict(preferences, blur=False), resources=resources, material_theme=fallback, surface_only=True, undo=undo)
     elif desktop == 'gnome':
         import desktop_gnome as gnome
         backend = gnome.GnomeSettings()
@@ -139,16 +125,31 @@ def apply_current(preferences, directory, resources, *, wallpaper=False, undo=No
     return result
 
 
-def update_and_apply(changes, resources=None):
+def update_and_apply(changes, resources=None, *, observed_wallpaper=None, profile=None):
     runtime.normal_session()
     if runtime.installation_busy():
         raise RuntimeError('Kurucu / sürücü işlemi sürüyor; görünüm değişikliği ertelendi.')
     resources = current_policy() if resources is None else resources
     with state.locked() as directory:
         original = state.load()
+        if observed_wallpaper is not None and original['accent_source'] != 'wallpaper':
+            return {'changed': False, 'message': 'Otomatik renk kapatıldı; son kullanıcı rengi korundu.'}
         preferences = state.merged(original, changes)
-        if preferences['accent_source'] == 'wallpaper' and preferences['wallpaper']:
-            preferences['accent'] = wallpaper_accent(wallpaper_entry(preferences['wallpaper'])['path'])
+        accent_note = ''
+        if preferences['accent_source'] == 'wallpaper':
+            sample = observed_wallpaper
+            if sample is None and 'wallpaper' in changes and preferences['wallpaper']:
+                sample = wallpaper_entry(preferences['wallpaper'])['path']
+            elif sample is None and runtime.current() == 'xfce':
+                from accent import current_wallpaper
+                try:
+                    sample = current_wallpaper()
+                except (OSError, ValueError, RuntimeError, subprocess.SubprocessError):
+                    accent_note = 'Okunabilir JPEG / PNG / WebP duvar kâğıdı yok; önceki vurgu korundu.'
+            elif sample is None and preferences['wallpaper']:
+                sample = wallpaper_entry(preferences['wallpaper'])['path']
+            if sample is not None:
+                preferences['accent'] = wallpaper_accent(sample)
         path = state.config_path()
         receipt = directory / (runtime.current() + '-applied.json')
         old_files = {path: state.read_json(path), receipt: state.read_json(receipt)}
@@ -156,6 +157,11 @@ def update_and_apply(changes, resources=None):
                      path: preferences}
         undo = []
         try:
+            if profile is not None:
+                if runtime.current() != 'xfce':
+                    raise ValueError('Bu panel düzenleri yalnız Xfce içindir; diğer kabuklar korunur.')
+                import profiles
+                profiles.apply(profile, appearance=preferences['appearance'], manage_compositor=False, undo=undo)
             result = apply_current(preferences, directory, resources, wallpaper='wallpaper' in changes, undo=undo)
             # Ortak tercih en son görünür olur. Önceki native DE değerleri
             # ortak varsayılanlarla tahmin edilmez: tam işlem kaydı geri alınır.
@@ -182,6 +188,15 @@ def update_and_apply(changes, resources=None):
                                    + '; '.join(errors)) from failure
             raise
         result['revision'] = preferences['revision']
+        if accent_note:
+            result.setdefault('notes', []).append(accent_note)
+        # GApplication enforces one tiny native observer per display. Starting
+        # it is optional infrastructure, never a reason to undo valid settings.
+        try:
+            from accent import ensure_observer
+            ensure_observer(preferences)
+        except (OSError, RuntimeError, ImportError) as error:
+            result.setdefault('notes', []).append('Renk kaydedildi; otomatik izleyici başlayamadı: ' + str(error))
         return result
 
 
@@ -205,7 +220,9 @@ def session(resources=None):
         if (last.get('revision') == preferences['revision'] and runtime.current() != 'xfce'
                 and last.get('compositing') == bool(resources['compositing'])):
             return {'message': 'Bu oturumda ortak tercihler güncel; kişisel yerel değişiklikler korunuyor.'}
-        result = apply_current(preferences, directory, resources, wallpaper=last.get('revision') != preferences['revision'])
+        result = apply_current(preferences, directory, resources, wallpaper=last.get('revision') != preferences['revision'] and runtime.current() != 'xfce')
+        from accent import ensure_observer
+        ensure_observer(preferences)
         state.atomic_json(path, {'revision': preferences['revision'], 'compositing': bool(resources['compositing'])})
         return result
 

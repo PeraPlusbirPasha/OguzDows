@@ -1,0 +1,33 @@
+/* One GTK3 CSD geometry owner. Xfwm decorates SSD; Picom never re-rounds or
+ * re-shadows _GTK_FRAME_EXTENTS clients. No global opacity / negative margin.
+ * No CSS blur/backdrop-filter/transform: unsupported browser rules aren't GTK.
+ */
+window.csd, window.csd.background { border-radius: 10px; }
+.csd decoration {
+  border-radius: 10px;
+  border: 1px solid alpha(@theme_fg_color, .20);
+  box-shadow: 0 7px 20px 0 rgba(0, 0, 0, .20);
+  margin: 0;
+}
+headerbar.titlebar, .csd > .titlebar { border-radius: 10px 10px 0 0; }
+window.maximized, window.fullscreen, window.tiled,
+.maximized decoration, .fullscreen decoration, .tiled decoration {
+  border-radius: 0; box-shadow: none;
+}
+.maximized headerbar, .fullscreen headerbar, .tiled headerbar { border-radius: 0; }
+/* Without RGBA composition, square and complete is better than black corners. */
+.solid-csd decoration { border-radius: 0; box-shadow: none; }
+.solid-csd headerbar { border-radius: 0; }
+menu, .menu, popover.background { border-radius: 8px; padding: 4px; }
+menuitem { border-radius: 5px; padding: 5px 10px; }
+.xfce4-panel.background { border-radius: 0; box-shadow: none; }
+.xfce4-panel.oguzdows-taskbar { border-radius: 0; border-width: 1px 0 0 0; }
+.xfce4-panel.oguzdows-dock { border-radius: 16px; border: 1px solid alpha(@theme_fg_color, .20); }
+.xfce4-panel button.oguzdows-task {
+  margin: 0; padding: 0; min-width: 0; min-height: 0;
+  border: 0; border-radius: 8px; background-image: none;
+  background-color: transparent; box-shadow: none; text-shadow: none;
+}
+.xfce4-panel button.oguzdows-task:hover { background-color: alpha(@theme_selected_bg_color, .12); }
+.xfce4-panel button.oguzdows-task:checked { background-color: alpha(@theme_selected_bg_color, .17); }
+.xfce4-panel button.oguzdows-task:focus { box-shadow: inset 0 0 0 1px @theme_selected_bg_color; }

@@ -54,6 +54,9 @@ python3-apt
 build-essential
 pkg-config
 libgtk-3-dev
+libxfce4panel-2.0-dev
+libxfconf-0-dev
+libwnck-3-dev
 libjson-glib-dev
 libjson-glib-1.0-0
 desktop-file-utils

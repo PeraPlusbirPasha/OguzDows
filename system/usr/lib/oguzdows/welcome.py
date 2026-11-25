@@ -16,7 +16,6 @@ import wallpapers
 import boot_report
 import install_status as installer_state
 import profiles
-import effects
 import desktop_preferences
 import desktop_runtime
 import welcome_model
@@ -810,12 +809,7 @@ class Welcome(Gtk.Application):
             else:
                 # Panel / tema önce uygulanır; kompozitörün tek sahibi
                 # aşağıdaki uzlaştırıcıdır. Picom durmadan Xfwm açılmaz.
-                profiles.apply(identifier, manage_compositor=False)
-                from desktop_state import config_path
-                if config_path().exists():
-                    desktop_preferences.session()
-                else:
-                    effects.reconcile()
+                desktop_preferences.update_and_apply({}, profile=identifier)
             if reload_now:
                 profiles.reload_panels()
             return ('İlk görünüm ayarların geri yüklendi.' if identifier is None else

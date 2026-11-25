@@ -19,7 +19,7 @@ class ProfileSmokeTests(unittest.TestCase):
             with self.assertRaisesRegex(RuntimeError, 'power-manager-plugin'):
                 smoke.plugin_manifest(directory)
             plugins = ('whiskermenu', 'tasklist', 'separator', 'systray', 'pulseaudio',
-                       'power-manager-plugin', 'clock', 'launcher')
+                       'power-manager-plugin', 'clock', 'launcher', 'directorymenu', 'oguzdows-tasks')
             for name in plugins:
                 (directory / (name + '.desktop')).write_text(name)
             manifest = smoke.plugin_manifest(directory)

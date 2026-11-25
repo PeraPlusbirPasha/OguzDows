@@ -70,6 +70,14 @@ def gui():
 def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__)
     group = parser.add_mutually_exclusive_group()
+    group.add_argument('--profile', choices=('windows11', 'mac', 'oguzdows', 'xfce', 'gnome', 'kde'))
+    group.add_argument('--apply', action='store_true')
+    parser.add_argument('--refresh-panels', action='store_true', help='Açık onay: yalnız paneli yeniden yükle')
+    parser.add_argument('--appearance', choices=('light', 'dark'))
+    parser.add_argument('--effects', choices=('off', 'glass', 'aero'))
+    parser.add_argument('--blur', action=argparse.BooleanOptionalAction, default=None)
+    parser.add_argument('--motion', choices=('reduced', 'smooth', 'spring'))
+    parser.add_argument('--accent-source', choices=('wallpaper', 'theme'))
     group.add_argument('--session', action='store_true')
     group.add_argument('--effects-session', action='store_true')
     group.add_argument('--status', action='store_true')
@@ -77,8 +85,21 @@ def main(argv=None):
     group.add_argument('--control', choices=tuple(runtime.ACTIONS))
     group.add_argument('--snap', choices=('left', 'right', 'maximize', 'restore', 'minimize'))
     args = parser.parse_args(argv)
+    changes = {key: getattr(args, key) for key in ('appearance', 'effects', 'blur', 'motion', 'accent_source') if getattr(args, key) is not None}
+    if (changes or args.refresh_panels) and not (args.profile or args.apply):
+        parser.error('Bu seçenekler --profile veya --apply ile kullanılır.')
     try:
-        if args.status:
+        if args.profile or args.apply:
+            result = preferences.update_and_apply(changes, profile=args.profile)
+            if args.refresh_panels:
+                if runtime.current() != 'xfce':
+                    raise ValueError('Panel yenileme yalnız Xfce için geçerli.')
+                import profiles
+                profiles.reload_panels()
+                result['panel_reloaded'] = True
+            elif args.profile:
+                result['notes'].append('Panel düzeni kaydedildi. Paneli ayrı onayla yenileyin veya oturumu yeniden açın.')
+        elif args.status:
             result = preferences.status()
         elif args.session or args.effects_session:
             result = preferences.session()

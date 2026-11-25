@@ -136,6 +136,53 @@ def native_material_contract(root):
     return hashes
 
 
+MODE_CONTENT = {relative: ROOT / 'system' / relative for relative in (
+    'usr/lib/oguzdows/accent.py', 'usr/lib/oguzdows/profiles.py',
+    'usr/lib/oguzdows/desktop_material.py', 'usr/lib/oguzdows/desktop_preferences.py',
+    'usr/lib/oguzdows/desktop_state.py', 'usr/lib/oguzdows/desktop_ui.py',
+    'usr/lib/oguzdows/session.sh', 'usr/lib/oguzdows/wallpapers.py',
+    'usr/local/bin/oguzdows-accent', 'usr/share/oguzdows/ui/window-geometry.css',
+    'usr/share/xfce4/panel/plugins/oguzdows-tasks.desktop', 'usr/share/oguzdows/picom.conf')}
+MODE_CONTENT.update({'usr/share/oguzdows/native/' + name: ROOT / 'native' / name for name in ('tasks.c', 'accent-watch.c')})
+MODE_CONTENT['usr/share/oguzdows/scripts/build-panel.sh'] = ROOT / 'scripts/build-panel.sh'
+MODE_CONTENT['usr/lib/oguzdows/render-assets.py'] = ROOT / 'scripts/render-assets.py'
+for name in ('OguzDows', 'OguzDowsLight', 'OguzDowsEleven', 'OguzDowsElevenDark', 'OguzDowsMac', 'OguzDowsMacDark'):
+    relative = 'usr/share/themes/' + name + '/gtk-3.0/gtk.css'
+    MODE_CONTENT[relative] = ROOT / 'system' / relative
+for source in sorted((ROOT / 'system/usr/share/oguzdows/compositor').glob('*.conf')):
+    MODE_CONTENT[str(source.relative_to(ROOT / 'system'))] = source
+
+
+def mode_contract(root, arch):
+    hashes = {}
+    for relative, source in MODE_CONTENT.items():
+        path = target_system.nonempty(root, relative)
+        info = path.stat()
+        if info.st_uid or info.st_gid or info.st_mode & 0o022:
+            raise RuntimeError('ISO mod kaynağı güvenli sahiplikte değil: ' + relative)
+        digest = hashlib.sha256(path.read_bytes()).hexdigest()
+        if digest != hashlib.sha256(source.read_bytes()).hexdigest():
+            raise RuntimeError('ISO mod / renk içeriği bu kaynakla eşleşmiyor: ' + relative)
+        hashes[relative] = digest
+    libraries = list((root / 'usr/lib').glob('*/xfce4/panel/plugins/liboguzdows-tasks.so'))
+    fallback = root / 'usr/lib/xfce4/panel/plugins/liboguzdows-tasks.so'
+    if fallback.is_file(): libraries.append(fallback)
+    if len(libraries) != 1:
+        raise RuntimeError('ISO yerel görev / Dock eklentisi eksik veya belirsiz.')
+    expected_class, expected_machine = (2, 62) if arch == 'amd64' else (1, 3)
+    for binary in (libraries[0], target_system.nonempty(root, 'usr/lib/oguzdows/oguzdows-accent-watch')):
+        info = binary.stat()
+        with binary.open('rb') as stream: header = stream.read(20)
+        if (len(header) < 20 or header[:4] != b'\x7fELF' or header[4] != expected_class or header[5] != 1
+                or int.from_bytes(header[18:20], 'little') != expected_machine
+                or info.st_uid or info.st_gid or info.st_mode & 0o022):
+            raise RuntimeError('ISO yerel mod bileşeni hedef ABI / güvenlik kontrolünü geçmedi: ' + str(binary))
+    pairs = list(hashes.items())
+    for start in range(0, len(pairs), 12):
+        print('::notice title=Desktop mode exact content ' + str(start // 12 + 1) + '::' + json.dumps(dict(pairs[start:start + 12])))
+    return {'content_sha256': hashes, 'target_abi_verified': True, 'panel_library': str(libraries[0].relative_to(root))}
+
+
 def desktop_contract(root):
     """Paket, sahiplik, kapalı depo ve yeni görseller gerçek ISO'da olmalı."""
     secured = ('usr', 'usr/lib', 'usr/share', 'usr/local', 'usr/local/sbin', 'usr/lib/oguzdows',
@@ -177,8 +224,9 @@ def desktop_contract(root):
         target_system.nonempty(root, f'usr/share/icons/hicolor/64x64/apps/oguzdows-{identifier}.png')
     target_system.nonempty(root, 'usr/share/oguzdows/news-sources.json')
     content_hashes = native_material_contract(root)
+    modes = mode_contract(root, json.loads(target_system.nonempty(root, 'usr/share/oguzdows/build-info.json').read_text())['arch'])
     return {'packages': sorted(required), 'privileged_ownership_verified': True,
-            'pardus_enabled': False, 'replacement_wallpapers': 20, 'native_cursor': True, 'native_app_content_sha256': content_hashes}
+            'pardus_enabled': False, 'replacement_wallpapers': 20, 'native_cursor': True, 'native_app_content_sha256': content_hashes, 'desktop_modes': modes}
 
 
 def configure_idle_test(root, uid):

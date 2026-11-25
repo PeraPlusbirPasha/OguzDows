@@ -33,7 +33,7 @@ def run(command):
 
 def apply(identifier: str, items=None, state: Path | None = None) -> None:
     import desktop_runtime
-    if items is None and state is None and desktop_runtime.current() in ('gnome', 'kde'):
+    if items is None and state is None and desktop_runtime.current() in ('xfce', 'gnome', 'kde'):
         from desktop_preferences import update_and_apply
         update_and_apply({'wallpaper': identifier})
         return

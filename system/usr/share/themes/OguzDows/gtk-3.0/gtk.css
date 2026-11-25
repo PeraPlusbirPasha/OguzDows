@@ -1,5 +1,6 @@
 @import url("resource:///org/gtk/libgtk/theme/Adwaita/gtk-contained-dark.css");
 @import url("welcome.css");
+@import url("/usr/share/oguzdows/ui/window-geometry.css");
 @define-color welcome_sidebar_bg #1c202a;
 
 @define-color theme_selected_bg_color #c93246;
