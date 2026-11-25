@@ -10,6 +10,7 @@
 
 window.oguzdows-modern { background-image: none; background-color: #f4f6f9; color: @og_ink; font-family: "Inter", sans-serif; font-size: 10pt; }
 .oguzdows-modern decoration { border: 1px solid rgba(93, 115, 141, 0.25); border-radius: 12px 12px 0 0; }
+.oguzdows-modern.solid-csd decoration { border-radius: 0; box-shadow: none; }
 .oguzdows-modern headerbar, .oguzdows-modern headerbar:backdrop { background-image: linear-gradient(to bottom, #ffffff, #edf1f6); color: @og_ink; border: 0; border-bottom: 1px solid @og_line; box-shadow: inset 0 1px rgba(255,255,255,0.8); min-height: 42px; padding: 4px 10px; opacity: 1; }
 .oguzdows-modern headerbar label:backdrop { color: #53677d; }
 .oguzdows-modern .title { font-size: 22px; font-weight: 700; letter-spacing: -0.4px; }

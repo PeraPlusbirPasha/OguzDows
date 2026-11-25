@@ -7,6 +7,8 @@ ve seçim sahipliği sınanır; Gala spring / zoom eşdeğerliği iddia edilmez.
 from __future__ import annotations
 
 import argparse
+import configparser
+import shlex
 import hashlib
 import json
 import os
@@ -135,17 +137,32 @@ def child(directory):
     import gi
     gi.require_version('Gtk', '3.0')
     gi.require_version('Gdk', '3.0')
-    from gi.repository import Gdk, Gtk
+    from gi.repository import Gdk, Gio, GLib, Gtk
     effects = load('real_window_effects', 'system/usr/lib/oguzdows/effects.py')
     policy = load('real_window_policy', 'system/usr/lib/oguzdows/resource_policy.py')
     full, mini = policy.policy(8388608), policy.policy(524288)
     report = {'scope': 'host-nonroot-private-Xvfb-real-XRender', 'resource_budget_simulated': True,
               'physical_gpu': False, 'performance_measurement': False, 'gala_parity': False}
     state = effects.state_directory()
-    wm = foreign = None
+    wm = foreign = conf = None
     window = None
     with (directory / 'effects.log').open('w') as log:
         try:
+            # Own the daemon as a foreground child of THIS private bus. If it
+            # were only D-Bus-activated, bus shutdown could return before its
+            # final XML flush, racing TemporaryDirectory.rmtree (ENOTEMPTY).
+            service = configparser.ConfigParser(interpolation=None)
+            service.read('/usr/share/dbus-1/services/org.xfce.Xfconf.service')
+            daemon = shlex.split(service['D-BUS Service']['Exec'])
+            assert len(daemon) == 1 and Path(daemon[0]).name == 'xfconfd'
+            conf = subprocess.Popen(daemon, stdout=log, stderr=subprocess.STDOUT, start_new_session=True)
+            bus = Gio.bus_get_sync(Gio.BusType.SESSION, None)
+            def conf_ready():
+                assert conf.poll() is None, 'Private foreground xfconfd exited before readiness'
+                return bus.call_sync('org.freedesktop.DBus', '/org/freedesktop/DBus',
+                    'org.freedesktop.DBus', 'NameHasOwner', GLib.Variant('(s)', ('org.xfce.Xfconf',)),
+                    GLib.VariantType.new('(b)'), Gio.DBusCallFlags.NONE, 1000, None).unpack()[0]
+            pump(conf_ready, seconds=5)
             wm = subprocess.Popen(['/usr/bin/xfwm4', '--compositor=on', '--vblank=off'], stdout=log, stderr=subprocess.STDOUT, start_new_session=True)
             time.sleep(1)
             assert wm.poll() is None
@@ -291,7 +308,7 @@ def child(directory):
         finally:
             effects.stop_owned(state)
             if window is not None: window.destroy()
-            for process in (foreign, wm):
+            for process in (foreign, wm, conf):
                 if process is not None:
                     if process.poll() is None:
                         os.killpg(process.pid, signal.SIGTERM)
@@ -299,6 +316,9 @@ def child(directory):
                         process.wait(timeout=5)
                     except subprocess.TimeoutExpired:
                         os.killpg(process.pid, signal.SIGKILL); process.wait(timeout=5)
+                        if process is conf:
+                            raise AssertionError("Owned CI xfconfd did not flush and exit on SIGTERM")
+            report['owned_xfconfd_flush_joined_before_temporary_cleanup'] = True
     (directory / 'effects-native.json').write_text(json.dumps(report, ensure_ascii=False, indent=2) + '\n')
     print('::notice title=Gerçek pencere geçiş motoru::' + json.dumps(report, ensure_ascii=False), flush=True)
 

@@ -32,6 +32,11 @@ def blur_confirmed(screen, preferences, resources):
         owner = effects.owned_state(base)
         if status.get('engine') != 'picom' or status.get('blur_configured') is not True or not owner:
             return False
+        config = Path(owner.get('config', ''))
+        if (config.parent != Path('/usr/share/oguzdows/compositor')
+                or config.name not in ('blur.conf', 'blur-still.conf', 'blur9.conf', 'blur9-still.conf', 'full.conf', 'full-snap.conf')
+                or status.get('config') != str(config)):
+            return False
         x11 = effects.X11()
         try:
             return x11.owner() == owner['owner']

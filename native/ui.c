@@ -102,7 +102,7 @@ static gboolean confirmed_blur(GtkWidget *window) {
     gboolean valid = state && owner && boolean(state, "blur_configured") && !strcmp(string(state, "engine"), "picom");
     if (valid) {
         JsonNode *pid_node = json_object_get_member(owner, "pid"), *xid_node = json_object_get_member(owner, "owner");
-        valid = pid_node && xid_node && json_node_get_value_type(pid_node) == G_TYPE_INT64 && json_node_get_value_type(xid_node) == G_TYPE_INT64;
+        valid = pid_node && xid_node && JSON_NODE_HOLDS_VALUE(pid_node) && JSON_NODE_HOLDS_VALUE(xid_node) && json_node_get_value_type(pid_node) == G_TYPE_INT64 && json_node_get_value_type(xid_node) == G_TYPE_INT64;
         if (valid) {
             gint64 pid = json_node_get_int(pid_node), xid = json_node_get_int(xid_node);
             gchar *atom = g_strdup_printf("_NET_WM_CM_S%d", gdk_x11_screen_get_screen_number(gtk_widget_get_screen(window)));
@@ -121,6 +121,12 @@ static gboolean confirmed_blur(GtkWidget *window) {
             } else valid = FALSE;
             gchar *cmd_path = g_build_filename(proc, "cmdline", NULL); gsize length = 0;
             const gchar *config = string(owner, "config");
+            gchar *recipe = g_path_get_basename(config);
+            const gchar *blur_recipes[] = {"blur.conf", "blur-still.conf", "blur9.conf", "blur9-still.conf", "full.conf", "full-snap.conf"};
+            gboolean blur_recipe = FALSE;
+            for (guint i = 0; i < G_N_ELEMENTS(blur_recipes); i++) if (!strcmp(recipe, blur_recipes[i])) blur_recipe = TRUE;
+            valid = valid && blur_recipe && !strcmp(config, string(state, "config"));
+            g_free(recipe);
             if (valid && g_file_get_contents(cmd_path, &data, &length, NULL)) {
                 const gchar *prefix = "/usr/bin/picom\0--config\0";
                 gsize prefix_length = sizeof("/usr/bin/picom\0--config\0") - 1;
