@@ -72,7 +72,7 @@ jobs:
           apt-get install -y --no-install-recommends python3 python3-yaml python3-pil \
             python3-gi gir1.2-gtk-3.0 shellcheck fonts-inter fonts-noto-core \
             fonts-dejavu-core adwaita-icon-theme xauth xvfb dbus-x11 pciutils usbutils rfkill \
-            calamares x11-utils xfconf xfwm4 picom xfce4-panel xfce4-settings xfce4-whiskermenu-plugin \
+            calamares thunar x11-utils xfconf xfwm4 picom xfce4-panel xfce4-settings xfce4-whiskermenu-plugin \
             xfce4-pulseaudio-plugin xfce4-power-manager xfce4-power-manager-plugins libxcursor1 python3-apt python3-xlib \
             gpgv ca-certificates flatpak gnome-software gnome-software-plugin-flatpak libglib2.0-bin \
             librsvg2-common shared-mime-info iso-codes gdb \
@@ -81,7 +81,7 @@ jobs:
 
       - name: Yerel görev çubuğu / Dock ve otomatik renk izleyicisini derle
         run: |
-          sh scripts/build-panel.sh /
+          python3 scripts/ci-run.py --title 'Native Xfce module and observer ABI' -- sh scripts/build-panel.sh /
           cp system/usr/share/xfce4/panel/plugins/oguzdows-tasks.desktop /usr/share/xfce4/panel/plugins/
           mkdir -p /usr/lib/oguzdows
           cp system/usr/lib/oguzdows/*.py /usr/lib/oguzdows/
@@ -210,6 +210,12 @@ jobs:
               xvfb-run -a -s '-screen 0 1024x768x24' dbus-run-session -- \
               python3 tests/smoke-session-ui.py --component "$component" --output test-results
           done
+
+      - name: Duvar kâğıdı olayı → native izleyici → GTK / Xfwm / gerçek Thunar
+        run: |
+          python3 scripts/ci-run.py --title 'Real native wallpaper accent / manual stop / Thunar' -- \
+            xvfb-run -a -s '-screen 0 1024x768x24 -nolisten tcp' \
+            python3 tests/smoke-accent.py --output test-results/accent
 
       - name: Gerçek Xfce üst çubuk ve iskele geometrisi (özel host oturumu)
         run: |

@@ -52,7 +52,7 @@ jobs:
           esac
       - name: Yerel panel bileşeni ve olay tabanlı izleyici ABI'si
         run: |
-          sh scripts/build-panel.sh /
+          python3 scripts/ci-run.py --title 'Native Xfce module and observer ABI' -- sh scripts/build-panel.sh /
           mkdir -p /usr/lib/oguzdows
           cp system/usr/lib/oguzdows/*.py /usr/lib/oguzdows/
           cp scripts/render-assets.py /usr/lib/oguzdows/render-assets.py

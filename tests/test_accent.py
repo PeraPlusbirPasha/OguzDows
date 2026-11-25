@@ -164,6 +164,27 @@ class ModeSurfaceTests(AccentFixture):
         self.assertIn('95', backend.values['xfce4-panel', '/panels/panel-1/plugin-ids'])
         self.assertEqual(backend.values['xfce4-panel', '/plugins/plugin-95'], 'personal-notes')
 
+    def test_failed_mode_persistence_rolls_back_exact_layout_controls_and_selection(self):
+        backend = Xfconf(profiles.settings('oguzdows'))
+        original = dict(backend.values)
+        directory = self.root / 'profiles'
+        state.atomic_json(state.config_path(), {**state.DEFAULTS, 'accent_source': 'theme'})
+        before = state.load()
+        original_apply, atomic = profiles.apply, state.atomic_json
+        def apply(identifier, **kwargs):
+            return original_apply(identifier, directory, backend, **kwargs)
+        def fail(path, value):
+            if Path(path) == state.config_path() and value['revision'] == 1:
+                raise OSError('mode save failed')
+            atomic(path, value)
+        with patch.object(runtime, 'normal_session'), patch.object(runtime, 'installation_busy', return_value=False), patch.object(profiles, 'apply', side_effect=apply), patch.object(preferences, 'apply_current', return_value={'message': 'fixture', 'notes': []}), patch.object(state, 'atomic_json', side_effect=fail):
+            with self.assertRaisesRegex(OSError, 'mode save failed'):
+                preferences.update_and_apply({'appearance': 'dark'}, {'compositing': False}, profile='mac')
+        self.assertEqual(backend.values, original)
+        self.assertEqual(state.load(), before)
+        self.assertFalse((directory / 'selected').exists())
+        self.assertFalse((directory / 'layout-v2').exists())
+
     def test_dock_pins_and_native_observer_are_event_driven_not_idle_python_pollers(self):
         native = (ROOT / 'native/tasks.c').read_text()
         watcher = (ROOT / 'native/accent-watch.c').read_text()

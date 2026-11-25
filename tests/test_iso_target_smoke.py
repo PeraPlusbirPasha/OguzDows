@@ -30,6 +30,32 @@ class IsoTargetSmokeContractTests(unittest.TestCase):
             with self.assertRaisesRegex(RuntimeError, 'eşleşmiyor'):
                 smoke.native_material_contract(root)
 
+    def test_modes_and_accent_exact_hashes_and_native_target_abi_are_gated_in_iso(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            for relative, source in smoke.MODE_CONTENT.items():
+                target = root / relative; target.parent.mkdir(parents=True, exist_ok=True)
+                target.write_bytes(source.read_bytes())
+            header = bytearray(20); header[:4] = b'\x7fELF'; header[4] = 2; header[5] = 1; header[18:20] = (62).to_bytes(2, 'little')
+            library = root / 'usr/lib/x86_64-linux-gnu/xfce4/panel/plugins/liboguzdows-tasks.so'
+            library.parent.mkdir(parents=True); library.write_bytes(header)
+            observer = root / 'usr/lib/oguzdows/oguzdows-accent-watch'; observer.write_bytes(header); observer.chmod(0o755)
+            stat = Path.stat
+            def owned(path, *, follow_symlinks=True):
+                values = list(stat(path, follow_symlinks=follow_symlinks)); values[4] = values[5] = 0
+                return os.stat_result(values)
+            with patch.object(Path, 'stat', owned), patch('builtins.print') as printed:
+                report = smoke.mode_contract(root, 'amd64')
+                self.assertTrue(report['target_abi_verified'])
+                self.assertEqual(len(report['content_sha256']), len(smoke.MODE_CONTENT))
+                self.assertGreaterEqual(len(report['content_sha256']), 30)
+                for call in printed.call_args_list: self.assertLess(len(call.args[0].encode()), 4000)
+                header[4] = 1; library.write_bytes(header)
+                with self.assertRaisesRegex(RuntimeError, 'ABI'): smoke.mode_contract(root, 'amd64')
+                header[4] = 2; library.write_bytes(header)
+                (root / 'usr/lib/oguzdows/accent.py').write_text('old worker')
+                with self.assertRaisesRegex(RuntimeError, 'eşleşmiyor'): smoke.mode_contract(root, 'amd64')
+
     def test_guard_rejects_non_ci_and_non_regular_iso_before_mount_or_mkdtemp(self):
         arguments = ['smoke-iso-target', '--iso', '/dev/null', '--arch', 'amd64', '--expected-revision', 'a' * 40]
         for ci, uid in (('false', 0), ('true', 1000), ('true', 0)):

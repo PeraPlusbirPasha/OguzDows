@@ -90,6 +90,8 @@ def install(accent, dark, renderer=None, *, identifier='oguzdows', glass=True, b
     if renderer is None:
         source = Path(__file__).with_name('render-assets.py')
         if not source.is_file():
+            source = Path('/usr/lib/oguzdows/render-assets.py')  # fixed installed helper, never a user-supplied script
+        if not source.is_file():
             raise RuntimeError('İmajın çevrimdışı materyal üreticisi kurulu değil.')
         spec = importlib.util.spec_from_file_location('_oguzdows_material_renderer', source)
         module = importlib.util.module_from_spec(spec); spec.loader.exec_module(module)
