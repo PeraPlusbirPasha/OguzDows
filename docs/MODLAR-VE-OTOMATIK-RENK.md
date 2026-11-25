@@ -91,21 +91,26 @@ Bu adımlar root yapılandırması / kullanıcı panel dosyalarını ezmez.
 ```sh
 # Depo kökünde; Debian bookworm/trixie hedefinde derleme bağımlılıkları.
 sudo apt-get install build-essential pkg-config libgtk-3-dev libjson-glib-dev \
-  libxfce4panel-2.0-dev libxfconf-0-dev libwnck-3-dev python3-pil python3-gi
+  libxfce4ui-2-dev libxfce4panel-2.0-dev libxfconf-0-dev libwnck-3-dev python3-pil python3-gi
 
 # Önce derleyin; başarısız derleme mevcut kuruluma dokunmaz.
 stage="$(mktemp -d)"
 sh scripts/build-panel.sh "$stage"
+sh scripts/build-native.sh "$stage/usr/lib/oguzdows/oguzdows-store-native"
+sh scripts/build-news.sh "$stage/usr/lib/oguzdows/oguzdows-news-native"
+for component in hub monitor; do
+  sh scripts/build-desktop.sh "$component" "$stage/usr/lib/oguzdows/oguzdows-$component-native"
+done
 # Mimariye göre /usr/lib/<triplet>/xfce4/panel/plugins yolunu korur.
 sudo cp -a "$stage/usr/." /usr/
 
 # Ürünün runtime modülleri ve kendi temaları. Kişisel ~/.config'a yazılmaz.
-sudo install -m 644 system/usr/lib/oguzdows/{accent,profiles,desktop_preferences,desktop_material,desktop_state,desktop_center,desktop_ui,wallpapers}.py /usr/lib/oguzdows/
+sudo install -m 644 system/usr/lib/oguzdows/{accent,profiles,desktop_preferences,desktop_material,desktop_state,desktop_center,desktop_ui,wallpapers,ui_theme,welcome}.py /usr/lib/oguzdows/
 sudo install -m 644 scripts/render-assets.py /usr/lib/oguzdows/render-assets.py
 sudo install -m 755 system/usr/local/bin/oguzdows-accent /usr/local/bin/
 sudo install -m 644 system/usr/share/xfce4/panel/plugins/oguzdows-tasks.desktop /usr/share/xfce4/panel/plugins/
 sudo cp -a system/usr/share/themes/. /usr/share/themes/
-sudo install -m 644 system/usr/share/oguzdows/ui/window-geometry.css /usr/share/oguzdows/ui/
+sudo install -m 644 system/usr/share/oguzdows/ui/{window-geometry,modern}.css /usr/share/oguzdows/ui/
 sudo install -m 644 system/usr/share/oguzdows/picom.conf /usr/share/oguzdows/
 sudo cp -a system/usr/share/oguzdows/compositor/. /usr/share/oguzdows/compositor/
 sudo install -m 755 system/usr/lib/oguzdows/session.sh /usr/lib/oguzdows/session.sh

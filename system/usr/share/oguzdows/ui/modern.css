@@ -4,12 +4,13 @@
  * No per-tile shadow/blur stacks, no geometry animation, no webview.
  */
 @define-color og_accent #187e91;
+@define-color og_accent_fg #ffffff;
 @define-color og_ink #213247;
 @define-color og_muted #53677d;
 @define-color og_line rgba(56, 83, 115, 0.16);
 
 window.oguzdows-modern { background-image: none; background-color: #f4f6f9; color: @og_ink; font-family: "Inter", sans-serif; font-size: 10pt; }
-.oguzdows-modern decoration { border: 1px solid rgba(93, 115, 141, 0.25); border-radius: 12px 12px 0 0; }
+.oguzdows-modern decoration { border: 1px solid rgba(93, 115, 141, 0.25); border-radius: 10px; }
 .oguzdows-modern.solid-csd decoration { border-radius: 0; box-shadow: none; }
 .oguzdows-modern headerbar, .oguzdows-modern headerbar:backdrop { background-image: linear-gradient(to bottom, #ffffff, #edf1f6); color: @og_ink; border: 0; border-bottom: 1px solid @og_line; box-shadow: inset 0 1px rgba(255,255,255,0.8); min-height: 42px; padding: 4px 10px; opacity: 1; }
 .oguzdows-modern headerbar label:backdrop { color: #53677d; }
@@ -29,7 +30,7 @@ window.oguzdows-modern { background-image: none; background-color: #f4f6f9; colo
 .oguzdows-modern button:active, .oguzdows-modern button:checked { background-color: #dae8f0; border-color: alpha(@og_accent,0.65); box-shadow: none; }
 .oguzdows-modern button:disabled { color: #738298; background-color: #e9edf2; box-shadow: none; }
 .oguzdows-modern button:focus, .oguzdows-modern entry:focus { border-color: @og_accent; outline-color: @og_accent; outline-width: 2px; outline-offset: 2px; }
-.oguzdows-modern button.suggested-action { background-color: @og_accent; color: #ffffff; border-color: shade(@og_accent,0.85); }
+.oguzdows-modern button.suggested-action { background-color: @og_accent; color: @og_accent_fg; border-color: shade(@og_accent,0.85); }
 .oguzdows-modern button.suggested-action:hover { background-color: shade(@og_accent,1.12); }
 .oguzdows-modern button.destructive-action { background-color: #fff5f5; color: #a72e42; border-color: rgba(167,46,66,0.3); }
 .oguzdows-modern headerbar button.titlebutton, .oguzdows-modern headerbar button.titlebutton:backdrop { background-color: #e4eaf0; color: #23364c; border: 1px solid rgba(50,72,100,0.24); border-radius: 7px; min-width: 22px; min-height: 22px; padding: 2px; opacity: 1; -gtk-icon-effect: none; }
@@ -43,7 +44,7 @@ window.oguzdows-modern { background-image: none; background-color: #f4f6f9; colo
 .oguzdows-modern notebook tab { padding: 10px 16px; }
 .oguzdows-modern textview, .oguzdows-modern textview text { background-color: #fbfcfe; color: @og_ink; }
 .oguzdows-modern scrolledwindow, .oguzdows-modern viewport { background-color: transparent; border: 0; }
-.oguzdows-modern selection { background-color: @og_accent; color: #ffffff; }
+.oguzdows-modern selection { background-color: @og_accent; color: @og_accent_fg; }
 
 /* The page is a surface, not a deck of floating rectangles. */
 .oguzdows-modern .card, .oguzdows-modern .metric { background-image: none; background-color: rgba(255,255,255,0.48); border: 1px solid @og_line; border-radius: 10px; padding: 14px; box-shadow: none; }
@@ -96,7 +97,7 @@ window.oguzdows-modern.oguzdows-dark { background-color: #17212e; color: #e4edf6
 .oguzdows-modern.oguzdows-dark button:hover { background-color: #344a60; border-color: alpha(@og_accent,0.65); }
 .oguzdows-modern.oguzdows-dark button:active, .oguzdows-modern.oguzdows-dark button:checked { background-color: #38546a; }
 .oguzdows-modern.oguzdows-dark button:disabled { background-color: #223044; color: #8295ac; }
-.oguzdows-modern.oguzdows-dark button.suggested-action { background-color: @og_accent; color: #ffffff; }
+.oguzdows-modern.oguzdows-dark button.suggested-action { background-color: @og_accent; color: @og_accent_fg; }
 .oguzdows-modern.oguzdows-dark button.destructive-action { background-color: #3c2c3c; color: #ffc0c9; }
 .oguzdows-modern.oguzdows-dark headerbar button.titlebutton, .oguzdows-modern.oguzdows-dark headerbar button.titlebutton:backdrop { background-color: #354459; color: #f0f5fc; }
 .oguzdows-modern.oguzdows-dark headerbar button.titlebutton.close, .oguzdows-modern.oguzdows-dark headerbar button.titlebutton.close:backdrop { background-color: #673346; color: #ffffff; }
@@ -119,3 +120,27 @@ window.oguzdows-modern.oguzdows-glass { background-color: rgba(237,244,250,0.86)
 window.oguzdows-modern.oguzdows-dark.oguzdows-glass { background-color: rgba(20,33,48,0.90); }
 .oguzdows-modern.reduced-motion *, .oguzdows-modern.reduced-motion { transition: none; animation: none; }
 .oguzdows-modern.reduced-motion .oguz-action:hover image { -gtk-icon-transform: none; }
+
+/* The shared application material must NOT erase the selected WM convention. */
+.oguzdows-modern.oguzdows-mac headerbar,
+.oguzdows-modern.oguzdows-eleven headerbar { background-image: none; background-color: mix(@theme_bg_color, @og_accent, .08); border-radius: 10px 10px 0 0; min-height: 32px; padding: 3px 8px; }
+.oguzdows-modern.oguzdows-mac headerbar button.titlebutton,
+.oguzdows-modern.oguzdows-mac headerbar button.titlebutton:backdrop { min-width: 12px; min-height: 12px; padding: 0; margin: 0 4px; border-radius: 50%; border: 1px solid rgba(0,0,0,.22); color: #352c2b; box-shadow: none; }
+.oguzdows-modern.oguzdows-mac headerbar button.titlebutton.close,
+.oguzdows-modern.oguzdows-mac headerbar button.titlebutton.close:backdrop { background-color: #ed6a5f; color: #352c2b; }
+.oguzdows-modern.oguzdows-mac headerbar button.titlebutton.minimize,
+.oguzdows-modern.oguzdows-mac headerbar button.titlebutton.minimize:backdrop { background-color: #f5bf4f; }
+.oguzdows-modern.oguzdows-mac headerbar button.titlebutton.maximize,
+.oguzdows-modern.oguzdows-mac headerbar button.titlebutton.maximize:backdrop { background-color: #61c454; }
+.oguzdows-modern.oguzdows-mac headerbar button.titlebutton image { -gtk-icon-transform: scale(.65); }
+.oguzdows-modern.oguzdows-eleven headerbar { padding: 0 0 0 10px; }
+.oguzdows-modern.oguzdows-eleven headerbar button.titlebutton,
+.oguzdows-modern.oguzdows-eleven headerbar button.titlebutton:backdrop,
+.oguzdows-modern.oguzdows-eleven headerbar button.titlebutton.close,
+.oguzdows-modern.oguzdows-eleven headerbar button.titlebutton.close:backdrop { min-width: 42px; min-height: 32px; padding: 0; margin: 0; border: 0; border-radius: 0; background-color: transparent; color: @theme_fg_color; box-shadow: none; }
+.oguzdows-modern.oguzdows-eleven headerbar button.titlebutton.close:hover { background-color: #c62b3d; color: #ffffff; }
+window.oguzdows-modern.oguzdows-glass,
+window.oguzdows-modern.oguzdows-dark.oguzdows-glass { background-color: alpha(mix(@theme_bg_color, @og_accent, .12), .90); }
+.oguzdows-modern.maximized decoration, .oguzdows-modern.fullscreen decoration,
+.oguzdows-modern.tiled decoration, .oguzdows-modern.maximized headerbar,
+.oguzdows-modern.fullscreen headerbar, .oguzdows-modern.tiled headerbar { border-radius: 0; box-shadow: none; }

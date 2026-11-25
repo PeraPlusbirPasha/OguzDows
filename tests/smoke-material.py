@@ -63,6 +63,11 @@ def main():
         with patch('resource_policy.current_policy', return_value=resources):
             window = Gtk.Window(title='OğuzDows · native material test')
             window.set_default_size(480, 320)
+            header = Gtk.HeaderBar(title='Native mode conventions')
+            control = Gtk.Button.new_from_icon_name('window-close-symbolic', Gtk.IconSize.MENU)
+            control.get_style_context().add_class('titlebutton')
+            control.get_style_context().add_class('close')
+            header.pack_end(control); window.set_titlebar(header)
             ui_theme.setup(window)
             stack = Gtk.Stack()
             stack.add_named(Gtk.Label(label='First native page'), 'one')
@@ -88,6 +93,10 @@ def main():
             pixels = Gdk.pixbuf_get_from_window(window.get_window(), 0, 0, *window.get_size())
             assert pixels is not None
             pixels.savev(str(args.output / 'material-dark-reduced.png'), 'png', [], [])
+            for theme, mode, width in (('OguzDowsMac', 'oguzdows-mac', 12), ('OguzDowsEleven', 'oguzdows-eleven', 42)):
+                settings.set_property('gtk-theme-name', theme)
+                pump(lambda: context.has_class(mode))
+                assert control.get_style_context().get_property('min-width', Gtk.StateFlags.NORMAL) == width
             settings.set_property('gtk-theme-name', 'HighContrast')
             pump(lambda: not context.has_class('oguzdows-modern'))
             window.destroy()
@@ -96,7 +105,7 @@ def main():
             raise AssertionError('; '.join(errors))
     report = {'real_gtk_css': True, 'real_stack_transition': True, 'duration_ms': 200,
               'live_preference_monitor': True, 'reduced_motion_immediate': True,
-              'high_contrast_preserved': True, 'unconfirmed_blur_opaque': True,
+              'mode_caption_controls_preserved': True, 'high_contrast_preserved': True, 'unconfirmed_blur_opaque': True,
               'simulated_resource_policy': True, 'physical_gpu': False}
     (args.output / 'material-native.json').write_text(json.dumps(report, indent=2) + '\n')
     print('::notice title=Native material GTK::' + json.dumps(report))

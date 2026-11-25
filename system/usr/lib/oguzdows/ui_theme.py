@@ -90,11 +90,15 @@ def setup(window):
         theme = settings.get_property('gtk-theme-name') or ''
         for name, enabled in (('oguzdows-modern', 'HighContrast' not in theme),
                               ('oguzdows-dark', prefs['appearance'] == 'dark'),
+                              ('oguzdows-mac', theme.startswith('OguzDowsMac')),
+                              ('oguzdows-eleven', theme.startswith('OguzDowsEleven')),
                               ('reduced-motion', not motion),
                               ('oguzdows-glass', blur_confirmed(screen, prefs, resources))):
             (context.add_class if enabled else context.remove_class)(name)
         # desktop_state.validate accepts exactly #RRGGBB; not free CSS.
-        tint.load_from_data(('@define-color og_accent ' + prefs['accent'] + ';').encode())
+        from desktop_material import foreground
+        tint.load_from_data(('@define-color og_accent ' + prefs['accent'] + ';\n'
+                             '@define-color og_accent_fg ' + foreground(prefs['accent']) + ';').encode())
         state['motion'] = motion
         for stack in state['stacks']:
             stack.set_transition_type(Gtk.StackTransitionType.CROSSFADE if motion else Gtk.StackTransitionType.NONE)

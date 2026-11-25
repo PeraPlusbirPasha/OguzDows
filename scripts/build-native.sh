@@ -22,4 +22,4 @@ cc -std=c11 -O2 -Wall -Wextra -Werror -fstack-protector-strong -D_FORTIFY_SOURCE
     -fPIE -pie -Wl,-z,relro,-z,now "$@" \
     $(pkg-config --cflags gtk+-3.0 json-glib-1.0 x11) \
     "$base/native/store.c" "$base/native/ui.c" -o "$output" \
-    $(pkg-config --libs gtk+-3.0 json-glib-1.0 x11)
+    $(pkg-config --libs gtk+-3.0 json-glib-1.0 x11) -lm

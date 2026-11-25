@@ -8,6 +8,7 @@
 #include <sys/stat.h>
 #include <unistd.h>
 #include <string.h>
+#include <math.h>
 #ifndef OGUZDOWS_UI_CSS
 #define OGUZDOWS_UI_CSS "/usr/share/oguzdows/ui/modern.css"
 #endif
@@ -162,6 +163,10 @@ static void refresh_style(GtkWidget *window) {
     GtkStyleContext *context = gtk_widget_get_style_context(window);
     if (high_contrast) gtk_style_context_remove_class(context, "oguzdows-modern");
     else gtk_style_context_add_class(context, "oguzdows-modern");
+    if (theme && g_str_has_prefix(theme, "OguzDowsMac")) gtk_style_context_add_class(context, "oguzdows-mac");
+    else gtk_style_context_remove_class(context, "oguzdows-mac");
+    if (theme && g_str_has_prefix(theme, "OguzDowsEleven")) gtk_style_context_add_class(context, "oguzdows-eleven");
+    else gtk_style_context_remove_class(context, "oguzdows-eleven");
     g_free(theme);
     gboolean budget = resource_budget();
     motion = animations && budget; feedback = FALSE;
@@ -186,7 +191,12 @@ static void refresh_style(GtkWidget *window) {
     }
     const gchar *accent = prefs ? string(prefs, "accent") : "";
     if (!g_regex_match_simple("^#[a-fA-F0-9]{6}$", accent, 0, 0)) accent = "#187e91";
-    gchar *css = g_strdup_printf("@define-color og_accent %s;", accent);
+    GdkRGBA rgba; gdk_rgba_parse(&rgba, accent);
+    double components[] = {rgba.red, rgba.green, rgba.blue}, luminance = 0;
+    const double weights[] = {.2126, .7152, .0722};
+    for (guint i = 0; i < 3; i++) luminance += weights[i] * (components[i] <= .04045
+        ? components[i] / 12.92 : pow((components[i] + .055) / 1.055, 2.4));
+    gchar *css = g_strdup_printf("@define-color og_accent %s; @define-color og_accent_fg %s;", accent, luminance > .179 ? "#11202f" : "#ffffff");
     gtk_css_provider_load_from_data(tint, css, -1, NULL); g_free(css);
     g_object_unref(parser); g_free(path);
     refresh_stacks(window, NULL);
