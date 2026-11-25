@@ -29,6 +29,35 @@ class ProfileSmokeTests(unittest.TestCase):
             with self.assertRaisesRegex(RuntimeError, 'eksik: power-manager-plugin\\.'):
                 smoke.plugin_manifest(directory)
 
+    def test_import_completion_requires_canonical_xfconf_readback_not_just_copied_files(self):
+        from types import SimpleNamespace
+        profiles = SimpleNamespace(LAUNCHERS={90: 'oguzdows-browser.desktop'}, read_property=Mock())
+        with tempfile.TemporaryDirectory() as temporary:
+            home = Path(temporary)
+            directory = home / 'config/xfce4/panel/launcher-90'
+            directory.mkdir(parents=True)
+            imported = directory / 'native-copy.desktop'
+            imported.write_text('[Desktop Entry]\nX-XFCE-Source=file:///usr/share/applications/oguzdows-browser.desktop\n')
+            profiles.read_property.return_value = ['/usr/share/applications/oguzdows-browser.desktop']
+            self.assertIsNone(smoke.launcher_import_snapshot(profiles, home, Mock()))
+            profiles.read_property.return_value = ['native-copy.desktop']
+            self.assertEqual(smoke.launcher_import_snapshot(profiles, home, Mock()), {'90': ['native-copy.desktop']})
+            imported.write_text('[Desktop Entry]\nX-XFCE-Source=file:///usr/share/applications/wrong.desktop\n')
+            self.assertIsNone(smoke.launcher_import_snapshot(profiles, home, Mock()))
+
+    def test_missing_or_external_import_never_passes_readiness_or_removes_restore_assertions(self):
+        from types import SimpleNamespace
+        profiles = SimpleNamespace(LAUNCHERS={90: 'oguzdows-browser.desktop'}, read_property=Mock())
+        with tempfile.TemporaryDirectory() as temporary:
+            for value in (None, [], ['file:///tmp/import.desktop'], ['../import.desktop'], ['missing.desktop'], ['a.desktop', 'b.desktop']):
+                with self.subTest(value=value):
+                    profiles.read_property.return_value = value
+                    self.assertIsNone(smoke.launcher_import_snapshot(profiles, Path(temporary), Mock()))
+        source = (ROOT / 'tests/smoke-profiles.py').read_text()
+        self.assertIn("assert actual == previous, ('İlk tipli ayar geri alınmadı'", source)
+        self.assertIn('assert imported is not None', source)
+        self.assertIn('wm_process, conf_process)', source)
+
     def test_pixel_bounds_measure_icons_not_just_an_already_centered_panel(self):
         from PIL import Image, ImageDraw
         image = Image.new('RGB', (240, 48), '#eeeeee')

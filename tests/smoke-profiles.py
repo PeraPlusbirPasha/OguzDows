@@ -7,10 +7,12 @@ Mevcut masaüstünde çalıştırılmaz; açık Xfce veri yolu varsa baştan red
 from __future__ import annotations
 
 import argparse
+import configparser
 import hashlib
 import json
 import os
 import shutil
+import shlex
 import signal
 import subprocess
 import tempfile
@@ -33,6 +35,33 @@ def plugin_manifest(directory=Path('/usr/share/xfce4/panel/plugins'), skeleton=S
         raise RuntimeError('Test ortamında gerekli Xfce eklentileri eksik: ' + ', '.join(missing)
                            + '. Üretim paket listesindeki eklenti paketlerini de kurun; eksik eklenti silinmez / onaylanmaz.')
     return {name: hashlib.sha256((directory / (name + '.desktop')).read_bytes()).hexdigest() for name in sorted(plugins)}
+
+
+
+def launcher_import_snapshot(profiles, home, execute):
+    """Native import's delayed xfconf write, not merely its file / first frame.
+
+    Xfce launcher imports /usr/share entries and then schedules a one-second
+    low-priority items notify. A visible dock / copied file is NOT completion.
+    The canonical basename + matching X-XFCE-Source read back from xfconfd is.
+    Never repair/write the property in the test or skip the restore assertion.
+    """
+    snapshot = {}
+    for plugin, desktop in profiles.LAUNCHERS.items():
+        refs = profiles.read_property('xfce4-panel', f'/plugins/plugin-{plugin}/items', 'string-array', execute)
+        if not refs or len(refs) != 1:
+            return None
+        name = refs[0]
+        if Path(name).name != name or not name.endswith('.desktop'):
+            return None  # Still the external /usr/share source, import pending.
+        path = home / 'config/xfce4/panel' / f'launcher-{plugin}' / name
+        if path.is_symlink() or not path.is_file():
+            return None
+        source = 'X-XFCE-Source=file:///usr/share/applications/' + desktop
+        if source not in path.read_text().splitlines():
+            return None
+        snapshot[str(plugin)] = refs
+    return snapshot
 
 
 def stop_owned_process(process):
@@ -119,7 +148,7 @@ def main():
         dock_atom = connection.intern_atom('_NET_WM_WINDOW_TYPE_DOCK')
         type_atom = connection.intern_atom('_NET_WM_WINDOW_TYPE')
         clients_atom = connection.intern_atom('_NET_CLIENT_LIST')
-        settings_process = panel_process = wm_process = sample = None
+        settings_process = panel_process = wm_process = conf_process = sample = None
         extra_windows = []
 
         def pump():
@@ -183,6 +212,16 @@ def main():
             while time.monotonic() - start < .4:
                 pump()
                 time.sleep(.02)
+            if identifier in profiles.DOCK_PROFILES:
+                deadline = time.monotonic() + 10
+                imported = None
+                while time.monotonic() < deadline:
+                    pump()
+                    imported = launcher_import_snapshot(profiles, home, profiles.run)
+                    if imported is not None:
+                        break
+                    time.sleep(.05)
+                assert imported is not None, 'Native launcher import / delayed xfconf save never completed'
             assert sample.get_visible() and sample.get_window() is not None, 'Panel yenileme açık uygulamayı kapatmamalı'
             windows = docks()
             assert geometry_matches(identifier, windows), windows
@@ -216,13 +255,31 @@ def main():
                 assert content['center_error_px'] <= 12, ('Gerçek simge grubu merkezde değil', content)
                 assert dock['width'] < screen_width * .9, ('İskele gereksiz boş alanla dolduruldu', dock)
             report['layouts'].append({'profile': identifier, 'variant': suffix or 'light', 'windows': windows,
-                                      'icon_content': content, 'xfconf_arrays': True, 'all_plugins_preserved': True, 'sample_application_stayed_open': True})
+                                      'icon_content': content, 'launcher_import_readback_verified': identifier in profiles.DOCK_PROFILES, 'xfconf_arrays': True, 'all_plugins_preserved': True, 'sample_application_stayed_open': True})
 
         try:
             if connection.get_selection_owner(connection.intern_atom('WM_S0')):
                 raise RuntimeError('Mevcut pencere yöneticisi var; özel, boş Xvfb ekranı gerekli.')
             report['plugin_descriptors_sha256'] = plugin_manifest()
             report['xfce_panel_version'] = subprocess.check_output(['xfce4-panel', '--version'], text=True, timeout=8).strip()
+            # This daemon belongs only to the just-created private session.
+            # Join its final XML flush before TemporaryDirectory cleanup too.
+            service = configparser.ConfigParser(interpolation=None)
+            service.read('/usr/share/dbus-1/services/org.xfce.Xfconf.service')
+            command = shlex.split(service['D-BUS Service']['Exec'])
+            assert len(command) == 1 and Path(command[0]).name == 'xfconfd'
+            conf_process = subprocess.Popen(command, stdout=log, stderr=subprocess.STDOUT, start_new_session=True)
+            deadline = time.monotonic() + 5
+            ready = False
+            while time.monotonic() < deadline:
+                assert conf_process.poll() is None, 'Private foreground xfconfd exited'
+                ready = bus.call_sync('org.freedesktop.DBus', '/org/freedesktop/DBus',
+                    'org.freedesktop.DBus', 'NameHasOwner', GLib.Variant('(s)', ('org.xfce.Xfconf',)),
+                    GLib.VariantType.new('(b)'), Gio.DBusCallFlags.NONE, 1000, None).unpack()[0]
+                if ready:
+                    break
+                time.sleep(.02)
+            assert ready, 'Private foreground xfconfd never became ready'
             wm_process = subprocess.Popen(['xfwm4', '--compositor=off'], stdout=log, stderr=subprocess.STDOUT, start_new_session=True)
             settings_process = subprocess.Popen(['xfsettingsd', '--no-daemon'], stdout=log, stderr=subprocess.STDOUT, start_new_session=True)
             profiles.apply('mac', appearance='light')
@@ -272,7 +329,8 @@ def main():
             capture('windows11', '-three-windows')
             profiles.restore()
             for channel, path, kind, previous in original_native:
-                assert profiles.read_property(channel, path, kind, profiles.run) == previous, ('İlk tipli ayar geri alınmadı', channel, path)
+                actual = profiles.read_property(channel, path, kind, profiles.run)
+                assert actual == previous, ('İlk tipli ayar geri alınmadı', channel, path, {'expected': previous, 'actual': actual})
             report['restore_native_readback_verified'] = True
             profiles.reload_panels()
             capture('oguzdows', '-restored')
@@ -306,7 +364,7 @@ def main():
                     print('Özel panel D-Bus temizliği: ' + str(error), file=log, flush=True)
             # Bir modal eklenti uyarısı --quit'e yanıt vermese de asıl hatayı
             # TimeoutExpired ile maskeleme; yalnızca kendi süreç gruplarımız.
-            for process in (panel_process, settings_process, wm_process):
+            for process in (panel_process, settings_process, wm_process, conf_process):
                 stop_owned_process(process)
             connection.close()
 
