@@ -1,6 +1,10 @@
 """Narrow removal contracts: simulated plans / fake libflatpak; no packages touched."""
 import json
 import unittest
+import subprocess
+import tempfile
+import sys
+from pathlib import Path
 from types import SimpleNamespace as NS
 from unittest.mock import Mock, patch
 
@@ -11,11 +15,22 @@ service = load('store_remove_service', 'system/usr/lib/oguzdows/store_service.py
 PC = {'arch': 'amd64', 'suite': 'trixie'}
 
 
-def installed(version='1.0', essential=False, priority='optional'):
-    return NS(installed=NS(version=version, priority=priority), essential=essential)
+def installed(version='1.0', essential=False, priority='optional', held=False):
+    return NS(installed=NS(version=version, priority=priority), essential=essential, _pkg=NS(selected_state=2 if held else 1))
 
 
 class SystemRemovalTests(unittest.TestCase):
+    def test_real_transaction_probe_refuses_normal_host_before_any_write(self):
+        with tempfile.TemporaryDirectory() as directory:
+            output = Path(directory) / 'must-not-exist'
+            result = subprocess.run([sys.executable, '-I', str(ROOT / 'tests/smoke-store-transaction.py'),
+                                     '--disposable-container', '--output', str(output)],
+                                    env={'PATH': '/usr/bin:/bin', 'CI': 'false'},
+                                    capture_output=True, text=True, timeout=10)
+            self.assertNotEqual(result.returncode, 0)
+            self.assertIn('explicitly disposable', result.stderr)
+            self.assertFalse(output.exists())
+
     def test_only_catalogued_app_requests_get_explicit_remove_not_purge_or_autoremove(self):
         args = core.apt_command('remove-app:gimp', PC, True)
         self.assertEqual(args[-2:], ['remove', 'gimp'])
@@ -38,7 +53,7 @@ class SystemRemovalTests(unittest.TestCase):
                      'Conf other (2 Debian:stable [amd64])\n'):
             with self.subTest(text=text), self.assertRaises(core.MaintenanceError):
                 core.removal_plan(text, ['gimp'], cache)
-        for package in (installed(essential=True), installed(priority='required'), installed(priority='important')):
+        for package in (installed(essential=True), installed(priority='required'), installed(priority='important'), installed(held=True)):
             with self.assertRaises(core.MaintenanceError):
                 core.removal_plan('Remv gimp [1.0]\n', ['gimp'], {'gimp': package})
 
@@ -56,8 +71,7 @@ class SystemRemovalTests(unittest.TestCase):
         execute.reset_mock()
         core.apply_plan('remove-app:gimp', plan['token'], PC, execute, cache)
         self.assertEqual(execute.call_count, 2)
-        self.assertNotIn('--simulate', execute.call_args.args[0])
-        self.assertEqual(execute.call_args.args[0][-2:], ['remove', 'gimp'])
+        self.assertEqual(execute.call_args.args[0], ['/usr/bin/dpkg', '--remove', 'gimp'])
 
     def test_service_still_uses_the_same_locked_polkit_helper_and_scoped_verb(self):
         execute = Mock(return_value=json.dumps({'changes': [], 'token': 'a' * 64}))
@@ -70,6 +84,8 @@ class SystemRemovalTests(unittest.TestCase):
         source = (ROOT / 'system/usr/local/sbin/oguzdows-maintenance').read_text()
         self.assertIn("startswith(('app:', 'remove-app:'))", source)
         self.assertIn('fcntl.flock', source)
+        self.assertIn('/var/lib/dpkg/lock-frontend', source)
+        self.assertIn("{'DPKG_FRONTEND_LOCKED': 'true'} if removing else {}", source)
         self.assertIn("args[0] in ('apply', 'pardus-enable') and is_live()", source)
         with patch.object(service, 'apt_request', return_value={'intent': 'remove'}) as request:
             service.dispatch(['remove-plan', 'gimp', 'system'])

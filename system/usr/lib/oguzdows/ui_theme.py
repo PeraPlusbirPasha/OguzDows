@@ -95,10 +95,12 @@ def setup(window):
             stack.set_transition_type(Gtk.StackTransitionType.CROSSFADE if motion else Gtk.StackTransitionType.NONE)
             stack.set_transition_duration(200 if motion else 0)
 
-    def changed(_monitor, file, _other, event):
-        if file.get_basename() == 'desktop.json' and event in (
+    def changed(_monitor, file, other, event):
+        names = (file.get_basename(), other.get_basename() if other else None)
+        if 'desktop.json' in names and event in (
                 Gio.FileMonitorEvent.CHANGES_DONE_HINT, Gio.FileMonitorEvent.CREATED,
-                Gio.FileMonitorEvent.DELETED, Gio.FileMonitorEvent.MOVED_IN):
+                Gio.FileMonitorEvent.DELETED, Gio.FileMonitorEvent.MOVED_IN,
+                Gio.FileMonitorEvent.RENAMED, Gio.FileMonitorEvent.MOVED_OUT):
             refresh()
 
     for signal in ('notify::gtk-enable-animations', 'notify::gtk-application-prefer-dark-theme', 'notify::gtk-theme-name'):

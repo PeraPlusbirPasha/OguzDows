@@ -187,11 +187,11 @@ static void refresh_style(GtkWidget *window) {
 }
 
 static void changed(GFileMonitor *monitor, GFile *file, GFile *other, GFileMonitorEvent event, gpointer data) {
-    (void)monitor; (void)other;
-    if (event != G_FILE_MONITOR_EVENT_CHANGES_DONE_HINT && event != G_FILE_MONITOR_EVENT_CREATED && event != G_FILE_MONITOR_EVENT_DELETED && event != G_FILE_MONITOR_EVENT_MOVED_IN) return;
-    gchar *name = g_file_get_basename(file);
-    if (!strcmp(name, "desktop.json")) refresh_style(GTK_WIDGET(data));
-    g_free(name);
+    (void)monitor;
+    if (event != G_FILE_MONITOR_EVENT_CHANGES_DONE_HINT && event != G_FILE_MONITOR_EVENT_CREATED && event != G_FILE_MONITOR_EVENT_DELETED && event != G_FILE_MONITOR_EVENT_MOVED_IN && event != G_FILE_MONITOR_EVENT_RENAMED && event != G_FILE_MONITOR_EVENT_MOVED_OUT) return;
+    gchar *name = g_file_get_basename(file), *destination = other ? g_file_get_basename(other) : NULL;
+    if (!g_strcmp0(name, "desktop.json") || !g_strcmp0(destination, "desktop.json")) refresh_style(GTK_WIDGET(data));
+    g_free(name); g_free(destination);
 }
 
 static void composited(GdkScreen *screen, gpointer data) { (void)screen; refresh_style(GTK_WIDGET(data)); }

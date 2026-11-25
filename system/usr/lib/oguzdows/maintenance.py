@@ -210,8 +210,9 @@ def removal_plan(text, packages, cache):
         package = cache[name]
         installed = package.installed
         if (installed is None or installed.version != version or package.essential
-                or installed.priority in ('required', 'important')):
-            raise MaintenanceError('Temel / önemli paket ya da değişmiş kurulum durumu kaldırılamaz: ' + name)
+                or installed.priority in ('required', 'important')
+                or getattr(getattr(package, '_pkg', None), 'selected_state', 0) == 2):  # libapt PkgSelectedState::Hold
+            raise MaintenanceError('Temel / önemli / tutulan paket ya da değişmiş kurulum durumu kaldırılamaz: ' + name)
         changes.append({'package': name, 'version': version, 'operation': 'remove', 'detail': line})
     return changes
 
@@ -263,8 +264,16 @@ def apply_plan(request, token, info, execute, cache, suggestions=None):
     if plan['token'] != token:
         raise MaintenanceError('Paket planı değişti. Yeniden denetleyip yeni planı onaylayın.')
     if plan['changes']:
-        execute(apt_command(request, info, False, suggestions))
-    return {'message': 'İşlem tamamlandı. Çekirdek / firmware güncellendiyse yeniden başlatın.',
+        if request.startswith('remove-app:'):
+            # Caller holds dpkg's frontend lock over replan + execution. Unlike
+            # a second apt-get resolver run, dpkg cannot silently widen the
+            # approved removal set. Its backend lock + dependency / Essential
+            # checks stay enabled. No --force-depends, purge or autoremove.
+            execute(['/usr/bin/dpkg', '--remove', *[change['package'] for change in plan['changes']]])
+        else:
+            execute(apt_command(request, info, False, suggestions))
+    return {'message': ('Seçili uygulama paketleri kaldırıldı; kişisel dosyalar ve bağımlılıklar korunur.'
+                        if request.startswith('remove-app:') else 'İşlem tamamlandı. Çekirdek / firmware güncellendiyse yeniden başlatın.'),
             'changed': len(plan['changes'])}
 
 

@@ -55,6 +55,7 @@ def main():
         return 2
     descriptor = None
     lists_descriptor = None
+    frontend_descriptor = None
     try:
         app_request = args[0] in ('plan', 'apply') and args[1].startswith(('app:', 'remove-app:'))
         desktop_request = (args[0] == 'desktop-refresh'
@@ -75,6 +76,13 @@ def main():
             raise core.MaintenanceError('Kalıcı paket işlemleri kurulu sistem içindir. Canlı USB yerine disk oturumunu açın.')
         descriptor = os.open('/run/lock/oguzdows-maintenance.lock', os.O_CREAT | os.O_RDWR | os.O_NOFOLLOW, 0o600)
         fcntl.flock(descriptor, fcntl.LOCK_EX | fcntl.LOCK_NB)
+        removing = args[0] in ('plan', 'apply') and args[1].startswith('remove-app:')
+        if removing:
+            # Hold the normal frontend lock across status read, simulation,
+            # digest check and exact dpkg removal. Backend lock is still taken
+            # by dpkg itself; no lock file is deleted / lock bypass flag used.
+            frontend_descriptor = os.open('/var/lib/dpkg/lock-frontend', os.O_CREAT | os.O_RDWR | os.O_NOFOLLOW, 0o640)
+            fcntl.lockf(frontend_descriptor, fcntl.LOCK_EX | fcntl.LOCK_NB)
         if args[0] in ('plan', 'apply'):
             # Başka apt update, önizleme / doğrulama sırasında aday listesini
             # değiştirmesin. APT'nin kullandığı POSIX kilit türü korunur.
@@ -88,7 +96,7 @@ def main():
             def execute(command):
                 log.write('\nİşlem: ' + ' '.join(command) + '\n')
                 log.flush()
-                result = subprocess.run(command, env=core.ENV, stdin=subprocess.DEVNULL,
+                result = subprocess.run(command, env={**core.ENV, **({'DPKG_FRONTEND_LOCKED': 'true'} if removing else {})}, stdin=subprocess.DEVNULL,
                                         stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
                                         text=True, errors='replace', check=False)
                 log.write(result.stdout)
@@ -124,6 +132,8 @@ def main():
     except (OSError, ValueError, KeyError, subprocess.SubprocessError) as problem:
         error = str(problem)
     finally:
+        if frontend_descriptor is not None:
+            os.close(frontend_descriptor)
         if lists_descriptor is not None:
             os.close(lists_descriptor)
         if descriptor is not None:

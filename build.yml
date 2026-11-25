@@ -142,6 +142,12 @@ jobs:
           python3 scripts/ci-run.py --title 'Explicit live RSS health (offline is reported honestly)' -- \
             python3 tests/smoke-news-live.py --output test-results/news-live.json
 
+      - name: Gerçek mağaza yükle/kaldır · yalnız tek kullanımlık amd64/trixie container
+        if: matrix.suite == 'trixie'
+        run: |
+          python3 scripts/ci-run.py --title 'Real guarded Store package transaction (disposable container only)' -- \
+            python3 tests/smoke-store-transaction.py --disposable-container --output test-results/store-transaction
+
       - name: Tek kompozitör, kısa geçiş ve düşük RAM koruması (özel normal kullanıcı)
         run: |
           python3 scripts/ci-run.py --title 'Gerçek Picom / Xfwm sahipliği' -- \

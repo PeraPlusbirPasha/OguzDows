@@ -478,12 +478,14 @@ static void setup_clicked(GtkButton *button, gpointer data) {
 
 static void remote_search(GtkButton *button, gpointer data) {
     (void)button; (void)data;
+    if (busy) return;
     const gchar *query = gtk_entry_get_text(GTK_ENTRY(search_entry));
     if (g_utf8_strlen(query, -1) < 2) { status("Flathub araması için en az iki karakter yaz."); return; }
     if (!user_flatpak_supported) { status("Bu mimaride kullanıcı Flathub uygulamaları sunulmuyor. İmzalı sistem paketlerini kullanabilirsin."); return; }
     if (!remote_available) { view("sources"); status("Önce Flathub kaynağını açık onayla ekleyin."); return; }
     gtk_combo_box_set_active(GTK_COMBO_BOX(category), 0);
-    view("discover");
+    gboolean dirty = catalog_dirty; catalog_dirty = FALSE;
+    view("discover"); catalog_dirty = dirty;
     run_service(SEARCH, "search", query, NULL, NULL);
 }
 
