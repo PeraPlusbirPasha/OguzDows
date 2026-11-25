@@ -16,7 +16,7 @@ from pathlib import Path
 from desktop_state import private_directory
 from profiles import atomic_text, theme, PROFILES
 
-MARKER = 'oguzdows-generated-material-v2\n'
+MARKER = 'oguzdows-generated-material-v3\n'
 PREFIX = 'OguzDowsAeroGlassUser-'
 
 
@@ -106,7 +106,8 @@ def install(accent, dark, renderer=None, *, identifier='oguzdows', glass=True, b
         gtk = private_directory(built / 'gtk-3.0')
         atomic_text(gtk / 'gtk.css', css(accent, dark, parent, glass))
         gtk2 = private_directory(built / 'gtk-2.0')
-        atomic_text(gtk2 / 'gtkrc', f'include "/usr/share/themes/{parent}/gtk-2.0/gtkrc"\n'
+        gtk2_parent = theme(identifier, 'dark' if dark else 'light')
+        atomic_text(gtk2 / 'gtkrc', f'include "/usr/share/themes/{gtk2_parent}/gtk-2.0/gtkrc"\n'
                     f'gtk-color-scheme = "selected_bg_color:{accent}\\nselected_fg_color:{foreground(accent)}"\n')
         atomic_text(built / 'index.theme', f'[Desktop Entry]\nName=OğuzDows · {identifier} · {accent}\n'
                     f'[X-GNOME-Metatheme]\nGtkTheme={name}\nIconTheme=OguzDows\n')

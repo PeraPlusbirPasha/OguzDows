@@ -234,6 +234,10 @@ static gchar *window_id(WnckWindow *window) {
     else if (strstr(lower, "firefox") || strstr(lower, "chromium")) known = "oguzdows-browser.desktop";
     else if (strstr(lower, "xfce4-terminal")) known = "oguzdows-terminal.desktop";
     else if (strstr(lower, "oguzdows") && strstr(lower, "store")) known = "oguzdows-store.desktop";
+    else if (strstr(lower, "oguzdows") && strstr(lower, "news")) known = "oguzdows-news.desktop";
+    else if (strstr(lower, "oguzdows") && strstr(lower, "monitor")) known = "oguzdows-monitor.desktop";
+    else if (strstr(lower, "oguzdows") && strstr(lower, "hub")) known = "oguzdows-hub.desktop";
+    else if (strstr(lower, "oguzdows") && strstr(lower, "desktop")) known = "oguzdows-desktop.desktop";
     if (known) { g_free(lower); return g_strdup(known); }
     return lower;
 }

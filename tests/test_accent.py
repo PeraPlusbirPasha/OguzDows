@@ -165,6 +165,17 @@ class ModeSurfaceTests(AccentFixture):
                 self.assertEqual(before, {key: backend.values[key] for key in before})
                 self.assertEqual(float(backend.values['xfce4-panel', '/panels/panel-1/background-rgba'][-1]) < 1, glass)
 
+    def test_light_glass_retains_panel_alpha_without_enabling_backdrop_blur(self):
+        for identifier in ('mac', 'windows11'):
+            for budget, expected in ((True, '.94'), (False, '1')):
+                directory = self.root / f'{identifier}-{budget}'
+                backend = Xfconf(profiles.settings('oguzdows'))
+                profiles.apply(identifier, directory, backend)
+                profiles.set_shared({**state.DEFAULTS, 'effects': 'glass', 'blur': False}, directory, backend,
+                                    {'compositing': budget}, material_theme='OpaqueContentUser')
+                self.assertEqual(float(backend.values['xfce4-panel', '/panels/panel-1/background-rgba'][-1]), float(expected))
+                self.assertEqual(backend.values['xfwm4', '/general/theme'], 'OpaqueContentUser')
+
     def test_new_reserved_plugin_collision_is_rejected_and_personal_slot_survives_classic_mode(self):
         backend = Xfconf(profiles.settings('oguzdows'))
         backend.values['xfce4-panel', '/plugins/plugin-95'] = 'personal-notes'

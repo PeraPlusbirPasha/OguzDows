@@ -28,7 +28,7 @@ Python çizim / renk tarama servisi yoktur.
    - **macOS esintisi:** ince üst uygulama / yerler menüsü ve sağ sistem alanı;
      altta ayrı, içeriğe oturan Dock; solda kırmızı/sarı/yeşil kontroller,
      ortalı başlık. Dock ikonları fareyle 150ms içinde büyür; aktif pencere
-     noktası görünür. Hareket azaltılmışsa büyüme yerine statik odak kullanılır.
+     noktası görünür. GTK animasyonları kapalıysa (efektsiz / düşük kaynak / azaltılmış hareket) büyüme yerine statik odak kullanılır; büyüme için uygun kaynakta Aero / animasyon açık olmalıdır.
 3. Anında düzen değişimi için **“Düzen değişirse paneli şimdi yenile”** kutusunu
    özellikle işaretleyin. Yoksa yeni panel bileşenleri sonraki girişte yüklenir.
    Panel yenileme açık uygulamaları kapatmaz; oturum kapatma komutu verilmez.

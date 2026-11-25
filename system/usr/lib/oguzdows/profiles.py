@@ -422,7 +422,9 @@ def set_shared(preferences, directory=None, execute=run, resources=None, materia
             if panel == 90 or identifier in NATIVE_PROFILES or PROFILES[identifier]['position'] == 10:
                 color = [int(preferences['accent'][i:i + 2], 16) / 255 for i in (1, 3, 5)]
                 base = .13 if appearance == 'dark' else .94
-                value = [decimal_value(.12 * component + .88 * base) for component in color] + [('0.88' if panel == 1 and identifier == 'mac' else '0.84') if glass else '1']
+                alpha = ('0.88' if panel == 1 and identifier == 'mac' else '0.84') if glass else (
+                    '0.94' if effect == 'glass' and resources['compositing'] else '1')
+                value = [decimal_value(.12 * component + .88 * base) for component in color] + [alpha]
         choices.append((channel, path, kind, value))
     transaction(choices, directory, execute, {'appearance': appearance + '\n', 'effects': effect + '\n'}, undo=undo)
 

@@ -220,7 +220,7 @@ def window_theme(root: Path, name='OguzDows', light=False, xp=False, accent=None
                 fill = {'close': '#ed6a5f', 'hide': '#f5bf4f', 'maximize': '#61c454', 'maximize-toggled': '#61c454'}[button]
                 draw.ellipse((cx - 18, 30, cx + 18, 66), fill=fill, outline='#82645b', width=2)
                 color = '#352c2b'
-            elif state in ('prelight', 'pressed'):
+            elif state in ('prelight', 'pressed') or (xp and button == 'close'):
                 fill = '#c62b3d' if button == 'close' else ('#d4dfec' if light else '#405067')
                 draw.rectangle((0, 3, width * 3, 95), fill=fill)
                 if button == 'close': color = PAPER
