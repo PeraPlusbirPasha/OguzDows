@@ -57,7 +57,7 @@ def configure(identifier, output):
     shutil.copytree(ROOT / 'boot', overlay / 'usr/share/plymouth/themes/oguzdows')
     docs = overlay / 'usr/share/doc/oguzdows'
     docs.mkdir(parents=True, exist_ok=True)
-    for source, target in (('MASAUSTU-VE-BAKIM.md', 'masaustu-ve-bakim.md'), ('CIHAZLAR-VE-UYUMLULUK.md', 'cihazlar-ve-uyumluluk.md'), ('PI-ZERO-OTURUM.md', 'PI-ZERO-OTURUM.md'), ('ELEMENTARY-HABER.md', 'ELEMENTARY-HABER.md')):
+    for source, target in (('MASAUSTU-VE-BAKIM.md', 'masaustu-ve-bakim.md'), ('CIHAZLAR-VE-UYUMLULUK.md', 'cihazlar-ve-uyumluluk.md'), ('PI-ZERO-OTURUM.md', 'PI-ZERO-OTURUM.md'), ('ELEMENTARY-HABER.md', 'ELEMENTARY-HABER.md'), ('NATIVE-MATERYAL-HABER-MAGAZA.md', 'NATIVE-MATERYAL-HABER-MAGAZA.md')):
         shutil.copy2(ROOT / 'docs' / source, docs / target)
     for directory in ('usr/local/bin', 'usr/local/sbin', 'usr/lib/oguzdows', 'usr/share/oguzdows/scripts'):
         for path in (overlay / directory).iterdir():

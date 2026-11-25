@@ -1,29 +1,120 @@
-/* Native GTK 3; backdrop blur lives in Picom / Mutter / KWin, not CSS. */
-window.oguzdows-modern { background-color: #f3f6fb; color: #203249; }
-.oguzdows-modern headerbar { background-image: linear-gradient(to bottom, #ffffff, #ecf2fa); color: #203249; border-bottom: 1px solid #d7e0ec; }
-.oguzdows-modern .title { font-size: 23px; font-weight: 800; letter-spacing: -0.5px; }
-.oguzdows-modern .subtitle { color: #5b7088; font-size: 11px; }
-.oguzdows-modern .accent { color: #187e91; }
-.oguzdows-modern .metric { background-image: linear-gradient(to bottom right, #ffffff, #f0f6ff); border: 1px solid #d7e2ef; border-radius: 16px; padding: 14px; box-shadow: 0 2px 4px rgba(20,40,70,0.06), 0 8px 20px rgba(20,40,70,0.04), inset 0 1px rgba(255,255,255,0.9); }
-.oguzdows-modern .metric-value { font-size: 24px; font-weight: 800; }
-.oguzdows-modern button { border-radius: 10px; transition: background-color 140ms ease-out, border-color 140ms ease-out, box-shadow 140ms ease-out; }
-.oguzdows-modern .oguz-action { background-image: none; background-color: transparent; border: 1px solid transparent; padding: 12px 8px; box-shadow: none; color: inherit; }
-.oguzdows-modern .oguz-action:hover { background-color: #ffffff; border-color: #71bbd1; box-shadow: 0 5px 14px rgba(37,121,164,0.13), inset 0 1px rgba(255,255,255,0.9); }
-.oguzdows-modern .oguz-action:active { background-color: #daeaf6; box-shadow: inset 0 2px 4px rgba(20,40,70,0.16); }
-.oguzdows-modern .oguz-action:focus { border-color: #187e91; outline-width: 2px; }
-.oguzdows-modern entry { border-radius: 12px; min-height: 32px; padding: 4px 12px; }
-.oguzdows-modern popover, .oguzdows-modern menu { border-radius: 12px; padding: 6px; background-color: #f7faff; color: #203249; border: 1px solid #c2d4e8; box-shadow: 0 10px 24px rgba(14,32,59,0.18); }
-.oguzdows-modern .status-strip { background-color: #e5edf7; border-radius: 12px; padding: 8px 12px; }
-window.oguzdows-modern.oguzdows-dark { background-color: #111e2d; color: #ecf4ff; }
-.oguzdows-modern.oguzdows-dark headerbar { background-image: linear-gradient(to bottom, #23354a, #172738); color: #ecf4ff; border-color: #384e65; }
-.oguzdows-modern.oguzdows-dark .metric { background-image: linear-gradient(to bottom right, #203348, #16283b); border-color: #38526c; box-shadow: 0 3px 5px rgba(0,0,0,0.16), 0 10px 24px rgba(0,0,0,0.16), inset 0 1px rgba(255,255,255,0.06); }
-.oguzdows-modern.oguzdows-dark .subtitle { color: #a9bdd3; }
-.oguzdows-modern.oguzdows-dark .accent { color: #77d9e4; }
-.oguzdows-modern.oguzdows-dark .oguz-action:hover { background-color: #263d55; }
-.oguzdows-modern.oguzdows-dark .oguz-action:active { background-color: #304b65; }
-.oguzdows-modern.oguzdows-dark .status-strip { background-color: #203348; }
-/* Material alpha is limited to a compositor-confirmed bottom launcher.
-   Headers and the close button stay opaque; without a compositor no class. */
-window.oguzdows-modern.oguzdows-glass { background-color: rgba(237,246,255,0.88); }
-window.oguzdows-modern.oguzdows-dark.oguzdows-glass { background-color: rgba(20,37,55,0.90); }
-.oguzdows-modern.reduced-motion button { transition: none; }
+/* OğuzDows native material system · GTK 3 (not browser CSS).
+ * Backdrop blur + window scale/opacity belong to the owned compositor.
+ * Opaque content is the default. Only independently confirmed Picom gets alpha.
+ * No per-tile shadow/blur stacks, no geometry animation, no webview.
+ */
+@define-color og_accent #187e91;
+@define-color og_ink #213247;
+@define-color og_muted #53677d;
+@define-color og_line rgba(56, 83, 115, 0.16);
+
+window.oguzdows-modern { background-image: none; background-color: #f4f6f9; color: @og_ink; font-family: "Inter", sans-serif; font-size: 10pt; }
+.oguzdows-modern decoration { border: 1px solid rgba(93, 115, 141, 0.25); border-radius: 12px 12px 0 0; }
+.oguzdows-modern headerbar, .oguzdows-modern headerbar:backdrop { background-image: linear-gradient(to bottom, #ffffff, #edf1f6); color: @og_ink; border: 0; border-bottom: 1px solid @og_line; box-shadow: inset 0 1px rgba(255,255,255,0.8); min-height: 42px; padding: 4px 10px; opacity: 1; }
+.oguzdows-modern headerbar label:backdrop { color: #53677d; }
+.oguzdows-modern .title { font-size: 22px; font-weight: 700; letter-spacing: -0.4px; }
+.oguzdows-modern headerbar .title { font-size: 13px; letter-spacing: 0; }
+.oguzdows-modern .heading { font-size: 28px; font-weight: 700; letter-spacing: -0.7px; }
+.oguzdows-modern .page-title { font-size: 26px; font-weight: 700; letter-spacing: -0.6px; }
+.oguzdows-modern .eyebrow { font-size: 10px; font-weight: 700; letter-spacing: 1.1px; color: @og_accent; }
+.oguzdows-modern .section-title, .oguzdows-modern .card-title { font-size: 15px; font-weight: 600; }
+.oguzdows-modern .subtitle, .oguzdows-modern .dim-label, .oguzdows-modern .muted { color: @og_muted; font-size: 12px; opacity: 1; }
+.oguzdows-modern .accent { color: @og_accent; }
+.oguzdows-modern separator { background-color: @og_line; min-width: 1px; min-height: 1px; }
+
+/* Controls share a small radius, a single hairline and an inset light edge. */
+.oguzdows-modern button { background-image: none; background-color: #ffffff; color: @og_ink; border: 1px solid @og_line; border-radius: 8px; padding: 7px 11px; box-shadow: inset 0 1px rgba(255,255,255,0.65); text-shadow: none; transition: background-color 160ms cubic-bezier(0.2,0.8,0.2,1), border-color 160ms ease-out; }
+.oguzdows-modern button:hover { background-color: #eaf2f7; border-color: alpha(@og_accent,0.55); }
+.oguzdows-modern button:active, .oguzdows-modern button:checked { background-color: #dae8f0; border-color: alpha(@og_accent,0.65); box-shadow: none; }
+.oguzdows-modern button:disabled { color: #738298; background-color: #e9edf2; box-shadow: none; }
+.oguzdows-modern button:focus, .oguzdows-modern entry:focus { border-color: @og_accent; outline-color: @og_accent; outline-width: 2px; outline-offset: 2px; }
+.oguzdows-modern button.suggested-action { background-color: @og_accent; color: #ffffff; border-color: shade(@og_accent,0.85); }
+.oguzdows-modern button.suggested-action:hover { background-color: shade(@og_accent,1.12); }
+.oguzdows-modern button.destructive-action { background-color: #fff5f5; color: #a72e42; border-color: rgba(167,46,66,0.3); }
+.oguzdows-modern headerbar button.titlebutton, .oguzdows-modern headerbar button.titlebutton:backdrop { background-color: #e4eaf0; color: #23364c; border: 1px solid rgba(50,72,100,0.24); border-radius: 7px; min-width: 22px; min-height: 22px; padding: 2px; opacity: 1; -gtk-icon-effect: none; }
+.oguzdows-modern headerbar button.titlebutton.close, .oguzdows-modern headerbar button.titlebutton.close:backdrop { color: #8d2337; background-color: #f5e3e7; border-color: rgba(141,35,55,0.25); }
+.oguzdows-modern headerbar button.titlebutton.close:hover { color: #ffffff; background-color: #b83149; }
+.oguzdows-modern entry { background-image: none; background-color: #ffffff; color: @og_ink; border: 1px solid @og_line; border-radius: 9px; min-height: 30px; padding: 5px 11px; box-shadow: none; }
+.oguzdows-modern popover, .oguzdows-modern menu { background-image: none; background-color: #fafcff; color: @og_ink; border: 1px solid rgba(70,96,124,0.22); border-radius: 10px; padding: 6px; }
+.oguzdows-modern menuitem { border-radius: 6px; padding: 6px 10px; }
+.oguzdows-modern menuitem:hover { background-color: #e2eef5; }
+.oguzdows-modern notebook > header { background-color: #edf1f6; border: 0; border-bottom: 1px solid @og_line; }
+.oguzdows-modern notebook tab { padding: 10px 16px; }
+.oguzdows-modern textview, .oguzdows-modern textview text { background-color: #fbfcfe; color: @og_ink; }
+.oguzdows-modern scrolledwindow, .oguzdows-modern viewport { background-color: transparent; border: 0; }
+.oguzdows-modern selection { background-color: @og_accent; color: #ffffff; }
+
+/* The page is a surface, not a deck of floating rectangles. */
+.oguzdows-modern .card, .oguzdows-modern .metric { background-image: none; background-color: rgba(255,255,255,0.48); border: 1px solid @og_line; border-radius: 10px; padding: 14px; box-shadow: none; }
+.oguzdows-modern .card:hover { background-color: #edf4f8; border-color: alpha(@og_accent,0.35); }
+.oguzdows-modern .card.primary { background-color: #e5eff4; border-color: alpha(@og_accent,0.28); }
+.oguzdows-modern .metric-value { font-size: 25px; font-weight: 600; }
+.oguzdows-modern .status-strip, .oguzdows-modern .scope-note { background-color: rgba(99,129,158,0.06); border: 1px solid @og_line; border-radius: 8px; padding: 10px 12px; }
+.oguzdows-modern .pill { background-color: #e3eff2; color: #24616d; border: 1px solid alpha(@og_accent,0.15); border-radius: 10px; padding: 4px 10px; font-size: 11px; }
+.oguzdows-modern .oguz-action { background-color: transparent; border-color: transparent; padding: 10px 8px; box-shadow: none; }
+.oguzdows-modern .oguz-action:hover { background-color: rgba(255,255,255,0.65); border-color: @og_line; }
+.oguzdows-modern .oguz-action image { transition: -gtk-icon-transform 180ms ease-out; }
+.oguzdows-modern .oguz-action:hover image { -gtk-icon-transform: scale(1.06); }
+
+/* Shared sidebar / list rhythm. */
+.oguzdows-modern .store-sidebar, .oguzdows-modern .welcome-sidebar { background-color: rgba(98,126,157,0.065); padding: 8px 4px; border: 0; }
+.oguzdows-modern .store-sidebar row, .oguzdows-modern .welcome-sidebar row { border: 1px solid transparent; border-radius: 8px; margin: 2px 3px; padding: 0; }
+.oguzdows-modern .store-sidebar row:selected, .oguzdows-modern .welcome-sidebar row:selected { background-color: #deeaf2; border-color: rgba(67,116,143,0.17); color: @og_ink; }
+.oguzdows-modern .store-sidebar row:selected label, .oguzdows-modern .welcome-sidebar row:selected label { color: @og_ink; }
+.oguzdows-modern .style-card { border-width: 1px; border-radius: 10px; padding: 4px; }
+.oguzdows-modern .selected-style { border-color: @og_accent; }
+
+/* Store: one editorial feature, then dense, quiet app rows. No fake ratings. */
+.oguzdows-modern .store-feature { background-image: linear-gradient(125deg, #e1edf1, #f7fafc); border: 1px solid rgba(61,112,139,0.18); border-radius: 12px; padding: 20px; box-shadow: inset 0 1px rgba(255,255,255,0.8); }
+.oguzdows-modern .store-feature .feature-title { font-size: 23px; font-weight: 700; letter-spacing: -0.4px; }
+.oguzdows-modern flowboxchild { padding: 0; }
+.oguzdows-modern .app-card { background-image: none; background-color: transparent; border: 1px solid transparent; border-bottom-color: @og_line; border-radius: 8px; padding: 6px; box-shadow: none; }
+.oguzdows-modern .app-card:hover { background-color: rgba(255,255,255,0.74); border-color: rgba(61,112,139,0.2); }
+.oguzdows-modern .app-name { font-size: 14px; font-weight: 600; }
+.oguzdows-modern .source-chip { font-size: 11px; color: #47627c; }
+.oguzdows-modern.compact-store .page-title { font-size: 21px; }
+.oguzdows-modern.compact-store .store-feature { padding: 12px; }
+
+/* News has a real reader surface, transparent chrome and honest mode banner. */
+.oguzdows-modern .news-list { background-color: transparent; padding: 0 14px; }
+.oguzdows-modern .news-item { background-color: transparent; border: 0; border-bottom: 1px solid @og_line; padding: 16px 8px; }
+.oguzdows-modern .news-item:hover, .oguzdows-modern .news-item:selected { background-color: #e5eef5; color: @og_ink; }
+.oguzdows-modern .news-headline { font-size: 17px; font-weight: 600; letter-spacing: -0.2px; }
+.oguzdows-modern .reader-title { font-size: 25px; font-weight: 700; letter-spacing: -0.5px; }
+.oguzdows-modern .news-status { font-size: 11px; color: @og_muted; }
+.oguzdows-modern .news-banner { background-color: #e7f0f4; color: #30556b; border: 1px solid rgba(48,85,107,0.18); border-radius: 8px; padding: 10px 12px; margin: 0 12px 4px; font-size: 12px; }
+.oguzdows-modern .news-banner.example { background-color: #fcf1dd; color: #78521c; border-color: rgba(120,82,28,0.2); }
+
+/* Dark is the same material hierarchy, not a second component library. */
+window.oguzdows-modern.oguzdows-dark { background-color: #17212e; color: #e4edf6; }
+.oguzdows-modern.oguzdows-dark decoration { border-color: rgba(180,204,229,0.19); }
+.oguzdows-modern.oguzdows-dark headerbar, .oguzdows-modern.oguzdows-dark headerbar:backdrop { background-image: linear-gradient(to bottom, #2c394b, #223041); color: #ecf3fb; border-color: rgba(184,210,234,0.16); box-shadow: inset 0 1px rgba(255,255,255,0.055); }
+.oguzdows-modern.oguzdows-dark headerbar label:backdrop { color: #afc1d6; }
+.oguzdows-modern.oguzdows-dark .subtitle, .oguzdows-modern.oguzdows-dark .dim-label, .oguzdows-modern.oguzdows-dark .muted, .oguzdows-modern.oguzdows-dark .news-status, .oguzdows-modern.oguzdows-dark .source-chip { color: #aebfd1; }
+.oguzdows-modern.oguzdows-dark button { background-color: #2a3a4f; color: #e4edf6; border-color: rgba(182,206,232,0.18); box-shadow: inset 0 1px rgba(255,255,255,0.035); }
+.oguzdows-modern.oguzdows-dark button:hover { background-color: #344a60; border-color: alpha(@og_accent,0.65); }
+.oguzdows-modern.oguzdows-dark button:active, .oguzdows-modern.oguzdows-dark button:checked { background-color: #38546a; }
+.oguzdows-modern.oguzdows-dark button:disabled { background-color: #223044; color: #8295ac; }
+.oguzdows-modern.oguzdows-dark button.suggested-action { background-color: @og_accent; color: #ffffff; }
+.oguzdows-modern.oguzdows-dark button.destructive-action { background-color: #3c2c3c; color: #ffc0c9; }
+.oguzdows-modern.oguzdows-dark headerbar button.titlebutton, .oguzdows-modern.oguzdows-dark headerbar button.titlebutton:backdrop { background-color: #354459; color: #f0f5fc; }
+.oguzdows-modern.oguzdows-dark headerbar button.titlebutton.close, .oguzdows-modern.oguzdows-dark headerbar button.titlebutton.close:backdrop { background-color: #673346; color: #ffffff; }
+.oguzdows-modern.oguzdows-dark entry, .oguzdows-modern.oguzdows-dark textview, .oguzdows-modern.oguzdows-dark textview text { background-color: #1c2a3b; color: #e4edf6; border-color: rgba(182,206,232,0.2); }
+.oguzdows-modern.oguzdows-dark popover, .oguzdows-modern.oguzdows-dark menu, .oguzdows-modern.oguzdows-dark notebook > header { background-color: #243449; color: #e4edf6; border-color: rgba(182,206,232,0.18); }
+.oguzdows-modern.oguzdows-dark .card, .oguzdows-modern.oguzdows-dark .metric, .oguzdows-modern.oguzdows-dark .status-strip, .oguzdows-modern.oguzdows-dark .scope-note { background-color: rgba(157,191,218,0.045); border-color: rgba(182,206,232,0.14); box-shadow: none; }
+.oguzdows-modern.oguzdows-dark .card.primary, .oguzdows-modern.oguzdows-dark .pill { background-color: #263e4b; color: #d2edf2; }
+.oguzdows-modern.oguzdows-dark .oguz-action, .oguzdows-modern.oguzdows-dark .app-card { background-color: transparent; box-shadow: none; }
+.oguzdows-modern.oguzdows-dark .oguz-action:hover, .oguzdows-modern.oguzdows-dark .app-card:hover { background-color: rgba(163,204,232,0.075); }
+.oguzdows-modern.oguzdows-dark .store-sidebar, .oguzdows-modern.oguzdows-dark .welcome-sidebar { background-color: rgba(8,18,32,0.14); }
+.oguzdows-modern.oguzdows-dark .store-sidebar row:selected, .oguzdows-modern.oguzdows-dark .welcome-sidebar row:selected, .oguzdows-modern.oguzdows-dark .news-item:selected, .oguzdows-modern.oguzdows-dark .news-item:hover { background-color: #2a4157; color: #e4edf6; }
+.oguzdows-modern.oguzdows-dark .store-sidebar row:selected label, .oguzdows-modern.oguzdows-dark .welcome-sidebar row:selected label { color: #e4edf6; }
+.oguzdows-modern.oguzdows-dark .store-feature { background-image: linear-gradient(125deg, #294655, #253145); border-color: rgba(151,198,216,0.18); box-shadow: inset 0 1px rgba(255,255,255,0.06); }
+.oguzdows-modern.oguzdows-dark .news-banner { background-color: #233e50; color: #c7e0ee; }
+.oguzdows-modern.oguzdows-dark .news-banner.example { background-color: #473e30; color: #f2d4a0; }
+
+/* Real ARGB background only; publisher text and title/close controls stay opaque.
+ * Tint approximates saturation, NOT a claim of a universal saturation shader. */
+window.oguzdows-modern.oguzdows-glass { background-color: rgba(237,244,250,0.86); }
+window.oguzdows-modern.oguzdows-dark.oguzdows-glass { background-color: rgba(20,33,48,0.90); }
+.oguzdows-modern.reduced-motion *, .oguzdows-modern.reduced-motion { transition: none; animation: none; }
+.oguzdows-modern.reduced-motion .oguz-action:hover image { -gtk-icon-transform: none; }

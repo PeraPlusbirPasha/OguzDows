@@ -16,6 +16,20 @@ smoke = load('iso_target_smoke_contract', 'tests/smoke-iso-target.py')
 
 
 class IsoTargetSmokeContractTests(unittest.TestCase):
+    def test_new_native_material_news_and_store_bytes_must_match_image_source(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            for relative, source in smoke.NATIVE_CONTENT.items():
+                target = root / relative
+                target.parent.mkdir(parents=True, exist_ok=True)
+                target.write_bytes(source.read_bytes())
+            with patch('builtins.print'):
+                hashes = smoke.native_material_contract(root)
+            self.assertEqual(len(hashes), 16)
+            (root / 'usr/share/oguzdows/ui/modern.css').write_text('stale old theme')
+            with self.assertRaisesRegex(RuntimeError, 'eşleşmiyor'):
+                smoke.native_material_contract(root)
+
     def test_guard_rejects_non_ci_and_non_regular_iso_before_mount_or_mkdtemp(self):
         arguments = ['smoke-iso-target', '--iso', '/dev/null', '--arch', 'amd64', '--expected-revision', 'a' * 40]
         for ci, uid in (('false', 0), ('true', 1000), ('true', 0)):

@@ -1,5 +1,7 @@
 # elementary esintili düzen, özgün simgeler ve hafif Haber
 
+> **Yeni geliştirme kaynağı:** ortak GTK materyali, Python 3.13 RSS düzeltmesi, dürüst örnek akış ve güvenli yükle/kaldır/güncelle için [native arayüz rehberi](NATIVE-MATERYAL-HABER-MAGAZA.md). Aşağıdaki v1.1 / eski kanıt açıklamaları tarihsel kapsamını korur.
+
 > **v1.1’e ait kaynak / imaj geçmişi:** bu sayfadaki XRender ve “GLX / blur yok” sınırı o yayının sınırıdır. Daha sonraki opt-in yerel Aero, GNOME / Plasma entegrasyonu ve canlı grafikler **[ayrı geliştirme rehberinde](YEREL-MASAUSTU.md)** anlatılır; bu sayfanın eski CI sonuçları yeni özelliklere mal edilmez.
 
 Bu bölüm **79c6942 imajlarından sonraki kaynak değişikliklerini** anlatır. v1.0.0 etiketi / yayın dosyaları değişmez. Kaynak testi, gerçek host GTK, ARM kullanıcı-QEMU, tam sistem VM ve fiziksel cihaz sonuçları aynı şey değildir.

@@ -6,6 +6,7 @@ import os
 import stat
 import tempfile
 import unittest
+from datetime import datetime, timezone
 from pathlib import Path
 from unittest.mock import Mock, patch
 
@@ -250,6 +251,70 @@ class NewsTests(unittest.TestCase):
                 with patch.object(service.os, 'geteuid', return_value=1000), patch.object(service, 'Reader', return_value=reader), patch('sys.argv', ['news', *args]), patch.object(reader, 'refresh', return_value={'items': [], 'test': True}), contextlib.redirect_stdout(io.StringIO()) as output:
                     self.assertIn(service.main(), (0, 1))
                     self.assertIsInstance(json.loads(output.getvalue()), dict)
+
+    def test_https_handler_works_without_removed_python313_private_attribute(self):
+        context = core.ssl.create_default_context()
+        handler = core.DirectHTTPSHandler(context=context)
+        if hasattr(handler, '_check_hostname'):
+            del handler._check_hostname  # CPython 3.12 / 3.13 contract.
+        handler.do_open = Mock(return_value='TLS response')
+        request = core.urllib.request.Request(BASE)
+        self.assertEqual(handler.https_open(request), 'TLS response')
+        handler.do_open.assert_called_once_with(core.DirectHTTPSConnection, request, context=context)
+        self.assertTrue(context.check_hostname)
+        self.assertEqual(context.verify_mode, core.ssl.CERT_REQUIRED)
+
+    def test_stream_first_launch_is_populated_but_never_disguises_demo_as_news(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            reader = self.reader(temporary)
+            download = Mock(side_effect=AssertionError('No implicit HTTP'))
+            result = reader.stream(download=download)
+            download.assert_not_called()
+            self.assertEqual(result['mode'], 'example')
+            self.assertFalse(result['network_refresh_requested'])
+            self.assertIn('Gerçek haber değildir', result['note'])
+            self.assertEqual(len(result['items']), 6)
+            for item in result['items']:
+                self.assertTrue(item['example'])
+                self.assertTrue(item['title'].startswith('ÖRNEK'))
+                self.assertEqual(item['url'], '')
+                self.assertEqual(item['published'], '')
+                self.assertIn('yerel örnek', item['publisher'])
+            self.assertFalse(reader.cache.exists())
+            self.assertEqual(reader.cached()['items'], [])  # Not saved as publisher data.
+
+    def test_stream_failure_uses_stale_cache_or_labelled_demo_and_exposes_error(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            reader = self.reader(temporary)
+            fail = Mock(side_effect=core.NewsError('TEST TLS failure'))
+            result = reader.stream('test', network=True, download=fail)
+            self.assertEqual(result['mode'], 'example')
+            self.assertIn('TEST TLS failure', result['warning'])
+            live = reader.stream('test', network=True, download=lambda _address: RSS)
+            self.assertEqual(live['mode'], 'live')
+            self.assertFalse(live['example'])
+            before = (reader.cache / 'test.json').read_bytes()
+            result = reader.stream('test', network=True, download=fail)
+            self.assertEqual(result['mode'], 'cache')
+            self.assertEqual(result['items'], live['items'])
+            self.assertEqual(result['cached_at'], live['cached_at'])
+            self.assertIn('TEST TLS failure', result['warning'])
+            self.assertEqual((reader.cache / 'test.json').read_bytes(), before)
+            (reader.cache / 'test.json').write_text('damaged')
+            result = reader.stream('test')
+            self.assertEqual(result['mode'], 'example')
+            self.assertTrue(result['warning'])
+            self.assertEqual((reader.cache / 'test.json').read_text(), 'damaged')
+
+    def test_categories_and_demo_rotation_are_local_bounded_and_date_honest(self):
+        data = RSS.replace(b'<pubDate>', b'<category>Technology</category><pubDate>')
+        self.assertEqual(core.parse(data, BASE)[0]['category'], 'Bilim ve teknoloji')
+        before = core.example_items(datetime(2026, 11, 17, 10, 0, tzinfo=timezone.utc))
+        after = core.example_items(datetime(2026, 11, 17, 10, 1, tzinfo=timezone.utc))
+        self.assertNotEqual(before[0]['id'], after[0]['id'])
+        self.assertEqual({item['id'] for item in before}, {item['id'] for item in after})
+        self.assertTrue(all(item['category'] in core.CATEGORIES for item in before))
+        self.assertTrue(all(not item['published'] for item in after))
 
     def test_native_ui_is_not_a_browser_and_never_auto_refreshes(self):
         source = (ROOT / 'native/news.c').read_text()

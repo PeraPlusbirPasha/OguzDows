@@ -90,6 +90,7 @@ def configure(arch: str, output: Path) -> None:
     shutil.copy2(ROOT / "docs/MASAUSTU-VE-BAKIM.md", documentation / "masaustu-ve-bakim.md")
     shutil.copy2(ROOT / "docs/PI-ZERO-OTURUM.md", documentation / "PI-ZERO-OTURUM.md")
     shutil.copy2(ROOT / "docs/ELEMENTARY-HABER.md", documentation / "ELEMENTARY-HABER.md")
+    shutil.copy2(ROOT / "docs/NATIVE-MATERYAL-HABER-MAGAZA.md", documentation / "NATIVE-MATERYAL-HABER-MAGAZA.md")
     shutil.copy2(ROOT / "docs/CIHAZLAR-VE-UYUMLULUK.md", documentation / "cihazlar-ve-uyumluluk.md")
     shutil.copy2(ROOT / "scripts/render-assets.py", overlay / "usr/lib/oguzdows/render-assets.py")
     if arch == 'amd64':

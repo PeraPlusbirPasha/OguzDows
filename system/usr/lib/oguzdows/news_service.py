@@ -16,15 +16,17 @@ def main():
             raise NewsError('Haber okuyucusu yönetici olarak çalıştırılmaz.')
         reader = Reader()
         if args == ['list']:
-            result = reader.cached()
+            result = reader.stream()
         elif len(args) == 2 and args[0] == 'cached':
-            result = reader.cached(args[1])
+            result = reader.stream(args[1])
         elif len(args) == 2 and args[0] == 'refresh':
-            result = reader.refresh(args[1])
+            result = reader.stream(args[1], network=True)
         elif len(args) == 3 and args[0] == 'add':
-            result = reader.add(args[1], args[2])
+            added = reader.add(args[1], args[2])
+            result = reader.stream(added['selected'])
         elif len(args) == 2 and args[0] == 'remove':
-            result = reader.remove(args[1])
+            remaining = reader.remove(args[1])
+            result = reader.stream(remaining['selected'])
         else:
             raise NewsError('Sabit haber işlemi gerekli; serbest komut / dosya kabul edilmez.')
         print(json.dumps(result, ensure_ascii=False, separators=(',', ':')))

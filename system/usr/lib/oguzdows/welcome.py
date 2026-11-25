@@ -20,6 +20,7 @@ import effects
 import desktop_preferences
 import desktop_runtime
 import welcome_model
+import ui_theme
 import device_support
 from rifki_speech import Speaker, ready_clip
 from pi_support import current_policy, is_pi, model as pi_model
@@ -168,6 +169,7 @@ class Welcome(Gtk.Application):
         self.window.set_title(self.context.title)
         self.window.set_icon_name('oguzdows-welcome')
         self.window.get_style_context().add_class('oguzdows-window')
+        ui_theme.setup(self.window)
         self.window.set_position(Gtk.WindowPosition.CENTER)
         screen = self.window.get_screen()
         self.window.set_default_size(min(400 if self.phone else 980, screen.get_width() - 24), min(700, screen.get_height() - 48))
@@ -189,7 +191,7 @@ class Welcome(Gtk.Application):
         self.stack = Gtk.Stack()
         reduced = not current_policy()['animations'] if is_pi() else light_profile(read_text(Path('/proc/cmdline')), memory_kib())
         self.reduced = reduced or not Gtk.Settings.get_default().get_property('gtk-enable-animations')
-        self.stack.set_transition_type(Gtk.StackTransitionType.NONE)
+        ui_theme.configure_stack(self.window, self.stack)
         root = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
         content = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL)
         self.sidebar = Gtk.ListBox()

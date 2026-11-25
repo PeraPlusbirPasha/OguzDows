@@ -113,6 +113,29 @@ def record_live_state(root, output, phase):
     print('::notice title=ISO canlı paket durumu ' + phase + '::' + json.dumps(report), flush=True)
 
 
+
+NATIVE_CONTENT = {relative: ROOT / 'system' / relative for relative in (
+    'usr/share/oguzdows/ui/modern.css', 'usr/lib/oguzdows/ui_theme.py',
+    'usr/lib/oguzdows/news_core.py', 'usr/lib/oguzdows/news_service.py',
+    'usr/lib/oguzdows/store_service.py', 'usr/lib/oguzdows/app_catalog.py',
+    'usr/lib/oguzdows/maintenance.py', 'usr/local/sbin/oguzdows-maintenance',
+    'usr/lib/oguzdows/welcome.py', 'usr/lib/oguzdows/desktop_center.py')}
+NATIVE_CONTENT.update({'usr/share/oguzdows/native/' + name: ROOT / 'native' / name
+                       for name in ('ui.c', 'ui.h', 'news.c', 'store.c', 'hub.c', 'monitor.c')})
+
+
+def native_material_contract(root):
+    hashes = {}
+    for relative, source in NATIVE_CONTENT.items():
+        payload = target_system.nonempty(root, relative).read_bytes()
+        digest = hashlib.sha256(payload).hexdigest()
+        if digest != hashlib.sha256(source.read_bytes()).hexdigest():
+            raise RuntimeError('ISO native UI / haber / mağaza içeriği bu kaynakla eşleşmiyor: ' + relative)
+        hashes[relative] = digest
+    print('::notice title=Native app exact content::' + json.dumps(hashes))
+    return hashes
+
+
 def desktop_contract(root):
     """Paket, sahiplik, kapalı depo ve yeni görseller gerçek ISO'da olmalı."""
     secured = ('usr', 'usr/lib', 'usr/share', 'usr/local', 'usr/local/sbin', 'usr/lib/oguzdows',
@@ -153,8 +176,9 @@ def desktop_contract(root):
     for identifier in json.loads((ROOT / 'system/usr/share/oguzdows/own-app-icons.json').read_text())['icons']:
         target_system.nonempty(root, f'usr/share/icons/hicolor/64x64/apps/oguzdows-{identifier}.png')
     target_system.nonempty(root, 'usr/share/oguzdows/news-sources.json')
+    content_hashes = native_material_contract(root)
     return {'packages': sorted(required), 'privileged_ownership_verified': True,
-            'pardus_enabled': False, 'replacement_wallpapers': 20, 'native_cursor': True}
+            'pardus_enabled': False, 'replacement_wallpapers': 20, 'native_cursor': True, 'native_app_content_sha256': content_hashes}
 
 
 def configure_idle_test(root, uid):

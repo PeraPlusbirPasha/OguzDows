@@ -56,7 +56,7 @@ def main():
     descriptor = None
     lists_descriptor = None
     try:
-        app_request = args[0] in ('plan', 'apply') and args[1].startswith('app:')
+        app_request = args[0] in ('plan', 'apply') and args[1].startswith(('app:', 'remove-app:'))
         desktop_request = (args[0] == 'desktop-refresh'
                            or args[0] in ('plan', 'apply') and args[1].startswith('desktop:'))
         info = (core.build_desktop_info() if desktop_request else

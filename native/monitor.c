@@ -302,7 +302,7 @@ static void activate(GtkApplication *application, gpointer data) {
     gtk_window_set_titlebar(GTK_WINDOW(window), header);
     GtkWidget *box = gtk_box_new(GTK_ORIENTATION_VERTICAL, 16); gtk_container_set_border_width(GTK_CONTAINER(box), 18);
     gtk_container_add(GTK_CONTAINER(window), box);
-    pages = gtk_stack_new(); gtk_stack_set_transition_type(GTK_STACK(pages), GTK_STACK_TRANSITION_TYPE_NONE);
+    pages = gtk_stack_new(); og_ui_stack_setup(pages);
     gtk_stack_set_hhomogeneous(GTK_STACK(pages), FALSE);
     GtkWidget *switcher;
     if (work.width < 600) {

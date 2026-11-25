@@ -239,6 +239,8 @@
       ],
       "files": [
         "usr/lib/oguzdows/effects.py",
+        "usr/lib/oguzdows/ui_theme.py",
+        "usr/share/oguzdows/ui/modern.css",
         "etc/xdg/autostart/oguzdows-effects.desktop",
         "usr/share/oguzdows/picom.conf",
         "usr/share/oguzdows/own-app-icons.json",

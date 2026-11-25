@@ -74,11 +74,12 @@ class CatalogTests(unittest.TestCase):
         execute.side_effect = ['flathub\thttps://dl.flathub.org/repo/\tuser',
                                'org.example.App\tÖrnek\tAçıklama\tflathub\n'
                                '--system\tSahte\tBozuk\tflathub\n'
-                               'org.example.Other\tBaşka\tBaşka kaynak\tuntrusted\n']
+                               'org.example.Other\tBaşka\tBaşka kaynak\tuntrusted\n', 'org.example.App\n']
         result = service.search('örnek', execute)
         self.assertEqual(len(result['apps']), 1)
         self.assertEqual(result['apps'][0]['id'], 'flatpak:org.example.App')
-        self.assertEqual(execute.call_args.args[0][-1], 'örnek')
+        self.assertEqual(execute.call_args_list[-2].args[0][-1], 'örnek')
+        self.assertTrue(result['apps'][0]['flatpak_installed'])
 
     def test_apt_only_calls_existing_helper_and_requires_plan_token(self):
         execute = Mock(return_value=json.dumps({'changes': [], 'token': 'a' * 64}))

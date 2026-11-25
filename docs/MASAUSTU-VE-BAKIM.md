@@ -1,5 +1,7 @@
 # OğuzDows · Masaüstü ve bakım
 
+> **Yeni geliştirme kaynağı:** ortak GTK materyali, Python 3.13 RSS düzeltmesi, dürüst örnek akış ve güvenli yükle/kaldır/güncelle için [native arayüz rehberi](NATIVE-MATERYAL-HABER-MAGAZA.md). Aşağıdaki v1.1 / eski kanıt açıklamaları tarihsel kapsamını korur.
+
 > Bu rehberdeki XRender / “blur yoktur” açıklamaları yayımlanmış **v1.1** davranışını korur. Sonraki geliştirme kaynağının opt-in blur / yay / Snap, ortak GNOME–Plasma–Xfce tercihleri, yerel Başlat ve canlı grafikleri için **[Yerel masaüstü rehberi ve ayrı test kaydı](YEREL-MASAUSTU.md)**. v1.1 imajları yeniden üretilmedi.
 
 ## Bu sürümün kapsamı

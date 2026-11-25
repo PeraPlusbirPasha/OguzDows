@@ -119,6 +119,9 @@ jobs:
           python3 scripts/ci-run.py --title 'Derlenen yerel mağaza' -- \
             xvfb-run -a -s '-screen 0 1280x900x24' dbus-run-session -- \
             /tmp/oguzdows-store-ui-test --smoke-test test-results
+          python3 scripts/ci-run.py --title 'C Store GTK 360x800 (fixture only)' -- \
+            xvfb-run -a -s '-screen 0 360x800x24' dbus-run-session -- \
+            /tmp/oguzdows-store-ui-test --smoke-test test-results/store-360x800
 
       - name: Yerel hafif haber okuyucusu ve kısa ömürlü RSS işçisi (ağsız fixture)
         run: |
@@ -130,6 +133,14 @@ jobs:
               xvfb-run -a -s "-screen 0 ${screen}x24" dbus-run-session -- \
               /tmp/oguzdows-news-ui-test --smoke-test "test-results/news-$screen"
           done
+
+      - name: Ortak native materyal, canlı tercih olayı ve sınırlı GTK geçişi
+        run: |
+          python3 scripts/ci-run.py --title 'Native material · GTK CSS / transition / reduced motion' -- \
+            xvfb-run -a -s '-screen 0 1024x768x24' dbus-run-session -- \
+            python3 tests/smoke-material.py --output test-results/material
+          python3 scripts/ci-run.py --title 'Explicit live RSS health (offline is reported honestly)' -- \
+            python3 tests/smoke-news-live.py --output test-results/news-live.json
 
       - name: Tek kompozitör, kısa geçiş ve düşük RAM koruması (özel normal kullanıcı)
         run: |

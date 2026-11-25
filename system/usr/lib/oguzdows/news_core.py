@@ -28,6 +28,7 @@ MAX_CACHE_BYTES = 1024 * 1024
 MAX_ITEMS = 60
 MAX_BODY = 8192
 MAX_SOURCES = 16
+CATEGORIES = ('Tümü', 'Gündem', 'Dünya', 'Bilim ve teknoloji', 'Kültür', 'Spor', 'Rehber')
 SOURCES = Path('/usr/share/oguzdows/news-sources.json')
 IDENTIFIER = re.compile(r'[a-z0-9][a-z0-9-]{0,39}')
 
@@ -98,7 +99,9 @@ class DirectHTTPSConnection(http.client.HTTPSConnection):
 
 class DirectHTTPSHandler(urllib.request.HTTPSHandler):
     def https_open(self, request):
-        return self.do_open(DirectHTTPSConnection, request, context=self._context, check_hostname=self._check_hostname)
+        # Python 3.12+ removed _check_hostname / HTTPSConnection's keyword.
+        # The SSLContext already enforces CERT_REQUIRED and check_hostname.
+        return self.do_open(DirectHTTPSConnection, request, context=self._context)
 
 
 class Redirects(urllib.request.HTTPRedirectHandler):
@@ -243,12 +246,56 @@ def parse(data, base_url):
             continue
         seen.add(identity)
         items.append({'id': identity, 'title': title, 'body': body or 'Yayıncı bu akışta yalnızca başlık / bağlantı sunuyor. Tamamı için Kaynakta aç düğmesini kullanın.',
-                      'url': link, 'published': plain(child_text(element, ('pubdate', 'published', 'updated', 'date')), 100)})
+                      'url': link, 'published': plain(child_text(element, ('pubdate', 'published', 'updated', 'date')), 100),
+                      'category': category(child_text(element, ('category', 'subject')))})
         if len(items) == MAX_ITEMS:
             break
     if not items:
         raise NewsError('Akışta okunabilir haber bulunamadı; eski önbellek korundu.')
     return items
+
+
+
+def category(value, default='Gündem'):
+    value = plain(value, 120).casefold()
+    if any(word in value for word in ('bilim', 'teknoloji', 'science', 'technology')):
+        return 'Bilim ve teknoloji'
+    if any(word in value for word in ('dünya', 'world', 'international')):
+        return 'Dünya'
+    if any(word in value for word in ('kültür', 'sanat', 'culture', 'arts')):
+        return 'Kültür'
+    if any(word in value for word in ('spor', 'sport')):
+        return 'Spor'
+    return default
+
+
+def example_items(now=None):
+    """Useful generated demo, NEVER represented as current publisher news.
+
+    No invented events, source attribution, publication date or article links.
+    It is produced on demand, not by an idle timer; never written to RSS cache.
+    """
+    now = now or datetime.now(timezone.utc)
+    rows = (
+        ('Bilim ve teknoloji', 'RSS ile reklamsız okumayı dene',
+         'Yenile, yalnızca seçili yayıncının HTTPS RSS / Atom akışını getirir. Resim, reklam veya JavaScript indirilmez. Yayıncı yalnız özet sunuyorsa Kaynakta aç ile asıl metne geçebilirsin.'),
+        ('Gündem', 'Bağlantı yokken de okumaya devam et',
+         'Başarılı bir yenilemeden sonra indirilen metinler kendi hesabının önbelleğinde kalır. Bir sonraki bağlantı hatasında son haberler korunur; yeniymiş gibi tarihlenmez.'),
+        ('Dünya', 'Haberin kaynağını ve tarihini karşılaştır',
+         'Bir iddiayı farklı yayıncılardan kontrol et. Bu örnek başlık, gerçek bir dünya haberi değildir. Gerçek yayıncıyı üstteki kaynak menüsünden seçip Yenile’ye bas.'),
+        ('Kültür', 'Kendi okuma listeni oluştur',
+         'Artı düğmesiyle güvendiğin yayıncının HTTPS RSS / Atom adresini ekleyebilirsin. Kaynak eklemek tek başına ağ isteği başlatmaz; kişisel kaynaklar ayrıca kaldırılabilir.'),
+        ('Spor', 'Kategoriler arasında hafifçe dolaş',
+         'Kategori ve arama filtreleri indirilen metinde yerel olarak çalışır. Yeni indirme başlatmaz. Bu spor kategorisi girdisi yalnızca arayüzü denemek içindir; maç sonucu ya da güncel haber değildir.'),
+        ('Rehber', 'Cam görünümünde kontrol sende',
+         'Masaüstü Merkezi’nde görünüm ve azaltılmış hareket tercihini seç. Düşük RAM, nomodeset veya doğrulanamayan GPU’da okunaklı opak yüzeyler korunur. Bu bir OğuzDows kullanım ipucudur, haber değildir.'),
+    )
+    offset = (now.hour * 60 + now.minute) % len(rows)
+    return [{'id': hashlib.sha256(('example:' + title).encode()).hexdigest()[:32],
+             'title': 'ÖRNEK · ' + title, 'body': 'ÖRNEK AKIŞ · Gerçek haber değildir.\n\n' + body,
+             'url': '', 'published': '', 'category': group, 'example': True,
+             'publisher': 'OğuzDows · yerel örnek akış'}
+            for group, title, body in rows[offset:] + rows[:offset]]
 
 
 def read_json(path, limit=MAX_CACHE_BYTES):
@@ -316,7 +363,8 @@ class Reader:
                 raise NewsError('Kaynak kimliği / adı geçersiz.')
             seen.add(source['id'])
             result.append({'id': source['id'], 'name': plain(source['name'], 80),
-                           'url': url(source.get('url'), feed=True), 'custom': personal})
+                           'url': url(source.get('url'), feed=True), 'custom': personal,
+                           'category': category(source.get('category', source['name']))})
         return result
 
     def selected(self, identifier):
@@ -344,6 +392,7 @@ class Reader:
                 if (not isinstance(item, dict) or not all(isinstance(item.get(key), str) for key in ('id', 'title', 'body', 'url', 'published'))
                         or not re.fullmatch('[a-f0-9]{32}', item['id']) or len(item['title']) > 240
                         or len(item['body']) > MAX_BODY or len(item['published']) > 100
+                        or 'category' in item and item['category'] not in CATEGORIES[1:]
                         or item['url'] and url(item['url']) != item['url']):
                     raise NewsError('Önbellekte geçersiz haber kaydı var.')
             result.update(items=data['items'], cached_at=data['cached_at'])
@@ -352,10 +401,43 @@ class Reader:
     def refresh(self, identifier, download=fetch):
         _sources, source = self.selected(identifier)
         items = parse(download(source['url']), source['url'])
+        for item in items:
+            if item['category'] == 'Gündem':
+                item['category'] = source['category']
         atomic_json(self.cache / (source['id'] + '.json'), {'source_url': source['url'], 'items': items,
                     'cached_at': datetime.now(timezone.utc).isoformat(timespec='seconds')})
         result = self.cached(identifier)
         result['network_refresh_requested'] = True
+        return result
+
+    def stream(self, identifier=None, *, network=False, download=fetch):
+        """Presentation contract: live -> stale cache -> clearly labelled demo.
+
+        cached()/refresh() stay strict for callers that need validation errors.
+        A damaged local file is reported and not silently overwritten offline.
+        No fallback is ever attributed to TRT / BBC / DW or saved as real RSS.
+        """
+        _sources, source = self.selected(identifier)
+        warning = ''
+        try:
+            result = self.refresh(source['id'], download) if network else self.cached(source['id'])
+        except (NewsError, OSError) as error:
+            warning = str(error)[:700]
+            try:
+                result = self.cached(source['id'])
+            except (NewsError, OSError) as cache_error:
+                warning += ' · Önbellek: ' + str(cache_error)[:300]
+                result = {'sources': _sources, 'selected': source['id'], 'source': source['name'],
+                          'items': [], 'cached_at': ''}
+        example = not result['items']
+        if example:
+            result['items'] = example_items()
+        result.update(mode='example' if example else 'live' if network and not warning else 'cache',
+                      categories=list(CATEGORIES), network_refresh_requested=network,
+                      warning=warning, example=example,
+                      note=('ÖRNEK AKIŞ · Gerçek haber değildir. Henüz indirilen haber yok. '
+                            'Yayıncıdan güncel başlıklar için Yenile’ye bas.' if example else
+                            'Yayıncının RSS metni / özeti. Tarih yayıncıya aittir; son başarılı indirme aşağıdadır.'))
         return result
 
     def add(self, address, name):

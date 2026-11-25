@@ -5,7 +5,9 @@
 #include <gtk/gtk.h>
 #include <json-glib/json-glib.h>
 #include <locale.h>
+#include <glib/gstdio.h>
 #include <string.h>
+#include "ui.h"
 
 #ifndef STORE_SERVICE
 #define STORE_SERVICE "/usr/lib/oguzdows/store_service.py"
@@ -14,11 +16,11 @@
 #define APP_ID "org.oguzdows.YerelMagaza"
 
 typedef struct {
-    gchar *id, *name, *summary, *category, *icon, *fallback_icon, *flatpak;
-    gboolean installed, flatpak_installed;
+    gchar *id, *name, *summary, *category, *icon, *fallback_icon, *flatpak, *search, *version;
+    gboolean installed, flatpak_installed, update_available, featured;
 } App;
 
-typedef enum { CATALOG, SEARCH, DETAIL, PLAN, APPLY, SETUP, LAUNCH } Job;
+typedef enum { CATALOG, SEARCH, DETAIL, PLAN, APPLY, REMOVE_PLAN, REMOVE_APPLY, SETUP, LAUNCH } Job;
 typedef struct { Job job; GSubprocess *process; } Work;
 
 static GtkApplication *application;
@@ -26,7 +28,8 @@ static GtkWidget *window, *stack, *sidebar, *search_entry, *apps_grid, *category
 static GtkWidget *status_label, *spinner, *content, *detail_title, *detail_summary;
 static GtkWidget *detail_text, *source_combo, *install_button, *detail_icon;
 static GtkWidget *remote_button, *source_status, *results_info, *no_results;
-static GtkWidget *launch_button, *scope_note, *setup_button;
+static GtkWidget *launch_button, *scope_note, *setup_button, *remove_button, *featured_box, *catalog_title;
+static gboolean current_installed, current_launchable, current_update;
 static GtkWidget *store_header, *voice_button, *toolbar, *filters;
 static GtkWidget *nav_titles[4], *page_boxes[4];
 static guint page_count;
@@ -63,7 +66,8 @@ static gboolean bool_member(JsonObject *object, const gchar *key) {
 static void app_free(gpointer data) {
     App *app = data;
     g_free(app->id); g_free(app->name); g_free(app->summary); g_free(app->category);
-    g_free(app->icon); g_free(app->fallback_icon); g_free(app->flatpak); g_free(app);
+    g_free(app->icon); g_free(app->fallback_icon); g_free(app->flatpak);
+    g_free(app->search); g_free(app->version); g_free(app);
 }
 
 static GtkWidget *label(const gchar *text, const gchar *css) {
@@ -94,6 +98,7 @@ static void message(const gchar *title, const gchar *text, GtkMessageType type) 
     GtkWidget *dialog = gtk_message_dialog_new(GTK_WINDOW(window), GTK_DIALOG_MODAL | GTK_DIALOG_DESTROY_WITH_PARENT,
         type, GTK_BUTTONS_CLOSE, "%s", title);
     gtk_message_dialog_format_secondary_text(GTK_MESSAGE_DIALOG(dialog), "%s", text);
+    og_ui_setup(dialog);
     fit_message(dialog);
     gtk_dialog_run(GTK_DIALOG(dialog));
     gtk_widget_destroy(dialog);
@@ -103,6 +108,7 @@ static gboolean confirm(const gchar *title, const gchar *text) {
     GtkWidget *dialog = gtk_message_dialog_new(GTK_WINDOW(window), GTK_DIALOG_MODAL | GTK_DIALOG_DESTROY_WITH_PARENT,
         GTK_MESSAGE_WARNING, GTK_BUTTONS_OK_CANCEL, "%s", title);
     gtk_message_dialog_format_secondary_text(GTK_MESSAGE_DIALOG(dialog), "%s", text);
+    og_ui_setup(dialog);
     fit_message(dialog);
     gtk_dialog_set_default_response(GTK_DIALOG(dialog), GTK_RESPONSE_CANCEL);
     gboolean approved = gtk_dialog_run(GTK_DIALOG(dialog)) == GTK_RESPONSE_OK;
@@ -110,9 +116,25 @@ static gboolean confirm(const gchar *title, const gchar *text) {
     return approved;
 }
 
+static void update_actions(void) {
+    gboolean user = !g_strcmp0(current_source, "flatpak");
+    gtk_widget_set_sensitive(launch_button, !busy && current_installed && current_launchable);
+    gtk_widget_set_sensitive(remove_button, !busy && current_installed && (user ? user_flatpak_supported : supports_apt));
+    gtk_widget_set_sensitive(install_button, !busy && (user ? remote_available && user_flatpak_supported : supports_apt));
+    gtk_button_set_label(GTK_BUTTON(install_button), current_installed ? (current_update ? "Güncelle · planı incele…" : "Güncellemeyi denetle…") : "Yükle · planı incele…");
+}
+
 static void set_busy(gboolean value) {
     busy = value;
-    gtk_widget_set_sensitive(content, !value);
+    /* Reading, scrolling, local filtering and navigation remain responsive.
+       Only conflicting operations are gated; package jobs are never killed. */
+    GtkWidget *controls[] = {source_combo, remote_button, setup_button};
+    for (guint i = 0; i < G_N_ELEMENTS(controls); i++) gtk_widget_set_sensitive(controls[i], !value);
+    if (!value) {
+        gtk_widget_set_sensitive(remote_button, user_flatpak_supported);
+        gtk_widget_set_sensitive(setup_button, user_flatpak_supported);
+    }
+    update_actions();
     if (value) gtk_spinner_start(GTK_SPINNER(spinner)); else gtk_spinner_stop(GTK_SPINNER(spinner));
 }
 
@@ -127,6 +149,7 @@ static gboolean closing(GtkWidget *widget, GdkEvent *event, gpointer data) {
 
 static void open_advanced(GtkButton *button, gpointer data) {
     (void)button; (void)data;
+    if (busy) { status("Paket işlemi bitmeden başka paket merkezi açılmaz."); return; }
     if (!advanced_available) { message("Gelişmiş merkez", "Bu cihazda ek GNOME paket merkezi yok. Yerel mağaza sabit uygulama planlarını kendi cihaz kaynağından sunar. Sistem kapsamı / paket kaldırma için cihazının paket yöneticisini kullan.", GTK_MESSAGE_INFO); return; }
     const gchar *argv[] = {"/usr/bin/python3", "-I", "/usr/lib/oguzdows/store.py", NULL};
     GError *error = NULL;
@@ -156,30 +179,47 @@ static void app_image(GtkWidget *image, App *app, gint size) {
 static void app_card(App *app) {
     GtkWidget *button = gtk_button_new();
     gtk_style_context_add_class(gtk_widget_get_style_context(button), "app-card");
-    GtkWidget *box = gtk_box_new(GTK_ORIENTATION_VERTICAL, 8);
-    gtk_container_set_border_width(GTK_CONTAINER(box), 12);
     GtkWidget *line = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 12);
-    GtkWidget *image = gtk_image_new();
-    app_image(image, app, 64);
-    gtk_style_context_add_class(gtk_widget_get_style_context(image), "app-icon");
+    gtk_container_set_border_width(GTK_CONTAINER(line), 8);
+    GtkWidget *image = gtk_image_new(); app_image(image, app, 44);
     gtk_box_pack_start(GTK_BOX(line), image, FALSE, FALSE, 0);
+    GtkWidget *box = gtk_box_new(GTK_ORIENTATION_VERTICAL, 5);
     GtkWidget *name = label(app->name, "app-name");
-    gtk_label_set_max_width_chars(GTK_LABEL(name), 18);
-    gtk_box_pack_start(GTK_BOX(line), name, TRUE, TRUE, 0);
-    gtk_box_pack_start(GTK_BOX(box), line, FALSE, FALSE, 0);
+    gtk_label_set_max_width_chars(GTK_LABEL(name), 22);
     GtkWidget *summary = label(app->summary, "dim-label");
-    gtk_label_set_max_width_chars(GTK_LABEL(summary), 28);
-    gtk_label_set_lines(GTK_LABEL(summary), 3);
-    gtk_label_set_ellipsize(GTK_LABEL(summary), PANGO_ELLIPSIZE_END);
+    gtk_label_set_max_width_chars(GTK_LABEL(summary), 26);
+    gtk_label_set_lines(GTK_LABEL(summary), 2); gtk_label_set_ellipsize(GTK_LABEL(summary), PANGO_ELLIPSIZE_END);
+    gtk_box_pack_start(GTK_BOX(box), name, FALSE, FALSE, 0);
     gtk_box_pack_start(GTK_BOX(box), summary, TRUE, TRUE, 0);
-    gtk_box_pack_start(GTK_BOX(box), label(app->flatpak_installed ? "● Bu hesapta kurulu" : app->installed ? "● Sistemde kurulu" : app->category, "source-chip"), FALSE, FALSE, 0);
-    gtk_container_add(GTK_CONTAINER(button), box);
-    gtk_widget_set_size_request(button, 212, 178);
+    gchar *state = g_strdup_printf("%s%s%s", app->update_available ? "↑ Güncelleme var" : app->flatpak_installed ? "● Bu hesapta kurulu" : app->installed ? "● Sistemde kurulu" : app->category,
+        *app->version ? " · " : "", app->version);
+    GtkWidget *state_label = label(state, "source-chip"); g_free(state);
+    gtk_label_set_max_width_chars(GTK_LABEL(state_label), 26);
+    gtk_label_set_lines(GTK_LABEL(state_label), 1); gtk_label_set_ellipsize(GTK_LABEL(state_label), PANGO_ELLIPSIZE_END);
+    gtk_box_pack_start(GTK_BOX(box), state_label, FALSE, FALSE, 0);
+    gtk_box_pack_start(GTK_BOX(line), box, TRUE, TRUE, 0);
+    gtk_container_add(GTK_CONTAINER(button), line);
+    gtk_widget_set_size_request(button, 212, 112);
     gtk_widget_set_tooltip_text(button, app->summary);
     gtk_container_add(GTK_CONTAINER(apps_grid), button);
-    GtkWidget *child = gtk_widget_get_parent(button);
-    g_object_set_data(G_OBJECT(child), "app", app);
+    g_object_set_data(G_OBJECT(gtk_widget_get_parent(button)), "app", app);
     g_signal_connect(button, "clicked", G_CALLBACK(show_app), app);
+}
+
+static void feature(App *app) {
+    GtkWidget *box = gtk_box_new(GTK_ORIENTATION_VERTICAL, 8);
+    gtk_style_context_add_class(gtk_widget_get_style_context(box), "store-feature");
+    gtk_box_pack_start(GTK_BOX(box), label("EDİTÖR SEÇKİSİ · AÇIK KAYNAK", "eyebrow"), FALSE, FALSE, 0);
+    GtkWidget *title = label(app->name, "feature-title"); gtk_label_set_max_width_chars(GTK_LABEL(title), 28);
+    gtk_box_pack_start(GTK_BOX(box), title, FALSE, FALSE, 0);
+    GtkWidget *summary = label(app->summary, "dim-label"); gtk_label_set_max_width_chars(GTK_LABEL(summary), 38);
+    gtk_box_pack_start(GTK_BOX(box), summary, FALSE, FALSE, 0);
+    GtkWidget *button = gtk_button_new_with_label("Uygulamayı keşfet →");
+    gtk_widget_set_halign(button, GTK_ALIGN_START);
+    g_signal_connect(button, "clicked", G_CALLBACK(show_app), app);
+    gtk_box_pack_start(GTK_BOX(box), button, FALSE, FALSE, 0);
+    gtk_box_pack_start(GTK_BOX(featured_box), box, FALSE, FALSE, 0);
+    gtk_widget_show_all(featured_box);
 }
 
 static gboolean matches(App *app) {
@@ -188,11 +228,7 @@ static gboolean matches(App *app) {
     const gchar *chosen = gtk_combo_box_get_active_id(GTK_COMBO_BOX(category));
     if (chosen && strcmp(chosen, "Tümü") && strcmp(chosen, app->category)) return FALSE;
     if (query_folded && *query_folded) {
-        gchar *all = g_strjoin(" ", app->name, app->summary, app->id, app->flatpak, NULL);
-        gchar *folded = g_utf8_casefold(all, -1);
-        gboolean match = strstr(folded, query_folded) != NULL;
-        g_free(all); g_free(folded);
-        return match;
+        return strstr(app->search, query_folded) != NULL;
     }
     return TRUE;
 }
@@ -213,9 +249,15 @@ static void refilter(GtkWidget *widget, gpointer data) {
     gchar *count = g_strdup_printf("Gösterilen: %u / %u%s", visible, apps->len, installed_only ? " · Yalnızca kurulu" : "");
     gtk_label_set_text(GTK_LABEL(results_info), count); g_free(count);
     gtk_widget_set_visible(no_results, !visible);
+    const gchar *chosen = gtk_combo_box_get_active_id(GTK_COMBO_BOX(category));
+    gtk_widget_set_visible(featured_box, !installed_only && (!query_folded || !*query_folded) && (!chosen || !strcmp(chosen, "Tümü")) && !catalog_dirty);
+    gtk_label_set_text(GTK_LABEL(catalog_title), installed_only ? "Senin uygulamaların" : "Keşfet");
 }
 
 static void clear_apps(void) {
+    GList *features = gtk_container_get_children(GTK_CONTAINER(featured_box));
+    for (GList *it = features; it; it = it->next) gtk_widget_destroy(it->data);
+    g_list_free(features);
     GList *children = gtk_container_get_children(GTK_CONTAINER(apps_grid));
     for (GList *it = children; it; it = it->next) gtk_widget_destroy(GTK_WIDGET(it->data));
     g_list_free(children);
@@ -255,7 +297,15 @@ static void show_catalog(JsonObject *root) {
         app->summary = g_strdup(string_member(item, "summary")); app->category = g_strdup(string_member(item, "category"));
         app->icon = g_strdup(string_member(item, "icon")); app->fallback_icon = g_strdup(string_member(item, "fallback_icon")); app->flatpak = g_strdup(string_member(item, "flatpak"));
         app->installed = bool_member(item, "installed"); app->flatpak_installed = bool_member(item, "flatpak_installed");
+        app->update_available = bool_member(item, "update_available"); app->featured = bool_member(item, "featured");
+        app->version = g_strdup(string_member(item, "version"));
+        gchar *searchable = g_strjoin(" ", app->name, app->summary, app->category, app->id, app->flatpak, NULL);
+        app->search = g_utf8_casefold(searchable, -1); g_free(searchable);
         g_ptr_array_add(apps, app); app_card(app);
+    }
+    for (guint index = 0; index < apps->len; index++) {
+        App *app = g_ptr_array_index(apps, index);
+        if (app->featured) { feature(app); break; }
     }
     gtk_widget_show_all(apps_grid);
     refilter(NULL, NULL);
@@ -268,10 +318,11 @@ static void show_plan(JsonObject *root) {
         status("Paket değişikliği listesi alınamadı. Kurulum yapılmadı."); return;
     }
     if (!json_array_get_length(json_object_get_array_member(root, "changes"))) {
-        message("Her şey yerinde", "Bu planda kurulacak veya güncellenecek paket yok.", GTK_MESSAGE_INFO); return;
+        message("Her şey yerinde", "Bu planda değişecek paket yok.", GTK_MESSAGE_INFO); return;
     }
     GtkWidget *dialog = gtk_dialog_new_with_buttons("Önce incele · Sonra onayla", GTK_WINDOW(window), GTK_DIALOG_MODAL | GTK_DIALOG_DESTROY_WITH_PARENT,
         "Vazgeç", GTK_RESPONSE_CANCEL, "Bu planı uygula", GTK_RESPONSE_ACCEPT, NULL);
+    og_ui_setup(dialog);
     gtk_window_set_default_size(GTK_WINDOW(dialog), compact ? 320 : 650, 480);
     gtk_dialog_set_default_response(GTK_DIALOG(dialog), GTK_RESPONSE_CANCEL);
     GtkWidget *box = gtk_dialog_get_content_area(GTK_DIALOG(dialog));
@@ -288,10 +339,11 @@ static void show_plan(JsonObject *root) {
     gtk_container_add(GTK_CONTAINER(scroll), text);
     gtk_box_pack_start(GTK_BOX(box), scroll, TRUE, TRUE, 0);
     gtk_widget_show_all(box);
+    gboolean removing = !strcmp(string_member(root, "intent"), "remove");
     gchar *saved_token = g_strdup(token), *id = g_strdup(selected_id), *source = g_strdup(current_source);
     gint response = gtk_dialog_run(GTK_DIALOG(dialog));
     gtk_widget_destroy(dialog);
-    if (response == GTK_RESPONSE_ACCEPT) run_service(APPLY, "apply", id, source, saved_token);
+    if (response == GTK_RESPONSE_ACCEPT) run_service(removing ? REMOVE_APPLY : APPLY, removing ? "remove-apply" : "apply", id, source, saved_token);
     else status("Plan iptal edildi. Hiçbir paket kurulmadı.");
     g_free(saved_token); g_free(id); g_free(source);
 }
@@ -318,16 +370,17 @@ static void service_done(GObject *object, GAsyncResult *result, gpointer data) {
             const gchar *text = string_member(root, "message");
             status(*text ? text : "İşlem tamamlandı.");
             if (work->job == CATALOG) catalog_dirty = FALSE;
+            if (work->job == SEARCH) catalog_dirty = TRUE;
             if (work->job == CATALOG || work->job == SEARCH) show_catalog(root);
             if (work->job == DETAIL) {
                 gtk_text_buffer_set_text(gtk_text_view_get_buffer(GTK_TEXT_VIEW(detail_text)), string_member(root, "detail"), -1);
-                gtk_widget_set_sensitive(launch_button, bool_member(root, "installed") && bool_member(root, "can_launch"));
+                current_installed = bool_member(root, "installed"); current_launchable = bool_member(root, "can_launch");
+                current_update = bool_member(root, "update_available"); update_actions();
             }
-            if (work->job == PLAN) show_plan(root);
+            if (work->job == PLAN || work->job == REMOVE_PLAN) show_plan(root);
             if (work->job == SETUP) run_service(CATALOG, "catalog", NULL, NULL, NULL);
-            if (work->job == APPLY) {
+            if (work->job == APPLY || work->job == REMOVE_APPLY) {
                 catalog_dirty = TRUE;
-                message("İşlem tamamlandı", string_member(root, "message"), GTK_MESSAGE_INFO);
                 if (selected_id && strcmp(selected_id, "@updates")) run_service(DETAIL, "detail", selected_id, current_source, NULL);
                 else run_service(CATALOG, "catalog", NULL, NULL, NULL);
             }
@@ -348,8 +401,8 @@ static void run_service(Job job, const gchar *first, const gchar *second, const 
     Work *work = g_new0(Work, 1); work->job = job; work->process = process;
     set_busy(TRUE);
     status(job == CATALOG ? "Yerel katalog okunuyor… Ağ isteği yapılmıyor." :
-           job == PLAN ? "Gerçek paket planı çözümleniyor… Henüz kurulum onayı verilmedi." :
-           job == APPLY ? "Onayladığın işlem sürüyor… Bilgisayarı ve bu pencereyi kapatma." :
+           (job == PLAN || job == REMOVE_PLAN) ? "Gerçek paket planı çözümleniyor… Henüz kurulum onayı verilmedi." :
+           (job == APPLY || job == REMOVE_APPLY) ? "Onayladığın işlem sürüyor… Bilgisayarı ve bu pencereyi kapatma." :
            job == SETUP ? "Flathub HTTPS tanımı ve imza ayarları denetleniyor…" :
            job == LAUNCH ? "Kurulu uygulamaya başlatma isteği gönderiliyor…" : "Uygulama bilgileri alınıyor…");
     g_application_hold(G_APPLICATION(application));
@@ -363,9 +416,7 @@ static void source_changed(GtkComboBox *combo, gpointer data) {
     if (!source) return;
     g_free(current_source); current_source = g_strdup(source);
     gboolean user_scope = !strcmp(source, "flatpak");
-    gtk_widget_set_sensitive(install_button, user_scope ? remote_available && user_flatpak_supported : supports_apt);
-    gtk_widget_set_sensitive(launch_button, FALSE);
-    gtk_button_set_label(GTK_BUTTON(install_button), user_scope ? "Kur / güncelle · Parolasız planı incele…" : "Kur / güncelle · Sistem planını incele…");
+    current_installed = FALSE; current_launchable = FALSE; current_update = FALSE; update_actions();
     gtk_label_set_text(GTK_LABEL(scope_note), user_scope ?
         "Bu hesap · Yönetici parolası gerekmez. Önce izinleri / indirmeyi incele, planı onayla; kurulum bitince Aç’a bas. Diğer hesaplara kurulmaz." :
         "Sistem paketi · Yönetici onayı gerekir. Sınırsız parolasız yönetici yetkisi verilmez. Kurulu uygulamayı açmak yönetici parolası istemez.");
@@ -403,8 +454,15 @@ static void install_clicked(GtkButton *button, gpointer data) {
     if (selected_id && current_source) run_service(PLAN, "plan", selected_id, current_source, NULL);
 }
 
+static void remove_clicked(GtkButton *button, gpointer data) {
+    (void)button; (void)data;
+    if (!busy && current_installed && selected_id && current_source)
+        run_service(REMOVE_PLAN, "remove-plan", selected_id, current_source, NULL);
+}
+
 static void updates_clicked(GtkButton *button, gpointer data) {
     (void)button;
+    if (busy) return;
     const gchar *source = data;
     g_free(selected_id); selected_id = g_strdup("@updates");
     g_free(current_source); current_source = g_strdup(source);
@@ -500,7 +558,7 @@ static void fit_layout(gint width) {
         gtk_container_set_border_width(GTK_CONTAINER(page_boxes[index]), compact ? 12 : 24);
     gtk_orientable_set_orientation(GTK_ORIENTABLE(toolbar), compact ? GTK_ORIENTATION_VERTICAL : GTK_ORIENTATION_HORIZONTAL);
     gtk_orientable_set_orientation(GTK_ORIENTABLE(filters), compact ? GTK_ORIENTATION_VERTICAL : GTK_ORIENTATION_HORIZONTAL);
-    gtk_flow_box_set_max_children_per_line(GTK_FLOW_BOX(apps_grid), compact ? 1 : 3);
+    gtk_flow_box_set_max_children_per_line(GTK_FLOW_BOX(apps_grid), compact ? 1 : 2);
     gtk_header_bar_set_title(GTK_HEADER_BAR(store_header), compact ? "OğuzDows" : "OğuzDows Mağaza");
     gtk_header_bar_set_subtitle(GTK_HEADER_BAR(store_header), compact ? NULL : "Keşfet · İncele · Onayla");
     gtk_button_set_label(GTK_BUTTON(voice_button), compact ? "" : "Rıfkı’dan dinle");
@@ -519,6 +577,7 @@ static void build(void) {
     window = gtk_application_window_new(application);
     gtk_window_set_title(GTK_WINDOW(window), "OğuzDows Mağaza");
     gtk_window_set_icon_name(GTK_WINDOW(window), "oguzdows-store");
+    og_ui_setup(window);
     GdkDisplay *display = gtk_widget_get_display(window);
     GdkMonitor *monitor = gdk_display_get_primary_monitor(display);
     if (!monitor) monitor = gdk_display_get_monitor(display, 0);
@@ -566,10 +625,12 @@ static void build(void) {
     gtk_box_pack_start(GTK_BOX(content), gtk_separator_new(GTK_ORIENTATION_VERTICAL), FALSE, FALSE, 0);
     stack = gtk_stack_new();
     /* Sistem azaltılmış hareket / eski GPU tercihini geçersiz kılma. */
-    gtk_stack_set_transition_type(GTK_STACK(stack), GTK_STACK_TRANSITION_TYPE_NONE);
+    og_ui_stack_setup(stack);
     gtk_box_pack_start(GTK_BOX(content), stack, TRUE, TRUE, 0);
 
-    GtkWidget *discover = page("Bir fikir, bir uygulamayla başlar.", "Günlük işler, üretkenlik ve biraz eğlence. Yerel seçkiyi çevrimdışı keşfet; daha fazlası için Flathub’da ara.");
+    GtkWidget *discover = page("Keşfet", "İhtiyacın olan araçlar, sade bir yerde. Seçki çevrimdışı; sürüm ve kurulum durumu bu cihazdan.");
+    GList *discover_children = gtk_container_get_children(GTK_CONTAINER(discover));
+    catalog_title = discover_children->data; g_list_free(discover_children);
     gtk_style_context_add_class(gtk_widget_get_style_context(discover), "discover-page");
     toolbar = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 8);
     search_entry = gtk_search_entry_new(); gtk_entry_set_placeholder_text(GTK_ENTRY(search_entry), "Uygulama veya işlev ara…");
@@ -586,6 +647,8 @@ static void build(void) {
     gtk_box_pack_start(GTK_BOX(filters), category, TRUE, TRUE, 0);
     action(filters, "Yerel kataloğa dön", G_CALLBACK(reset_catalog), NULL);
     gtk_box_pack_start(GTK_BOX(discover), filters, FALSE, FALSE, 0);
+    featured_box = gtk_box_new(GTK_ORIENTATION_VERTICAL, 0);
+    gtk_box_pack_start(GTK_BOX(discover), featured_box, FALSE, FALSE, 0);
     results_info = label("Katalog okunuyor…", "dim-label");
     gtk_box_pack_start(GTK_BOX(discover), results_info, FALSE, FALSE, 0);
     no_results = label("Bu filtrelerle uygulama bulunamadı. Aramanı kısalt, başka kategori seç veya yerel kataloğa dön.", "dim-label");
@@ -593,8 +656,8 @@ static void build(void) {
     gtk_box_pack_start(GTK_BOX(discover), no_results, FALSE, FALSE, 0);
     apps_grid = gtk_flow_box_new(); gtk_flow_box_set_selection_mode(GTK_FLOW_BOX(apps_grid), GTK_SELECTION_NONE);
     gtk_flow_box_set_min_children_per_line(GTK_FLOW_BOX(apps_grid), 1);
-    gtk_flow_box_set_max_children_per_line(GTK_FLOW_BOX(apps_grid), 3);
-    gtk_flow_box_set_row_spacing(GTK_FLOW_BOX(apps_grid), 12); gtk_flow_box_set_column_spacing(GTK_FLOW_BOX(apps_grid), 12);
+    gtk_flow_box_set_max_children_per_line(GTK_FLOW_BOX(apps_grid), 2);
+    gtk_flow_box_set_row_spacing(GTK_FLOW_BOX(apps_grid), 4); gtk_flow_box_set_column_spacing(GTK_FLOW_BOX(apps_grid), 12);
     gtk_flow_box_set_homogeneous(GTK_FLOW_BOX(apps_grid), TRUE);
     gtk_flow_box_set_filter_func(GTK_FLOW_BOX(apps_grid), app_filter, NULL, NULL);
     gtk_box_pack_start(GTK_BOX(discover), apps_grid, FALSE, FALSE, 0);
@@ -617,6 +680,9 @@ static void build(void) {
     gtk_widget_set_sensitive(launch_button, FALSE);
     install_button = action(details, "Kur / güncelle · planı incele…", G_CALLBACK(install_clicked), NULL);
     gtk_style_context_add_class(gtk_widget_get_style_context(install_button), "suggested-action");
+    remove_button = action(details, "Kaldır · önce planı incele…", G_CALLBACK(remove_clicked), NULL);
+    gtk_style_context_add_class(gtk_widget_get_style_context(remove_button), "destructive-action");
+    gtk_widget_set_sensitive(remove_button, FALSE);
     detail_text = gtk_text_view_new(); gtk_text_view_set_editable(GTK_TEXT_VIEW(detail_text), FALSE);
     gtk_text_view_set_wrap_mode(GTK_TEXT_VIEW(detail_text), GTK_WRAP_WORD_CHAR);
     gtk_text_view_set_left_margin(GTK_TEXT_VIEW(detail_text), 12); gtk_text_view_set_right_margin(GTK_TEXT_VIEW(detail_text), 12);
@@ -627,7 +693,7 @@ static void build(void) {
     GtkWidget *updates = page("Güncel kal. Kontrol sende.", "Sistem ve kullanıcı Flatpak güncellemeleri ayrı planlanır. Açılışta arama veya otomatik indirme yoktur.");
     action(updates, "Sistem güncellemeleri · planı göster…", G_CALLBACK(updates_clicked), "system");
     action(updates, "Kullanıcı Flatpak güncellemeleri · planı göster…", G_CALLBACK(updates_clicked), "flatpak");
-    gtk_box_pack_start(GTK_BOX(updates), label("Sistem paket listelerini OğuzDows Güncelleyici’den yenileyebilirsin. Bu mağaza paket kaldırmaz. Kullanıcı / sistem Flatpak kapsamları aynı değildir; sistem kapsamı ve kaldırma için gelişmiş merkezi kullan.", "dim-label"), FALSE, FALSE, 0);
+    gtk_box_pack_start(GTK_BOX(updates), label("Sistem paket listelerini OğuzDows Güncelleyici’den yenileyebilirsin. Kaldırma uygulama ayrıntılarından plan / onay ile yapılır. Kişisel dosyalar korunur; başka sistem paketi gerektiriyorsa kaldırma reddedilir. Kullanıcı / sistem Flatpak kapsamları aynı değildir.", "dim-label"), FALSE, FALSE, 0);
     action(updates, "Gelişmiş paket merkezi", G_CALLBACK(open_advanced), NULL);
     add_page(updates, "updates");
 
@@ -647,19 +713,10 @@ static void build(void) {
     gtk_box_pack_start(GTK_BOX(root), gtk_separator_new(GTK_ORIENTATION_HORIZONTAL), FALSE, FALSE, 0);
     gtk_box_pack_start(GTK_BOX(root), bottom, FALSE, FALSE, 0);
     gtk_container_add(GTK_CONTAINER(window), root);
-    GtkCssProvider *css = gtk_css_provider_new();
-    gtk_css_provider_load_from_data(css,
-        ".store-sidebar row { padding: 0; border: 0; border-radius: 11px; margin: 3px 4px; }"
-        ".page-title { font-size: 25px; font-weight: 800; } .compact-store .page-title { font-size: 20px; } .dim-label { opacity: 1; }"
-        ".app-card { background-image: none; background-color: @theme_base_color; border: 1px solid @borders; border-radius: 12px; }"
-        ".app-card .app-icon { padding: 4px; } .scope-note { padding: 12px; border: 1px solid @borders; border-radius: 8px; }"
-        ".app-card:hover { border-color: #278f92; } .app-name { font-size: 15px; font-weight: bold; }"
-        ".source-chip { font-size: 11px; color: @theme_fg_color; font-weight: 600; }", -1, NULL);
-    gtk_style_context_add_provider_for_screen(gtk_widget_get_screen(window), GTK_STYLE_PROVIDER(css), GTK_STYLE_PROVIDER_PRIORITY_APPLICATION);
-    g_object_unref(css);
     fit_layout(workarea.width - 24);
     g_signal_connect(window, "configure-event", G_CALLBACK(configured), NULL);
     gtk_widget_show_all(window);
+    update_actions();
     gtk_list_box_select_row(GTK_LIST_BOX(sidebar), gtk_list_box_get_row_at_index(GTK_LIST_BOX(sidebar), 0));
     view(initial_page);
     run_service(CATALOG, "catalog", NULL, NULL, NULL);
@@ -702,13 +759,30 @@ static gboolean cancel_test_plan(gpointer data) {
     return found ? G_SOURCE_REMOVE : G_SOURCE_CONTINUE;
 }
 
+static gboolean approve_fixture_plan(gpointer data) {
+    (void)data;
+    GList *windows = gtk_window_list_toplevels(); gboolean found = FALSE;
+    for (GList *it = windows; it; it = it->next) {
+        if (it->data == window || !GTK_IS_DIALOG(it->data)) continue;
+        GtkDialog *dialog = GTK_DIALOG(it->data);
+        const gchar *title = gtk_window_get_title(GTK_WINDOW(dialog));
+        if (!title || strcmp(title, "Önce incele · Sonra onayla")) continue;
+        GtkWidget *button = gtk_window_get_default_widget(GTK_WINDOW(dialog));
+        g_assert_cmpint(gtk_dialog_get_response_for_widget(dialog, button), ==, GTK_RESPONSE_CANCEL);
+        capture_window(GTK_WIDGET(dialog), "store-native-removal-plan.png");
+        /* Test build + fixture path only. No real service is reachable here. */
+        gtk_dialog_response(dialog, GTK_RESPONSE_ACCEPT); found = TRUE;
+    }
+    g_list_free(windows); return found ? G_SOURCE_REMOVE : G_SOURCE_CONTINUE;
+}
+
 static gboolean smoke(gpointer data) {
     (void)data;
     if (++smoke_wait > 100) g_error("Yerel mağaza GTK kontrolü zaman aşımı");
     if (busy) return G_SOURCE_CONTINUE;
     switch (smoke_step++) {
         case 0:
-            g_assert_cmpuint(apps->len, ==, 27); capture("store-native.png");
+            g_assert_cmpuint(apps->len, ==, 27); g_assert_true(gtk_widget_get_visible(featured_box)); capture("store-native.png");
             gtk_combo_box_set_active_id(GTK_COMBO_BOX(category), "Görsel"); break;
         case 1: capture("store-native-category.png"); gtk_combo_box_set_active(GTK_COMBO_BOX(category), 0);
             show_app(NULL, g_ptr_array_index(apps, 0)); break;
@@ -753,6 +827,19 @@ static gboolean smoke(gpointer data) {
             g_timeout_add(100, cancel_test_plan, (gpointer)"store-native-source-confirmation.png");
             setup_clicked(NULL, NULL);
             g_assert_false(busy);
+            show_app(NULL, g_ptr_array_index(apps, 0)); break;
+        case 10:
+            g_assert_true(current_installed); g_assert_true(gtk_widget_get_sensitive(remove_button));
+            g_timeout_add(100, approve_fixture_plan, NULL); remove_clicked(NULL, NULL); break;
+        case 11:
+            g_assert_false(current_installed); g_assert_false(gtk_widget_get_sensitive(remove_button));
+            g_assert_false(gtk_widget_get_sensitive(launch_button));
+            g_assert_true(gtk_widget_get_sensitive(install_button));
+            capture("store-native-after-fixture-removal.png");
+            g_timeout_add(100, approve_fixture_plan, NULL); install_clicked(NULL, NULL); break;
+        case 12:
+            g_assert_true(current_installed); g_assert_true(gtk_widget_get_sensitive(launch_button));
+            g_print("::notice title=C Store action wiring::{\"native_gtk\":true,\"fixture_not_packages\":true,\"install_remove_apply_wiring\":true,\"cancel_default\":true,\"physical_gpu\":false}\n");
             g_print("Gerçek GTK: ekran sınırları, masaüstü / kompakt görünüm, boş sonuç, plan / kaynak varsayılan iptalleri geçti. Kaynak eklenmedi, paket kurulmadı.\n");
             g_application_quit(G_APPLICATION(application)); return G_SOURCE_REMOVE;
     }
@@ -778,6 +865,8 @@ static gint command_line(GApplication *app, GApplicationCommandLine *line, gpoin
 #ifdef OGUZDOWS_STORE_TEST
     else if (argc == 3 && !strcmp(argv[1], "--smoke-test")) {
         smoke_directory = g_strdup(argv[2]); g_mkdir_with_parents(smoke_directory, 0700);
+        gchar *state_path = g_build_filename(smoke_directory, ".fixture-only-state", NULL);
+        g_unlink(state_path); g_setenv("OGUZDOWS_STORE_FIXTURE_STATE", state_path, TRUE); g_free(state_path);
     }
 #endif
     else if (argc != 1) { g_application_command_line_printerr(line, "Kullanım: oguzdows-store [--updates|--setup|--quit]\n"); g_strfreev(argv); return 2; }

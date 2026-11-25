@@ -125,8 +125,8 @@ def driver_suggestions(sysfs=Path('/sys/bus'), suite='trixie'):
 def request_packages(request, info, suggestions=None):
     if request == 'upgrade':
         return None
-    if request.startswith('app:'):
-        identifier = request[4:]
+    if request.startswith(('app:', 'remove-app:')):
+        identifier = request.partition(':')[2]
         if info.get('arch') not in ('amd64', 'i386') and identifier == 'wine':
             raise MaintenanceError('Windows Wine demeti yalnızca x86 PC içindir. ARM emülasyonu varsayılmadı.')
         try:
@@ -159,7 +159,11 @@ def request_packages(request, info, suggestions=None):
 
 def apt_command(request, info, simulate=False, suggestions=None):
     packages = request_packages(request, info, suggestions)
-    command = [*APT, '--simulate' if simulate else '--assume-yes', '--no-remove']
+    command = [*APT, '--simulate' if simulate else '--assume-yes']
+    if request.startswith('remove-app:'):
+        # No purge, autoremove, wildcard, arbitrary package or force flag.
+        return [*command, 'remove', *packages]
+    command.append('--no-remove')
     if packages is None:
         return [*command, '--with-new-pkgs', 'upgrade']
     return [*command, '--no-install-recommends', 'install', *packages]
@@ -178,6 +182,37 @@ def parse_plan(text):
             if not match:
                 raise MaintenanceError('APT planındaki paket / sürüm biçimi tanınmadı; işlem yapılmadı.\nTeknik satır: ' + line[:350])
             changes.append({'package': match[1], 'version': match[2], 'detail': line})
+    return changes
+
+
+
+def removal_plan(text, packages, cache):
+    """Only explicitly catalogued app packages may go; never dependencies.
+
+    APT itself resolves reverse dependencies. If that resolution includes ANY
+    extra removal or install the whole plan is refused. Personal app data and
+    package configuration are retained (remove, not purge / autoremove).
+    """
+    allowed = set(packages)
+    changes = []
+    for line in text.splitlines():
+        if line.startswith(('Inst ', 'Conf ')):
+            raise MaintenanceError('Kaldırma planı başka paket kurmak / yapılandırmak istiyor; reddedildi.')
+        if not line.startswith('Remv '):
+            continue
+        match = re.fullmatch(r'Remv ([a-z0-9][a-z0-9+.-]*(?::[a-z0-9]+)?) \[([^\]\s]+)\](?:.*)', line)
+        if not match:
+            raise MaintenanceError('APT kaldırma satırı doğrulanamadı; paketler korunuyor.')
+        name, version = match[1], match[2]
+        base = name.split(':')[0]
+        if base not in allowed or name not in cache:
+            raise MaintenanceError('Kaldırma başka bir paketi de etkiliyor: ' + name + '. Dar mağaza planı reddedildi.')
+        package = cache[name]
+        installed = package.installed
+        if (installed is None or installed.version != version or package.essential
+                or installed.priority in ('required', 'important')):
+            raise MaintenanceError('Temel / önemli paket ya da değişmiş kurulum durumu kaldırılamaz: ' + name)
+        changes.append({'package': name, 'version': version, 'operation': 'remove', 'detail': line})
     return changes
 
 
@@ -209,12 +244,16 @@ def verify_origins(changes, cache, request, info):
 def make_plan(request, info, execute, cache, suggestions=None):
     command = apt_command(request, info, True, suggestions)
     text = execute(command)
-    changes = parse_plan(text)
-    verify_origins(changes, cache, request, info)
+    removing = request.startswith('remove-app:')
+    changes = removal_plan(text, request_packages(request, info, suggestions), cache) if removing else parse_plan(text)
+    if not removing:
+        verify_origins(changes, cache, request, info)
     # APT'nin tuttuğu paketleri de kullanıcıya göster; plan değişirse yeniden onay.
     digest = hashlib.sha256((request + '\n' + text).encode()).hexdigest()
     return {'request': request, 'token': digest, 'changes': changes, 'detail': text,
-            'note': 'Paket kaldırma ve dağıtım yükseltmesi kapalıdır. Tutulan paketler zorlanmaz.'}
+            'intent': 'remove' if removing else 'install',
+            'note': ('Yalnız seçili uygulamanın katalog paketleri kaldırılır. Bağımlılıklar, kişisel dosyalar ve yapılandırma korunur. Başka paketin kaldırılması istenirse işlem reddedilir.'
+                     if removing else 'Paket kaldırma ve dağıtım yükseltmesi kapalıdır. Tutulan paketler zorlanmaz.')}
 
 
 def apply_plan(request, token, info, execute, cache, suggestions=None):

@@ -36,11 +36,8 @@ def gui():
             header = Gtk.HeaderBar(title='Masaüstü Merkezi', subtitle=runtime.current().upper() + ' · yerel oturum')
             header.set_show_close_button(True)
             self.window.set_titlebar(header)
-            self.window.get_style_context().add_class('oguzdows-modern')
-            path = Path('/usr/share/oguzdows/ui/modern.css')
-            if path.is_file():
-                css = Gtk.CssProvider(); css.load_from_path(str(path))
-                Gtk.StyleContext.add_provider_for_screen(self.window.get_screen(), css, Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION)
+            import ui_theme
+            ui_theme.setup(self.window)
             notebook = Gtk.Notebook()
             scroll = Gtk.ScrolledWindow()
             scroll.set_policy(Gtk.PolicyType.NEVER, Gtk.PolicyType.AUTOMATIC)

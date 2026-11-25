@@ -26,6 +26,6 @@ mkdir -p "$(dirname -- "$output")"
 # shellcheck disable=SC2046,SC2086
 cc -std=c11 -O2 -Wall -Wextra -Werror -fstack-protector-strong -D_FORTIFY_SOURCE=2 \
     -fPIE -pie -Wl,-z,relro,-z,now "$@" \
-    $(pkg-config --cflags gtk+-3.0 json-glib-1.0 gio-unix-2.0) \
+    $(pkg-config --cflags gtk+-3.0 json-glib-1.0 gio-unix-2.0 x11) \
     "$base/native/$source" "$base/native/ui.c" $extra -o "$output" \
-    $(pkg-config --libs gtk+-3.0 json-glib-1.0 gio-unix-2.0) -lm
+    $(pkg-config --libs gtk+-3.0 json-glib-1.0 gio-unix-2.0 x11) -lm

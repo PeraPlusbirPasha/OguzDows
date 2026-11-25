@@ -2,7 +2,8 @@
 #define _POSIX_C_SOURCE 200809L
 #include "ui.h"
 #include <json-glib/json-glib.h>
-#include <math.h>
+#include <gdk/gdkx.h>
+#include <X11/Xlib.h>
 #include <fcntl.h>
 #include <sys/stat.h>
 #include <unistd.h>
@@ -34,86 +35,194 @@ gboolean og_ui_read_file(const char *path, gsize maximum, gchar **contents) {
     data[used] = '\0'; *contents = data; return TRUE;
 }
 
-typedef struct { GtkWidget *image; double position, velocity; gint64 last, start; guint tick; gboolean hover; } Micro;
-
-static gboolean spring(GtkWidget *widget, GdkFrameClock *clock, gpointer pointer) {
-    (void)widget;
-    Micro *micro = pointer;
-    gint64 now = gdk_frame_clock_get_frame_time(clock);
-    double dt = micro->last ? CLAMP((now - micro->last) / 1e6, 0.001, 0.032) : 0.016;
-    if (!micro->start) micro->start = now;
-    micro->last = now;
-    double target = micro->hover ? 1 : 0;
-    /* Sabit kütle / kritik sönüm; yalnız hover sırasında en çok 450 ms. */
-    micro->velocity += (200 * (target - micro->position) - 28.284 * micro->velocity) * dt;
-    micro->position += micro->velocity * dt;
-    gtk_image_set_pixel_size(GTK_IMAGE(micro->image), 32 + (int)round(3 * CLAMP(micro->position, 0, 1)));
-    if ((fabs(target - micro->position) < 0.008 && fabs(micro->velocity) < 0.02) || now - micro->start > 450000) {
-        gtk_image_set_pixel_size(GTK_IMAGE(micro->image), micro->hover ? 35 : 32);
-        micro->tick = 0; micro->last = 0; micro->start = 0;
-        return G_SOURCE_REMOVE;
-    }
-    return G_SOURCE_CONTINUE;
+/* Event-driven material + motion. No idle animation loop, no renderer daemon. */
+static JsonObject *read_object(const gchar *path, JsonParser **parser) {
+    gchar *data = NULL;
+    *parser = json_parser_new();
+    if (!og_ui_read_file(path, 65536, &data)) return NULL;
+    gboolean valid = json_parser_load_from_data(*parser, data, -1, NULL);
+    g_free(data);
+    JsonNode *root = valid ? json_parser_get_root(*parser) : NULL;
+    return root && JSON_NODE_HOLDS_OBJECT(root) ? json_node_get_object(root) : NULL;
 }
 
-static gboolean hover(GtkWidget *widget, GdkEventCrossing *event, gpointer pointer) {
-    Micro *micro = pointer;
-    micro->hover = event->type == GDK_ENTER_NOTIFY;
-    if (motion && !micro->tick) micro->tick = gtk_widget_add_tick_callback(widget, spring, micro, NULL);
-    return FALSE;
+static const gchar *string(JsonObject *object, const gchar *key) {
+    JsonNode *node = object ? json_object_get_member(object, key) : NULL;
+    return node && JSON_NODE_HOLDS_VALUE(node) && json_node_get_value_type(node) == G_TYPE_STRING ? json_node_get_string(node) : "";
 }
 
-static void unmapped(GtkWidget *widget, gpointer pointer) {
-    Micro *micro = pointer;
-    if (micro->tick) gtk_widget_remove_tick_callback(widget, micro->tick);
-    micro->tick = 0; micro->last = 0; micro->start = 0;
-    micro->position = 0; micro->velocity = 0; micro->hover = FALSE;
-    gtk_image_set_pixel_size(GTK_IMAGE(micro->image), 32);
+static gboolean boolean(JsonObject *object, const gchar *key) {
+    JsonNode *node = object ? json_object_get_member(object, key) : NULL;
+    return node && JSON_NODE_HOLDS_VALUE(node) && json_node_get_value_type(node) == G_TYPE_BOOLEAN && json_node_get_boolean(node);
 }
 
-void og_ui_setup(GtkWidget *window) {
-    GtkCssProvider *provider = gtk_css_provider_new();
-    GError *error = NULL;
-    if (!gtk_css_provider_load_from_path(provider, OGUZDOWS_UI_CSS, &error)) {
-        g_printerr("OğuzDows UI: %s\n", error->message); g_clear_error(&error);
-    }
-    gtk_style_context_add_provider_for_screen(gtk_widget_get_screen(window), GTK_STYLE_PROVIDER(provider), GTK_STYLE_PROVIDER_PRIORITY_APPLICATION);
-    g_object_unref(provider);
-    gtk_style_context_add_class(gtk_widget_get_style_context(window), "oguzdows-modern");
-    gboolean animations = FALSE, dark = FALSE;
-    g_object_get(gtk_settings_get_default(), "gtk-enable-animations", &animations, "gtk-application-prefer-dark-theme", &dark, NULL);
-    motion = animations;
-    gchar *path = g_build_filename(g_get_user_config_dir(), "oguzdows", "desktop.json", NULL);
-    JsonParser *parser = json_parser_new();
-    gchar *preferences = NULL;
-    if (og_ui_read_file(path, 65536, &preferences) && json_parser_load_from_data(parser, preferences, -1, NULL) && JSON_NODE_HOLDS_OBJECT(json_parser_get_root(parser))) {
-        JsonObject *prefs = json_node_get_object(json_parser_get_root(parser));
-        JsonNode *node = json_object_get_member(prefs, "motion");
-        if (node && json_node_get_value_type(node) == G_TYPE_STRING) motion = motion && g_strcmp0(json_node_get_string(node), "reduced");
-        node = json_object_get_member(prefs, "feedback");
-        feedback = node && json_node_get_value_type(node) == G_TYPE_BOOLEAN && json_node_get_boolean(node);
-        node = json_object_get_member(prefs, "appearance");
-        if (node && json_node_get_value_type(node) == G_TYPE_STRING) dark = !g_strcmp0(json_node_get_string(node), "dark");
-        node = json_object_get_member(prefs, "accent");
-        const gchar *accent = node && json_node_get_value_type(node) == G_TYPE_STRING ? json_node_get_string(node) : NULL;
-        if (accent && g_regex_match_simple("^#[a-fA-F0-9]{6}$", accent, 0, 0)) {
-            GtkCssProvider *tint = gtk_css_provider_new();
-            gchar *css = g_strdup_printf(".oguzdows-modern button:hover, .oguzdows-modern entry:focus {border-color: %s;} .oguzdows-modern .accent {color: %s;}", accent, accent);
-            gtk_css_provider_load_from_data(tint, css, -1, NULL);
-            gtk_style_context_add_provider_for_screen(gtk_widget_get_screen(window), GTK_STYLE_PROVIDER(tint), GTK_STYLE_PROVIDER_PRIORITY_APPLICATION + 1);
-            g_free(css); g_object_unref(tint);
+static gboolean resource_budget(void) {
+    gchar *data = NULL;
+    if (!g_file_get_contents("/proc/meminfo", &data, NULL, NULL)) return FALSE;
+    gchar *start = strstr(data, "MemTotal:");
+    gboolean enough = start && g_ascii_strtoull(start + 9, NULL, 10) > 2097152;
+    g_free(data);
+    if (!enough || !g_file_get_contents("/proc/cmdline", &data, NULL, NULL)) return FALSE;
+    enough = !strstr(data, "nomodeset") && !strstr(data, "oguzdows.profile=mini") && !strstr(data, "oguzdows.profile=light");
+    g_free(data);
+    const gchar *configs[] = {"/etc/oguzdows/resources.conf", "/etc/oguzdows/pi.conf"};
+    for (guint i = 0; i < G_N_ELEMENTS(configs); i++) {
+        if (g_file_get_contents(configs[i], &data, NULL, NULL)) {
+            if (g_regex_match_simple("(?m)^\\s*profile\\s*=\\s*(mini|light)\\s*(#.*)?$", data, 0, 0)) enough = FALSE;
+            g_free(data);
         }
     }
-    g_object_unref(parser); g_free(path); g_free(preferences);
-    if (dark) gtk_style_context_add_class(gtk_widget_get_style_context(window), "oguzdows-dark");
-    /* Düşük RAM'de, başka bir DE GtkAnimations'ı açık bıraksa bile ikon tick'i yok. */
-    gchar *contents = NULL;
-    if (g_file_get_contents("/proc/meminfo", &contents, NULL, NULL)) {
-        gchar *start = strstr(contents, "MemTotal:");
-        if (!start || g_ascii_strtoull(start + 9, NULL, 10) <= 2097152) motion = FALSE;
-        g_free(contents);
-    } else motion = FALSE;
-    if (!motion) gtk_style_context_add_class(gtk_widget_get_style_context(window), "reduced-motion");
+    if (!enough) return FALSE;
+    /* RAM alone is NOT acceleration evidence; same DRM allowlist as policy. */
+    GDir *directory = g_dir_open("/sys/class/drm", 0, NULL);
+    if (!directory) return FALSE;
+    const gchar *name; gboolean graphics = FALSE;
+    while ((name = g_dir_read_name(directory))) {
+        if (!g_regex_match_simple("^card[0-9]+$", name, 0, 0)) continue;
+        gchar *path = g_build_filename("/sys/class/drm", name, "device/driver", NULL);
+        gchar *link = g_file_read_link(path, NULL), *driver = link ? g_path_get_basename(link) : NULL;
+        const gchar *allowed[] = {"vc4", "v3d", "i915", "xe", "amdgpu", "radeon", "nouveau", "nvidia", "virtio_gpu", "panfrost", "lima", "msm", "etnaviv"};
+        for (guint i = 0; driver && i < G_N_ELEMENTS(allowed); i++) if (!strcmp(driver, allowed[i])) graphics = TRUE;
+        g_free(driver); g_free(link); g_free(path);
+    }
+    g_dir_close(directory); return graphics;
+}
+
+static gboolean confirmed_blur(GtkWidget *window) {
+    GdkDisplay *display = gtk_widget_get_display(window);
+    if (!GDK_IS_X11_DISPLAY(display) || !gdk_screen_is_composited(gtk_widget_get_screen(window))) return FALSE;
+    gchar *key = g_compute_checksum_for_string(G_CHECKSUM_SHA256, g_getenv("DISPLAY") ? g_getenv("DISPLAY") : "", -1);
+    key[16] = '\0';
+    gchar *base = g_build_filename(g_get_user_state_dir(), "oguzdows/effects", key, NULL);
+    gchar *path = g_build_filename(base, "status.json", NULL);
+    JsonParser *status_parser, *owner_parser;
+    JsonObject *state = read_object(path, &status_parser);
+    g_free(path); path = g_build_filename(base, "picom.json", NULL);
+    JsonObject *owner = read_object(path, &owner_parser);
+    gboolean valid = state && owner && boolean(state, "blur_configured") && !strcmp(string(state, "engine"), "picom");
+    if (valid) {
+        JsonNode *pid_node = json_object_get_member(owner, "pid"), *xid_node = json_object_get_member(owner, "owner");
+        valid = pid_node && xid_node && json_node_get_value_type(pid_node) == G_TYPE_INT64 && json_node_get_value_type(xid_node) == G_TYPE_INT64;
+        if (valid) {
+            gint64 pid = json_node_get_int(pid_node), xid = json_node_get_int(xid_node);
+            gchar *atom = g_strdup_printf("_NET_WM_CM_S%d", gdk_x11_screen_get_screen_number(gtk_widget_get_screen(window)));
+            Display *xdisplay = gdk_x11_display_get_xdisplay(display);
+            valid = pid > 1 && xid > 0 && (guint64)XGetSelectionOwner(xdisplay, XInternAtom(xdisplay, atom, False)) == (guint64)xid;
+            g_free(atom);
+            gchar *proc = g_strdup_printf("/proc/%" G_GINT64_FORMAT, pid);
+            struct stat info;
+            valid = valid && !stat(proc, &info) && info.st_uid == getuid();
+            gchar *stat_path = g_build_filename(proc, "stat", NULL), *data = NULL;
+            if (valid && g_file_get_contents(stat_path, &data, NULL, NULL)) {
+                gchar *tail = g_strrstr(data, ") ");
+                gchar **fields = tail ? g_strsplit(tail + 2, " ", 0) : NULL;
+                valid = fields && g_strv_length(fields) > 19 && strcmp(fields[0], "Z") && !strcmp(fields[19], string(owner, "started"));
+                g_strfreev(fields); g_free(data);
+            } else valid = FALSE;
+            gchar *cmd_path = g_build_filename(proc, "cmdline", NULL); gsize length = 0;
+            const gchar *config = string(owner, "config");
+            if (valid && g_file_get_contents(cmd_path, &data, &length, NULL)) {
+                const gchar *prefix = "/usr/bin/picom\0--config\0";
+                gsize prefix_length = sizeof("/usr/bin/picom\0--config\0") - 1;
+                valid = g_str_has_prefix(config, "/usr/share/oguzdows/compositor/") &&
+                    length == prefix_length + strlen(config) + 1 && !memcmp(data, prefix, prefix_length) && !memcmp(data + prefix_length, config, strlen(config) + 1);
+                g_free(data);
+            } else valid = FALSE;
+            g_free(proc); g_free(stat_path); g_free(cmd_path);
+        }
+    }
+    g_object_unref(status_parser); g_object_unref(owner_parser);
+    g_free(path); g_free(base); g_free(key); return valid;
+}
+
+void og_ui_stack_setup(GtkWidget *stack) {
+    gtk_stack_set_transition_type(GTK_STACK(stack), motion ? GTK_STACK_TRANSITION_TYPE_CROSSFADE : GTK_STACK_TRANSITION_TYPE_NONE);
+    gtk_stack_set_transition_duration(GTK_STACK(stack), motion ? 200 : 0);
+}
+
+gboolean og_ui_motion_enabled(void) { return motion; }
+
+static void refresh_stacks(GtkWidget *widget, gpointer data) {
+    (void)data;
+    if (GTK_IS_STACK(widget)) og_ui_stack_setup(widget);
+    if (GTK_IS_CONTAINER(widget)) gtk_container_foreach(GTK_CONTAINER(widget), refresh_stacks, NULL);
+}
+
+static void refresh_style(GtkWidget *window) {
+    gboolean animations = FALSE, dark = FALSE;
+    gchar *theme = NULL;
+    g_object_get(gtk_settings_get_default(), "gtk-enable-animations", &animations, "gtk-application-prefer-dark-theme", &dark, "gtk-theme-name", &theme, NULL);
+    gboolean high_contrast = theme && strstr(theme, "HighContrast");
+    GtkStyleContext *context = gtk_widget_get_style_context(window);
+    if (high_contrast) gtk_style_context_remove_class(context, "oguzdows-modern");
+    else gtk_style_context_add_class(context, "oguzdows-modern");
+    g_free(theme);
+    gboolean budget = resource_budget();
+    motion = animations && budget; feedback = FALSE;
+    gchar *path = g_build_filename(g_get_user_config_dir(), "oguzdows", "desktop.json", NULL);
+    JsonParser *parser;
+    JsonObject *prefs = read_object(path, &parser);
+    if (prefs) {
+        motion = motion && strcmp(string(prefs, "motion"), "reduced");
+        feedback = boolean(prefs, "feedback");
+        if (*string(prefs, "appearance")) dark = !strcmp(string(prefs, "appearance"), "dark");
+    }
+    if (dark) gtk_style_context_add_class(context, "oguzdows-dark"); else gtk_style_context_remove_class(context, "oguzdows-dark");
+    if (!motion) gtk_style_context_add_class(context, "reduced-motion"); else gtk_style_context_remove_class(context, "reduced-motion");
+    /* Only the independently confirmed owned Picom path gets alpha. GNOME /
+       unknown compositor / Wayland retain the fully readable opaque material. */
+    gboolean glass = prefs && !strcmp(string(prefs, "effects"), "aero") && boolean(prefs, "blur") && budget && confirmed_blur(window);
+    if (glass) gtk_style_context_add_class(context, "oguzdows-glass"); else gtk_style_context_remove_class(context, "oguzdows-glass");
+    static GtkCssProvider *tint;
+    if (!tint) {
+        tint = gtk_css_provider_new();
+        gtk_style_context_add_provider_for_screen(gtk_widget_get_screen(window), GTK_STYLE_PROVIDER(tint), GTK_STYLE_PROVIDER_PRIORITY_APPLICATION + 1);
+    }
+    const gchar *accent = prefs ? string(prefs, "accent") : "";
+    if (!g_regex_match_simple("^#[a-fA-F0-9]{6}$", accent, 0, 0)) accent = "#187e91";
+    gchar *css = g_strdup_printf("@define-color og_accent %s;", accent);
+    gtk_css_provider_load_from_data(tint, css, -1, NULL); g_free(css);
+    g_object_unref(parser); g_free(path);
+    refresh_stacks(window, NULL);
+}
+
+static void changed(GFileMonitor *monitor, GFile *file, GFile *other, GFileMonitorEvent event, gpointer data) {
+    (void)monitor; (void)other;
+    if (event != G_FILE_MONITOR_EVENT_CHANGES_DONE_HINT && event != G_FILE_MONITOR_EVENT_CREATED && event != G_FILE_MONITOR_EVENT_DELETED && event != G_FILE_MONITOR_EVENT_MOVED_IN) return;
+    gchar *name = g_file_get_basename(file);
+    if (!strcmp(name, "desktop.json")) refresh_style(GTK_WIDGET(data));
+    g_free(name);
+}
+
+static void composited(GdkScreen *screen, gpointer data) { (void)screen; refresh_style(GTK_WIDGET(data)); }
+static void settings_changed(GObject *settings, GParamSpec *spec, gpointer data) { (void)settings; (void)spec; refresh_style(GTK_WIDGET(data)); }
+
+void og_ui_setup(GtkWidget *window) {
+    static gboolean loaded;
+    if (!loaded) {
+        GtkCssProvider *provider = gtk_css_provider_new(); GError *error = NULL;
+        if (!gtk_css_provider_load_from_path(provider, OGUZDOWS_UI_CSS, &error)) {
+            g_printerr("OğuzDows UI: %s\n", error->message); g_clear_error(&error);
+        }
+        gtk_style_context_add_provider_for_screen(gtk_widget_get_screen(window), GTK_STYLE_PROVIDER(provider), GTK_STYLE_PROVIDER_PRIORITY_APPLICATION);
+        g_object_unref(provider); loaded = TRUE;
+    }
+    GdkScreen *screen = gtk_widget_get_screen(window);
+    GdkVisual *visual = gdk_screen_get_rgba_visual(screen);
+    if (visual && !gtk_widget_get_realized(window)) gtk_widget_set_visual(window, visual);
+    refresh_style(window);
+    g_signal_connect_object(screen, "composited-changed", G_CALLBACK(composited), window, 0);
+    const gchar *properties[] = {"notify::gtk-enable-animations", "notify::gtk-application-prefer-dark-theme", "notify::gtk-theme-name"};
+    for (guint i = 0; i < G_N_ELEMENTS(properties); i++)
+        g_signal_connect_object(gtk_settings_get_default(), properties[i], G_CALLBACK(settings_changed), window, 0);
+    gchar *path = g_build_filename(g_get_user_config_dir(), "oguzdows", NULL);
+    GFile *directory = g_file_new_for_path(path);
+    GFileMonitor *monitor = g_file_monitor_directory(directory, G_FILE_MONITOR_WATCH_MOVES, NULL, NULL);
+    if (monitor) {
+        g_signal_connect(monitor, "changed", G_CALLBACK(changed), window);
+        g_object_set_data_full(G_OBJECT(window), "oguz-theme-monitor", monitor, g_object_unref);
+    }
+    g_object_unref(directory); g_free(path);
 }
 
 GtkWidget *og_ui_action(const char *icon, const char *text) {
@@ -135,11 +244,7 @@ GtkWidget *og_ui_action(const char *icon, const char *text) {
     gtk_container_add(GTK_CONTAINER(button), box);
     gtk_widget_set_tooltip_text(button, text);
     gtk_widget_set_can_focus(button, TRUE);
-    Micro *micro = g_new0(Micro, 1); micro->image = image;
-    g_object_set_data_full(G_OBJECT(button), "oguz-micro", micro, g_free);
-    g_signal_connect(button, "enter-notify-event", G_CALLBACK(hover), micro);
-    g_signal_connect(button, "leave-notify-event", G_CALLBACK(hover), micro);
-    g_signal_connect(button, "unmap", G_CALLBACK(unmapped), micro);
+    /* Hover uses only CSS color/opacity: never resize an icon per frame. */
     return button;
 }
 

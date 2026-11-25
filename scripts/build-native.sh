@@ -9,7 +9,7 @@ base=$(CDPATH='' cd -- "$(dirname -- "$0")/.." && pwd)
 output=$1
 mkdir -p "$(dirname -- "$output")"
 if [ "${2:-}" = --test ]; then
-    set -- -DOGUZDOWS_STORE_TEST "-DSTORE_SERVICE=\"$base/tests/store-service-fixture.py\""
+    set -- -DOGUZDOWS_STORE_TEST "-DSTORE_SERVICE=\"$base/tests/store-service-fixture.py\"" "-DOGUZDOWS_UI_CSS=\"$base/system/usr/share/oguzdows/ui/modern.css\""
 elif [ "$#" -eq 1 ]; then
     set --
 else
@@ -20,6 +20,6 @@ fi
 # shellcheck disable=SC2046
 cc -std=c11 -O2 -Wall -Wextra -Werror -fstack-protector-strong -D_FORTIFY_SOURCE=2 \
     -fPIE -pie -Wl,-z,relro,-z,now "$@" \
-    $(pkg-config --cflags gtk+-3.0 json-glib-1.0) \
-    "$base/native/store.c" -o "$output" \
-    $(pkg-config --libs gtk+-3.0 json-glib-1.0)
+    $(pkg-config --cflags gtk+-3.0 json-glib-1.0 x11) \
+    "$base/native/store.c" "$base/native/ui.c" -o "$output" \
+    $(pkg-config --libs gtk+-3.0 json-glib-1.0 x11)

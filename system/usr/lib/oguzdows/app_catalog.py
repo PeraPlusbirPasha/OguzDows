@@ -45,6 +45,7 @@ APPS = (
     app('bleachbit', 'BleachBit', 'Temizlik aracıdır; sileceği dosyaları dikkatle incele.', 'Araçlar', 'bleachbit', 'org.bleachbit.BleachBit', 'bleachbit'),
     app('wine', 'Windows Uyumluluğu', 'Wine ile uygun EXE dosyaları; güvenlik alanı değildir.', 'Araçlar', 'wine', '', 'application-x-ms-dos-executable'),
 )
+FEATURED = ('gimp', 'vlc', 'geany', 'libreoffice', 'keepassxc')
 BY_ID = {item['id']: item for item in APPS}
 # Yalnızca sabit, sistem paketinin sağladığı masaüstü dosyaları. Bir uygulama
 # motorunun (Wine) dosyasız çalıştırılacağı varsayılmaz; EXE inceleyici ayrıdır.
