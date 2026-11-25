@@ -110,7 +110,9 @@ def record_live_state(root, output, phase):
         path = target_system.inside(root, relative)
         if path.is_file():
             (output / (phase + '-' + path.name + '.txt')).write_text(path.read_text())
-    print('::notice title=ISO canlı paket durumu ' + phase + '::' + json.dumps(report), flush=True)
+    # Keep the ten per-step notices for exact content, all three RAM budgets
+    # and the final boot/source result. Verbose package diagnostics stay in logs.
+    print('ISO canlı paket durumu ' + phase + ': ' + json.dumps(report), flush=True)
 
 
 
@@ -227,6 +229,18 @@ def desktop_contract(root):
     modes = mode_contract(root, json.loads(target_system.nonempty(root, 'usr/share/oguzdows/build-info.json').read_text())['arch'])
     return {'packages': sorted(required), 'privileged_ownership_verified': True,
             'pardus_enabled': False, 'replacement_wallpapers': 20, 'native_cursor': True, 'native_app_content_sha256': content_hashes, 'desktop_modes': modes}
+
+
+def result_summary(report):
+    """Bounded final notice; the complete hash/sample report stays an artifact."""
+    selected = {key: report.get(key) for key in (
+        'arch', 'source_revision', 'build', 'modes', 'initramfs', 'desktop_idle', 'low_ram',
+        'gui_installation_tested', 'physical_boot_verified', 'encrypted_root_tested')}
+    selected['desktop_modes_target_abi_verified'] = report.get('desktop_contract', {}).get('desktop_modes', {}).get('target_abi_verified')
+    text = json.dumps(selected, ensure_ascii=False, separators=(',', ':'))
+    if len(text.encode()) > 3500:
+        raise RuntimeError('Hedef OS özet kanıtı kontrol notu sınırını aştı; tam rapor artefaktta korunuyor.')
+    return text
 
 
 def configure_idle_test(root, uid):
@@ -551,7 +565,7 @@ def main():
         if args.low_ram_checks:
             report['low_ram'] = []
             check_low_ram(image, output, work, root_uuid, report['low_ram'])
-        print('::notice title=ISO hedef sistem açılışı::' + json.dumps(report), flush=True)
+        print('::notice title=ISO hedef sistem açılışı::' + ci.escape_data(result_summary(report)), flush=True)
     except Exception as error:
         report['error'] = str(error)
         # Artefakt deposuna erişilemese bile kesin hata API'den okunabilsin.

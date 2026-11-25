@@ -429,7 +429,7 @@ jobs:
               raise SystemExit('İstenen çalışmada hedef sistem test raporu bulunamadı.')
           for path in reports:
               data = json.loads(path.read_text())
-              selected = {k: data.get(k) for k in ('arch', 'source_revision', 'build', 'modes', 'initramfs')}
+              selected = {k: data.get(k) for k in ('arch', 'source_revision', 'build', 'modes', 'initramfs', 'desktop_idle', 'low_ram')}
               selected['error_tail'] = str(data.get('error', ''))[-1400:]
               selected['report_sha256'] = hashlib.sha256(path.read_bytes()).hexdigest()
               text = json.dumps(selected, ensure_ascii=False, separators=(',', ':'))
@@ -444,7 +444,9 @@ jobs:
               text = json.dumps(selected, ensure_ascii=False, separators=(',', ':'))
               if len(text) > 3500:
                   raise SystemExit('UART bellek kanıtı kontrol notu sınırını aştı.')
-              print('::notice title=Önceki erken açılış belleği::' + text.replace('%', '%25'))
+              # Two target + six RAM notices fit the ten-notice step budget.
+              # UART details remain in the logs and original evidence artifact.
+              print('Önceki erken açılış belleği: ' + text)
           for path in sorted([*Path('target-evidence').rglob('desktop-idle.json'), *Path('target-evidence').rglob('low-ram-idle.json')]):
               data = json.loads(path.read_text())
               selected = {k: data.get(k) for k in ('build', 'method', 'vm_ram_mib', 'target_bytes', 'settled_seconds',

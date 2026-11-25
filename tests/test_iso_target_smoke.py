@@ -56,6 +56,44 @@ class IsoTargetSmokeContractTests(unittest.TestCase):
                 (root / 'usr/lib/oguzdows/accent.py').write_text('old worker')
                 with self.assertRaisesRegex(RuntimeError, 'eşleşmiyor'): smoke.mode_contract(root, 'amd64')
 
+    def test_final_notice_retains_boot_source_abi_and_every_ram_budget_without_duplicate_hashes(self):
+        measurements = [{'vm_ram_mib': ram, 'valid_idle_measurement': True, 'target_met': True,
+                         'median_used_mb': 300, 'max_used_mb': 301,
+                         'low_ram_budget': {'passed': True, 'minimum_available_bytes': 50000000,
+                                            'observed_min_available_bytes': 100000000, 'fail_reasons': []}}
+                        for ram in (512, 1024, 2048)]
+        report = {'arch': 'amd64', 'source_revision': 'a' * 40, 'modes': ['bios', 'efi'],
+                  'build': {'source_revision': 'a' * 40, 'source_dirty': None},
+                  'desktop_idle': measurements[2], 'low_ram': measurements[:2],
+                  'desktop_contract': {'desktop_modes': {'target_abi_verified': True},
+                                       'native_app_content_sha256': {'large': 'x' * 10000}}}
+        text = smoke.result_summary(report)
+        selected = json.loads(text)
+        self.assertLess(len(text.encode()), 3500)
+        self.assertEqual(selected['modes'], ['bios', 'efi'])
+        self.assertEqual(selected['build'], report['build'])
+        self.assertTrue(selected['desktop_modes_target_abi_verified'])
+        self.assertEqual([value['vm_ram_mib'] for value in selected['low_ram']], [512, 1024])
+        self.assertEqual(selected['desktop_idle'], measurements[2])
+        self.assertNotIn('native_app_content_sha256', text)
+        report['build']['unexpected'] = 'x' * 4000
+        with self.assertRaisesRegex(RuntimeError, 'sınırını'):
+            smoke.result_summary(report)
+
+    def test_verbose_package_diagnostics_do_not_consume_the_ram_notice_budget(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory); target = root / 'target'; output = root / 'output'
+            output.mkdir(); (target / 'var/lib/dpkg').mkdir(parents=True)
+            (target / 'var/lib/dpkg/status').write_text('Package: initramfs-tools\nVersion: 1\nStatus: install ok installed\n')
+            with patch('builtins.print') as printed:
+                smoke.record_live_state(target, output, 'before')
+            self.assertTrue((output / 'target-live-before.json').is_file())
+            self.assertFalse(any(call.args[0].startswith('::notice') for call in printed.call_args_list))
+        workflows = yaml.safe_load((ROOT / '.github/workflows/main.yml').read_text())
+        diagnostic = workflows['jobs']['diagnostics']['steps'][-1]['run']
+        self.assertIn("'desktop_idle', 'low_ram'", diagnostic)
+        self.assertNotIn('::notice title=Önceki erken açılış belleği', diagnostic)
+
     def test_guard_rejects_non_ci_and_non_regular_iso_before_mount_or_mkdtemp(self):
         arguments = ['smoke-iso-target', '--iso', '/dev/null', '--arch', 'amd64', '--expected-revision', 'a' * 40]
         for ci, uid in (('false', 0), ('true', 1000), ('true', 0)):
@@ -336,7 +374,7 @@ class IsoTargetSmokeContractTests(unittest.TestCase):
             self.assertEqual(target_data['initramfs'], initramfs)
             self.assertEqual(target_data['report_sha256'], hashlib.sha256(target.read_bytes()).hexdigest())
             self.assertEqual(len(target_data['error_tail']), 1400)
-            memory_prefix = '::notice title=Önceki erken açılış belleği::'
+            memory_prefix = 'Önceki erken açılış belleği: '
             memory_note = next(line for line in result.stdout.splitlines() if line.startswith(memory_prefix))
             self.assertEqual(json.loads(memory_note[len(memory_prefix):])['boot_memory_lines'],
                              ['[1] Memory: 123K', '[2] Kernel panic - not syncing: memory'])
