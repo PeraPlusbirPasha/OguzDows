@@ -97,6 +97,18 @@ class AccentTests(AccentFixture):
         self.assertFalse(result['changed']); apply.assert_not_called()
         self.assertEqual(state.load()['accent'], '#112244')
 
+    def test_explicit_restore_blocks_observer_and_pending_colour_race_until_new_preferences(self):
+        path = self.picture('restored.png', '#8f6632')
+        state.atomic_json(state.config_path(), {**state.DEFAULTS, 'revision': 8, 'accent': '#334488'})
+        state.atomic_json(state.state_directory() / 'xfce-applied.json', {'revision': 8, 'restored': True})
+        with patch.object(runtime, 'normal_session'), patch.object(runtime, 'installation_busy', return_value=False), patch.object(preferences, 'apply_current') as apply:
+            result = preferences.update_and_apply({'accent': '#aa4455'}, {'compositing': False}, observed_wallpaper=path)
+            self.assertFalse(result['changed']); apply.assert_not_called()
+            with patch.object(accent, 'extract') as extract:
+                self.assertFalse(accent.sync()['changed']); extract.assert_not_called()
+        accent.ensure_observer(state.load())  # no GTK import / launch on restored revision
+        self.assertEqual(state.load()['revision'], 8)
+
     def test_observed_wallpaper_never_reapplies_a_previous_gallery_id(self):
         path = self.picture('observed.png', '#9768b4')
         state.atomic_json(state.config_path(), {**state.DEFAULTS, 'wallpaper': 'an-old-gallery-id'})

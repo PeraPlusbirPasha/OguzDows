@@ -102,8 +102,15 @@ def current_wallpaper(changed_property=None, execute=None):
     raise ValueError('Xfce’de okunabilir yerel bir duvar kâğıdı bulunamadı.')
 
 
+def restored(preferences):
+    receipt = state.read_json(state.state_directory() / 'xfce-applied.json', {})
+    return (isinstance(receipt, dict) and receipt.get('revision') == preferences['revision']
+            and receipt.get('restored') is True)
+
+
 def ensure_observer(preferences):
-    if preferences['accent_source'] != 'wallpaper' or os.environ.get('XDG_SESSION_TYPE') == 'wayland':
+    if (preferences['accent_source'] != 'wallpaper' or restored(preferences)
+            or os.environ.get('XDG_SESSION_TYPE') == 'wayland'):
         return
     import desktop_runtime as runtime
     if runtime.current() != 'xfce':
@@ -121,7 +128,7 @@ def sync(changed_property=None):
     if runtime.current() != 'xfce':
         raise ValueError('Otomatik xfconf izleme yalnız Xfce/X11 içindir.')
     original = state.load()
-    if original['accent_source'] != 'wallpaper':
+    if original['accent_source'] != 'wallpaper' or restored(original):
         return {'changed': False, 'message': 'Otomatik renk kapalı; kullanıcı rengi korundu.'}
     path = current_wallpaper(changed_property)
     color = extract(path)

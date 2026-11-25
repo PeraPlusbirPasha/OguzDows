@@ -144,3 +144,5 @@ window.oguzdows-modern.oguzdows-dark.oguzdows-glass { background-color: alpha(mi
 .oguzdows-modern.maximized decoration, .oguzdows-modern.fullscreen decoration,
 .oguzdows-modern.tiled decoration, .oguzdows-modern.maximized headerbar,
 .oguzdows-modern.fullscreen headerbar, .oguzdows-modern.tiled headerbar { border-radius: 0; box-shadow: none; }
+
+.oguzdows-modern.solid-csd, .oguzdows-modern.solid-csd headerbar { border-radius: 0; }

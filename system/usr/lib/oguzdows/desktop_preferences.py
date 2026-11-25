@@ -132,7 +132,8 @@ def update_and_apply(changes, resources=None, *, observed_wallpaper=None, profil
     resources = current_policy() if resources is None else resources
     with state.locked() as directory:
         original = state.load()
-        if observed_wallpaper is not None and original['accent_source'] != 'wallpaper':
+        from accent import restored
+        if observed_wallpaper is not None and (original['accent_source'] != 'wallpaper' or restored(original)):
             return {'changed': False, 'message': 'Otomatik renk kapatıldı; son kullanıcı rengi korundu.'}
         preferences = state.merged(original, changes)
         accent_note = ''
@@ -158,7 +159,7 @@ def update_and_apply(changes, resources=None, *, observed_wallpaper=None, profil
         undo = []
         try:
             if profile is not None:
-                if runtime.current() != 'xfce':
+                if runtime.current() != 'xfce' or os.environ.get('XDG_SESSION_TYPE') != 'x11':
                     raise ValueError('Bu panel düzenleri yalnız Xfce içindir; diğer kabuklar korunur.')
                 import profiles
                 profiles.apply(profile, appearance=preferences['appearance'], manage_compositor=False, undo=undo)
