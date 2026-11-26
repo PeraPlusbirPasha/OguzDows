@@ -24,7 +24,6 @@ static GtkWidget *open_button, *back_button, *font_label, *empty_note, *reader_i
 static gboolean compact, images_enabled = TRUE;
 static GtkWidget *category_combo, *search_entry, *mode_note, *results_label, *news_toolbar;
 static gchar *query, *feed_hash;
-static GtkTextTag *reader_tag;
 static GPtrArray *articles;
 static GSubprocess *worker;
 static guint deadline_id;
@@ -89,7 +88,10 @@ static void save_preferences(void) {
 
 static void font_size(gint change) {
     points = CLAMP(points + change, 12, 26);
-    g_object_set(reader_tag, "size-points", (gdouble)points, NULL);
+    PangoAttrList *attributes = pango_attr_list_new();
+    pango_attr_list_insert(attributes, pango_attr_size_new(points * PANGO_SCALE));
+    gtk_label_set_attributes(GTK_LABEL(article_text), attributes);
+    pango_attr_list_unref(attributes);
     gchar *value = g_strdup_printf("%d", points); gtk_label_set_text(GTK_LABEL(font_label), value); g_free(value);
     if (change) save_preferences();
 }
@@ -210,11 +212,7 @@ static void select_article(GtkListBox *box, GtkListBoxRow *row, gpointer data) {
     gtk_label_set_text(GTK_LABEL(image_caption), current->publisher_image ? "Yayıncının RSS görseli · çevrimdışı önbellek" : "Özgün kategori çizimi · haber fotoğrafı değildir");
     gchar *meta = g_strdup_printf("%s · %s\n%s", current->publisher, current->category, *current->published ? current->published : "Yayın tarihi belirtilmedi · tarih uydurulmaz");
     gtk_label_set_text(GTK_LABEL(article_meta), meta); g_free(meta);
-    GtkTextBuffer *buffer = gtk_text_view_get_buffer(GTK_TEXT_VIEW(article_text));
-    gtk_text_buffer_set_text(buffer, current->body, -1);
-    GtkTextIter start, end;
-    gtk_text_buffer_get_bounds(buffer, &start, &end);
-    gtk_text_buffer_apply_tag(buffer, reader_tag, &start, &end);
+    gtk_label_set_text(GTK_LABEL(article_text), current->body); /* Plain text, never markup. */
     gtk_widget_set_sensitive(open_button, *current->link != '\0');
     gtk_widget_set_sensitive(back_button, TRUE);
     gtk_stack_set_visible_child_name(GTK_STACK(pages), "reader");
@@ -573,20 +571,23 @@ static void activate(GtkApplication *app, gpointer data) {
     gtk_box_pack_start(GTK_BOX(reader), reader_image, FALSE, FALSE, 0);
     image_caption = label("", "news-image-caption"); gtk_label_set_max_width_chars(GTK_LABEL(image_caption), 42);
     gtk_box_pack_start(GTK_BOX(reader), image_caption, FALSE, FALSE, 0);
-    scroll = gtk_scrolled_window_new(NULL, NULL);
-    /* NEVER propagates GtkTextView's last laid-out width as the window's
-     * minimum (800px after zoom). EXTERNAL permits reflow without a horizontal
-     * scrollbar; wrapping and the vertical scrollbar remain native GTK. */
-    gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(scroll), GTK_POLICY_EXTERNAL, GTK_POLICY_AUTOMATIC);
-    article_text = gtk_text_view_new(); gtk_text_view_set_editable(GTK_TEXT_VIEW(article_text), FALSE); gtk_text_view_set_cursor_visible(GTK_TEXT_VIEW(article_text), FALSE);
-    gtk_text_view_set_wrap_mode(GTK_TEXT_VIEW(article_text), GTK_WRAP_WORD_CHAR); gtk_text_view_set_left_margin(GTK_TEXT_VIEW(article_text), 8); gtk_text_view_set_right_margin(GTK_TEXT_VIEW(article_text), 8);
-    gtk_text_view_set_pixels_above_lines(GTK_TEXT_VIEW(article_text), 6); gtk_text_view_set_pixels_below_lines(GTK_TEXT_VIEW(article_text), 6);
-    reader_tag = gtk_text_buffer_create_tag(gtk_text_view_get_buffer(GTK_TEXT_VIEW(article_text)), "reader", "family", "sans-serif", NULL);
-    gtk_container_add(GTK_CONTAINER(scroll), article_text); gtk_box_pack_start(GTK_BOX(reader), scroll, TRUE, TRUE, 0);
+    /* The whole article scrolls, including its picture and attribution.
+     * A selectable, wrapping native label is sufficient for the bounded 8192-character
+     * plain RSS body: no nested scrollbars, old TextView width requisition or
+     * fixed header height that pushes controls outside a short screen. */
+    article_text = label("", "news-body");
+    gtk_label_set_selectable(GTK_LABEL(article_text), TRUE);
+    gtk_label_set_max_width_chars(GTK_LABEL(article_text), 80);
+    gtk_label_set_yalign(GTK_LABEL(article_text), 0);
+    atk_object_set_name(gtk_widget_get_accessible(article_text), "Haber metni");
+    gtk_box_pack_start(GTK_BOX(reader), article_text, TRUE, TRUE, 0);
     GtkWidget *note = label("Yayıncının RSS metni / özeti · Tamamı akışta yoksa kaynak sitesini açabilirsin.", "dim-label");
     gtk_label_set_max_width_chars(GTK_LABEL(note), 48);
     gtk_box_pack_start(GTK_BOX(reader), note, FALSE, FALSE, 0);
-    gtk_stack_add_named(GTK_STACK(pages), reader, "reader");
+    scroll = gtk_scrolled_window_new(NULL, NULL);
+    gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(scroll), GTK_POLICY_NEVER, GTK_POLICY_AUTOMATIC);
+    gtk_container_add(GTK_CONTAINER(scroll), reader);
+    gtk_stack_add_named(GTK_STACK(pages), scroll, "reader");
     GtkWidget *controls = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 6); gtk_container_set_border_width(GTK_CONTAINER(controls), 8);
     back_button = gtk_button_new_with_label("Liste"); g_signal_connect(back_button, "clicked", G_CALLBACK(show_list), NULL);
     gtk_box_pack_start(GTK_BOX(controls), back_button, FALSE, FALSE, 0);
@@ -706,6 +707,9 @@ static gboolean smoke(gpointer data) {
     g_assert_cmpuint(smoke_step, ==, 7); g_assert_true(compact);
     g_assert_cmpint(gtk_widget_get_allocated_width(window), <=, 480);
     g_assert_true(current == smoke_current); /* No reload / lost reading state on resize. */
+    g_assert_cmpstr(gtk_label_get_text(GTK_LABEL(article_text)), ==, current->body);
+    g_assert_true(gtk_label_get_selectable(GTK_LABEL(article_text)));
+    g_assert_false(gtk_label_get_use_markup(GTK_LABEL(article_text)));
     g_assert_cmpstr(gtk_combo_box_get_active_id(GTK_COMBO_BOX(category_combo)), ==, "Rehber");
     g_assert_cmpuint(articles->len, ==, 6);
     screenshot("news-compact.png");

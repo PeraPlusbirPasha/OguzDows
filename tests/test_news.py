@@ -326,7 +326,8 @@ class NewsTests(unittest.TestCase):
         self.assertIn('g_subprocess_force_exit(worker)', source)
         self.assertIn('g_timeout_add_seconds(24', source)
         self.assertIn('CLAMP(points + change, 12, 26)', source)
-        self.assertIn('gtk_text_buffer_set_text', source)
+        self.assertIn('gtk_label_set_text(GTK_LABEL(article_text), current->body)', source)
+        self.assertIn('gtk_label_set_selectable(GTK_LABEL(article_text), TRUE)', source)
         self.assertNotIn('gtk_label_set_markup', source)
         self.assertTrue((ROOT / 'system/usr/share/applications/oguzdows-news.desktop').is_file())
 

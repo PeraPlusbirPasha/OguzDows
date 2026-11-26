@@ -30,7 +30,7 @@ static GtkWidget *detail_text, *source_combo, *install_button, *detail_icon;
 static GtkWidget *remote_button, *source_status, *results_info, *no_results;
 static GtkWidget *launch_button, *scope_note, *setup_button, *remove_button, *featured_box, *catalog_title;
 static gboolean current_installed, current_launchable, current_update;
-static GtkWidget *store_header, *voice_button, *toolbar, *filters, *filter_reset, *featured_stack;
+static GtkWidget *store_header, *voice_button, *toolbar, *filters, *filter_reset, *featured_stack, *apps_heading;
 static GtkWidget *nav_titles[4], *page_boxes[4];
 static guint page_count;
 static gboolean compact, wide, catalog_dirty;
@@ -272,11 +272,15 @@ static void refilter(GtkWidget *widget, gpointer data) {
     for (guint index = 0; index < apps->len; index++)
         if (matches(g_ptr_array_index(apps, index))) visible++;
     gchar *count = g_strdup_printf("Gösterilen: %u / %u%s", visible, apps->len, installed_only ? " · Yalnızca kurulu" : "");
+    gtk_widget_set_tooltip_text(results_info, count); atk_object_set_name(gtk_widget_get_accessible(results_info), count); g_free(count);
+    count = g_strdup_printf("%u / %u", visible, apps->len);
     gtk_label_set_text(GTK_LABEL(results_info), count); g_free(count);
     gtk_widget_set_visible(no_results, !visible);
     const gchar *chosen = gtk_combo_box_get_active_id(GTK_COMBO_BOX(category));
     gtk_widget_set_visible(featured_box, !installed_only && (!query_folded || !*query_folded) && (!chosen || !strcmp(chosen, "Tümü")) && !catalog_dirty);
     gtk_label_set_text(GTK_LABEL(catalog_title), installed_only ? "Senin uygulamaların" : "Keşfet");
+    gtk_widget_set_visible(catalog_title, installed_only);
+    gtk_label_set_text(GTK_LABEL(apps_heading), installed_only ? "Kurulu uygulamalar" : "Bir sonraki favorini bul");
 }
 
 static void clear_apps(void) {
@@ -563,7 +567,7 @@ static GtkWidget *page(const gchar *title, const gchar *subtitle) {
     gtk_container_set_border_width(GTK_CONTAINER(box), compact ? 8 : 24);
     if (page_count < G_N_ELEMENTS(page_boxes)) page_boxes[page_count++] = box;
     gtk_box_pack_start(GTK_BOX(box), label(title, "page-title"), FALSE, FALSE, 0);
-    gtk_box_pack_start(GTK_BOX(box), label(subtitle, "dim-label"), FALSE, FALSE, 0);
+    if (subtitle && *subtitle) gtk_box_pack_start(GTK_BOX(box), label(subtitle, "dim-label"), FALSE, FALSE, 0);
     return box;
 }
 
@@ -666,9 +670,11 @@ static void build(void) {
     og_ui_stack_setup(stack);
     gtk_box_pack_start(GTK_BOX(content), stack, TRUE, TRUE, 0);
 
-    GtkWidget *discover = page("Keşfet", "Yeni bir şey üret. Sevdiğin araçları bul. Kurulum kararını sen ver.");
+    GtkWidget *discover = page("Keşfet", NULL);
+    gtk_box_set_spacing(GTK_BOX(discover), 12);
     GList *discover_children = gtk_container_get_children(GTK_CONTAINER(discover));
     catalog_title = discover_children->data; g_list_free(discover_children);
+    gtk_widget_set_no_show_all(catalog_title, TRUE);
     gtk_style_context_add_class(gtk_widget_get_style_context(discover), "discover-page");
     toolbar = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 8);
     search_entry = gtk_search_entry_new(); gtk_entry_set_placeholder_text(GTK_ENTRY(search_entry), "Uygulama veya işlev ara…");
@@ -709,9 +715,12 @@ static void build(void) {
         gtk_container_add(GTK_CONTAINER(quick_categories), chip);
     }
     gtk_box_pack_start(GTK_BOX(discover), quick_categories, FALSE, FALSE, 0);
-    gtk_box_pack_start(GTK_BOX(discover), label("Bir sonraki favorini bul", "section-title"), FALSE, FALSE, 0);
-    results_info = label("Katalog okunuyor…", "dim-label");
-    gtk_box_pack_start(GTK_BOX(discover), results_info, FALSE, FALSE, 0);
+    GtkWidget *app_heading_line = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 8);
+    apps_heading = label("Bir sonraki favorini bul", "section-title");
+    gtk_box_pack_start(GTK_BOX(app_heading_line), apps_heading, TRUE, TRUE, 0);
+    results_info = label("", "dim-label");
+    gtk_box_pack_end(GTK_BOX(app_heading_line), results_info, FALSE, FALSE, 0);
+    gtk_box_pack_start(GTK_BOX(discover), app_heading_line, FALSE, FALSE, 0);
     no_results = label("Bu filtrelerle uygulama bulunamadı. Aramanı kısalt, başka kategori seç veya yerel kataloğa dön.", "dim-label");
     gtk_widget_set_no_show_all(no_results, TRUE);
     gtk_box_pack_start(GTK_BOX(discover), no_results, FALSE, FALSE, 0);
