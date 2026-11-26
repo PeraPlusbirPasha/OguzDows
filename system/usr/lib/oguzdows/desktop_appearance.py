@@ -28,7 +28,7 @@ def read_ini(path):
         descriptor = os.open(path, os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK)
     except FileNotFoundError:
         return ''
-    with os.fdopen(descriptor, 'r', encoding='utf-8') as stream:
+    with os.fdopen(descriptor, 'r', encoding='utf-8', newline='') as stream:
         info = os.fstat(stream.fileno())
         if not stat.S_ISREG(info.st_mode) or info.st_uid != os.getuid() or info.st_size > LIMIT:
             raise ValueError('GTK ayarı bu kullanıcıya ait, sınırlı normal dosya olmalı.')

@@ -174,8 +174,9 @@ class SharedPreferencesTests(unittest.TestCase):
     def test_xfce_glass_is_selected_only_after_capability_and_rolls_surface_back_on_engine_failure(self):
         prefs = {**state.DEFAULTS, 'effects': 'aero', 'blur': True, 'motion': 'spring'}
         for accelerated, running in ((False, False), (True, True), (True, False)):
-            with self.subTest(accelerated=accelerated, running=running), patch.dict(os.environ, {'XDG_CURRENT_DESKTOP': 'XFCE'}), patch.object(profiles, 'selection', return_value=('windows11', 'light')), patch.object(profiles, 'set_shared') as shared, patch.object(aero, 'probe', return_value={'major': 12, 'accelerated': accelerated}), patch('desktop_material.install', return_value='OguzDowsAeroGlassUser-0123456789ab') as material, patch.object(effects, 'reconcile', return_value={'engine': 'picom' if running else 'xfwm4', 'blur_configured': running, 'message': 'test'}) as reconcile:
+            with self.subTest(accelerated=accelerated, running=running), patch('desktop_appearance.apply', return_value=[]) as appearance, patch.dict(os.environ, {'XDG_CURRENT_DESKTOP': 'XFCE'}), patch.object(profiles, 'selection', return_value=('windows11', 'light')), patch.object(profiles, 'set_shared') as shared, patch.object(aero, 'probe', return_value={'major': 12, 'accelerated': accelerated}), patch('desktop_material.install', return_value='OguzDowsAeroGlassUser-0123456789ab') as material, patch.object(effects, 'reconcile', return_value={'engine': 'picom' if running else 'xfwm4', 'blur_configured': running, 'message': 'test'}) as reconcile:
                 preferences.apply_current(prefs, self.root, policy(8388608))
+                appearance.assert_called_once_with(prefs, 'OguzDowsAeroGlassUser-0123456789ab', self.root, undo=None)
                 self.assertEqual(shared.call_args_list[0].args[0]['blur'], accelerated)
                 self.assertEqual(material.call_count, 2 if accelerated and not running else 1)
                 self.assertEqual(material.call_args_list[0].kwargs['identifier'], 'windows11')

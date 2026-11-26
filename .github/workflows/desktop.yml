@@ -105,6 +105,7 @@ jobs:
       - name: Gerçek Picom parser / GLX shader / ARGB arkaplan blur (yazılım GPU'su)
         if: ${{ !cancelled() }}
         run: |
+          mkdir -p /usr/share/oguzdows
           cp -a system/usr/share/oguzdows/compositor /usr/share/oguzdows/
           python3 scripts/ci-run.py --title 'Picom GLX gerçek blur · ${{ matrix.suite }}' -- \
             xvfb-run -a -s '-screen 0 1024x768x24 -nolisten tcp +extension GLX +extension COMPOSITE' \

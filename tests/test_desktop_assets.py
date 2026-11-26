@@ -69,6 +69,9 @@ class NativeAssetTests(unittest.TestCase):
                 self.assertEqual(sound.getnchannels(), 1); self.assertEqual(sound.getframerate(), 16000)
                 self.assertLessEqual(sound.getnframes(), 1600); self.assertGreater(sound.getnframes(), 1000)
             self.assertEqual(len(list((root / 'usr/share/icons/hicolor/scalable/apps').glob('*.svg'))), 19)
+            for name in ('modern.css', 'window-geometry.css', 'shell.css'):
+                self.assertEqual((root / 'usr/share/oguzdows/ui' / name).read_bytes(),
+                                 (ROOT / 'system/usr/share/oguzdows/ui' / name).read_bytes())
 
     def test_editorial_art_and_layout_previews_are_offline_distinct_bounded_rasters(self):
         from PIL import Image

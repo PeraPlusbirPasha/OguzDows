@@ -195,6 +195,7 @@ window.oguzdows-modern.hub-window.solid-surface { border-radius: 0; }
 .oguzdows-modern .store-feature .feature-summary { color: #e2eaf5; font-size: 12px; }
 .oguzdows-modern .store-feature button.hero-cta { background: #f2f6f6; color: #263a54; border: 0; border-radius: 16px; padding: 7px 16px; box-shadow: none; }
 .oguzdows-modern .store-feature button.hero-cta:hover { background: #ffffff; }
+.oguzdows-modern .store-feature button.hero-cta label { color: #263a54; }
 .oguzdows-modern .feature-tabs button { font-size: 11px; padding: 4px 14px; border-radius: 12px; box-shadow: none; }
 .oguzdows-modern .category-chip { border-radius: 16px; padding: 7px 13px; font-size: 11px; }
 .oguzdows-modern button.app-card { background-color: #ffffff; border: 1px solid rgba(62,78,103,.12); border-radius: 12px; padding: 3px; box-shadow: none; }

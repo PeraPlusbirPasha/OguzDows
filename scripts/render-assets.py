@@ -553,6 +553,16 @@ def store_badge(identifier, color, size):
 
 
 def render_desktop_assets(root: Path) -> None:
+    # Theme imports must be installed together, including standalone CI roots.
+    # An overlay already contains these files; an installed accent renderer
+    # only calls window_theme() and never writes system styles at login.
+    source_ui = Path(__file__).resolve().parents[1] / 'system/usr/share/oguzdows/ui'
+    for name in ('modern.css', 'window-geometry.css', 'shell.css'):
+        source = source_ui / name
+        target = root / 'usr/share/oguzdows/ui' / name
+        if source.is_file() and source.resolve() != target.resolve():
+            target.parent.mkdir(parents=True, exist_ok=True)
+            shutil.copy2(source, target)
     vectors = Path(__file__).resolve().parents[1] / 'system/usr/share/icons/hicolor/scalable'
     if vectors.is_dir() and vectors.resolve() != (root / 'usr/share/icons/hicolor/scalable').resolve():
         shutil.copytree(vectors, root / 'usr/share/icons/hicolor/scalable', dirs_exist_ok=True)
@@ -742,11 +752,6 @@ def render_cursor(root: Path) -> None:
 
 
 def render(root: Path) -> None:
-    geometry = Path(__file__).resolve().parents[1] / 'system/usr/share/oguzdows/ui/window-geometry.css'
-    target_geometry = root / 'usr/share/oguzdows/ui/window-geometry.css'
-    if geometry.is_file() and geometry.resolve() != target_geometry.resolve():
-        target_geometry.parent.mkdir(parents=True, exist_ok=True)
-        shutil.copy2(geometry, target_geometry)
     render_wallpapers(root)
     render_nazar(root)
     render_cursor(root)
