@@ -16,7 +16,7 @@ import threading
 import time
 from pathlib import Path
 
-from support import load
+from support import load, native_gtk_imports
 
 
 def main():
@@ -40,13 +40,15 @@ def main():
         gi.require_version('Gdk','3.0')
         from gi.repository import Gdk, GLib, Gtk
         assert Gtk.init_check([])[0], 'Xvfb gerekli'
+        toolkit_imports=native_gtk_imports(Gtk, Gdk)
         settings=Gtk.Settings.get_default()
         settings.set_property('gtk-theme-name','OguzDows')
         settings.set_property('gtk-enable-animations',False)
         loop=GLib.MainLoop()
         release=threading.Event()
         worker_threads=[]
-        metrics={'component':args.component,'environment':'CI / Xvfb, privileged worker stubbed, not physical hardware'}
+        metrics={'component':args.component,'environment':'CI / Xvfb, privileged worker stubbed, not physical hardware',
+                 'gtk_binding_imports_before_application':sorted(toolkit_imports)}
         app=None
         guide=None
         peer=None
@@ -125,7 +127,7 @@ def main():
                                max_rss_kib=resource.getrusage(resource.RUSAGE_SELF).ru_maxrss)
                 assert cpu/elapsed<.20, 'Sabit arayüz boşta tek çekirdeğin %20’sini tüketmemeli'
                 assert max(gaps,default=0)<1.5, 'Boşta GTK olay döngüsü 1.5 saniye kilitlenmemeli'
-                forbidden={'PIL','cairo','rifki_scene','rifki_motion','rifki_pet'}
+                forbidden={'PIL','cairo','rifki_scene','rifki_motion','rifki_pet'} - toolkit_imports
                 assert not forbidden.intersection(sys.modules), str(forbidden.intersection(sys.modules))
                 if args.component=='welcome':
                     assert app.loaded_pages == {'welcome', 'hardware'}

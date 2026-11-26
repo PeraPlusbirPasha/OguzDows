@@ -172,7 +172,7 @@ class SpeechTests(unittest.TestCase):
 
     def test_active_entrypoints_import_neither_rig_nor_tts_and_no_cairo_is_needed(self):
         forbidden={'PIL','cairo','rifki_scene','rifki_pet','rifki_motion'}
-        for name in ('rifki.py','rifki_speech.py','install_launcher.py'):
+        for name in ('rifki.py','rifki_speech.py','install_launcher.py','updater.py','culture.py','store.py'):
             tree=ast.parse((ROOT/'system/usr/lib/oguzdows'/name).read_text())
             modules={node.module.split('.')[0] for node in ast.walk(tree) if isinstance(node,ast.ImportFrom) and node.module}
             modules.update(alias.name.split('.')[0] for node in ast.walk(tree) if isinstance(node,ast.Import) for alias in node.names)
