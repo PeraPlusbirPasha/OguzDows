@@ -2,9 +2,11 @@
  * Derleme: scripts/build-native.sh. HTML / webview / Python GTK kabuğu değildir.
  * Paket işlemleri kısa ömürlü, doğrulanmış JSON işçisinde; GTK asla beklemez.
  */
+#define _POSIX_C_SOURCE 200809L
 #include <gtk/gtk.h>
 #include <json-glib/json-glib.h>
 #include <locale.h>
+#include <errno.h>
 #include <glib/gstdio.h>
 #include <string.h>
 #include "ui.h"
@@ -32,7 +34,7 @@ static GtkWidget *launch_button, *scope_note, *setup_button, *remove_button, *fe
 static gboolean current_installed, current_launchable, current_update, current_can_remove = TRUE, current_system_available = TRUE;
 static GtkWidget *wishlist_button, *wishlist_filter;
 static GKeyFile *wishlist;
-static gboolean filling_wishlist, wishlist_only;
+static gboolean filling_wishlist, wishlist_only, wishlist_writable = TRUE;
 static GtkWidget *store_header, *voice_button, *toolbar, *filters, *filter_reset, *featured_stack, *apps_heading;
 static GtkWidget *nav_titles[4], *page_boxes[4];
 static guint page_count;
@@ -174,12 +176,18 @@ static void wishlist_changed(GtkToggleButton *button, gpointer data) {
     (void)data;
     if (filling_wishlist || !selected_id || !strcmp(selected_id, "@updates")) return;
     gboolean old = is_wished(selected_id), next = gtk_toggle_button_get_active(button);
-    g_key_file_set_boolean(wishlist, "Wishlist", selected_id, next);
+    if (!wishlist_writable) {
+        filling_wishlist = TRUE; gtk_toggle_button_set_active(button, old); filling_wishlist = FALSE;
+        status("İstek listesi okunamadı; özgün wishlist.ini değiştirilmedi. Önce dosyayı yedekleyip denetleyin."); return;
+    }
+    if (next) g_key_file_set_boolean(wishlist, "Wishlist", selected_id, TRUE);
+    else g_key_file_remove_key(wishlist, "Wishlist", selected_id, NULL);
     gsize length = 0; gchar *contents = g_key_file_to_data(wishlist, &length, NULL);
     gchar *path = g_build_filename(g_get_user_config_dir(), "oguzdows/store/wishlist.ini", NULL);
     GError *error = NULL;
     if (length > 65536 || !og_ui_write_file(path, contents, (gssize)length, &error)) {
-        g_key_file_set_boolean(wishlist, "Wishlist", selected_id, old);
+        if (old) g_key_file_set_boolean(wishlist, "Wishlist", selected_id, TRUE);
+        else g_key_file_remove_key(wishlist, "Wishlist", selected_id, NULL);
         filling_wishlist = TRUE; gtk_toggle_button_set_active(button, old); filling_wishlist = FALSE;
         status(error ? error->message : "İstek listesi boyut sınırı doldu; önce bazı kayıtları kaldırın."); g_clear_error(&error);
     } else { status(next ? "İstek listesine eklendi · kurulum / ağ isteği yok." : "İstek listesinden çıkarıldı."); refilter(NULL, NULL); }
@@ -684,7 +692,9 @@ static gboolean configured(GtkWidget *widget, GdkEventConfigure *event, gpointer
 static void build(void) {
     wishlist = g_key_file_new();
     gchar *wish_path = g_build_filename(g_get_user_config_dir(), "oguzdows/store/wishlist.ini", NULL), *wish_data = NULL;
-    if (og_ui_read_file(wish_path, 65536, &wish_data)) g_key_file_load_from_data(wishlist, wish_data, -1, G_KEY_FILE_NONE, NULL);
+    if (og_ui_read_file(wish_path, 65536, &wish_data))
+        wishlist_writable = g_key_file_load_from_data(wishlist, wish_data, -1, G_KEY_FILE_NONE, NULL);
+    else { GStatBuf info; wishlist_writable = g_lstat(wish_path, &info) != 0 && errno == ENOENT; }
     g_free(wish_path); g_free(wish_data);
     apps = g_ptr_array_new_with_free_func(app_free);
     window = gtk_application_window_new(application);
@@ -946,6 +956,19 @@ static gboolean approve_fixture_plan(gpointer data) {
     g_list_free(windows); return found ? G_SOURCE_REMOVE : G_SOURCE_CONTINUE;
 }
 
+static gboolean approve_fixture_consent(gpointer data) {
+    GList *windows = gtk_window_list_toplevels(); gboolean found = FALSE;
+    for (GList *it = windows; it; it = it->next) {
+        if (it->data == window || !GTK_IS_MESSAGE_DIALOG(it->data)) continue;
+        GtkDialog *dialog = GTK_DIALOG(it->data);
+        GtkWidget *button = gtk_window_get_default_widget(GTK_WINDOW(dialog));
+        g_assert_cmpint(gtk_dialog_get_response_for_widget(dialog, button), ==, GTK_RESPONSE_CANCEL);
+        capture_window(GTK_WIDGET(dialog), data);
+        gtk_dialog_response(dialog, GTK_RESPONSE_OK); found = TRUE;
+    }
+    g_list_free(windows); return found ? G_SOURCE_REMOVE : G_SOURCE_CONTINUE;
+}
+
 static gboolean dismiss_report(gpointer data) {
     GList *windows = gtk_window_list_toplevels(); gboolean found = FALSE;
     for (GList *it = windows; it; it = it->next) {
@@ -1028,6 +1051,9 @@ static gboolean smoke(gpointer data) {
             g_assert_true(current_installed); g_assert_true(gtk_widget_get_sensitive(launch_button));
             gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(wishlist_button), TRUE);
             g_assert_true(is_wished(selected_id));
+            gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(wishlist_button), FALSE);
+            g_assert_false(g_key_file_has_key(wishlist, "Wishlist", selected_id, NULL));
+            gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(wishlist_button), TRUE);
             gtk_entry_set_text(GTK_ENTRY(search_entry), ""); refilter(NULL, NULL);
             gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(wishlist_filter), TRUE);
             g_assert_true(matches(g_ptr_array_index(apps, 0))); g_assert_false(matches(g_ptr_array_index(apps, 1)));
@@ -1048,7 +1074,16 @@ static gboolean smoke(gpointer data) {
             gchar *state = g_strconcat(g_getenv("OGUZDOWS_STORE_FIXTURE_STATE"), ".bundle", NULL), *value = NULL;
             g_assert_true(g_file_get_contents(state, &value, NULL, NULL)); g_assert_cmpstr(value, ==, "software-center"); g_free(state); g_free(value);
             g_assert_cmpstr(selected_id, ==, "firefox");
-            g_print("::notice title=C Store action wiring::{\"native_gtk\":true,\"fixture_not_packages\":true,\"install_remove_apply_wiring\":true,\"cancel_default\":true,\"wishlist_filter\":true,\"offline_comparison\":true,\"engine_bundle_plan_apply_wiring\":true,\"health_dialog\":true,\"physical_gpu\":false}\n");
+            g_timeout_add(100, cancel_test_plan, "store-native-refresh-cancel.png"); refresh_lists(NULL, NULL);
+            state = g_strconcat(g_getenv("OGUZDOWS_STORE_FIXTURE_STATE"), ".refresh", NULL);
+            g_assert_false(g_file_test(state, G_FILE_TEST_EXISTS)); g_free(state);
+            g_timeout_add(100, approve_fixture_consent, "store-native-refresh-consent.png"); refresh_lists(NULL, NULL); break;
+        }
+        case 18: {
+            gchar *state = g_strconcat(g_getenv("OGUZDOWS_STORE_FIXTURE_STATE"), ".refresh", NULL), *value = NULL;
+            g_assert_true(g_file_get_contents(state, &value, NULL, NULL));
+            g_assert_cmpstr(value, ==, "fixture refresh only"); g_free(state); g_free(value);
+            g_print("::notice title=C Store action wiring::{\"native_gtk\":true,\"fixture_not_packages\":true,\"install_remove_apply_wiring\":true,\"cancel_default\":true,\"wishlist_filter\":true,\"offline_comparison\":true,\"engine_bundle_plan_apply_wiring\":true,\"health_dialog\":true,\"approved_refresh_wiring\":true,\"physical_gpu\":false}\n");
             g_print("Gerçek GTK: ekran sınırları, masaüstü / kompakt görünüm, boş sonuç, plan / kaynak varsayılan iptalleri geçti. Kaynak eklenmedi, paket kurulmadı.\n");
             g_application_quit(G_APPLICATION(application)); return G_SOURCE_REMOVE;
         }

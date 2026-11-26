@@ -133,6 +133,10 @@ def child(directory, appearance):
     click('Kaydet · Ctrl+S')
     assert app.lib.read()['tasks'][0]['done']
     capture('workbench-tasks.png')
+    entry('Başlık').set_text('Kaydedilmemiş değişiklik')
+    app.confirm = lambda *_: False
+    app.navigate('notes'); assert app.current_tool == 'tasks' and app.dirty
+    app.confirm = lambda *_: True
     navigate('notes')
     entry('Başlık').set_text('Yerel defter')
     buffer('Metin / ayrıntı').set_text('Notlar bu cihazda kalır.\nTürkçe: ı İ ğ ş ç ö ü')
@@ -193,6 +197,7 @@ def child(directory, appearance):
     click('Metin rengini palete ekle')
     assert app.lib.read()['palettes'][0]['body'] == '#000000'
     capture('workbench-colors.png')
+    click('Seçili rengi kaldır…'); assert not app.lib.read()['palettes']
     navigate('clocks'); assert app.clock_id is not None
     app.window.hide(); pump(lambda: app.clock_id is None)
     app.window.show(); pump(lambda: app.clock_id is not None)
@@ -204,7 +209,7 @@ def child(directory, appearance):
     (system / 'fixture.desktop').write_text(original)
     user = Path(os.environ['XDG_CONFIG_HOME']) / 'autostart'
     startup_entries = core.startup_entries
-    core.startup_entries = lambda: startup_entries(user, (system,))
+    core.startup_entries = lambda **options: startup_entries(user, (system,), **options)
     original_toggle = core.toggle_startup
     core.toggle_startup = lambda identifier, enabled: original_toggle(identifier, enabled, system_directories=(system,))
     navigate('startup')

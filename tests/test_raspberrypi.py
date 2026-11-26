@@ -62,6 +62,8 @@ class PiConfigurationTests(unittest.TestCase):
                 self.assertIn("JavaScript yoktur", start)
                 self.assertNotIn("Canlı oturumdan kurulumu", start)
                 self.assertNotIn("açılış menüsündeki güvenli görüntüyü", start)
+                self.assertEqual((overlay / "usr/share/doc/oguzdows/ATOLYE-VE-MAGAZA-YENILEME.md").read_bytes(),
+                                 (ROOT / "docs/ATOLYE-VE-MAGAZA-YENILEME.md").read_bytes())
                 self.assertFalse(list(overlay.rglob("__pycache__")))
                 for path in (stage / "prerun.sh", stage / "00-desktop/01-run.sh", overlay / "usr/lib/oguzdows/pi-firstboot.py", overlay / "usr/local/bin/oguzdows-browser"):
                     self.assertTrue(os.access(path, os.X_OK), str(path))

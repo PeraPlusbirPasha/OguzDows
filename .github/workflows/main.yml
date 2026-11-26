@@ -310,6 +310,12 @@ jobs:
             xvfb-run -a -s '-screen 0 1024x768x24' dbus-run-session -- \
             python3 tests/smoke-installer.py --config /etc/calamares --output test-results
 
+      - name: Atölye · gerçek masaüstü / kompakt önizleme
+        if: ${{ !cancelled() }}
+        run: |
+          python3 scripts/ci-preview.py test-results/workbench-1024x768/workbench-home.png
+          python3 scripts/ci-preview.py test-results/workbench-360x800/workbench-home.png
+
       - name: Mağaza · masaüstü görsel önizleme
         if: ${{ !cancelled() && matrix.suite == 'trixie' }}
         run: python3 scripts/ci-preview.py test-results/native-store/store-native.png

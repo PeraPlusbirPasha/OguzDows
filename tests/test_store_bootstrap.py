@@ -133,6 +133,16 @@ class BootstrapBundleTests(unittest.TestCase):
         self.assertIn('ISO639 dil verisi: EKSİK', result['detail'])
         self.assertFalse(any(word in args for args in calls for word in ('install', 'update', 'remote-add', 'remote-modify')))
 
+    def test_missing_flatpak_plugin_keeps_advanced_center_on_the_repair_path(self):
+        complete = service.app_catalog.packages('software-center')
+        def execute(arguments):
+            if arguments[0].endswith('dpkg-query'):
+                return '\n'.join(name + '\tinstalled' for name in complete if name != 'gnome-software-plugin-flatpak')
+            return ''
+        with patch.object(service.Path, 'is_file', return_value=True):
+            result = service.catalogue(execute, PC, {})
+        self.assertFalse(result['supports_advanced'])
+
     def test_comparison_reads_local_metadata_only_and_does_not_invent_flatpak_size(self):
         calls = []
         def execute(args):

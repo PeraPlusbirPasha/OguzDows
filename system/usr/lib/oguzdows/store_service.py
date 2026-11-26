@@ -117,7 +117,7 @@ def catalogue(execute=command, info=None, metadata=None):
                       'system_available': not (item['id'] == 'wine' and info.get('arch') not in ('amd64', 'i386')) and metadata.get(item['id'], {}).get('available', True),
                       **metadata.get(item['id'], {})} for item in app_catalog.APPS],
             'categories': list(app_catalog.CATEGORIES), 'supports_apt': supported, 'supports_updates': pc_supported,
-            'supports_advanced': Path('/usr/bin/gnome-software').is_file() and Path('/usr/lib/oguzdows/store.py').is_file(),
+            'supports_advanced': all(name in installed for name in app_catalog.packages('software-center')) and Path('/usr/bin/gnome-software').is_file() and Path('/usr/lib/oguzdows/store.py').is_file(),
             'arch': info.get('arch', 'bilinmiyor'), 'flatpak_arch': architecture,
             'supports_user_flatpak': architecture in ('x86_64', 'aarch64'),
             'remote_ready': remote_ready(execute),

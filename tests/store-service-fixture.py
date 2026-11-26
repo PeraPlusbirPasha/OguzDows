@@ -20,7 +20,7 @@ if sys.argv[1:] == ['catalog']:
 elif len(sys.argv) == 4 and sys.argv[1] == 'detail':
     app_catalog.get(sys.argv[2])
     assert sys.argv[3] == 'system'
-    result = {'installed': not removed, 'can_launch': not removed, 'source': 'system', 'detail': 'GTK test ayrıntısı.\nGerçek paket / kaynak sorgusu değildir.\nKurulum yapılmaz.',
+    result = {'installed': not removed, 'can_launch': not removed, 'source': 'system', 'can_remove': not app_catalog.get(sys.argv[2]).get('managed_bundle', False), 'detail': 'GTK test ayrıntısı.\nGerçek paket / kaynak sorgusu değildir.\nKurulum yapılmaz.',
               'message': 'Arayüz ayrıntı sayfası açıldı.'}
 elif len(sys.argv) == 4 and sys.argv[1] == 'launch':
     app_catalog.get(sys.argv[2])
@@ -45,6 +45,9 @@ elif len(sys.argv) in (4, 5) and sys.argv[1] in ('plan', 'apply', 'remove-plan',
         else:
             state.unlink(missing_ok=True)
         result = {'source': 'system', 'message': 'TEST fixture action complete · no real packages changed.'}
+elif sys.argv[1:] == ['refresh']:
+    Path(str(state) + '.refresh').write_text('fixture refresh only')
+    result = {'message': 'TEST approved refresh fixture'}
 elif sys.argv[1:] == ['health']:
     result = {'message': 'TEST health fixture', 'detail': 'TEST · offline health UI; no real package mutation.'}
 elif len(sys.argv) == 3 and sys.argv[1] == 'compare':

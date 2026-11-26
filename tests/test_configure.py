@@ -53,6 +53,8 @@ class ConfigurationTests(unittest.TestCase):
                     self.assertFalse((overlay / 'usr/lib/oguzdows' / name).exists())
                 for name in ('rig','envelopes.json','intro-full.wav'):
                     self.assertFalse((overlay / 'usr/share/oguzdows/rifki' / name).exists())
+                self.assertEqual((overlay / "usr/share/doc/oguzdows/ATOLYE-VE-MAGAZA-YENILEME.md").read_bytes(),
+                                 (ROOT / "docs/ATOLYE-VE-MAGAZA-YENILEME.md").read_bytes())
                 self.assertFalse(list(overlay.rglob("__pycache__")))
                 for path in (overlay / "usr/lib/oguzdows").glob("*.py"):
                     self.assertTrue(os.access(path, os.X_OK))

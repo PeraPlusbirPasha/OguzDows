@@ -1,4 +1,5 @@
 """Real stdlib/Pillow file tools in private temp dirs; no user's data or packages."""
+import fcntl
 import hashlib
 import json
 import os
@@ -121,6 +122,22 @@ class LibraryTests(unittest.TestCase):
         self.assertEqual(outside.read_text(), 'koru')
         path.unlink(); os.mkfifo(path)
         with self.assertRaises(ValueError): self.library.read()
+
+    def test_busy_or_untrusted_state_lock_does_not_write_or_leak_descriptors(self):
+        self.root.mkdir()
+        before = len(list(Path('/proc/self/fd').iterdir()))
+        (self.root / '.lock').symlink_to(self.root / 'outside')
+        with self.assertRaises(OSError): self.library.update('notes', title='Reddedildi')
+        self.assertEqual(len(list(Path('/proc/self/fd').iterdir())), before)
+        (self.root / '.lock').unlink()
+        with (self.root / '.lock').open('w') as lock:
+            fcntl.flock(lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
+            with self.assertRaises(BlockingIOError): self.library.update('notes', title='Meşgul')
+        self.assertFalse((self.root / 'library.json').exists())
+        self.root.chmod(0o777)
+        try:
+            with self.assertRaises(ValueError): self.library.update('notes', title='Ortak klasör reddi')
+        finally: self.root.chmod(0o700)
 
     def test_record_limit_and_invalid_collection_are_bounded(self):
         with self.assertRaises(ValueError): self.library.update('../notes', title='Kaçış')
@@ -276,6 +293,15 @@ class RenameTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, 'Önce son'): core.rename_apply(second, self.journal)
         self.assertTrue((self.root / 'first-a.txt').exists())
 
+    def test_concurrent_journal_writer_cannot_overwrite_recovery_or_move_files(self):
+        self.journal.mkdir()
+        with (self.journal / '.lock').open('w') as lock:
+            fcntl.flock(lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
+            with self.assertRaises(BlockingIOError):
+                core.rename_apply(core.rename_preview(self.root, 'new-'), self.journal)
+        self.assertTrue((self.root / 'a.txt').exists())
+        self.assertFalse((self.journal / 'rename.json').exists())
+
     def test_no_unsafe_overwrite_fallback_when_libc_lacks_renameat2(self):
         with patch.object(core.ctypes, 'CDLL', return_value=object()), self.assertRaises(ValueError):
             core.rename_apply(core.rename_preview(self.root, 'new-'), self.journal)
@@ -421,6 +447,39 @@ class StartupTests(unittest.TestCase):
                                     (core.toggle_startup, ('example.desktop', True, self.user, self.journal))):
             with self.assertRaisesRegex(ValueError, 'değişmiş'): function(*arguments)
         self.assertIn('edited elsewhere', path.read_text())
+
+    def test_gnome_disabled_flag_and_exec_survive_enable_and_exact_restore(self):
+        self.user.mkdir()
+        path = self.user / 'example.desktop'
+        original = self.original + 'X-GNOME-Autostart-enabled=false\n'
+        path.write_text(original)
+        self.assertFalse(core.startup_entries(self.user, (self.system,))[0]['enabled'])
+        core.toggle_startup(path.name, True, self.user, self.journal)
+        self.assertTrue(core.startup_entries(self.user, (self.system,))[0]['enabled'])
+        self.assertIn('X-GNOME-Autostart-enabled=true', path.read_text())
+        core.restore_startup(path.name, self.user, self.journal)
+        self.assertEqual(path.read_text(), original)
+
+    def test_failed_user_write_can_be_restored_without_touching_vendor_file(self):
+        original_atomic = core._atomic_at
+        def fail_override(directory, name, data):
+            if name.endswith('.desktop'): raise OSError('simulated full disk')
+            return original_atomic(directory, name, data)
+        with patch.object(core, '_atomic_at', side_effect=fail_override), self.assertRaises(OSError):
+            core.toggle_startup('example.desktop', False, self.user, self.journal, system_directories=(self.system,))
+        self.assertFalse((self.user / 'example.desktop').exists())
+        self.assertTrue((self.journal / 'example.desktop.json').exists())
+        core.restore_startup('example.desktop', self.user, self.journal)
+        self.assertFalse((self.journal / 'example.desktop.json').exists())
+        self.assertEqual((self.system / 'example.desktop').read_text(), self.original)
+
+    def test_missing_vendor_entry_is_not_synthesized_and_scan_can_be_cancelled(self):
+        with self.assertRaises(ValueError):
+            core.toggle_startup('gone.desktop', True, self.user, self.journal, system_directories=(self.system,))
+        self.assertFalse((self.user / 'gone.desktop').exists())
+        cancel = threading.Event(); cancel.set()
+        with self.assertRaisesRegex(ValueError, 'iptal'):
+            core.startup_entries(self.user, (self.system,), cancel=cancel)
 
     def test_symlinks_traversal_and_arbitrary_command_ids_are_rejected(self):
         self.user.mkdir(); (self.user / 'example.desktop').symlink_to(self.system / 'example.desktop')

@@ -263,6 +263,7 @@ def application():
                 if self.closed: return GLib.SOURCE_REMOVE
                 self.stack.set_sensitive(True)
                 self.spinner.stop(); self.stop.set_sensitive(False)
+                if self.cancel.is_set() and not mutating: error = ValueError('İşlem iptal edildi; kaynaklar değiştirilmedi.')
                 if error: self.say(str(error))
                 else: self.guard(done, value)
                 return GLib.SOURCE_REMOVE
@@ -388,6 +389,7 @@ def application():
             query.set_width_chars(8); page.pack_start(query, False, False, 0)
             mode = self.combo(page, 'Görev filtresi', ('Açık görevler', 'Tümü', 'Tamamlanan', 'Yüksek öncelik', 'Bugün / geciken')) if kind == 'tasks' else None
             records = Gtk.ListBox(selection_mode=Gtk.SelectionMode.SINGLE)
+            records.set_activate_on_single_click(True)
             style(records, 'record-list')
             scroll = Gtk.ScrolledWindow(hscrollbar_policy=Gtk.PolicyType.NEVER, vscrollbar_policy=Gtk.PolicyType.AUTOMATIC)
             scroll.set_min_content_height(140); scroll.set_max_content_height(220); scroll.set_propagate_natural_height(True)
@@ -639,20 +641,34 @@ def application():
             style(preview, 'color-preview'); page.pack_start(preview, False, False, 0)
             provider = Gtk.CssProvider(); preview.get_style_context().add_provider(provider, Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION + 2)
             output = label(); page.pack_start(output, False, False, 0)
-            saved = label('', 'dim-label'); page.pack_start(saved, False, False, 0)
+            saved = self.combo(page, 'Kayıtlı renkler', ())
             def inspect():
                 first, second = foreground.get_text(), background.get_text()
                 value = core.color_info(first, second)
                 provider.load_from_data(f'label {{ color: {first}; background-color: {second}; }}'.encode())
                 output.set_text(f"RGB {value['rgb']}\nKontrast {value['ratio']:.2f}:1 · AA {'✓' if value['aa'] else 'yetersiz'} · AAA {'✓' if value['aaa'] else 'yetersiz'}\nBüyük metin AA: {'uygun' if value['large_aa'] else 'yetersiz'}")
+            def selected_palette(*_):
+                color = saved.get_active_text()
+                if color: foreground.set_text(color); inspect()
+            saved.connect('changed', selected_palette)
             def load_palette():
-                self.job(lambda _cancel: self.lib.read(), lambda value: saved.set_text('Kayıtlı renkler: ' + '  '.join(row['body'] for row in value['palettes'])))
+                def received(value):
+                    saved.remove_all()
+                    for row in value['palettes']: saved.append(row['id'], row['body'])
+                    if value['palettes']: saved.set_active(len(value['palettes']) - 1)
+                self.job(lambda _cancel: self.lib.read(), received)
             def save():
                 color = foreground.get_text(); core.color_info(color, '#ffffff')
                 self.job(lambda _cancel: self.lib.update('palettes', title=color, body=color), lambda _value: load_palette(), mutating=True)
+            def remove_palette():
+                identifier = saved.get_active_id()
+                if not identifier: raise ValueError('Önce kayıtlı bir renk seçin.')
+                if self.confirm('Seçili renk paletten kaldırılsın mı?', saved.get_active_text()):
+                    self.job(lambda _cancel: self.lib.update('palettes', identifier=identifier, delete=True), lambda _value: load_palette(), mutating=True)
             actions = self.actions(page)
             self.button(actions, 'Kontrastı ölç', inspect, 'suggested-action')
             self.button(actions, 'Metin rengini palete ekle', save)
+            self.button(actions, 'Seçili rengi kaldır…', remove_palette)
             self.button(actions, 'Paleti CSS olarak dışa aktar…', lambda: self.job(lambda _cancel: self.lib.read(), lambda value: self.export(':root {\n' + ''.join(f"  --renk-{index + 1}: {row['body']};\n" for index, row in enumerate(value['palettes'])) + '}\n', 'Palet.css')))
             inspect(); load_palette()
 
@@ -707,7 +723,7 @@ def application():
                         row.add(label(('● ' if entry['enabled'] else '○ ') + entry['name'] + ' · ' + entry['scope']))
                         rows.add(row)
                     rows.show_all(); info.set_text('Bir kayıt seçin. Yalnız geçerli masaüstüne ait OnlyShowIn kayıtları oturumda açılır.')
-                self.job(lambda _cancel: core.startup_entries(), received)
+                self.job(lambda cancel: core.startup_entries(cancel=cancel), received)
             def select(_box, row):
                 if not hasattr(row, 'entry'): return
                 selected['entry'] = row.entry

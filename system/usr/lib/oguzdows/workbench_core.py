@@ -72,6 +72,13 @@ def _regular(path, maximum=None):
         raise
 
 
+def _read_limited(stream, maximum):
+    data = stream.read(maximum + 1)
+    if len(data) > maximum:
+        raise ValueError('Dosya okunurken boyut sınırını aştı; özgün dosya korunuyor.')
+    return data
+
+
 def _directory(path, create=False):
     path = Path(path).absolute()
     # Our state / explicitly chosen root must not be silently redirected.
@@ -82,6 +89,22 @@ def _directory(path, create=False):
         path.mkdir(parents=True, mode=0o700, exist_ok=True)
     fd = os.open(path, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW | os.O_CLOEXEC)
     return path, fd
+
+
+def _lock_at(directory, name='.lock'):
+    info = os.fstat(directory)
+    if info.st_uid != os.getuid() or info.st_mode & 0o022:
+        raise ValueError('Kayıt klasörü bu kullanıcıya ait, başkalarınca yazılamayan gerçek klasör olmalı.')
+    lock = os.open(name, os.O_CREAT | os.O_RDWR | os.O_NOFOLLOW | os.O_NONBLOCK | os.O_CLOEXEC, 0o600, dir_fd=directory)
+    try:
+        info = os.fstat(lock)
+        if not stat.S_ISREG(info.st_mode) or info.st_uid != os.getuid():
+            raise ValueError('Kişisel kayıt kilidi güvenli değil.')
+        fcntl.flock(lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
+        return lock
+    except BaseException:
+        os.close(lock)
+        raise
 
 
 def _atomic_at(directory, name, data):
@@ -161,10 +184,7 @@ class Library:
         _, directory = _directory(self.root, create=True)
         lock = None
         try:
-            lock = os.open('.lock', os.O_CREAT | os.O_RDWR | os.O_NOFOLLOW | os.O_NONBLOCK, 0o600, dir_fd=directory)
-            if not stat.S_ISREG(os.fstat(lock).st_mode) or os.fstat(lock).st_uid != os.getuid():
-                raise ValueError('Kitaplık kilidi güvenli değil.')
-            fcntl.flock(lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
+            lock = _lock_at(directory)
             value = self.read()
             rows = value[kind]
             old = next((row for row in rows if row['id'] == identifier), None)
@@ -374,9 +394,11 @@ def rename_apply(plan, journal_root, *, undo=False):
             or not 1 <= len(plan['changes']) <= 200):
         raise ValueError('Geçersiz adlandırma planı.')
     _, directory = _directory(plan['directory'])
-    _, journal = _directory(journal_root, create=True)
+    journal = lock = None
     moved = []
     try:
+        _, journal = _directory(journal_root, create=True)
+        lock = _lock_at(journal)
         info = os.fstat(directory)
         if [info.st_dev, info.st_ino] != plan['identity']:
             raise ValueError('Klasör önizlemeden sonra değişmiş; plan yenilenmeli.')
@@ -422,18 +444,26 @@ def rename_apply(plan, journal_root, *, undo=False):
                 break
         raise
     finally:
+        if lock is not None: os.close(lock)
+        if journal is not None: os.close(journal)
         os.close(directory)
-        os.close(journal)
 
 
 def rename_history(journal_root, *, forget=False):
-    path = Path(journal_root) / 'rename.json'
-    stream, _ = _regular(path, 256 * 1024)
-    with stream:
-        value = json.load(stream)
-    if forget:
-        path.unlink()  # Only this app's fixed journal; never the renamed files.
-    return value
+    _, directory = _directory(journal_root)
+    lock = None
+    try:
+        lock = _lock_at(directory)
+        stream, info = _regular(Path(journal_root) / 'rename.json', 256 * 1024)
+        with stream:
+            if info.st_uid != os.getuid(): raise ValueError('Geri alma kaydı bu kullanıcıya ait değil.')
+            value = json.loads(_read_limited(stream, 256 * 1024))
+        if forget:
+            os.unlink('rename.json', dir_fd=directory)  # Only our fixed journal; never renamed files.
+        return value
+    finally:
+        if lock is not None: os.close(lock)
+        os.close(directory)
 
 
 def prepare_image(source, destination, name, width=1600, height=1600, format_name='JPEG', cancel=None):
@@ -621,10 +651,11 @@ def transform_text(text, operation):
     return {'text': result, 'characters': len(result), 'words': len(result.split()), 'lines': len(result.splitlines())}
 
 
-def _desktop(path):
-    stream, _ = _regular(path, 65536)
+def _desktop(path, *, owner=None):
+    stream, info = _regular(path, 65536)
     with stream:
-        text = stream.read().decode('utf-8')
+        if owner is not None and info.st_uid != owner: raise ValueError('Kişisel başlangıç dosyası bu hesaba ait değil.')
+        text = _read_limited(stream, 65536).decode('utf-8')
     parser = configparser.RawConfigParser(interpolation=None, strict=False)
     parser.optionxform = str
     parser.read_string(text)
@@ -634,26 +665,34 @@ def _desktop(path):
     return parser, text
 
 
-def startup_entries(user_directory=None, system_directories=(Path('/etc/xdg/autostart'),)):
+def startup_entries(user_directory=None, system_directories=(Path('/etc/xdg/autostart'),), *, cancel=None):
     user = Path(user_directory) if user_directory is not None else Path(os.environ.get('XDG_CONFIG_HOME', str(Path.home() / '.config'))) / 'autostart'
     found = {}
+    started = time.monotonic()
     for directory in (*system_directories, user):
-        if directory.is_symlink():
-            continue
+        directory = Path(directory)
+        if directory.is_symlink(): continue
         try:
-            names = sorted(directory.iterdir())[:256]
+            names = []
+            with os.scandir(directory) as entries:
+                for number, entry in enumerate(entries):
+                    check_cancel(cancel)
+                    if number >= 4096 or time.monotonic() - started > 8:
+                        raise ValueError('Başlangıç taraması sınırı aşıldı; klasörü kendi ayar aracınızla denetleyin.')
+                    if re.fullmatch(r'[A-Za-z0-9][A-Za-z0-9_.-]*\.desktop', entry.name):
+                        if len(names) >= 256: raise ValueError('Bir klasörde en fazla 256 başlangıç kaydı listelenir.')
+                        names.append(directory / entry.name)
         except FileNotFoundError:
             continue
-        for path in names:
-            if not re.fullmatch(r'[A-Za-z0-9][A-Za-z0-9_.-]*\.desktop', path.name):
-                continue
+        for path in sorted(names):
+            check_cancel(cancel)
             try:
                 parser, _ = _desktop(path)
                 section = parser['Desktop Entry']
                 prior = found.get(path.name, {})
-                found[path.name] = {'id': path.name, 'name': section.get('Name[tr]', section.get('Name', prior.get('name', path.stem))),
+                found[path.name] = {'id': path.name, 'name': section.get('Name[tr]', section.get('Name', prior.get('name', path.stem)))[:160],
                                     'command': section.get('Exec', prior.get('command', ''))[:300],
-                                    'enabled': section.get('Hidden', 'false').lower() != 'true',
+                                    'enabled': section.get('Hidden', 'false').lower() != 'true' and section.get('X-GNOME-Autostart-enabled', 'true').lower() != 'false',
                                     'scope': 'Kullanıcı' if directory == user else 'Sistem',
                                     'only': section.get('OnlyShowIn', prior.get('only', ''))[:100]}
             except (OSError, ValueError, configparser.Error, KeyError):
@@ -667,10 +706,15 @@ def toggle_startup(identifier, enabled, user_directory=None, journal_root=None, 
     user = Path(user_directory) if user_directory is not None else Path(os.environ.get('XDG_CONFIG_HOME', str(Path.home() / '.config'))) / 'autostart'
     _, directory = _directory(user, create=True)
     journal_root = Path(journal_root) if journal_root is not None else Library().root / 'startup'
-    _, journal = _directory(journal_root, create=True)
+    journal = lock = None
     try:
+        _, journal = _directory(journal_root, create=True)
+        lock = _lock_at(journal)
+        info = os.fstat(directory)
+        if info.st_uid != os.getuid() or info.st_mode & 0o022:
+            raise ValueError('Başlangıç klasörü bu hesabın özel / salt kendince yazılabilir klasörü olmalı.')
         try:
-            parser, original = _desktop(user / identifier)
+            parser, original = _desktop(user / identifier, owner=os.getuid())
         except FileNotFoundError:
             # A Hidden-only override cannot later be enabled by setting false:
             # it shadows the vendor Exec as well. Copy the complete existing
@@ -694,10 +738,13 @@ def toggle_startup(identifier, enabled, user_directory=None, journal_root=None, 
             record = {'original': original}
         else:
             with stream:
-                record = json.load(stream)
-            if hashlib.sha256((original or '').encode()).hexdigest() != record['after']:
+                record = json.loads(_read_limited(stream, 256 * 1024))
+            if (hashlib.sha256((original or '').encode()).hexdigest() != record['after']
+                    and original != record['original']):
                 raise ValueError('Kişisel başlangıç dosyası dışarıdan değişmiş; üzerine yazılmadı.')
         parser['Desktop Entry']['Hidden'] = 'false' if enabled else 'true'
+        if 'X-GNOME-Autostart-enabled' in parser['Desktop Entry']:
+            parser['Desktop Entry']['X-GNOME-Autostart-enabled'] = 'true' if enabled else 'false'
         output = io.StringIO(); parser.write(output, space_around_delimiters=False)
         text = output.getvalue()
         record['after'] = hashlib.sha256(text.encode()).hexdigest()
@@ -705,27 +752,43 @@ def toggle_startup(identifier, enabled, user_directory=None, journal_root=None, 
         _atomic_at(directory, identifier, text.encode())
         return 'Sonraki oturum için kaydedildi; çalışan uygulama durdurulmadı.'
     finally:
-        os.close(journal); os.close(directory)
+        if lock is not None: os.close(lock)
+        if journal is not None: os.close(journal)
+        os.close(directory)
 
 
 def restore_startup(identifier, user_directory=None, journal_root=None):
-    if not re.fullmatch(r'[A-Za-z0-9][A-Za-z0-9_.-]*\.desktop', identifier):
+    if not isinstance(identifier, str) or not re.fullmatch(r'[A-Za-z0-9][A-Za-z0-9_.-]*\.desktop', identifier):
         raise ValueError('Başlangıç kimliği geçersiz.')
     user = Path(user_directory) if user_directory is not None else Path(os.environ.get('XDG_CONFIG_HOME', str(Path.home() / '.config'))) / 'autostart'
     journal_root = Path(journal_root) if journal_root is not None else Library().root / 'startup'
-    stream, _ = _regular(journal_root / (identifier + '.json'), 256 * 1024)
-    with stream:
-        record = json.load(stream)
-    _, current = _desktop(user / identifier)
-    if hashlib.sha256(current.encode()).hexdigest() != record['after']:
-        raise ValueError('Dosya sonradan değişmiş; kişisel değişiklik korunuyor.')
-    _, fd = _directory(user)
+    _, journal = _directory(journal_root)
+    lock = directory = None
     try:
-        if record['original'] is None:
-            os.unlink(identifier, dir_fd=fd)
-        else:
-            _atomic_at(fd, identifier, record['original'].encode())
-        (journal_root / (identifier + '.json')).unlink()
+        lock = _lock_at(journal)
+        stream, info = _regular(journal_root / (identifier + '.json'), 256 * 1024)
+        with stream:
+            if info.st_uid != os.getuid(): raise ValueError('Geri alma kaydı bu hesaba ait değil.')
+            record = json.loads(_read_limited(stream, 256 * 1024))
+        try:
+            _, current = _desktop(user / identifier, owner=os.getuid())
+        except FileNotFoundError:
+            current = None
+        # A failed write / interrupted restore may already equal the original.
+        # Forget only that journal; do not get stuck or overwrite personal edits.
+        if current != record['original']:
+            if current is None or hashlib.sha256(current.encode()).hexdigest() != record['after']:
+                raise ValueError('Dosya sonradan değişmiş; kişisel değişiklik korunuyor.')
+            _, directory = _directory(user)
+            info = os.fstat(directory)
+            if info.st_uid != os.getuid() or info.st_mode & 0o022: raise ValueError('Kişisel başlangıç klasörü güvenli değil.')
+            if record['original'] is None:
+                os.unlink(identifier, dir_fd=directory)
+            else:
+                _atomic_at(directory, identifier, record['original'].encode())
+        os.unlink(identifier + '.json', dir_fd=journal)
     finally:
-        os.close(fd)
+        if directory is not None: os.close(directory)
+        if lock is not None: os.close(lock)
+        os.close(journal)
     return 'Bu aracın değişikliği geri alındı; sonraki oturumda geçerli.'

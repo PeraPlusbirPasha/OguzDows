@@ -37,6 +37,17 @@ Gerçek Plasma/GNOME ayrı, mimari/kaynak koşullu oturumlardır; Xfce tarzları
 
 ## Geliştirme dalında · yerel Aero ve ortak masaüstü
 
+**Yeni: Atölye + 23 yeni işlev.** Görevler, notlar, metin rafı, klasör yer imleri,
+sınırlı dosya arama, geri alınabilir toplu adlandırma, SHA doğrulama, görsel
+hazırlama ve sekiz başka çevrimdışı araç; Mağaza istek listesi/teşhisi/kaynak
+karşılaştırması, Haber okuma listesi/okundu takibi/TXT çıktısı ve sabit komut
+paleti. Ortak açık/koyu, dar ekran uyumlu yerel GTK arayüzler; yeni daemon,
+webview veya indeksleyici yok. **Flatpak / GNOME Yazılımlar için gerçek imzalı
+bileşen demetleri ve onaylı onarım yolu** eklendi. 32 bit Flathub desteği vaat
+edilmez. **[23 işlevin tam listesi, kullanım, kaynak bütçeleri ve mimari/test
+sınırları →](docs/ATOLYE-VE-MAGAZA-YENILEME.md)**. Bunlar kaynak dalındadır;
+yayımlanmış v1.1 veya önceki `85dc974` imajlarına geriye dönük eklenmez.
+
 **Masaüstü görsel yenileme:** gerçek GTK/portal koyu-açık senkronu, küçük çerçevesiz tepsi, Windows esintili Başlat/basış tepkisi, PrintScreen, görselli Mağaza ve tek tıkla okunan resimli Haber. [Kullanım, güvenlik ve doğrulama sınırları →](docs/MASAUSTU-GORSEL-YENILEME.md). Bu kaynak değişikliği eski ISO dosyalarının içinde değildir.
 
 **Yeni native arayüz çalışması:** ortak ince kenarlı materyal/200ms kaynak kontrollü geçişler, Python 3.13 RSS düzeltmesi + açıkça etiketli çevrimdışı örnekler, editoryal mağaza ve plan/onaylı kaldırma. [Tam modüller, kullanım ve güvenlik sınırları →](docs/NATIVE-MATERYAL-HABER-MAGAZA.md). Yayımlanmış v1.1 indirmeleri bu geliştirme değişikliğini içermez.
