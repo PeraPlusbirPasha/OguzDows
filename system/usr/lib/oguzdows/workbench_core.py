@@ -290,7 +290,8 @@ def file_checksum(path, algorithm='sha256', expected='', cancel=None, progress=N
     if (before.st_size, before.st_mtime_ns, before.st_ctime_ns) != (after.st_size, after.st_mtime_ns, after.st_ctime_ns):
         raise ValueError('Dosya okunurken değişti; bu özet doğrulanmış sayılmaz.')
     value = digest.hexdigest()
-    return {'algorithm': algorithm, 'digest': value, 'bytes': total, 'matches': value == expected if expected else None}
+    return {'path': str(Path(path).absolute()), 'algorithm': algorithm, 'expected': expected,
+            'digest': value, 'bytes': total, 'matches': value == expected if expected else None}
 
 
 def export_text(directory, name, text):

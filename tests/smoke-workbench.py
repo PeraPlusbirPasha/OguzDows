@@ -160,7 +160,8 @@ def child(directory, appearance):
     digest = hashlib.sha256((selected / 'a.txt').read_bytes()).hexdigest()
     entry('Beklenen özet · boşsa yalnız hesapla').set_text(digest)
     click('Özeti hesapla / doğrula')
-    assert 'EŞLEŞTİ' in app.value(buffer('Sonuç'))
+    receipt = app.value(buffer('Sonuç'))
+    assert 'EŞLEŞTİ' in receipt and repr(str(selected / 'a.txt')) in receipt and 'SHA256' in receipt and ('Beklenen: ' + digest) in receipt
     capture('workbench-checksum.png')
     navigate('rename')
     entry('Yalnızca bu klasörün görünür dosyaları').set_text(str(selected))

@@ -518,7 +518,11 @@ def application():
                 GLib.idle_add(lambda: self.say(f'{done:,} / {total:,} bayt · sabit 256 KiB okuma bloğu'))
             def received(value):
                 match = 'Özet hesaplandı; özgün kaynağı ayrıca doğrulayın.' if value['matches'] is None else 'EŞLEŞTİ' if value['matches'] else 'EŞLEŞMEDİ · dosyayı kullanmayın!'
-                output.set_text(value['digest'] + '\n\n' + match + '\n' + str(value['bytes']) + ' bayt')
+                # Keep the result bound to its immutable input snapshot, even
+                # if the user edits the chooser/algorithm while the worker runs.
+                output.set_text('Dosya: ' + repr(value['path']) + '\n' + value['algorithm'].upper() + '\n' + value['digest']
+                                + ('\nBeklenen: ' + value['expected'] if value['expected'] else '')
+                                + '\n\n' + match + '\n' + str(value['bytes']) + ' bayt')
                 self.say(match)
             def start():
                 path, algo, check = source.get_text(), algorithm.get_active_text(), expected.get_text()
