@@ -97,6 +97,28 @@ def main():
                 settings.set_property('gtk-theme-name', theme)
                 pump(lambda: context.has_class(mode))
                 assert control.get_style_context().get_property('min-width', Gtk.StateFlags.NORMAL) == width
+            # Real GtkPlug style node / name used by Xfce's external-process
+            # wrapper, not the panel's GtkWindow. Its generic panel classes
+            # must not give every audio / power plugin a new rectangular frame.
+            wrapper = Gtk.Plug.new(0)
+            wrapper.set_name('XfcePanelWindowWrapper')
+            wrapper_style = wrapper.get_style_context()
+            wrapper_style.add_class('panel'); wrapper_style.add_class('xfce4-panel')
+            wrapper_background = Gtk.CssProvider()
+            wrapper_background.load_from_data(b'* { background: #e9f1fb; }')
+            wrapper_style.add_provider(wrapper_background, Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION)
+            wrapper_themes = ('OguzDows', 'OguzDowsLight', 'OguzDowsXP', 'OguzDowsXPDark',
+                              'OguzDowsEleven', 'OguzDowsElevenDark', 'OguzDowsMac', 'OguzDowsMacDark',
+                              'OguzDowsGnome', 'OguzDowsGnomeDark', 'OguzDowsAero', 'OguzDowsAeroDark',
+                              'OguzDowsAeroGlass', 'OguzDowsAeroGlassDark')
+            for theme in wrapper_themes:
+                settings.set_property('gtk-theme-name', theme)
+                pump(lambda: settings.get_property('gtk-theme-name') == theme)
+                for flag in (Gtk.StateFlags.NORMAL, Gtk.StateFlags.BACKDROP):
+                    for geometry in (wrapper_style.get_border, wrapper_style.get_margin, wrapper_style.get_padding):
+                        value = geometry(flag)
+                        assert (value.top, value.right, value.bottom, value.left) == (0, 0, 0, 0), (theme, geometry, value)
+            wrapper.destroy()
             settings.set_property('gtk-theme-name', 'HighContrast')
             pump(lambda: not context.has_class('oguzdows-modern'))
             window.destroy()
@@ -106,6 +128,7 @@ def main():
     report = {'real_gtk_css': True, 'real_stack_transition': True, 'duration_ms': 200,
               'live_preference_monitor': True, 'reduced_motion_immediate': True,
               'mode_caption_controls_preserved': True, 'high_contrast_preserved': True, 'unconfirmed_blur_opaque': True,
+              'xembed_wrapper_geometry_borderless': True, 'xembed_wrapper_themes_tested': list(wrapper_themes),
               'simulated_resource_policy': True, 'physical_gpu': False}
     (args.output / 'material-native.json').write_text(json.dumps(report, indent=2) + '\n')
     print('::notice title=Native material GTK::' + json.dumps(report))

@@ -34,6 +34,7 @@ static gint points = 16;
 #ifdef OGUZDOWS_NEWS_TEST
 static const gchar *smoke_directory;
 static guint smoke_step, smoke_wait;
+static gint64 smoke_resize_deadline;
 static Article *smoke_current;
 #endif
 
@@ -87,7 +88,9 @@ static void save_preferences(void) {
 }
 
 static void font_size(gint change) {
-    points = CLAMP(points + change, 12, 26);
+    gint next = CLAMP(points + change, 12, 26);
+    if (change && next == points) return; /* No CSS work / disk write at a font limit. */
+    points = next;
     PangoAttrList *attributes = pango_attr_list_new();
     pango_attr_list_insert(attributes, pango_attr_size_new(points * PANGO_SCALE));
     gtk_label_set_attributes(GTK_LABEL(article_text), attributes);
@@ -615,6 +618,19 @@ static void width_diagnostic(GtkWidget *widget, gpointer depth) {
     if (minimum > 200) g_print("News minimum %u %s: %d (natural %d)\n", GPOINTER_TO_UINT(depth), G_OBJECT_TYPE_NAME(widget), minimum, natural);
     if (GTK_IS_CONTAINER(widget)) gtk_container_foreach(GTK_CONTAINER(widget), width_diagnostic, GUINT_TO_POINTER(GPOINTER_TO_UINT(depth) + 1));
 }
+/* gtk_window_resize queues a request; allocation / configure are asynchronous.
+ * Wait for the actual result, never force fit_news or retry the resize here.
+ * A real geometry regression still fails, with diagnostics, within 3 seconds. */
+static gboolean resize_settled(gint maximum) {
+    gint width = gtk_widget_get_allocated_width(window);
+    if (compact && width <= maximum) return TRUE;
+    if (g_get_monotonic_time() < smoke_resize_deadline) return FALSE;
+    g_print("News compact resize deadline; actual %dx%d, maximum width %d\n", width, gtk_widget_get_allocated_height(window), maximum);
+    width_diagnostic(window, NULL);
+    g_assert_true(compact);
+    g_assert_cmpint(width, <=, maximum);
+    return TRUE;
+}
 static void screenshot(const gchar *name) {
     GdkWindow *surface = gtk_widget_get_window(window);
     GdkPixbuf *pixels = gdk_pixbuf_get_from_window(surface, 0, 0, gtk_widget_get_allocated_width(window), gtk_widget_get_allocated_height(window));
@@ -693,19 +709,20 @@ static gboolean smoke(gpointer data) {
             if (article_filter(it->data, NULL)) { g_signal_emit_by_name(headlines, "row-activated", it->data); break; }
         g_list_free(rows); g_assert_nonnull(current); smoke_current = current;
         gtk_window_resize(GTK_WINDOW(window), MIN(680, area.width - 24), MIN(680, area.height - 48));
+        smoke_resize_deadline = g_get_monotonic_time() + 3 * G_USEC_PER_SEC;
         smoke_step = 6; return G_SOURCE_CONTINUE;
     }
     if (smoke_step == 6) {
-        if (!compact) {
-            g_print("News requested compact size; actual %dx%d\n", gtk_widget_get_allocated_width(window), gtk_widget_get_allocated_height(window));
-            width_diagnostic(window, NULL);
-        }
+        if (!resize_settled(MIN(720, area.width))) return G_SOURCE_CONTINUE;
         g_assert_true(compact);
         gtk_window_resize(GTK_WINDOW(window), MIN(360, area.width - 24), MIN(680, area.height - 48));
+        smoke_resize_deadline = g_get_monotonic_time() + 3 * G_USEC_PER_SEC;
         smoke_step = 7; return G_SOURCE_CONTINUE;
     }
-    g_assert_cmpuint(smoke_step, ==, 7); g_assert_true(compact);
-    g_assert_cmpint(gtk_widget_get_allocated_width(window), <=, 480);
+    g_assert_cmpuint(smoke_step, ==, 7);
+    if (!resize_settled(MIN(380, area.width))) return G_SOURCE_CONTINUE;
+    g_assert_true(compact);
+    g_assert_cmpint(gtk_widget_get_allocated_width(window), <=, 380);
     g_assert_true(current == smoke_current); /* No reload / lost reading state on resize. */
     g_assert_cmpstr(gtk_label_get_text(GTK_LABEL(article_text)), ==, current->body);
     g_assert_true(gtk_label_get_selectable(GTK_LABEL(article_text)));
@@ -733,7 +750,9 @@ int main(int argc, char **argv) {
         private_home = g_dir_make_tmp("oguzdows-news-test-XXXXXX", NULL); g_assert_nonnull(private_home);
         g_setenv("XDG_CONFIG_HOME", private_home, TRUE);
         g_setenv("XDG_CACHE_HOME", private_home, TRUE);
-        argc = 1; g_timeout_add(100, smoke, NULL);
+        /* GTK resize / redraw idles must run before the next test step, even
+         * when fixture / preference writes consumed the previous interval. */
+        argc = 1; g_timeout_add_full(G_PRIORITY_DEFAULT_IDLE, 100, smoke, NULL, NULL);
     }
 #else
     if (getuid() == 0) { g_printerr("Haber okuyucusu yönetici olarak çalıştırılmaz.\n"); return 2; }

@@ -23,7 +23,7 @@ oguzdows-desktop --apply --appearance light
 
 ## Çerçevesiz panel ve Windows esintili Başlat
 
-Panel, tepsi, ses, güç, saat ve Whisker düğmelerinin kabartmalı kare çerçeveleri ortak GTK temasında kaldırılır. Tepsi simgeleri **20px**, tek sıra ve kare hücre zorlaması olmadan; saat 9pt, tek dijital düzendedir. Yeni hesap iskeleti ile mevcut hesaplara açık profil uygulaması aynı tipli değerleri kullanır. Kişisel paneli yalnız görünüm değiştirerek sıfırlama yoktur.
+Panel, tepsi, ses, güç, saat ve Whisker düğmelerinin kabartmalı kare çerçeveleri ortak GTK temasında kaldırılır. Xfce'nin dış süreçteki eklenti sarmalayıcısı (`XfcePanelWindowWrapper`) ana panelle aynı CSS sınıflarını kullandığı için, her ses/güç eklentisine ayrı panel kenarı çizmeyen, yalnız bu sarmalayıcıya ait bir geometri kuralı da bulunur; uygulama pencereleri etkilenmez. Tepsi simgeleri **20px**, tek sıra ve kare hücre zorlaması olmadan; saat 9pt, tek dijital düzendedir. Yeni hesap iskeleti ile mevcut hesaplara açık profil uygulaması aynı tipli değerleri kullanır. Kişisel paneli yalnız görünüm değiştirerek sıfırlama yoktur.
 
 Windows tarzında gerçek C/GTK Başlat menüsü; arama, sabitlenenler, tüm uygulamalar, yerel son dosyalar, hızlı ayarlar ve yerel oturum/kapatma diyaloğu içerir. Uygulama düğmeleri kutusuz simge + addır. Sağ tık / klavye bağlam menüsüyle sabitleme korunur. Son dosyalarda gizli yol, özel işaretli dosya ve ağ URI'si gösterilmez. `Escape`, odak dışına tıklama ve ikinci `--toggle` isteği kapatır. Menü panel üstündeki çalışma alanına, ilgili ekranda ortalanır.
 

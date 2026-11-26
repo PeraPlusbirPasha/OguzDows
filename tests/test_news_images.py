@@ -139,6 +139,10 @@ class ThumbnailTests(unittest.TestCase):
         self.assertIn('gtk_label_set_selectable(GTK_LABEL(article_text), TRUE)', source)
         self.assertIn('gtk_label_get_use_markup(GTK_LABEL(article_text))', source)
         self.assertIn('current == smoke_current', source)
+        self.assertIn('G_PRIORITY_DEFAULT_IDLE', source)
+        self.assertIn('resize_settled(MIN(380, area.width))', source)
+        self.assertIn('smoke_resize_deadline', source)
+        self.assertIn('g_assert_cmpint(gtk_widget_get_allocated_height(window), <=, area.height)', source)
         self.assertIn('text-only verified', source)
         self.assertNotIn('soup_session', source)
 

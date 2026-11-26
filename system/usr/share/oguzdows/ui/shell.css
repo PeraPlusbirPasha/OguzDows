@@ -2,6 +2,14 @@
  * Explicit panel specificity beats inherited XP / Adwaita raised buttons.
  * Client views stay opaque: no global opacity, negative margins or icon zoom.
  */
+/* XEmbed plugins are GtkPlugs with the same .background / .xfce4-panel
+ * classes as the main panel. Do not paint a separate panel frame around
+ * every sound / power / tray process. Keep the panel's own border and the
+ * wrapper background supplied by Xfce; never restyle application windows. */
+.xfce4-panel#XfcePanelWindowWrapper,
+.xfce4-panel#XfcePanelWindowWrapper:backdrop {
+  border: 0; border-radius: 0; box-shadow: none; margin: 0; padding: 0;
+}
 .xfce4-panel.background button,
 .xfce4-panel.background button:backdrop {
   background-image: none; background-color: transparent;
