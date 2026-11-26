@@ -181,6 +181,11 @@ def child(directory, hub):
         report['already_open_standard_libadwaita_dark_light_dark'] = True
         report['portal_color_scheme_dark_light_dark'] = portal_values
         report['color_scheme_transport'] = json.loads((directory / 'adwaita.json').read_text())
+        # A blank home cannot reveal missing icon/text rendering. These are
+        # explicitly synthetic files in the already-guarded disposable home.
+        for folder in ('Belgeler', 'Görseller'): (Path.home() / folder).mkdir()
+        (Path.home() / 'Beni oku.txt').write_text('TEST · yalnız CI görsel denetimi; gerçek kullanıcı dosyası değildir.\n', encoding='utf-8')
+        shutil.copy2('/usr/share/oguzdows/ui/store-work.png', Path.home() / 'Görsel örneği.png')
         thunar = start('thunar', ['/usr/bin/thunar', str(Path.home())])
         until(lambda: owned_window(thunar.pid) is not None, 'Real Thunar did not open')
         owned_window(thunar.pid).configure(x=70, y=85, width=870, height=580)
