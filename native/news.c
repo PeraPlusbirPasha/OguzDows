@@ -687,6 +687,10 @@ static void remove_source(GtkButton *button, gpointer data) {
 
 static void activate(GtkApplication *app, gpointer data) {
     (void)data;
+    /* Closing drains coalesced library/export writes via application holds.
+     * A second launch in that brief interval must not present destroyed GTK
+     * widgets or reload an older on-disk snapshot over the pending library. */
+    if (closing) return;
     if (window) { gtk_window_present(GTK_WINDOW(window)); return; }
     library = g_key_file_new();
     gchar *library_path = g_build_filename(g_get_user_data_dir(), "oguzdows/news/library.ini", NULL), *library_data = NULL;
@@ -1002,7 +1006,10 @@ static gboolean smoke(gpointer data) {
     gchar *receipt = g_strdup_printf("{\"native_gtk\":true,\"fixture_not_network\":true,\"cold_start_fetch\":false,\"offline_after_error\":true,\"category_filter\":true,\"local_search\":true,\"honest_example_fallback\":true,\"cached_thumbnail\":true,\"single_click_reader\":true,\"offline_saved_reading_list\":true,\"read_unread_filter\":true,\"txt_export_real_private_file\":true,\"text_only_option\":true,\"dynamic_compact_resize\":true,\"resize_preserves_reader_filter\":true,\"font_limits\":true,\"worker_exited\":true,\"cancellation\":true,\"deadline_callback\":true,\"physical_device\":false,\"screen_width\":%d,\"screen_height\":%d,\"window_width\":%d}", area.width, area.height, gtk_widget_get_allocated_width(window));
     g_assert_true(g_file_set_contents(path, receipt, -1, NULL));
     g_print("::notice title=C Haber GTK::%s\n", receipt);
-    g_free(receipt); g_free(path); gtk_widget_destroy(window); g_application_quit(G_APPLICATION(application)); return G_SOURCE_REMOVE;
+    g_free(receipt); g_free(path);
+    on_close(window, NULL, NULL); gtk_widget_destroy(window); window = NULL;
+    activate(application, NULL); g_assert_null(window); /* No reopen while draining. */
+    g_application_quit(G_APPLICATION(application)); return G_SOURCE_REMOVE;
 }
 #endif
 
