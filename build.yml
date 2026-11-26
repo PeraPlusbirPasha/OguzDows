@@ -285,6 +285,26 @@ jobs:
             xvfb-run -a -s '-screen 0 1024x768x24' dbus-run-session -- \
             python3 tests/smoke-installer.py --config /etc/calamares --output test-results
 
+      - name: Mağaza · masaüstü görsel önizleme
+        if: ${{ !cancelled() }}
+        run: python3 scripts/ci-preview.py test-results/store-native.png
+
+      - name: Mağaza · kompakt görsel önizleme
+        if: ${{ !cancelled() }}
+        run: python3 scripts/ci-preview.py test-results/store-native-compact.png
+
+      - name: Haber · görsel önizleme
+        if: ${{ !cancelled() }}
+        run: python3 scripts/ci-preview.py test-results/news-1024x768/news-list.png
+
+      - name: Başlat · koyu görsel önizleme
+        if: ${{ !cancelled() }}
+        run: python3 scripts/ci-preview.py test-results/desktop-polish/hub-dark.png
+
+      - name: Thunar · koyu görsel önizleme
+        if: ${{ !cancelled() }}
+        run: python3 scripts/ci-preview.py test-results/desktop-polish/thunar-dark.png
+
       - name: Arayüz ekran görüntüleri
         if: always()
         uses: actions/upload-artifact@v4
@@ -292,6 +312,7 @@ jobs:
           name: OguzDows-arayuz-${{ matrix.suite }}
           path: |
             test-results/**/*.png
+            test-results/**/previews/*.webp
             test-results/**/*.log
             test-results/**/*.json
           if-no-files-found: warn

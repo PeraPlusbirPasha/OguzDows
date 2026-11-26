@@ -547,6 +547,7 @@ static GtkWidget *action(GtkWidget *box, const gchar *title, GCallback callback,
     GtkWidget *button = gtk_button_new_with_label(title);
     GtkWidget *text = gtk_bin_get_child(GTK_BIN(button));
     gtk_label_set_line_wrap(GTK_LABEL(text), TRUE);
+    gtk_label_set_line_wrap_mode(GTK_LABEL(text), PANGO_WRAP_WORD_CHAR);
     gtk_label_set_max_width_chars(GTK_LABEL(text), 30);
     g_signal_connect(button, "clicked", callback, data);
     gtk_box_pack_start(GTK_BOX(box), button, FALSE, FALSE, 0);
@@ -555,7 +556,7 @@ static GtkWidget *action(GtkWidget *box, const gchar *title, GCallback callback,
 
 static GtkWidget *page(const gchar *title, const gchar *subtitle) {
     GtkWidget *box = gtk_box_new(GTK_ORIENTATION_VERTICAL, 16);
-    gtk_container_set_border_width(GTK_CONTAINER(box), compact ? 12 : 24);
+    gtk_container_set_border_width(GTK_CONTAINER(box), compact ? 8 : 24);
     if (page_count < G_N_ELEMENTS(page_boxes)) page_boxes[page_count++] = box;
     gtk_box_pack_start(GTK_BOX(box), label(title, "page-title"), FALSE, FALSE, 0);
     gtk_box_pack_start(GTK_BOX(box), label(subtitle, "dim-label"), FALSE, FALSE, 0);
@@ -581,7 +582,7 @@ static void fit_layout(gint width) {
         gtk_widget_set_visible(nav_titles[index], !compact);
     }
     for (guint index = 0; index < page_count; index++)
-        gtk_container_set_border_width(GTK_CONTAINER(page_boxes[index]), compact ? 12 : 24);
+        gtk_container_set_border_width(GTK_CONTAINER(page_boxes[index]), compact ? 8 : 24);
     gtk_orientable_set_orientation(GTK_ORIENTABLE(toolbar), compact ? GTK_ORIENTATION_VERTICAL : GTK_ORIENTATION_HORIZONTAL);
     gtk_orientable_set_orientation(GTK_ORIENTABLE(filters), compact ? GTK_ORIENTATION_VERTICAL : GTK_ORIENTATION_HORIZONTAL);
     gtk_flow_box_set_max_children_per_line(GTK_FLOW_BOX(apps_grid), compact ? 1 : width >= 1140 ? 3 : 2);
@@ -777,7 +778,7 @@ static void build(void) {
 #ifdef OGUZDOWS_STORE_TEST
 static void width_diagnostic(GtkWidget *widget, gpointer depth) {
     gint minimum, natural; gtk_widget_get_preferred_width(widget, &minimum, &natural);
-    if (minimum > 300) g_print("Minimum width %u %s / %s: %d (natural %d)\n", GPOINTER_TO_UINT(depth), G_OBJECT_TYPE_NAME(widget), gtk_widget_get_name(widget), minimum, natural);
+    if (minimum > 220) g_print("Minimum width %u %s / %s: %d (natural %d)\n", GPOINTER_TO_UINT(depth), G_OBJECT_TYPE_NAME(widget), gtk_widget_get_name(widget), minimum, natural);
     if (GTK_IS_CONTAINER(widget)) gtk_container_foreach(GTK_CONTAINER(widget), width_diagnostic, GUINT_TO_POINTER(GPOINTER_TO_UINT(depth) + 1));
 }
 static void capture_window(GtkWidget *target, const gchar *name) {
@@ -793,6 +794,7 @@ static void capture_window(GtkWidget *target, const gchar *name) {
     g_assert_nonnull(monitor);
     GdkRectangle workarea; gdk_monitor_get_workarea(monitor, &workarea);
     g_print("GTK yerleşim %s: %dx%d, çalışma alanı %dx%d\n", name, width, height, workarea.width, workarea.height);
+    if (width > workarea.width) width_diagnostic(target, NULL);
     g_assert_cmpint(width, <=, workarea.width);
     g_assert_cmpint(height, <=, workarea.height);
 }
@@ -853,9 +855,15 @@ static gboolean smoke(gpointer data) {
             capture("store-native-installed.png"); view("discover");
             GdkMonitor *monitor = gdk_display_get_monitor_at_window(gtk_widget_get_display(window), gtk_widget_get_window(window));
             GdkRectangle workarea; gdk_monitor_get_workarea(monitor, &workarea);
-            gtk_window_resize(GTK_WINDOW(window), MIN(420, workarea.width - 24), MIN(680, workarea.height - 48)); break;
+            gtk_window_resize(GTK_WINDOW(window), MIN(680, workarea.width - 24), MIN(680, workarea.height - 48)); break;
         }
         case 6: {
+            g_assert_true(compact);
+            GdkMonitor *monitor = gdk_display_get_monitor_at_window(gtk_widget_get_display(window), gtk_widget_get_window(window));
+            GdkRectangle workarea; gdk_monitor_get_workarea(monitor, &workarea);
+            gtk_window_resize(GTK_WINDOW(window), MIN(420, workarea.width - 24), MIN(680, workarea.height - 48)); break;
+        }
+        case 7: {
             gint width, height; gtk_window_get_size(GTK_WINDOW(window), &width, &height);
             (void)height;
             g_assert_true(compact);
@@ -865,9 +873,9 @@ static gboolean smoke(gpointer data) {
             capture("store-native-compact.png");
             show_app(NULL, g_ptr_array_index(apps, 0)); break;
         }
-        case 7: capture("store-native-compact-detail.png");
+        case 8: capture("store-native-compact-detail.png");
             view("discover"); gtk_entry_set_text(GTK_ENTRY(search_entry), "__bulunamayan_uygulama__"); refilter(NULL, NULL); break;
-        case 8: {
+        case 9: {
             g_assert_true(gtk_widget_get_visible(no_results)); capture("store-native-empty.png");
             JsonObject *plan = json_object_new();
             JsonArray *changes = json_array_new();
@@ -882,21 +890,21 @@ static gboolean smoke(gpointer data) {
             json_object_unref(plan);
             view("sources"); break;
         }
-        case 9:
+        case 10:
             g_timeout_add(100, cancel_test_plan, (gpointer)"store-native-source-confirmation.png");
             setup_clicked(NULL, NULL);
             g_assert_false(busy);
             show_app(NULL, g_ptr_array_index(apps, 0)); break;
-        case 10:
+        case 11:
             g_assert_true(current_installed); g_assert_true(gtk_widget_get_sensitive(remove_button));
             g_timeout_add(100, approve_fixture_plan, NULL); remove_clicked(NULL, NULL); break;
-        case 11:
+        case 12:
             g_assert_false(current_installed); g_assert_false(gtk_widget_get_sensitive(remove_button));
             g_assert_false(gtk_widget_get_sensitive(launch_button));
             g_assert_true(gtk_widget_get_sensitive(install_button));
             capture("store-native-after-fixture-removal.png");
             g_timeout_add(100, approve_fixture_plan, NULL); install_clicked(NULL, NULL); break;
-        case 12:
+        case 13:
             g_assert_true(current_installed); g_assert_true(gtk_widget_get_sensitive(launch_button));
             g_print("::notice title=C Store action wiring::{\"native_gtk\":true,\"fixture_not_packages\":true,\"install_remove_apply_wiring\":true,\"cancel_default\":true,\"physical_gpu\":false}\n");
             g_print("Gerçek GTK: ekran sınırları, masaüstü / kompakt görünüm, boş sonuç, plan / kaynak varsayılan iptalleri geçti. Kaynak eklenmedi, paket kurulmadı.\n");

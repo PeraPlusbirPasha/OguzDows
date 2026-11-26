@@ -75,6 +75,8 @@ window.oguzdows-modern { background-image: none; background-color: #f4f6f9; colo
 .oguzdows-modern .app-name { font-size: 14px; font-weight: 600; }
 .oguzdows-modern .source-chip { font-size: 11px; color: #47627c; }
 .oguzdows-modern.compact-store .page-title { font-size: 21px; }
+.oguzdows-modern.compact-store .store-sidebar { padding: 8px 0; }
+.oguzdows-modern.compact-store .store-sidebar row { margin: 2px 0; }
 .oguzdows-modern.compact-store .store-feature { padding: 12px; }
 
 /* News has a real reader surface, transparent chrome and honest mode banner. */
@@ -196,6 +198,7 @@ window.oguzdows-modern.hub-window.solid-surface { border-radius: 0; }
 .oguzdows-modern .store-feature button.hero-cta { background: #f2f6f6; color: #263a54; border: 0; border-radius: 16px; padding: 7px 16px; box-shadow: none; }
 .oguzdows-modern .store-feature button.hero-cta:hover { background: #ffffff; }
 .oguzdows-modern .store-feature button.hero-cta label { color: #263a54; }
+.oguzdows-modern .feature-tabs button.text-button { min-width: 0; }
 .oguzdows-modern .feature-tabs button { font-size: 11px; padding: 4px 14px; border-radius: 12px; box-shadow: none; }
 .oguzdows-modern .category-chip { border-radius: 16px; padding: 7px 13px; font-size: 11px; }
 .oguzdows-modern button.app-card { background-color: #ffffff; border: 1px solid rgba(62,78,103,.12); border-radius: 12px; padding: 3px; box-shadow: none; }
