@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """C GTK testi için sabit JSON; ağ / gerçek yayıncı / paket işlemi DEĞİLDİR."""
 import json
+import os
 import sys
 import time
 from pathlib import Path
@@ -22,12 +23,23 @@ if args == ['cached', 'example']:
 if args != ['list']:
     print(json.dumps({'error': 'Test işçisi beklenmeyen işlem aldı.'}))
     raise SystemExit(2)
+# Normalized local raster fixture, not a publisher download or arbitrary path.
+from PIL import Image, ImageDraw
+cache = Path(os.environ['XDG_CACHE_HOME']) / 'oguzdows/news/thumbnails'
+cache.mkdir(parents=True, exist_ok=True, mode=0o700)
+picture = cache / ('a' * 64 + '.jpg')
+image = Image.new('RGB', (320, 180), '#2c6884')
+draw = ImageDraw.Draw(image)
+draw.ellipse((190, 20, 288, 118), fill='#9fdbcc')
+draw.polygon(((0, 180), (106, 42), (240, 180)), fill='#79b5b9')
+draw.text((18, 144), 'TEST - not publisher news', fill='white')
+image.save(picture, 'JPEG')
 print(json.dumps({'sources': [{'id': 'test', 'name': 'Yalnızca test · Türkçe RSS', 'custom': False,
                              'url': 'https://example.org/rss'}], 'selected': 'test',
                   'source': 'Yalnızca test', 'cached_at': '2000-01-01T10:00:00Z',
                   'network_refresh_requested': False,
                   'items': [{'id': 'a' * 32, 'title': 'TEST · Çevrimdışı okunabilir Türkçe metin',
-                             'body': 'TEST VERİSİ · Gerçek haber değildir.\n\nÇay, İmece, ışık, çevrimdışı okuma. <b>Bu metin markup olarak yorumlanmaz.</b>\n\n' + 'Okunabilir örnek paragraf. ' * 40,
+                             'image_path': str(picture), 'body': 'TEST VERİSİ · Gerçek haber değildir.\n\nÇay, İmece, ışık, çevrimdışı okuma. <b>Bu metin markup olarak yorumlanmaz.</b>\n\n' + 'Okunabilir örnek paragraf. ' * 40,
                              'url': 'https://example.org/test', 'published': '2000-01-01', 'category': 'Gündem'},
                             {'id': 'b' * 32, 'title': 'TEST · Büyük yazı ve kaynak atfı',
                              'body': 'TEST VERİSİ · Resim / JavaScript indirilmez.',

@@ -2,6 +2,8 @@
 
 Bu çalışma **GTK3/C + kısa ömürlü Python işçileri + Xfce/Picom** mimarisini korur. GNOME/Mutter ve Plasma/KWin kendi kabuklarını, widget/panel düzenlerini ve mevcut geri alma sözleşmesini korur. Web maketi, Electron, webview, yeni daemon veya arka planda otomatik indirme yoktur. Yayımlanmış v1.1 dosyaları değiştirilmez. Yeni geliştirme ISO’larının kesin kaynak ve test sonucu PR/Actions kaydından takip edilmelidir; eski ISO’ya bu değişiklikler mal edilmez.
 
+> **Güncel masaüstü düzeltmeleri:** [uygulama teması, çerçevesiz tepsi, PrintScreen, görselli Haber ve Mağaza](MASAUSTU-GORSEL-YENILEME.md). Önceki CI/imaj kanıtları yeni kaynak değişiklikleri için kanıt sayılmaz.
+
 ## Kısa teknik tanı
 
 - Haber ve Mağaza ortak `modern.css` katmanını kullanmıyordu. Rehber/merkez ile ayrı sabit CSS, ağır dikdörtgen uygulama kartları ve farklı boşluklar tek ürün hissini bozuyordu.
@@ -39,7 +41,7 @@ Bunlar koddan doğrulanan nedenlerdir. Fiziksel makinedeki tüm kasmanın kayna�
 ### Haber kullanımı ve veri sözleşmesi
 
 1. Açılış yerel kaynağı okur; arka planda otomatik HTTP yoktur.
-2. **Yenile** yalnız seçili HTTPS RSS/Atom kaynağına gider. Resim, reklam, JavaScript veya tam makale kazıma yoktur. İşçi süre/boyut sınırına tabidir ve iptal edilebilir. Yükleme sırasında eski metin okunabilir.
+2. **Yenile** seçili HTTPS RSS/Atom akışını alır. Görsel düğmesi açıksa yayıncının media/enclosure alanlarından en fazla 6 küçük resim de alınır; kapatılırsa yalnız metin indirilir. HTML takip pikselleri, reklam, JavaScript veya tam makale kazıma yoktur. İşçi süre/boyut sınırına tabidir ve iptal edilebilir. Yükleme sırasında eski metin okunabilir.
 3. Başarılı indirme → `mode: live`; sonraki çevrimdışı açılış → `cache`. Yayıncının tarihi değiştirilmez; son başarılı indirme zamanı ayrıca görünür.
 4. Ağ/TLS/XML hatası → görünür uyarı + eski önbellek. Önbellek yok/bozuksa **ÖRNEK AKIŞ · Gerçek haber değildir**. Altı yerel kullanım ipucu, istek anındaki dakikaya göre sıralanır; haber olayı, kaynak bağlantısı veya yayın tarihi uydurulmaz. Örnekler TRT/BBC/DW’ye atfedilmez ve yayıncı önbelleğine yazılmaz.
 5. Gündem, Dünya, Bilim ve teknoloji, Kültür, Spor, Rehber kategorileri ve arama indirilmiş metni **yerel** filtreler. Reader görünümü, Kaynakta aç ve 12–26pt yazı tercihi korunur. Aynı metin yeniden geldiyse liste yeniden kurulmaz, açık okuma görünümü sıfırlanmaz.

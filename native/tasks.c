@@ -83,9 +83,11 @@ static gboolean draw_icon(GtkWidget *widget, cairo_t *cr, gpointer pointer) {
     gint width = gtk_widget_get_allocated_width(widget), height = gtk_widget_get_allocated_height(widget);
     double base = MIN(item->owner->mac ? 40.0 : 30.0, width - 8.0);
     double pixels = MIN(height - 12.0, base * item->scale);
+    gboolean pressed = (gtk_widget_get_state_flags(item->button) & GTK_STATE_FLAG_ACTIVE) != 0;
+    double lift = item->owner->mac ? 3 : (item->scale > 1 ? 2 * (item->scale - 1) / .06 : 0);
     if (item->icon && pixels > 0) {
         cairo_save(cr);
-        cairo_translate(cr, (width - pixels) / 2, (height - pixels) / 2 - (item->owner->mac ? 3 : 1));
+        cairo_translate(cr, (width - pixels) / 2, (height - pixels) / 2 - lift + (pressed ? 1 : 0));
         cairo_scale(cr, pixels / gdk_pixbuf_get_width(item->icon), pixels / gdk_pixbuf_get_height(item->icon));
         gdk_cairo_set_source_pixbuf(cr, item->icon, 0, 0); cairo_paint(cr); cairo_restore(cr);
     }
@@ -110,6 +112,7 @@ static gboolean animate(gpointer pointer) {
     for (guint i = 0; i < tasks->items->len; i++) {
         Item *item = g_ptr_array_index(tasks->items, i);
         double t = CLAMP((now - item->began) / 150000.0, 0.0, 1.0);
+        if (!animations()) { item->target = 1; t = 1; }
         double ease = 1 - pow(1 - t, 3);
         item->scale = item->from + (item->target - item->from) * ease;
         gtk_widget_queue_draw(item->area);
@@ -119,26 +122,28 @@ static gboolean animate(gpointer pointer) {
     return moving ? G_SOURCE_CONTINUE : G_SOURCE_REMOVE;
 }
 
-static gboolean hover(GtkWidget *widget, GdkEventCrossing *event, gpointer pointer) {
-    (void)widget;
-    Item *item = pointer;
-    item->hover = event->type == GDK_ENTER_NOTIFY;
+static void retarget(Item *item) {
     Tasks *tasks = item->owner;
-    if (!tasks->mac || !animations()) return FALSE;
-    for (guint i = 0; i < tasks->items->len; i++) {
-        Item *other = g_ptr_array_index(tasks->items, i);
-        other->from = other->scale;
-        other->target = other->hover ? 1.24 : 1.0;
-        other->began = g_get_monotonic_time();
-    }
+    if (tasks->disposing || gtk_widget_in_destruction(item->button)) return;
+    gboolean pressed = (gtk_widget_get_state_flags(item->button) & GTK_STATE_FLAG_ACTIVE) != 0;
+    item->from = item->scale;
+    item->target = !animations() ? 1 : pressed ? .90 : item->hover ? (tasks->mac ? 1.24 : 1.06) : 1;
+    item->began = g_get_monotonic_time();
+    if (fabs(item->target - item->scale) < .001) { gtk_widget_queue_draw(item->area); return; }
     if (!tasks->animation) tasks->animation = g_timeout_add(16, animate, tasks);
-    return FALSE;
+}
+static gboolean hover(GtkWidget *widget, GdkEventCrossing *event, gpointer pointer) {
+    (void)widget; Item *item = pointer;
+    item->hover = event->type == GDK_ENTER_NOTIFY; retarget(item); return FALSE;
+}
+static void button_state(GtkWidget *widget, GtkStateFlags previous, gpointer pointer) {
+    (void)widget; (void)previous; retarget(pointer);
 }
 
 static void launch(Item *item) {
     GError *error = NULL;
     if (item->start) {
-        const gchar *args[] = {OGUZDOWS_HUB, NULL};
+        const gchar *args[] = {OGUZDOWS_HUB, "--toggle", NULL};
         g_spawn_async(NULL, (gchar **)args, NULL, G_SPAWN_DEFAULT, NULL, NULL, NULL, &error);
     } else if (item->app) {
         GdkAppLaunchContext *context = gdk_display_get_app_launch_context(gdk_display_get_default());
@@ -215,9 +220,10 @@ static Item *add_item(Tasks *tasks, const gchar *id, GAppInfo *app, WnckWindow *
     GtkIconInfo *info = icon ? gtk_icon_theme_lookup_by_gicon(theme, icon, 64, GTK_ICON_LOOKUP_FORCE_SIZE) : NULL;
     if (info) { item->icon = gtk_icon_info_load_icon(info, NULL); g_object_unref(info); }
     if (!item->icon && window && wnck_window_get_icon(window)) item->icon = g_object_ref(wnck_window_get_icon(window));
-    if (!item->icon) item->icon = gtk_icon_theme_load_icon(theme, start ? "oguzdows" : "application-x-executable", 64, 0, NULL);
+    if (!item->icon) item->icon = gtk_icon_theme_load_icon(theme, start ? "oguzdows-start" : "application-x-executable", 64, 0, NULL);
     g_signal_connect(item->area, "draw", G_CALLBACK(draw_icon), item);
     g_signal_connect(item->button, "clicked", G_CALLBACK(clicked), item);
+    g_signal_connect(item->button, "state-flags-changed", G_CALLBACK(button_state), item);
     g_signal_connect(item->button, "button-press-event", G_CALLBACK(press), item);
     g_signal_connect(item->button, "enter-notify-event", G_CALLBACK(hover), item);
     g_signal_connect(item->button, "leave-notify-event", G_CALLBACK(hover), item);

@@ -15,8 +15,6 @@ gnome-software-plugin-flatpak
 iso-codes
 flatpak
 packagekit
-xdg-desktop-portal
-xdg-desktop-portal-gtk
 xorg
 xserver-xorg-video-all
 intel-microcode

@@ -1,3 +1,4 @@
+@import url("shell.css");
 /* One GTK3 CSD geometry owner. Xfwm decorates SSD; Picom never re-rounds or
  * re-shadows _GTK_FRAME_EXTENTS clients. No global opacity / negative margin.
  * No CSS blur/backdrop-filter/transform: unsupported browser rules aren't GTK.
@@ -6,7 +7,7 @@ window.csd, window.csd.background { border-radius: 10px; }
 .csd decoration {
   border-radius: 10px;
   border: 1px solid alpha(@theme_fg_color, .20);
-  box-shadow: 0 7px 20px 0 rgba(0, 0, 0, .20);
+  box-shadow: 0 3px 8px 0 rgba(0, 0, 0, .14);
   margin: 0;
 }
 headerbar.titlebar, .csd > .titlebar { border-radius: 10px 10px 0 0; }

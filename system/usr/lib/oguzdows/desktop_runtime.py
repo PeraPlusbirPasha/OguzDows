@@ -11,6 +11,7 @@ ACTIONS = {
     'shortcuts': 'Klavye kısayolları', 'windows': 'Pencere yönetimi',
     'audio': 'Ses', 'network': 'Ağ bağlantıları', 'power': 'Pil ve güç',
     'notifications': 'Bildirimler', 'apps': 'Uygulama menüsü',
+    'session': 'Oturum / kapatma seçenekleri', 'lock': 'Ekranı kilitle',
     'files': 'Dosyalar', 'terminal': 'Uçbirim', 'monitor': 'Canlı performans',
 }
 COMMANDS = {
@@ -21,6 +22,7 @@ COMMANDS = {
         'windows': [('xfwm4-settings',)], 'audio': [('pavucontrol',)],
         'network': [('nm-connection-editor',)], 'power': [('xfce4-power-manager-settings',)],
         'notifications': [('xfce4-notifyd-config',)], 'apps': [('xfce4-popup-whiskermenu',)],
+        'session': [('xfce4-session-logout',)], 'lock': [('xflock4',)],
         'files': [('thunar',), ('Thunar',)], 'terminal': [('xfce4-terminal',)],
     },
     'gnome': {
@@ -29,6 +31,7 @@ COMMANDS = {
         'windows': [('gnome-tweaks',)], 'audio': [('gnome-control-center', 'sound')],
         'network': [('gnome-control-center', 'network')], 'power': [('gnome-control-center', 'power')],
         'notifications': [('gnome-control-center', 'notifications')],
+        'session': [('gnome-session-quit', '--logout')],
         'files': [('nautilus',)], 'terminal': [('gnome-terminal',), ('kgx',)],
         'panels': [('gnome-extensions-app',), ('gnome-shell-extension-prefs',)],
         'widgets': [('gnome-extensions-app',), ('gnome-shell-extension-prefs',)],
@@ -144,6 +147,10 @@ def native_control(action, desktop=None, *, spawn=spawn_command):
     desktop = current() if desktop is None else desktop
     if action == 'monitor':
         return spawn('/usr/local/bin/oguzdows-monitor', ['/usr/local/bin/oguzdows-monitor'], os.environ)
+    if desktop == 'kde' and action == 'session':
+        return dbus('org.kde.ksmserver', '/KSMServer', 'org.kde.KSMServerInterface', 'logout', '(iii)', (1, -1, -1))
+    if desktop in ('gnome', 'kde') and action == 'lock':
+        return dbus('org.freedesktop.ScreenSaver', '/org/freedesktop/ScreenSaver', 'org.freedesktop.ScreenSaver', 'Lock')
     if desktop == 'gnome' and action == 'apps':
         return dbus('org.gnome.Shell', '/org/gnome/Shell', 'org.gnome.Shell', 'ShowApplications')
     if desktop == 'gnome' and action == 'notifications':

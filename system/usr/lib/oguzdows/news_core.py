@@ -1,7 +1,8 @@
-"""Hafif RSS/Atom okuyucu: yalnızca metin, sınırlı ağ/önbellek, içe aktarımda I/O yok.
+"""Hafif RSS/Atom okuyucu: metin + sınırlı, isteğe bağlı küçük resimler.
 
-Tarayıcı motoru, JavaScript, resim, otomatik yenileme veya tam makale kazıyıcısı
-DEĞİLDİR. Yayıncının RSS içinde sunduğu metin korunur; kaynak atfı silinmez.
+Tarayıcı motoru, JavaScript, otomatik yenileme veya tam makale kazıyıcısı
+DEĞİLDİR. Görseller yalnız açık Yenile isteğinde, özel önbelleğe normalleştirilir.
+Yayıncının RSS içinde sunduğu metin / kaynak atfı korunur.
 """
 from __future__ import annotations
 
@@ -27,6 +28,11 @@ MAX_FEED_BYTES = 1024 * 1024
 MAX_CACHE_BYTES = 1024 * 1024
 MAX_ITEMS = 60
 MAX_BODY = 8192
+MAX_IMAGE_BYTES = 256 * 1024
+MAX_THUMBNAIL_BYTES = 96 * 1024
+MAX_IMAGE_PIXELS = 6_000_000
+MAX_THUMBNAILS = 6
+IMAGE_TIME_BUDGET = 6
 MAX_SOURCES = 16
 CATEGORIES = ('Tümü', 'Gündem', 'Dünya', 'Bilim ve teknoloji', 'Kültür', 'Spor', 'Rehber')
 SOURCES = Path('/usr/share/oguzdows/news-sources.json')
@@ -116,29 +122,29 @@ class Redirects(urllib.request.HTTPRedirectHandler):
         return super().redirect_request(request, response, code, message, headers, public_destination(new_url))
 
 
-def fetch(value):
+def fetch(value, *, maximum=MAX_FEED_BYTES, accept='application/rss+xml, application/atom+xml, application/xml, text/xml', timeout=12):
     value = public_destination(value)
     # Sistem CA/hostname denetimi; CERT_NONE, HTTP downgrade ve gzip bombası yok.
     opener = urllib.request.build_opener(Redirects(), DirectHTTPSHandler(context=ssl.create_default_context()),
                                          urllib.request.ProxyHandler({}))
     request = urllib.request.Request(value, headers={'User-Agent': 'OguzDows-Haber/1.1 RSS-reader',
-                                                    'Accept': 'application/rss+xml, application/atom+xml, application/xml, text/xml',
+                                                    'Accept': accept,
                                                     'Accept-Encoding': 'identity'})
     try:
-        with opener.open(request, timeout=12) as response:
+        with opener.open(request, timeout=timeout) as response:
             if response.headers.get('Content-Encoding', 'identity').lower() not in ('identity', ''):
                 raise NewsError('Sıkıştırılmış akış bu hafif okuyucuda açılmadı.')
             length = response.headers.get('Content-Length', '')
-            if length.isdecimal() and int(length) > MAX_FEED_BYTES:
-                raise NewsError('RSS akışı 1 MiB sınırından büyük.')
+            if length.isdecimal() and int(length) > maximum:
+                raise NewsError('İndirme izin verilen boyut sınırından büyük.')
             data = bytearray()
             while True:
-                chunk = response.read(min(32768, MAX_FEED_BYTES + 1 - len(data)))
+                chunk = response.read(min(32768, maximum + 1 - len(data)))
                 if not chunk:
                     break
                 data.extend(chunk)
-                if len(data) > MAX_FEED_BYTES:
-                    raise NewsError('RSS akışı 1 MiB sınırından büyük.')
+                if len(data) > maximum:
+                    raise NewsError('İndirme izin verilen boyut sınırından büyük.')
             return bytes(data)
     except urllib.error.HTTPError as error:
         error.close()
@@ -248,12 +254,146 @@ def parse(data, base_url):
         items.append({'id': identity, 'title': title, 'body': body or 'Yayıncı bu akışta yalnızca başlık / bağlantı sunuyor. Tamamı için Kaynakta aç düğmesini kullanın.',
                       'url': link, 'published': plain(child_text(element, ('pubdate', 'published', 'updated', 'date')), 100),
                       'category': category(child_text(element, ('category', 'subject')))})
+        picture = image_link(element, base_url)
+        if picture:
+            items[-1]['image_url'] = picture
         if len(items) == MAX_ITEMS:
             break
     if not items:
         raise NewsError('Akışta okunabilir haber bulunamadı; eski önbellek korundu.')
     return items
 
+
+
+def image_link(element, base_url):
+    """Only publisher media metadata, never arbitrary HTML tracking pixels."""
+    for child in element.iter():
+        tag = local(child.tag)
+        candidate = ''
+        if tag == 'enclosure' and child.get('type', '').lower() in ('image/jpeg', 'image/png', 'image/webp'):
+            candidate = child.get('url', '')
+        elif child.tag.startswith('{http://search.yahoo.com/mrss/}') and tag in ('thumbnail', 'content'):
+            kind = child.get('type', '').lower()
+            if tag == 'thumbnail' or kind.startswith('image/') or child.get('medium') == 'image':
+                candidate = child.get('url', '')
+        if candidate:
+            try:
+                return url(urllib.parse.urljoin(base_url, candidate), feed=True)
+            except NewsError:
+                continue
+    return ''
+
+
+def fetch_image(address, timeout=2):
+    # Same DNS pinning, public-only redirects and CA / SNI checks as the feed.
+    return fetch(address, maximum=MAX_IMAGE_BYTES, accept='image/jpeg, image/png, image/webp', timeout=timeout)
+
+
+def thumbnail(data):
+    """Normalize a bounded raster in the disposable worker, never in GTK."""
+    import io
+    import warnings
+    from PIL import Image, ImageOps
+    if not isinstance(data, bytes) or not data or len(data) > MAX_IMAGE_BYTES:
+        raise NewsError('Haber görseli boş / 256 KiB sınırını aşıyor.')
+    try:
+        with warnings.catch_warnings():
+            warnings.simplefilter('error', Image.DecompressionBombWarning)
+            with Image.open(io.BytesIO(data)) as source:
+                if (source.format not in ('JPEG', 'PNG', 'WEBP') or source.width < 64 or source.height < 36
+                        or source.width * source.height > MAX_IMAGE_PIXELS or getattr(source, 'is_animated', False)):
+                    raise NewsError('Yalnız sınırlı, durağan JPEG / PNG / WebP görselleri açılır.')
+                image = ImageOps.exif_transpose(source)
+                image = ImageOps.fit(image, (320, 180), method=Image.Resampling.LANCZOS)
+                if image.mode == 'RGBA':
+                    background = Image.new('RGB', image.size, '#edf0f4'); background.paste(image, mask=image.getchannel('A')); image = background
+                else:
+                    image = image.convert('RGB')
+                output = io.BytesIO(); image.save(output, format='JPEG', quality=80, optimize=True)
+                result = output.getvalue()
+                if len(result) > MAX_THUMBNAIL_BYTES:
+                    raise NewsError('Küçük haber resmi önbellek sınırını aşıyor.')
+                return result
+    except (OSError, ValueError, Image.DecompressionBombWarning, Image.DecompressionBombError) as error:
+        raise NewsError('Haber görseli güvenle çözümlenemedi.') from error
+
+
+def thumbnail_name(address):
+    return hashlib.sha256(url(address, feed=True).encode()).hexdigest() + '.jpg'
+
+
+def thumbnail_path(cache, name):
+    if not isinstance(name, str) or not re.fullmatch('[a-f0-9]{64}\\.jpg', name):
+        return ''
+    directory = Path(cache) / 'thumbnails'
+    if directory.is_symlink():
+        return ''
+    path = directory / name
+    try:
+        descriptor = os.open(path, os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK)
+        with os.fdopen(descriptor, 'rb') as stream:
+            info = os.fstat(stream.fileno())
+            if (stat.S_ISREG(info.st_mode) and info.st_uid == os.getuid()
+                    and 0 < info.st_size <= MAX_THUMBNAIL_BYTES and stream.read(3) == b'\xff\xd8\xff'):
+                return str(path.absolute())
+    except OSError:
+        pass
+    return ''
+
+
+def cache_thumbnails(cache, items, download=fetch_image, clock=None):
+    """At most six images / six seconds / 1.5 MiB transferred per refresh.
+
+    A failed image never discards readable RSS. Cache is owned raster data;
+    unrelated files, symlinks, and anything outside this directory survive.
+    """
+    import itertools
+    import time
+    clock = time.monotonic if clock is None else clock
+    deadline = clock() + IMAGE_TIME_BUDGET
+    attempted = 0
+    directory = None
+    for item in items:
+        address = item.get('image_url')
+        if not address or attempted >= MAX_THUMBNAILS or clock() >= deadline:
+            continue
+        attempted += 1
+        name = thumbnail_name(address)
+        if thumbnail_path(cache, name):
+            item['thumbnail'] = name
+            continue
+        try:
+            data = thumbnail(download(address, timeout=min(2, max(.1, deadline - clock()))))
+            if clock() > deadline:
+                break
+            if directory is None:
+                private_directory(Path(cache))
+                directory = private_directory(Path(cache) / 'thumbnails')
+            target = directory / name
+            if target.is_symlink() or target.exists() and not target.is_file():
+                continue
+            descriptor, temporary = tempfile.mkstemp(prefix='.resim-', dir=directory)
+            try:
+                with os.fdopen(descriptor, 'wb') as stream:
+                    stream.write(data); stream.flush(); os.fsync(stream.fileno())
+                os.replace(temporary, target)
+            finally:
+                Path(temporary).unlink(missing_ok=True)
+            item['thumbnail'] = name
+        except (OSError, ValueError, RuntimeError):
+            continue
+    # One bounded sweep only after a user refresh, never a background scanner.
+    if directory is not None:
+        owned = []
+        for path in itertools.islice(directory.iterdir(), 256):
+            if re.fullmatch('[a-f0-9]{64}\\.jpg', path.name) and thumbnail_path(cache, path.name):
+                info = path.stat(); owned.append((info.st_mtime_ns, path, info.st_size))
+        owned.sort(reverse=True)
+        total = 0
+        for index, (_modified, path, size) in enumerate(owned):
+            total += size
+            if index >= 64 or total > 8 * 1024 * 1024:
+                path.unlink(missing_ok=True)
 
 
 def category(value, default='Gündem'):
@@ -278,7 +418,7 @@ def example_items(now=None):
     now = now or datetime.now(timezone.utc)
     rows = (
         ('Bilim ve teknoloji', 'RSS ile reklamsız okumayı dene',
-         'Yenile, yalnızca seçili yayıncının HTTPS RSS / Atom akışını getirir. Resim, reklam veya JavaScript indirilmez. Yayıncı yalnız özet sunuyorsa Kaynakta aç ile asıl metne geçebilirsin.'),
+         'Yenile, yalnızca seçili yayıncının HTTPS RSS / Atom akışını getirir. İstersen Yenile’de küçük görseller de indirilir; reklam veya JavaScript çalıştırılmaz. Yayıncı yalnız özet sunuyorsa Kaynakta aç ile asıl metne geçebilirsin.'),
         ('Gündem', 'Bağlantı yokken de okumaya devam et',
          'Başarılı bir yenilemeden sonra indirilen metinler kendi hesabının önbelleğinde kalır. Bir sonraki bağlantı hatasında son haberler korunur; yeniymiş gibi tarihlenmez.'),
         ('Dünya', 'Haberin kaynağını ve tarihini karşılaştır',
@@ -381,7 +521,7 @@ class Reader:
         path = self.cache / (source['id'] + '.json')
         result = {'sources': sources, 'selected': source['id'], 'source': source['name'], 'items': [],
                   'cached_at': '', 'network_refresh_requested': False,
-                  'note': 'Yayıncının RSS metni / özeti. Resim, reklam, webview veya JavaScript yüklenmez.'}
+                  'note': 'Yayıncının RSS metni / özeti. Kaydedilmiş küçük resimler çevrimdışı açılır; webview veya JavaScript yok.'}
         if path.exists() or path.is_symlink():
             data = read_json(path)
             if (not isinstance(data, dict) or data.get('source_url') != source['url']
@@ -393,24 +533,32 @@ class Reader:
                         or not re.fullmatch('[a-f0-9]{32}', item['id']) or len(item['title']) > 240
                         or len(item['body']) > MAX_BODY or len(item['published']) > 100
                         or 'category' in item and item['category'] not in CATEGORIES[1:]
-                        or item['url'] and url(item['url']) != item['url']):
+                        or item['url'] and url(item['url']) != item['url']
+                        or 'image_url' in item and (not isinstance(item['image_url'], str) or url(item['image_url'], feed=True) != item['image_url'])
+                        or 'thumbnail' in item and (not item.get('image_url') or item['thumbnail'] != thumbnail_name(item['image_url']))):
                     raise NewsError('Önbellekte geçersiz haber kaydı var.')
+            for item in data['items']:
+                picture = thumbnail_path(self.cache, item.get('thumbnail', ''))
+                if picture:
+                    item['image_path'] = picture
             result.update(items=data['items'], cached_at=data['cached_at'])
         return result
 
-    def refresh(self, identifier, download=fetch):
+    def refresh(self, identifier, download=fetch, *, images=True, image_download=fetch_image):
         _sources, source = self.selected(identifier)
         items = parse(download(source['url']), source['url'])
         for item in items:
             if item['category'] == 'Gündem':
                 item['category'] = source['category']
+        if images:
+            cache_thumbnails(self.cache, items, image_download)
         atomic_json(self.cache / (source['id'] + '.json'), {'source_url': source['url'], 'items': items,
                     'cached_at': datetime.now(timezone.utc).isoformat(timespec='seconds')})
         result = self.cached(identifier)
         result['network_refresh_requested'] = True
         return result
 
-    def stream(self, identifier=None, *, network=False, download=fetch):
+    def stream(self, identifier=None, *, network=False, download=fetch, images=True):
         """Presentation contract: live -> stale cache -> clearly labelled demo.
 
         cached()/refresh() stay strict for callers that need validation errors.
@@ -420,7 +568,7 @@ class Reader:
         _sources, source = self.selected(identifier)
         warning = ''
         try:
-            result = self.refresh(source['id'], download) if network else self.cached(source['id'])
+            result = self.refresh(source['id'], download, images=images) if network else self.cached(source['id'])
         except (NewsError, OSError) as error:
             warning = str(error)[:700]
             try:
@@ -437,7 +585,7 @@ class Reader:
                       warning=warning, example=example,
                       note=('ÖRNEK AKIŞ · Gerçek haber değildir. Henüz indirilen haber yok. '
                             'Yayıncıdan güncel başlıklar için Yenile’ye bas.' if example else
-                            'Yayıncının RSS metni / özeti. Tarih yayıncıya aittir; son başarılı indirme aşağıdadır.'))
+                            'Yayıncının RSS metni / özeti. Yenile, istersen en fazla 6 küçük görsel de indirir. Tamamını okumak için habere tıkla.'))
         return result
 
     def add(self, address, name):

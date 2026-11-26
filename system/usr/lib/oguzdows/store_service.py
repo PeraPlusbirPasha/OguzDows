@@ -114,7 +114,7 @@ def catalogue(execute=command, info=None, metadata=None):
                       'featured': item['id'] in app_catalog.FEATURED,
                       **metadata.get(item['id'], {})} for item in app_catalog.APPS],
             'categories': list(app_catalog.CATEGORIES), 'supports_apt': supported, 'supports_updates': pc_supported,
-            'supports_advanced': Path('/usr/lib/oguzdows/store.py').is_file(),
+            'supports_advanced': Path('/usr/bin/gnome-software').is_file() and Path('/usr/lib/oguzdows/store.py').is_file(),
             'arch': info.get('arch', 'bilinmiyor'), 'flatpak_arch': architecture,
             'supports_user_flatpak': architecture in ('x86_64', 'aarch64'),
             'remote_ready': remote_ready(execute),

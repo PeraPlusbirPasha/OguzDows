@@ -52,7 +52,7 @@ Uygulamayı kurmadan önce geliştiricisini, kaynağını, lisansını ve dosya 
 
 ## OğuzDows Haber · hafif çevrimdışı metin okuyucusu
 
-Menü → **OğuzDows Haber** / Rehber → **Uygulamalar**. Native C/GTK3 pencere, kısa ömürlü Python stdlib RSS/Atom işçisi kullanır; webview / JavaScript / resim / açılış servisi yoktur. Kaynak seç → **Yenile**, yalnızca seçili HTTPS akışına bağlanır; açılış / kaynak eklemek ağ başlatmaz. Önceki metin çevrimdışı kalır; başarısız yenileme onu silmez. **A− / A+** 12–26pt, **Liste**, **Kaynakta aç**, kendi HTTPS kaynağını ekle/kaldır ve **Durdur** vardır. Yayıncının RSS metni / özeti gösterilir, tam makale garantisi yoktur. Varsayılan yayıncılara canlı erişim henüz doğrulanmadı. Doğrudan HTTPS kullanır, ortam proxy'si yoktur. [Dosya / kaynak / boyut sınırları, simge ve ARM kapsamı](ELEMENTARY-HABER.md).
+Menü → **OğuzDows Haber** / Rehber → **Uygulamalar**. Native C/GTK3 pencere, kısa ömürlü Python RSS/Atom işçisi kullanır; webview / JavaScript / açılış servisi yoktur. Görseller Pillow ile sınırlı raster küçük resimlere çevrilir. Kaynak seç → **Yenile**, seçili HTTPS akışına ve açıksa akışta belirtilen sınırlı görsellere bağlanır; açılış / kaynak eklemek ağ başlatmaz. Görsel düğmesiyle yalnız metin moduna geçilir. Önceki metin çevrimdışı kalır; başarısız yenileme onu silmez. **A− / A+** 12–26pt, **Liste**, **Kaynakta aç**, kendi HTTPS kaynağını ekle/kaldır ve **Durdur** vardır. Yayıncının RSS metni / özeti gösterilir, tam makale garantisi yoktur. Varsayılan yayıncılara canlı erişim henüz doğrulanmadı. Doğrudan HTTPS kullanır, ortam proxy'si yoktur. [Dosya / kaynak / boyut sınırları, simge ve ARM kapsamı](ELEMENTARY-HABER.md).
 
 ## Kontrollü Pardus 25 kanalı — teknik köken / önceki akış
 
@@ -152,3 +152,5 @@ mini / light Xfce oturumunda, kullanıcının mevcut tercihini ezmeden sınırla
 bu ayarlar ölçülmüş MB kazancı değildir. Ortak giriş kodu PC, iki Pi ve bütün
 ARM64 katmanlarında bulunur. NetSurf JavaScript / modern uygulama uyumluluğu
 sunmaz; armhf imajında Firefox zorunlu değildir.
+
+Güncel görünüm / PrintScreen ve görsel önbellek sınırları: [Masaüstü görsel yenileme](MASAUSTU-GORSEL-YENILEME.md).

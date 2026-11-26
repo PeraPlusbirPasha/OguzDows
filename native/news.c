@@ -5,6 +5,8 @@
 #include <json-glib/json-glib.h>
 #include <glib/gstdio.h>
 #include <locale.h>
+#include <errno.h>
+#include <fcntl.h>
 #include <string.h>
 #include <sys/stat.h>
 #include <unistd.h>
@@ -14,11 +16,12 @@
 #define NEWS_SERVICE "/usr/lib/oguzdows/news_service.py"
 #endif
 
-typedef struct { gchar *title, *body, *link, *published, *category, *publisher, *search; } Article;
+typedef struct { gchar *title, *body, *link, *published, *category, *publisher, *search; GdkPixbuf *picture; gboolean publisher_image; } Article;
 static GtkApplication *application;
 static GtkWidget *window, *pages, *headlines, *sources, *refresh_button, *add_button, *remove_button;
 static GtkWidget *status_label, *cancel_button, *spinner, *article_title, *article_meta, *article_text;
-static GtkWidget *open_button, *back_button, *font_label, *empty_note;
+static GtkWidget *open_button, *back_button, *font_label, *empty_note, *reader_image, *image_caption, *images_button;
+static gboolean compact, images_enabled = TRUE;
 static GtkWidget *category_combo, *search_entry, *mode_note, *results_label;
 static gchar *query, *feed_hash;
 static GtkTextTag *reader_tag;
@@ -69,24 +72,28 @@ static gchar *preference_path(void) {
     return g_build_filename(g_get_user_config_dir(), "oguzdows", "news", "reader.ini", NULL);
 }
 
-static void font_size(gint change) {
-    points = CLAMP(points + change, 12, 26);
-    g_object_set(reader_tag, "size-points", (gdouble)points, NULL);
-    gchar *value = g_strdup_printf("%d", points);
-    gtk_label_set_text(GTK_LABEL(font_label), value);
-    g_free(value);
-    if (!change) return;
+static void save_preferences(void) {
     gchar *path = preference_path(), *parent = g_path_get_dirname(path);
     if (!g_file_test(path, G_FILE_TEST_IS_SYMLINK) && !g_file_test(parent, G_FILE_TEST_IS_SYMLINK) && g_mkdir_with_parents(parent, 0700) == 0) {
-        gchar *contents = g_strdup_printf("[Reader]\nsize=%d\n", points);
+        gchar *contents = g_strdup_printf("[Reader]\nsize=%d\nimages=%s\n", points, images_enabled ? "true" : "false");
         GError *error = NULL;
         if (!g_file_set_contents_full(path, contents, -1, G_FILE_SET_CONTENTS_CONSISTENT, 0600, &error)) {
-            status("Yazı boyutu bu oturumda değişti; tercih dosyaya kaydedilemedi.");
+            status("Okuma tercihi bu oturumda değişti; tercih dosyaya kaydedilemedi.");
             g_clear_error(&error);
         }
         g_free(contents);
     }
     g_free(path); g_free(parent);
+}
+
+static void font_size(gint change) {
+    points = CLAMP(points + change, 12, 26);
+    g_object_set(reader_tag, "size-points", (gdouble)points, NULL);
+    gchar *value = g_strdup_printf("%d", points); gtk_label_set_text(GTK_LABEL(font_label), value); g_free(value);
+    if (change) save_preferences();
+}
+static void images_changed(GtkToggleButton *button, gpointer data) {
+    (void)data; images_enabled = gtk_toggle_button_get_active(button); save_preferences();
 }
 
 static void smaller(GtkButton *button, gpointer data) { (void)button; (void)data; font_size(-1); }
@@ -95,7 +102,65 @@ static void larger(GtkButton *button, gpointer data) { (void)button; (void)data;
 static void article_free(gpointer data) {
     Article *article = data;
     g_free(article->title); g_free(article->body); g_free(article->link); g_free(article->published);
-    g_free(article->category); g_free(article->publisher); g_free(article->search); g_free(article);
+    g_free(article->category); g_free(article->publisher); g_free(article->search); g_clear_object(&article->picture); g_free(article);
+}
+
+/* The worker emits normalized 320x180 JPEGs, never arbitrary local paths.
+ * Recheck the cache boundary / owner / type / bytes and decoder dimensions;
+ * no synchronous web loading, SVG from feeds, or full-resolution decoding. */
+static void image_size(GdkPixbufLoader *loader, gint width, gint height, gpointer data) {
+    gboolean *valid = data; *valid = width == 320 && height == 180;
+    gdk_pixbuf_loader_set_size(loader, *valid ? 320 : 1, *valid ? 180 : 1);
+}
+static GdkPixbuf *cached_picture(const gchar *path) {
+    if (!path || !*path) return NULL;
+    gchar *base = g_build_filename(g_get_user_cache_dir(), "oguzdows", "news", "thumbnails", NULL);
+    gchar *name = g_path_get_basename(path), *expected = g_build_filename(base, name, NULL);
+    GStatBuf directory;
+    gboolean valid = !strcmp(path, expected) && g_regex_match_simple("^[a-f0-9]{64}\\.jpg$", name, 0, 0)
+        && !g_lstat(base, &directory) && S_ISDIR(directory.st_mode) && directory.st_uid == getuid();
+    g_free(name); g_free(expected); g_free(base);
+    if (!valid) return NULL;
+    int descriptor = open(path, O_RDONLY | O_NOFOLLOW | O_NONBLOCK | O_CLOEXEC);
+    if (descriptor < 0) return NULL;
+    struct stat info;
+    if (fstat(descriptor, &info) || !S_ISREG(info.st_mode) || info.st_uid != getuid() || info.st_size <= 0 || info.st_size > 98304) {
+        close(descriptor); return NULL;
+    }
+    gsize total = 0, length = (gsize)info.st_size; guchar *bytes = g_malloc(length);
+    while (total < length) {
+        ssize_t count = read(descriptor, bytes + total, length - total);
+        if (count < 0 && errno == EINTR) continue;
+        if (count <= 0) break;
+        total += (gsize)count;
+    }
+    close(descriptor);
+    if (total != length || length < 3 || bytes[0] != 255 || bytes[1] != 216 || bytes[2] != 255) { g_free(bytes); return NULL; }
+    GdkPixbufLoader *loader = gdk_pixbuf_loader_new_with_type("jpeg", NULL);
+    if (!loader) { g_free(bytes); return NULL; }
+    valid = FALSE;
+    g_signal_connect(loader, "size-prepared", G_CALLBACK(image_size), &valid);
+    gboolean decoded = gdk_pixbuf_loader_write(loader, bytes, length, NULL);
+    decoded = gdk_pixbuf_loader_close(loader, NULL) && decoded;
+    GdkPixbuf *picture = decoded && valid ? gdk_pixbuf_loader_get_pixbuf(loader) : NULL;
+    if (picture) g_object_ref(picture);
+    g_object_unref(loader); g_free(bytes); return picture;
+}
+static GdkPixbuf *category_picture(const gchar *category) {
+    static GdkPixbuf *covers[6];
+    const gchar *names[] = {"Gündem", "Dünya", "Bilim ve teknoloji", "Kültür", "Spor", "Rehber"};
+    guint index = 0;
+    for (guint i = 0; i < G_N_ELEMENTS(names); i++) if (!strcmp(category, names[i])) index = i;
+    if (!covers[index]) {
+        gchar *path = g_strdup_printf("/usr/share/oguzdows/ui/news-cover-%u.png", index);
+        covers[index] = gdk_pixbuf_new_from_file_at_scale(path, 320, 180, FALSE, NULL); g_free(path);
+    }
+    return covers[index] ? g_object_ref(covers[index]) : NULL;
+}
+static void set_picture(GtkWidget *image, GdkPixbuf *picture, gint width, gint height) {
+    if (!picture) { gtk_image_set_from_icon_name(GTK_IMAGE(image), "oguzdows-news", GTK_ICON_SIZE_DIALOG); return; }
+    GdkPixbuf *scaled = gdk_pixbuf_scale_simple(picture, width, height, GDK_INTERP_BILINEAR);
+    gtk_image_set_from_pixbuf(GTK_IMAGE(image), scaled); g_object_unref(scaled);
 }
 
 static void show_list(GtkButton *button, gpointer data) {
@@ -110,6 +175,8 @@ static void select_article(GtkListBox *box, GtkListBoxRow *row, gpointer data) {
     current = g_object_get_data(G_OBJECT(row), "article");
     if (!current) return;
     gtk_label_set_text(GTK_LABEL(article_title), current->title);
+    set_picture(reader_image, current->picture, compact ? 160 : 224, compact ? 90 : 126);
+    gtk_label_set_text(GTK_LABEL(image_caption), current->publisher_image ? "Yayıncının RSS görseli · çevrimdışı önbellek" : "Özgün kategori çizimi · haber fotoğrafı değildir");
     gchar *meta = g_strdup_printf("%s · %s\n%s", current->publisher, current->category, *current->published ? current->published : "Yayın tarihi belirtilmedi · tarih uydurulmaz");
     gtk_label_set_text(GTK_LABEL(article_meta), meta); g_free(meta);
     GtkTextBuffer *buffer = gtk_text_view_get_buffer(GTK_TEXT_VIEW(article_text));
@@ -154,6 +221,7 @@ static void set_busy(gboolean value) {
     gtk_widget_set_sensitive(add_button, !value);
     gtk_widget_set_sensitive(remove_button, !value);
     gtk_widget_set_sensitive(cancel_button, value);
+    gtk_widget_set_sensitive(images_button, !value);
     if (value) gtk_spinner_start(GTK_SPINNER(spinner)); else gtk_spinner_stop(GTK_SPINNER(spinner));
 }
 
@@ -241,22 +309,35 @@ static gboolean load_feed(JsonObject *root) {
         gchar *searchable = g_strjoin(" ", article->title, article->body, article->category, NULL);
         article->search = g_utf8_casefold(searchable, -1); g_free(searchable);
         if (g_utf8_strlen(article->body, -1) > 8192 || g_utf8_strlen(article->title, -1) > 240) { article_free(article); return FALSE; }
+        article->picture = cached_picture(text_member(item, "image_path"));
+        article->publisher_image = article->picture != NULL;
+        if (!article->picture) article->picture = category_picture(article->category);
         g_ptr_array_add(articles, article);
         GtkWidget *row = gtk_list_box_row_new(), *box = gtk_box_new(GTK_ORIENTATION_VERTICAL, 6);
         gtk_style_context_add_class(gtk_widget_get_style_context(row), "news-item");
         GtkWidget *title = label(article->title, "news-headline");
-        gtk_label_set_max_width_chars(GTK_LABEL(title), 66);
+        gtk_label_set_max_width_chars(GTK_LABEL(title), compact ? 22 : 52);
+        gtk_label_set_lines(GTK_LABEL(title), 3); gtk_label_set_ellipsize(GTK_LABEL(title), PANGO_ELLIPSIZE_END);
         gtk_box_pack_start(GTK_BOX(box), title, FALSE, FALSE, 0);
         gchar *byline = g_strdup_printf("%s · %s%s%s", article->publisher, article->category, *article->published ? " · " : "", article->published);
         GtkWidget *date = label(byline, "dim-label"); g_free(byline);
-        gtk_label_set_max_width_chars(GTK_LABEL(date), 50);
+        gtk_label_set_max_width_chars(GTK_LABEL(date), compact ? 18 : 48);
+        gtk_label_set_lines(GTK_LABEL(date), 1); gtk_label_set_ellipsize(GTK_LABEL(date), PANGO_ELLIPSIZE_END);
         gtk_box_pack_start(GTK_BOX(box), date, FALSE, FALSE, 0);
         gchar *excerpt = g_utf8_substring(article->body, 0, MIN((glong)110, g_utf8_strlen(article->body, -1)));
         GtkWidget *summary = label(excerpt, NULL); g_free(excerpt);
-        gtk_label_set_max_width_chars(GTK_LABEL(summary), 66);
+        gtk_label_set_max_width_chars(GTK_LABEL(summary), compact ? 22 : 52);
         gtk_label_set_lines(GTK_LABEL(summary), 2); gtk_label_set_ellipsize(GTK_LABEL(summary), PANGO_ELLIPSIZE_END);
         gtk_box_pack_start(GTK_BOX(box), summary, FALSE, FALSE, 0);
-        gtk_container_add(GTK_CONTAINER(row), box); g_object_set_data(G_OBJECT(row), "article", article);
+        GtkWidget *line = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, compact ? 10 : 18);
+        GtkWidget *image = gtk_image_new(); set_picture(image, article->picture, compact ? 88 : 144, compact ? 50 : 81);
+        gtk_widget_set_valign(image, GTK_ALIGN_START);
+        gtk_widget_set_tooltip_text(image, article->publisher_image ? "Yayıncının RSS görseli" : "Kategori çizimi · haber fotoğrafı değildir");
+        gtk_box_pack_start(GTK_BOX(line), image, FALSE, FALSE, 0);
+        gtk_box_pack_start(GTK_BOX(line), box, TRUE, TRUE, 0);
+        GtkWidget *read = label("Haberi oku  ›", "news-read-link"); gtk_box_pack_start(GTK_BOX(box), read, FALSE, FALSE, 0);
+        gtk_widget_set_tooltip_text(row, "Habere tıklayıp RSS metnini oku; Kaynakta aç ile yayıncının sitesine git.");
+        gtk_container_add(GTK_CONTAINER(row), line); g_object_set_data(G_OBJECT(row), "article", article);
         gtk_container_add(GTK_CONTAINER(headlines), row);
     }
     gtk_widget_show_all(headlines);
@@ -308,13 +389,13 @@ static void run_service(const gchar *first, const gchar *second, const gchar *th
     worker = g_subprocess_newv(argv, G_SUBPROCESS_FLAGS_STDOUT_PIPE | G_SUBPROCESS_FLAGS_STDERR_PIPE, &error);
     if (!worker) { status(error ? error->message : "Haber işçisi açılamadı."); g_clear_error(&error); return; }
     set_busy(TRUE);
-    status(!strcmp(first, "refresh") ? "Yalnızca seçili RSS kaynağı alınıyor… Eski metin bu sırada okunabilir." : "Yerel kaynak / önbellek okunuyor; ağ isteği yok…");
+    status(!strcmp(first, "refresh") ? "RSS ve seçtiysen küçük görseller alınıyor… Eski metin okunabilir." : "Yerel kaynak / önbellek okunuyor; ağ isteği yok…");
     deadline_id = g_timeout_add_seconds(24, timed_out, NULL);
     g_application_hold(G_APPLICATION(application));
     g_subprocess_communicate_utf8_async(worker, NULL, NULL, service_done, NULL);
 }
 
-static void refresh(GtkButton *button, gpointer data) { (void)button; (void)data; if (selected_source) run_service("refresh", selected_source, NULL); }
+static void refresh(GtkButton *button, gpointer data) { (void)button; (void)data; if (selected_source) run_service("refresh", selected_source, images_enabled ? NULL : "text-only"); }
 
 static void add_source(GtkButton *button, gpointer data) {
     (void)button; (void)data;
@@ -360,6 +441,7 @@ static void activate(GtkApplication *app, gpointer data) {
         if (g_key_file_load_from_file(prefs, path, G_KEY_FILE_NONE, NULL)) {
             gint saved = g_key_file_get_integer(prefs, "Reader", "size", NULL);
             if (saved >= 12 && saved <= 26) points = saved;
+            if (g_key_file_has_key(prefs, "Reader", "images", NULL)) images_enabled = g_key_file_get_boolean(prefs, "Reader", "images", NULL);
         }
         g_key_file_unref(prefs);
     }
@@ -372,7 +454,9 @@ static void activate(GtkApplication *app, gpointer data) {
     GdkMonitor *monitor = gdk_display_get_primary_monitor(display);
     if (!monitor) monitor = gdk_display_get_monitor(display, 0);
     GdkRectangle area = {0, 0, 1024, 768}; if (monitor) gdk_monitor_get_workarea(monitor, &area);
-    gtk_window_set_default_size(GTK_WINDOW(window), MIN(880, area.width - 24), MIN(660, area.height - 48));
+    compact = area.width < 600;
+    if (compact) gtk_style_context_add_class(gtk_widget_get_style_context(window), "compact-news");
+    gtk_window_set_default_size(GTK_WINDOW(window), MIN(920, area.width - 24), MIN(660, area.height - 48));
     gtk_widget_set_size_request(window, 296, 300);
     g_signal_connect(window, "delete-event", G_CALLBACK(on_close), NULL);
     GtkWidget *header = gtk_header_bar_new(); gtk_header_bar_set_show_close_button(GTK_HEADER_BAR(header), TRUE);
@@ -381,7 +465,7 @@ static void activate(GtkApplication *app, gpointer data) {
     gtk_header_bar_pack_end(GTK_HEADER_BAR(header), icon_button("audio-speakers-symbolic", "Haber okuyucusu rehberini dinle / durdur", G_CALLBACK(narrate)));
     gtk_window_set_titlebar(GTK_WINDOW(window), header);
     GtkWidget *box = gtk_box_new(GTK_ORIENTATION_VERTICAL, 0); gtk_container_add(GTK_CONTAINER(window), box);
-    GtkWidget *toolbar = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 6); gtk_container_set_border_width(GTK_CONTAINER(toolbar), 12);
+    GtkWidget *toolbar = gtk_box_new(compact ? GTK_ORIENTATION_VERTICAL : GTK_ORIENTATION_HORIZONTAL, 6); gtk_container_set_border_width(GTK_CONTAINER(toolbar), 12);
     sources = gtk_combo_box_text_new(); gtk_widget_set_hexpand(sources, TRUE);
     GList *cells = gtk_cell_layout_get_cells(GTK_CELL_LAYOUT(sources));
     for (GList *it = cells; it; it = it->next)
@@ -390,12 +474,21 @@ static void activate(GtkApplication *app, gpointer data) {
     atk_object_set_name(gtk_widget_get_accessible(sources), "RSS kaynağı");
     g_signal_connect(sources, "changed", G_CALLBACK(source_changed), NULL);
     gtk_box_pack_start(GTK_BOX(toolbar), sources, TRUE, TRUE, 0);
-    refresh_button = icon_button("view-refresh-symbolic", "Seçili kaynağı yenile · isteğe bağlı ağ", G_CALLBACK(refresh));
+    GtkWidget *tools = compact ? gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 6) : toolbar;
+    if (compact) gtk_box_pack_start(GTK_BOX(toolbar), tools, FALSE, FALSE, 0);
+    refresh_button = icon_button("view-refresh-symbolic", "Yayıncıdan yenile · RSS ve açıksa en fazla 6 küçük görsel", G_CALLBACK(refresh));
     add_button = icon_button("list-add-symbolic", "Kendi RSS kaynağını ekle", G_CALLBACK(add_source));
     remove_button = icon_button("list-remove-symbolic", "Kişisel RSS kaynağını kaldır", G_CALLBACK(remove_source));
+    images_button = gtk_toggle_button_new();
+    gtk_button_set_image(GTK_BUTTON(images_button), gtk_image_new_from_icon_name("image-x-generic-symbolic", GTK_ICON_SIZE_BUTTON));
+    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(images_button), images_enabled);
+    gtk_widget_set_tooltip_text(images_button, "Yenilemede küçük görselleri indir · kapalıysa yalnız metin");
+    atk_object_set_name(gtk_widget_get_accessible(images_button), "Yenilemede görselleri indir");
+    g_signal_connect(images_button, "toggled", G_CALLBACK(images_changed), NULL);
     cancel_button = icon_button("process-stop-symbolic", "Haber isteğini durdur", G_CALLBACK(cancel));
-    gtk_box_pack_start(GTK_BOX(toolbar), refresh_button, FALSE, FALSE, 0); gtk_box_pack_start(GTK_BOX(toolbar), add_button, FALSE, FALSE, 0);
-    gtk_box_pack_start(GTK_BOX(toolbar), remove_button, FALSE, FALSE, 0); gtk_box_pack_start(GTK_BOX(toolbar), cancel_button, FALSE, FALSE, 0);
+    gtk_box_pack_start(GTK_BOX(tools), refresh_button, FALSE, FALSE, 0); gtk_box_pack_start(GTK_BOX(tools), add_button, FALSE, FALSE, 0);
+    gtk_box_pack_start(GTK_BOX(tools), remove_button, FALSE, FALSE, 0);
+    gtk_box_pack_start(GTK_BOX(tools), images_button, FALSE, FALSE, 0); gtk_box_pack_start(GTK_BOX(tools), cancel_button, FALSE, FALSE, 0);
     gtk_box_pack_start(GTK_BOX(box), toolbar, FALSE, FALSE, 0);
     mode_note = label("Yerel akış hazırlanıyor…", "news-banner");
     gtk_label_set_max_width_chars(GTK_LABEL(mode_note), 68);
@@ -434,13 +527,18 @@ static void activate(GtkApplication *app, gpointer data) {
     gtk_style_context_add_class(gtk_widget_get_style_context(headlines), "news-list");
     gtk_list_box_set_filter_func(GTK_LIST_BOX(headlines), article_filter, NULL, NULL);
     gtk_list_box_set_selection_mode(GTK_LIST_BOX(headlines), GTK_SELECTION_SINGLE);
+    gtk_list_box_set_activate_on_single_click(GTK_LIST_BOX(headlines), TRUE);
     g_signal_connect(headlines, "row-activated", G_CALLBACK(select_article), NULL);
     gtk_container_add(GTK_CONTAINER(scroll), headlines); gtk_box_pack_start(GTK_BOX(list_page), scroll, TRUE, TRUE, 0);
     gtk_stack_add_named(GTK_STACK(pages), list_page, "headlines");
-    GtkWidget *reader = gtk_box_new(GTK_ORIENTATION_VERTICAL, 10); gtk_container_set_border_width(GTK_CONTAINER(reader), 16);
+    GtkWidget *reader = gtk_box_new(GTK_ORIENTATION_VERTICAL, 8); gtk_container_set_border_width(GTK_CONTAINER(reader), 16);
     article_title = label("", "reader-title"); gtk_label_set_max_width_chars(GTK_LABEL(article_title), 48);
     article_meta = label("", "dim-label"); gtk_label_set_max_width_chars(GTK_LABEL(article_meta), 48);
     gtk_box_pack_start(GTK_BOX(reader), article_title, FALSE, FALSE, 0); gtk_box_pack_start(GTK_BOX(reader), article_meta, FALSE, FALSE, 0);
+    reader_image = gtk_image_new(); gtk_widget_set_halign(reader_image, GTK_ALIGN_START);
+    gtk_box_pack_start(GTK_BOX(reader), reader_image, FALSE, FALSE, 0);
+    image_caption = label("", "news-image-caption"); gtk_label_set_max_width_chars(GTK_LABEL(image_caption), 42);
+    gtk_box_pack_start(GTK_BOX(reader), image_caption, FALSE, FALSE, 0);
     scroll = gtk_scrolled_window_new(NULL, NULL); gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(scroll), GTK_POLICY_NEVER, GTK_POLICY_AUTOMATIC);
     article_text = gtk_text_view_new(); gtk_text_view_set_editable(GTK_TEXT_VIEW(article_text), FALSE); gtk_text_view_set_cursor_visible(GTK_TEXT_VIEW(article_text), FALSE);
     gtk_text_view_set_wrap_mode(GTK_TEXT_VIEW(article_text), GTK_WRAP_WORD_CHAR); gtk_text_view_set_left_margin(GTK_TEXT_VIEW(article_text), 8); gtk_text_view_set_right_margin(GTK_TEXT_VIEW(article_text), 8);
@@ -459,7 +557,7 @@ static void activate(GtkApplication *app, gpointer data) {
     gtk_widget_set_tooltip_text(minus, "Yazıyı küçült"); gtk_widget_set_tooltip_text(plus, "Yazıyı büyüt");
     gtk_box_pack_start(GTK_BOX(controls), minus, FALSE, FALSE, 0); font_label = gtk_label_new(""); gtk_box_pack_start(GTK_BOX(controls), font_label, FALSE, FALSE, 0);
     gtk_box_pack_start(GTK_BOX(controls), plus, FALSE, FALSE, 0);
-    open_button = gtk_button_new_with_label("Kaynakta aç"); g_signal_connect(open_button, "clicked", G_CALLBACK(open_source), NULL);
+    open_button = gtk_button_new_with_label("Kaynakta aç ↗"); g_signal_connect(open_button, "clicked", G_CALLBACK(open_source), NULL);
     gtk_box_pack_end(GTK_BOX(controls), open_button, FALSE, FALSE, 0); gtk_box_pack_start(GTK_BOX(box), controls, FALSE, FALSE, 0);
     GtkWidget *bottom = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 8); gtk_container_set_border_width(GTK_CONTAINER(bottom), 10);
     spinner = gtk_spinner_new(); gtk_box_pack_start(GTK_BOX(bottom), spinner, FALSE, FALSE, 0);
@@ -490,6 +588,9 @@ static gboolean smoke(gpointer data) {
     g_assert_cmpint(gtk_widget_get_allocated_width(window), <=, area.width);
     if (smoke_step == 0) {
         g_assert_cmpuint(articles->len, ==, 2); g_assert_null(worker);
+        g_assert_true(((Article *)g_ptr_array_index(articles, 0))->publisher_image);
+        g_assert_nonnull(((Article *)g_ptr_array_index(articles, 0))->picture);
+        g_assert_false(((Article *)g_ptr_array_index(articles, 1))->publisher_image);
         screenshot("news-list.png");
         gtk_combo_box_set_active_id(GTK_COMBO_BOX(category_combo), "Dünya");
         g_assert_true(gtk_widget_get_visible(empty_note));
@@ -537,7 +638,7 @@ static gboolean smoke(gpointer data) {
     for (guint i = 0; i < 40; i++) larger(NULL, NULL);
     g_assert_cmpint(points, ==, 26);
     gchar *path = g_build_filename(smoke_directory, "news-native.json", NULL);
-    gchar *receipt = g_strdup_printf("{\"native_gtk\":true,\"fixture_not_network\":true,\"cold_start_fetch\":false,\"offline_after_error\":true,\"category_filter\":true,\"local_search\":true,\"honest_example_fallback\":true,\"font_limits\":true,\"worker_exited\":true,\"cancellation\":true,\"deadline_callback\":true,\"physical_device\":false,\"screen_width\":%d,\"screen_height\":%d,\"window_width\":%d}", area.width, area.height, gtk_widget_get_allocated_width(window));
+    gchar *receipt = g_strdup_printf("{\"native_gtk\":true,\"fixture_not_network\":true,\"cold_start_fetch\":false,\"offline_after_error\":true,\"category_filter\":true,\"local_search\":true,\"honest_example_fallback\":true,\"cached_thumbnail\":true,\"single_click_reader\":true,\"text_only_option\":true,\"font_limits\":true,\"worker_exited\":true,\"cancellation\":true,\"deadline_callback\":true,\"physical_device\":false,\"screen_width\":%d,\"screen_height\":%d,\"window_width\":%d}", area.width, area.height, gtk_widget_get_allocated_width(window));
     g_assert_true(g_file_set_contents(path, receipt, -1, NULL));
     g_print("::notice title=C Haber GTK::%s\n", receipt);
     g_free(receipt); g_free(path); gtk_widget_destroy(window); g_application_quit(G_APPLICATION(application)); return G_SOURCE_REMOVE;
@@ -555,6 +656,7 @@ int main(int argc, char **argv) {
         smoke_directory = argv[2]; g_mkdir_with_parents(smoke_directory, 0700);
         private_home = g_dir_make_tmp("oguzdows-news-test-XXXXXX", NULL); g_assert_nonnull(private_home);
         g_setenv("XDG_CONFIG_HOME", private_home, TRUE);
+        g_setenv("XDG_CACHE_HOME", private_home, TRUE);
         argc = 1; g_timeout_add(100, smoke, NULL);
     }
 #else

@@ -168,6 +168,8 @@ static void refresh_style(GtkWidget *window) {
     if (theme && g_str_has_prefix(theme, "OguzDowsEleven")) gtk_style_context_add_class(context, "oguzdows-eleven");
     else gtk_style_context_remove_class(context, "oguzdows-eleven");
     g_free(theme);
+    if (gdk_screen_is_composited(gtk_widget_get_screen(window))) gtk_style_context_remove_class(context, "solid-surface");
+    else gtk_style_context_add_class(context, "solid-surface");
     gboolean budget = resource_budget();
     motion = animations && budget; feedback = FALSE;
     gchar *path = g_build_filename(g_get_user_config_dir(), "oguzdows", "desktop.json", NULL);

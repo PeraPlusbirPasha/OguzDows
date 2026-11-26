@@ -30,10 +30,10 @@ static GtkWidget *detail_text, *source_combo, *install_button, *detail_icon;
 static GtkWidget *remote_button, *source_status, *results_info, *no_results;
 static GtkWidget *launch_button, *scope_note, *setup_button, *remove_button, *featured_box, *catalog_title;
 static gboolean current_installed, current_launchable, current_update;
-static GtkWidget *store_header, *voice_button, *toolbar, *filters;
+static GtkWidget *store_header, *voice_button, *toolbar, *filters, *featured_stack;
 static GtkWidget *nav_titles[4], *page_boxes[4];
 static guint page_count;
-static gboolean compact, catalog_dirty;
+static gboolean compact, wide, catalog_dirty;
 static GPtrArray *apps;
 static gchar *selected_id, *query_folded;
 static gboolean busy, installed_only, supports_apt, supports_updates, remote_available, user_flatpak_supported, advanced_available, filling_sources;
@@ -48,6 +48,7 @@ static void run_service(Job job, const gchar *first, const gchar *second, const 
 static void show_catalog(JsonObject *root);
 static void view(const gchar *name);
 static void show_app(GtkButton *button, gpointer user_data);
+static void refilter(GtkWidget *widget, gpointer data);
 
 static const gchar *string_member(JsonObject *object, const gchar *key) {
     if (!json_object_has_member(object, key)) return "";
@@ -150,7 +151,7 @@ static gboolean closing(GtkWidget *widget, GdkEvent *event, gpointer data) {
 static void open_advanced(GtkButton *button, gpointer data) {
     (void)button; (void)data;
     if (busy) { status("Paket işlemi bitmeden başka paket merkezi açılmaz."); return; }
-    if (!advanced_available) { message("Gelişmiş merkez", "Bu cihazda ek GNOME paket merkezi yok. Yerel mağaza sabit uygulama planlarını kendi cihaz kaynağından sunar. Sistem kapsamı / paket kaldırma için cihazının paket yöneticisini kullan.", GTK_MESSAGE_INFO); return; }
+    if (!advanced_available) { message("Gelişmiş merkez", "GNOME Software bu cihazda kurulu değil. Bu yerel mağazayı kullanmaya devam edebilirsin. Daha geniş bir katalog istersen terminalde şu komutu kendin çalıştır:\n\nsudo apt install gnome-software gnome-software-plugin-flatpak\n\nBu düğme paket kurmaz, depo eklemez veya yönetici komutu çalıştırmaz. Kurulumdan sonra mağazayı yeniden açıp tekrar dene.", GTK_MESSAGE_INFO); return; }
     const gchar *argv[] = {"/usr/bin/python3", "-I", "/usr/lib/oguzdows/store.py", NULL};
     GError *error = NULL;
     GSubprocess *process = g_subprocess_newv(argv, G_SUBPROCESS_FLAGS_NONE, &error);
@@ -180,8 +181,8 @@ static void app_card(App *app) {
     GtkWidget *button = gtk_button_new();
     gtk_style_context_add_class(gtk_widget_get_style_context(button), "app-card");
     GtkWidget *line = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 12);
-    gtk_container_set_border_width(GTK_CONTAINER(line), 8);
-    GtkWidget *image = gtk_image_new(); app_image(image, app, 44);
+    gtk_container_set_border_width(GTK_CONTAINER(line), 10);
+    GtkWidget *image = gtk_image_new(); app_image(image, app, 48);
     gtk_box_pack_start(GTK_BOX(line), image, FALSE, FALSE, 0);
     GtkWidget *box = gtk_box_new(GTK_ORIENTATION_VERTICAL, 5);
     GtkWidget *name = label(app->name, "app-name");
@@ -199,7 +200,7 @@ static void app_card(App *app) {
     gtk_box_pack_start(GTK_BOX(box), state_label, FALSE, FALSE, 0);
     gtk_box_pack_start(GTK_BOX(line), box, TRUE, TRUE, 0);
     gtk_container_add(GTK_CONTAINER(button), line);
-    gtk_widget_set_size_request(button, 212, 112);
+    gtk_widget_set_size_request(button, 212, 118);
     gtk_widget_set_tooltip_text(button, app->summary);
     gtk_container_add(GTK_CONTAINER(apps_grid), button);
     g_object_set_data(G_OBJECT(gtk_widget_get_parent(button)), "app", app);
@@ -207,19 +208,36 @@ static void app_card(App *app) {
 }
 
 static void feature(App *app) {
-    GtkWidget *box = gtk_box_new(GTK_ORIENTATION_VERTICAL, 8);
-    gtk_style_context_add_class(gtk_widget_get_style_context(box), "store-feature");
-    gtk_box_pack_start(GTK_BOX(box), label("EDİTÖR SEÇKİSİ · AÇIK KAYNAK", "eyebrow"), FALSE, FALSE, 0);
-    GtkWidget *title = label(app->name, "feature-title"); gtk_label_set_max_width_chars(GTK_LABEL(title), 28);
+    const gchar *topic = !strcmp(app->category, "Görsel") ? "create" : !strcmp(app->category, "Ses ve video") ? "media" : "work";
+    const gchar *tab = !strcmp(topic, "create") ? "Üret" : !strcmp(topic, "media") ? "Dinle" : "Çalış";
+    const gchar *headline = !strcmp(topic, "create") ? "Fikirlerine alan aç." : !strcmp(topic, "media") ? "Sesi aç. Keyfine bak." : "Gününü kolaylaştır.";
+    GtkWidget *hero = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 8), *box = gtk_box_new(GTK_ORIENTATION_VERTICAL, 10);
+    gtk_style_context_add_class(gtk_widget_get_style_context(hero), "store-feature");
+    gchar *css = g_strconcat("feature-", topic, NULL); gtk_style_context_add_class(gtk_widget_get_style_context(hero), css); g_free(css);
+    gtk_box_pack_start(GTK_BOX(box), label("ÖNE ÇIKANLAR · AÇIK KAYNAK", "eyebrow"), FALSE, FALSE, 0);
+    GtkWidget *title = label(headline, "feature-title"); gtk_label_set_max_width_chars(GTK_LABEL(title), 25);
     gtk_box_pack_start(GTK_BOX(box), title, FALSE, FALSE, 0);
-    GtkWidget *summary = label(app->summary, "dim-label"); gtk_label_set_max_width_chars(GTK_LABEL(summary), 38);
+    GtkWidget *name = label(app->name, "feature-app"); gtk_box_pack_start(GTK_BOX(box), name, FALSE, FALSE, 0);
+    GtkWidget *summary = label(app->summary, "feature-summary"); gtk_label_set_max_width_chars(GTK_LABEL(summary), 32);
     gtk_box_pack_start(GTK_BOX(box), summary, FALSE, FALSE, 0);
-    GtkWidget *button = gtk_button_new_with_label("Uygulamayı keşfet →");
-    gtk_widget_set_halign(button, GTK_ALIGN_START);
+    GtkWidget *button = gtk_button_new_with_label("Keşfet  →"); gtk_widget_set_halign(button, GTK_ALIGN_START);
+    gtk_style_context_add_class(gtk_widget_get_style_context(button), "hero-cta");
     g_signal_connect(button, "clicked", G_CALLBACK(show_app), app);
-    gtk_box_pack_start(GTK_BOX(box), button, FALSE, FALSE, 0);
-    gtk_box_pack_start(GTK_BOX(featured_box), box, FALSE, FALSE, 0);
-    gtk_widget_show_all(featured_box);
+    gtk_box_pack_start(GTK_BOX(box), button, FALSE, FALSE, 0); gtk_box_pack_start(GTK_BOX(hero), box, TRUE, TRUE, 0);
+    gchar *path = g_strdup_printf("/usr/share/oguzdows/ui/store-%s.png", topic);
+    GdkPixbuf *pixels = gdk_pixbuf_new_from_file_at_scale(path, 190, 150, TRUE, NULL); g_free(path);
+    GtkWidget *art = pixels ? gtk_image_new_from_pixbuf(pixels) : gtk_image_new_from_icon_name(app->fallback_icon, GTK_ICON_SIZE_DIALOG);
+    if (pixels) g_object_unref(pixels);
+    gtk_widget_set_no_show_all(art, compact); gtk_widget_set_visible(art, !compact);
+    gtk_box_pack_end(GTK_BOX(hero), art, FALSE, FALSE, 0); g_object_set_data(G_OBJECT(hero), "art", art);
+    gtk_stack_add_titled(GTK_STACK(featured_stack), hero, app->id, tab);
+    gtk_widget_show_all(hero); gtk_widget_set_visible(art, !compact);
+}
+
+static void category_shortcut(GtkButton *button, gpointer data) {
+    (void)button; gtk_entry_set_text(GTK_ENTRY(search_entry), "");
+    gtk_combo_box_set_active_id(GTK_COMBO_BOX(category), data);
+    refilter(NULL, NULL);
 }
 
 static gboolean matches(App *app) {
@@ -255,7 +273,7 @@ static void refilter(GtkWidget *widget, gpointer data) {
 }
 
 static void clear_apps(void) {
-    GList *features = gtk_container_get_children(GTK_CONTAINER(featured_box));
+    GList *features = gtk_container_get_children(GTK_CONTAINER(featured_stack));
     for (GList *it = features; it; it = it->next) gtk_widget_destroy(it->data);
     g_list_free(features);
     GList *children = gtk_container_get_children(GTK_CONTAINER(apps_grid));
@@ -303,10 +321,13 @@ static void show_catalog(JsonObject *root) {
         app->search = g_utf8_casefold(searchable, -1); g_free(searchable);
         g_ptr_array_add(apps, app); app_card(app);
     }
-    for (guint index = 0; index < apps->len; index++) {
+    guint features = 0;
+    for (guint index = 0; index < apps->len && features < 3; index++) {
         App *app = g_ptr_array_index(apps, index);
-        if (app->featured) { feature(app); break; }
+        if (app->featured) { feature(app); features++; }
     }
+    gtk_widget_show_all(featured_box);
+
     gtk_widget_show_all(apps_grid);
     refilter(NULL, NULL);
 }
@@ -547,7 +568,7 @@ static void add_page(GtkWidget *box, const gchar *name) {
 }
 
 static void fit_layout(gint width) {
-    compact = width < 720;
+    compact = width < 720; wide = width >= 1140;
     GtkStyleContext *style = gtk_widget_get_style_context(window);
     if (compact) gtk_style_context_add_class(style, "compact-store");
     else gtk_style_context_remove_class(style, "compact-store");
@@ -560,7 +581,13 @@ static void fit_layout(gint width) {
         gtk_container_set_border_width(GTK_CONTAINER(page_boxes[index]), compact ? 12 : 24);
     gtk_orientable_set_orientation(GTK_ORIENTABLE(toolbar), compact ? GTK_ORIENTATION_VERTICAL : GTK_ORIENTATION_HORIZONTAL);
     gtk_orientable_set_orientation(GTK_ORIENTABLE(filters), compact ? GTK_ORIENTATION_VERTICAL : GTK_ORIENTATION_HORIZONTAL);
-    gtk_flow_box_set_max_children_per_line(GTK_FLOW_BOX(apps_grid), compact ? 1 : 2);
+    gtk_flow_box_set_max_children_per_line(GTK_FLOW_BOX(apps_grid), compact ? 1 : width >= 1140 ? 3 : 2);
+    GList *heroes = gtk_container_get_children(GTK_CONTAINER(featured_stack));
+    for (GList *it = heroes; it; it = it->next) {
+        GtkWidget *art = g_object_get_data(G_OBJECT(it->data), "art");
+        if (art) { gtk_widget_set_no_show_all(art, compact); gtk_widget_set_visible(art, !compact); }
+    }
+    g_list_free(heroes);
     gtk_header_bar_set_title(GTK_HEADER_BAR(store_header), compact ? "OğuzDows" : "OğuzDows Mağaza");
     gtk_header_bar_set_subtitle(GTK_HEADER_BAR(store_header), compact ? NULL : "Keşfet · İncele · Onayla");
     gtk_button_set_label(GTK_BUTTON(voice_button), compact ? "" : "Rıfkı’dan dinle");
@@ -570,7 +597,7 @@ static void fit_layout(gint width) {
 
 static gboolean configured(GtkWidget *widget, GdkEventConfigure *event, gpointer data) {
     (void)widget; (void)data;
-    if (compact != (event->width < 720)) fit_layout(event->width);
+    if (compact != (event->width < 720) || wide != (event->width >= 1140)) fit_layout(event->width);
     return FALSE;
 }
 
@@ -630,7 +657,7 @@ static void build(void) {
     og_ui_stack_setup(stack);
     gtk_box_pack_start(GTK_BOX(content), stack, TRUE, TRUE, 0);
 
-    GtkWidget *discover = page("Keşfet", "İhtiyacın olan araçlar, sade bir yerde. Seçki çevrimdışı; sürüm ve kurulum durumu bu cihazdan.");
+    GtkWidget *discover = page("Keşfet", "Yeni bir şey üret. Sevdiğin araçları bul. Kurulum kararını sen ver.");
     GList *discover_children = gtk_container_get_children(GTK_CONTAINER(discover));
     catalog_title = discover_children->data; g_list_free(discover_children);
     gtk_style_context_add_class(gtk_widget_get_style_context(discover), "discover-page");
@@ -649,8 +676,28 @@ static void build(void) {
     gtk_box_pack_start(GTK_BOX(filters), category, TRUE, TRUE, 0);
     action(filters, "Yerel kataloğa dön", G_CALLBACK(reset_catalog), NULL);
     gtk_box_pack_start(GTK_BOX(discover), filters, FALSE, FALSE, 0);
-    featured_box = gtk_box_new(GTK_ORIENTATION_VERTICAL, 0);
+    featured_box = gtk_box_new(GTK_ORIENTATION_VERTICAL, 10);
+    featured_stack = gtk_stack_new(); og_ui_stack_setup(featured_stack);
+    gtk_stack_set_homogeneous(GTK_STACK(featured_stack), TRUE);
+    GtkWidget *switcher = gtk_stack_switcher_new(); gtk_stack_switcher_set_stack(GTK_STACK_SWITCHER(switcher), GTK_STACK(featured_stack));
+    gtk_style_context_add_class(gtk_widget_get_style_context(switcher), "feature-tabs");
+    gtk_widget_set_halign(switcher, GTK_ALIGN_START);
+    gtk_box_pack_start(GTK_BOX(featured_box), featured_stack, FALSE, FALSE, 0);
+    gtk_box_pack_start(GTK_BOX(featured_box), switcher, FALSE, FALSE, 0);
     gtk_box_pack_start(GTK_BOX(discover), featured_box, FALSE, FALSE, 0);
+    GtkWidget *quick_categories = gtk_flow_box_new();
+    gtk_flow_box_set_selection_mode(GTK_FLOW_BOX(quick_categories), GTK_SELECTION_NONE);
+    gtk_flow_box_set_max_children_per_line(GTK_FLOW_BOX(quick_categories), 4);
+    const gchar *quick_names[] = {"Üretkenlik", "Yaratıcılık", "Oyun zamanı", "Günlük araçlar"};
+    const gchar *quick_values[] = {"Ofis", "Görsel", "Oyun", "Araçlar"};
+    for (guint i = 0; i < G_N_ELEMENTS(quick_names); i++) {
+        GtkWidget *chip = gtk_button_new_with_label(quick_names[i]);
+        gtk_style_context_add_class(gtk_widget_get_style_context(chip), "category-chip");
+        g_signal_connect(chip, "clicked", G_CALLBACK(category_shortcut), (gpointer)quick_values[i]);
+        gtk_container_add(GTK_CONTAINER(quick_categories), chip);
+    }
+    gtk_box_pack_start(GTK_BOX(discover), quick_categories, FALSE, FALSE, 0);
+    gtk_box_pack_start(GTK_BOX(discover), label("Bir sonraki favorini bul", "section-title"), FALSE, FALSE, 0);
     results_info = label("Katalog okunuyor…", "dim-label");
     gtk_box_pack_start(GTK_BOX(discover), results_info, FALSE, FALSE, 0);
     no_results = label("Bu filtrelerle uygulama bulunamadı. Aramanı kısalt, başka kategori seç veya yerel kataloğa dön.", "dim-label");

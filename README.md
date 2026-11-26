@@ -37,6 +37,8 @@ Gerçek Plasma/GNOME ayrı, mimari/kaynak koşullu oturumlardır; Xfce tarzları
 
 ## Geliştirme dalında · yerel Aero ve ortak masaüstü
 
+**Masaüstü görsel yenileme:** gerçek GTK/portal koyu-açık senkronu, küçük çerçevesiz tepsi, Windows esintili Başlat/basış tepkisi, PrintScreen, görselli Mağaza ve tek tıkla okunan resimli Haber. [Kullanım, güvenlik ve doğrulama sınırları →](docs/MASAUSTU-GORSEL-YENILEME.md). Bu kaynak değişikliği eski ISO dosyalarının içinde değildir.
+
 **Yeni native arayüz çalışması:** ortak ince kenarlı materyal/200ms kaynak kontrollü geçişler, Python 3.13 RSS düzeltmesi + açıkça etiketli çevrimdışı örnekler, editoryal mağaza ve plan/onaylı kaldırma. [Tam modüller, kullanım ve güvenlik sınırları →](docs/NATIVE-MATERYAL-HABER-MAGAZA.md). Yayımlanmış v1.1 indirmeleri bu geliştirme değişikliğini içermez.
 
 **Yayımlanmış v1.1 imajlarından ayrı yeni kaynak çalışması:** Xfce / GNOME / Plasma için ortak açık-koyu tema, vurgu ve duvar kâğıdı; açık tercihle gerçek blur / yerel yay ve Snap; kabukların kendi panel ve widget kimliğini koruyan **Masaüstü Merkezi**. Yerel C/GTK **Başlat** ve C/GTK/Cairo **canlı CPU / RAM / ağ grafikleri** eklendi; düşük kaynak koruması ve geri alma korunur.

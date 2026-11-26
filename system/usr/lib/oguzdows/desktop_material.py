@@ -16,7 +16,7 @@ from pathlib import Path
 from desktop_state import private_directory
 from profiles import atomic_text, theme, PROFILES
 
-MARKER = 'oguzdows-generated-material-v3\n'
+MARKER = 'oguzdows-generated-material-v4\n'
 PREFIX = 'OguzDowsAeroGlassUser-'
 
 
@@ -58,7 +58,7 @@ notebook > header > tabs > tab:checked {{ border-bottom: 2px solid {accent}; }}
 menu, .menu, popover.background {{ background-image: none; background-color: rgba({rgb}, {surface_alpha}); color: {text}; border: 1px solid alpha({text}, .18); }}
 menuitem:hover {{ background-color: {accent}; color: {selected_text}; }}
 /* Thunar uses real GTK nodes; file/text panes stay opaque and readable. */
-.thunar .standard-view, .thunar .view, .thunar textview text {{ background-color: {'#202731' if dark else '#ffffff'}; }}
+.thunar .standard-view, .thunar .view, .thunar textview text {{ background-color: {'#202731' if dark else '#ffffff'}; color: {text}; }}
 .thunar .view:selected, .thunar .view:selected:focus {{ background-color: {accent}; color: {selected_text}; }}
 .thunar .sidebar {{ background-color: rgb({rgb}); }}
 '''

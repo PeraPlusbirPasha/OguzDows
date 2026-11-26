@@ -70,6 +70,12 @@ def settings(identifier, appearance=None, effects='off', resources=None):
         ('xfce4-panel', '/panels/panel-1/length-adjust', 'bool', 'false'),
         ('xfce4-panel', '/panels/panel-1/size', 'uint', str(item['size'])),
         ('xfce4-panel', '/panels/panel-1/mode', 'uint', '0'),
+        ('xfce4-panel', '/panels/panel-1/icon-size', 'uint', '20' if identifier == 'mac' else '22'),
+        ('xfce4-panel', '/panels/panel-1/nrows', 'uint', '1'),
+        ('xfce4-panel', '/plugins/plugin-4/icon-size', 'int', '20'),
+        ('xfce4-panel', '/plugins/plugin-4/single-row', 'bool', 'true'),
+        ('xfce4-panel', '/plugins/plugin-4/square-icons', 'bool', 'false'),
+        ('xfce4-panel', '/plugins/plugin-4/symbolic-icons', 'bool', 'true'),
         ('xfce4-panel', '/panels/panel-1/enter-opacity', 'uint', '100'),
         ('xfce4-panel', '/panels/panel-1/leave-opacity', 'uint', '100'),
         ('xfce4-panel', '/panels/panel-1/background-style', 'uint', '1' if glass else '0'),
@@ -78,7 +84,7 @@ def settings(identifier, appearance=None, effects='off', resources=None):
         # Başlat + simgeleri sola itemez. Dar ekranda da çakışma olmaz.
         ('xfce4-panel', '/panels/panel-1/plugin-ids', 'int-array', ['95', '3', '4', '5', '6', '7'] if identifier == 'windows11' else ['1', '96', '3', '4', '5', '6', '7'] if identifier == 'mac' else ['1', '3', '4', '5', '6', '7'] if dock else ['1', '2', '3', '4', '5', '6', '7']),
         ('xfce4-panel', '/plugins/plugin-1/button-title', 'string', 'Başlat' if identifier == 'oguzdows' else 'Etkinlikler' if identifier == 'gnome' else 'Uygulamalar' if identifier == 'mac' else 'OğuzDows'),
-        ('xfce4-panel', '/plugins/plugin-1/button-icon', 'string', 'oguzdows-desktops' if identifier == 'mac' else 'oguzdows'),
+        ('xfce4-panel', '/plugins/plugin-1/button-icon', 'string', 'oguzdows-desktops' if identifier == 'mac' else 'oguzdows-start'),
         ('xfce4-panel', '/plugins/plugin-1/show-button-title', 'bool', str(identifier != 'windows11').lower()),
         ('xfce4-panel', '/plugins/plugin-1/show-button-icon', 'bool', 'true'),
         ('xfce4-panel', '/plugins/plugin-1/view-mode', 'int', '0'),
@@ -118,6 +124,8 @@ def settings(identifier, appearance=None, effects='off', resources=None):
                         ('xfce4-panel', f'/plugins/plugin-{plugin}/items', 'string-array', ['/usr/share/applications/' + desktop] if identifier == 'gnome' else None)])
     choices.extend([
         ('xfce4-panel', '/plugins/plugin-3/expand', 'bool', 'false' if identifier == 'windows11' else 'true'),
+        ('xfce4-panel', '/plugins/plugin-7/digital-layout', 'uint', '3'),
+        ('xfce4-panel', '/plugins/plugin-7/digital-time-font', 'string', 'Inter 9'),
         ('xfce4-panel', '/plugins/plugin-7/digital-time-format', 'string', '%H:%M%n%d.%m.%Y' if identifier == 'windows11' else '%a %d %b  %H:%M' if identifier == 'mac' else '%d %B %A  ·  %H:%M'),
         ('xfce4-panel', '/plugins/plugin-95', 'string', 'oguzdows-tasks' if identifier in NATIVE_PROFILES else None),
         ('xfce4-panel', '/plugins/plugin-95/style', 'string', identifier if identifier in NATIVE_PROFILES else None),

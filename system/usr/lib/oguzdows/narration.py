@@ -185,7 +185,11 @@ class Narration(Gtk.Application):
             self.bar = NarrationBar(self.window, lambda: self.topic)
             self.box.pack_start(self.bar, False, False, 0)
             self.window.add(self.box)
-        self.explanation.set_text(words(self.topic))
+        # Keep the selected, immutable recording rather than silently revoice it.
+        # Its pre-image News wording is explicitly dated in the current UI.
+        note = ('Not: Bu ses kaydı görsel desteği öncesindeki okuyucuyu anlatır. Güncel sürümde Yenile, görsel düğmesi açıksa sınırlı küçük resimler de indirir; kapalıysa yalnız metin alır.\n\n'
+                if self.topic == 'news' else '')
+        self.explanation.set_text(note + words(self.topic))
         self.bar.refresh()
         self.window.show_all()
         self.window.present()

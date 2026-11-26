@@ -146,3 +146,74 @@ window.oguzdows-modern.oguzdows-dark.oguzdows-glass { background-color: alpha(mi
 .oguzdows-modern.fullscreen headerbar, .oguzdows-modern.tiled headerbar { border-radius: 0; box-shadow: none; }
 
 .oguzdows-modern.solid-csd, .oguzdows-modern.solid-csd headerbar { border-radius: 0; }
+
+/* Start is a launcher, not a maximizable dashboard of bordered tiles. */
+window.oguzdows-modern.hub-window {
+  background-color: #f6f7fb; border: 1px solid rgba(72,86,107,.20); border-radius: 10px;
+}
+window.oguzdows-modern.oguzdows-dark.hub-window { background-color: #24252d; border-color: rgba(226,230,245,.15); }
+window.oguzdows-modern.hub-window.oguzdows-glass { background-color: rgba(246,247,251,.95); }
+window.oguzdows-modern.oguzdows-dark.hub-window.oguzdows-glass { background-color: rgba(34,35,43,.95); }
+window.oguzdows-modern.hub-window.solid-surface { border-radius: 0; }
+.oguzdows-modern.hub-window .hub-search { border-radius: 18px; border-bottom: 2px solid @og_accent; min-height: 26px; }
+.oguzdows-modern.hub-window .hub-section-title { font-size: 13px; font-weight: 600; }
+.oguzdows-modern.hub-window button.hub-app,
+.oguzdows-modern.oguzdows-dark.hub-window button.hub-app {
+  background: transparent; border: 1px solid transparent; border-radius: 7px; box-shadow: none;
+  padding: 8px 4px; font-size: 11px; font-weight: 400;
+}
+.oguzdows-modern.hub-window button.hub-app:hover { background-color: rgba(255,255,255,.8); }
+.oguzdows-modern.oguzdows-dark.hub-window button.hub-app:hover { background-color: rgba(226,230,245,.07); }
+.oguzdows-modern.hub-window button.hub-app:active { background-color: alpha(@og_accent,.12); }
+.oguzdows-modern.hub-window button.hub-app image,
+.oguzdows-modern.hub-window button.hub-recent image { transition: -gtk-icon-transform 120ms ease-out; }
+.oguzdows-modern.hub-window button.hub-app:hover image { -gtk-icon-transform: translateY(-2px); }
+.oguzdows-modern.hub-window button.hub-app:active image { -gtk-icon-transform: scale(.92); }
+.oguzdows-modern.hub-window button.hub-link { font-size: 11px; padding: 4px 9px; }
+.oguzdows-modern.hub-window .hub-hint { font-size: 10px; color: #607082; }
+.oguzdows-modern.oguzdows-dark.hub-window .hub-hint { color: #a7adbd; }
+.oguzdows-modern.hub-window .hub-footer { background-color: rgba(55,67,94,.045); border-top: 1px solid rgba(55,67,94,.08); }
+.oguzdows-modern.oguzdows-dark.hub-window .hub-footer { background-color: rgba(0,0,0,.13); border-color: rgba(226,230,245,.08); }
+.oguzdows-modern.hub-window .hub-footer button { background: transparent; border-color: transparent; box-shadow: none; padding: 6px; }
+.oguzdows-modern.hub-window .hub-footer button:hover { background-color: alpha(@og_accent,.10); }
+.oguzdows-modern.hub-window button.hub-recent,
+.oguzdows-modern.oguzdows-dark.hub-window button.hub-recent { background: transparent; border-color: transparent; box-shadow: none; padding: 9px; font-size: 12px; }
+.oguzdows-modern.hub-window button.hub-recent:hover { background-color: alpha(@og_accent,.08); }
+.oguzdows-modern.reduced-motion.hub-window button.hub-app image,
+.oguzdows-modern.reduced-motion.hub-window button.hub-app:hover image,
+.oguzdows-modern.reduced-motion.hub-window button.hub-app:active image { -gtk-icon-transform: none; transition: none; }
+
+/* Editorial Store: three user-switched features; no carousel timer or webview. */
+.oguzdows-modern .store-feature { padding: 22px; min-height: 196px; }
+.oguzdows-modern .store-feature.feature-work { background-image: linear-gradient(120deg, #205d76, #24516b); }
+.oguzdows-modern .store-feature.feature-create { background-image: linear-gradient(120deg, #345774, #4d4483); }
+.oguzdows-modern .store-feature.feature-media { background-image: linear-gradient(120deg, #8c405f, #51447a); }
+.oguzdows-modern .store-feature label { color: #ffffff; }
+.oguzdows-modern .store-feature .eyebrow { color: #c8eae8; font-size: 9px; }
+.oguzdows-modern .store-feature .feature-title { font-size: 26px; font-weight: 700; }
+.oguzdows-modern .store-feature .feature-app { font-size: 14px; font-weight: 600; }
+.oguzdows-modern .store-feature .feature-summary { color: #e2eaf5; font-size: 12px; }
+.oguzdows-modern .store-feature button.hero-cta { background: #f2f6f6; color: #263a54; border: 0; border-radius: 16px; padding: 7px 16px; box-shadow: none; }
+.oguzdows-modern .store-feature button.hero-cta:hover { background: #ffffff; }
+.oguzdows-modern .feature-tabs button { font-size: 11px; padding: 4px 14px; border-radius: 12px; box-shadow: none; }
+.oguzdows-modern .category-chip { border-radius: 16px; padding: 7px 13px; font-size: 11px; }
+.oguzdows-modern button.app-card { background-color: #ffffff; border: 1px solid rgba(62,78,103,.12); border-radius: 12px; padding: 3px; box-shadow: none; }
+.oguzdows-modern button.app-card:hover { border-color: alpha(@og_accent,.45); background-color: #fcfdff; }
+.oguzdows-modern.oguzdows-dark button.app-card { background-color: #242c3b; border-color: rgba(200,220,244,.1); }
+.oguzdows-modern.oguzdows-dark button.app-card:hover { background-color: #2c3748; border-color: alpha(@og_accent,.5); }
+.oguzdows-modern.compact-store .store-feature { padding: 16px; min-height: 196px; }
+.oguzdows-modern.compact-store .store-feature .feature-title { font-size: 23px; }
+
+/* Picture-led headlines stay light: cached 320x180 rasters, no embedded site. */
+.oguzdows-modern .news-list { padding: 4px 12px; }
+.oguzdows-modern .news-item { padding: 18px 8px; border-radius: 8px; margin: 0 0 3px; }
+.oguzdows-modern .news-headline { font-size: 17px; font-weight: 600; }
+.oguzdows-modern .news-read-link { color: @og_accent; font-size: 11px; font-weight: 600; }
+.oguzdows-modern.oguzdows-dark .news-read-link { color: #8fd4dc; }
+.oguzdows-modern .news-image-caption { font-size: 10px; color: #607187; }
+.oguzdows-modern.oguzdows-dark .news-image-caption { color: #aebfd1; }
+.oguzdows-modern .reader-title { font-size: 23px; }
+
+.oguzdows-modern.compact-news .news-item { padding: 12px 4px; }
+.oguzdows-modern.compact-news .news-headline { font-size: 15px; }
+.oguzdows-modern.compact-news .reader-title { font-size: 20px; }

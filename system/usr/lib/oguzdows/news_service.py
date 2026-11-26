@@ -21,6 +21,8 @@ def main():
             result = reader.stream(args[1])
         elif len(args) == 2 and args[0] == 'refresh':
             result = reader.stream(args[1], network=True)
+        elif len(args) == 3 and args[0] == 'refresh' and args[2] == 'text-only':
+            result = reader.stream(args[1], network=True, images=False)
         elif len(args) == 3 and args[0] == 'add':
             added = reader.add(args[1], args[2])
             result = reader.stream(added['selected'])

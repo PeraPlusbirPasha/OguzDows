@@ -510,47 +510,18 @@ class Welcome(Gtk.Application):
         return page
 
     def style_preview(self, identifier):
-        """Yerel GTK kutuları; gerçek panel düzeninin şeması, ekran resmi değil."""
-        frame = Gtk.Frame()
-        frame.set_size_request(156, 98)
+        """Small build-time illustration; no live painter or symbolic fake tiles."""
+        frame = Gtk.Frame(); frame.set_shadow_type(Gtk.ShadowType.NONE)
+        frame.set_size_request(160, 100)
         frame.get_style_context().add_class('style-preview')
-        frame.get_style_context().add_class('preview-' + identifier)
-        column = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
-        frame.add(column)
-        body = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL)
-        workspace = Gtk.Overlay()
-        workspace.get_style_context().add_class('preview-workspace')
-        workspace.add(Gtk.Box())
-        mini = Gtk.Frame()
-        mini.get_style_context().add_class('preview-window')
-        mini.set_halign(Gtk.Align.CENTER)
-        mini.set_valign(Gtk.Align.CENTER)
-        mini.set_size_request(78, 42)
-        mini.add(Gtk.Label(label='● ● ●' if identifier == 'mac' else '─ □ ×'))
-        workspace.add_overlay(mini)
-        if identifier == 'gnome':
-            side = Gtk.Label(label='▦\n●\n●\n●')
-            side.get_style_context().add_class('preview-panel')
-            side.set_size_request(18, -1)
-            body.pack_start(side, False, False, 0)
-        body.pack_start(workspace, True, True, 0)
-        panel = Gtk.Box(spacing=8)
-        panel.get_style_context().add_class('preview-panel')
-        if identifier == 'windows11':
-            panel.set_halign(Gtk.Align.CENTER)
-        panel.pack_start(Gtk.Label(label='Başlat' if identifier == 'oguzdows' else 'Oğuz'), False, False, 3)
-        panel.pack_end(Gtk.Label(label='12:30'), False, False, 3)
-        if profiles.PROFILES[identifier]['position'] == 9:
-            column.pack_start(panel, False, False, 0)
-            column.pack_start(body, True, True, 0)
-        else:
-            column.pack_start(body, True, True, 0)
-            column.pack_start(panel, False, False, 0)
-        if identifier in ('mac', 'windows11'):
-            dock = Gtk.Label(label='▦  ●  ▣  ▪' if identifier == 'windows11' else '●  ▣  ▦  ▪')
-            dock.set_halign(Gtk.Align.CENTER)
-            dock.get_style_context().add_class('preview-panel')
-            column.pack_end(dock, False, False, 0)
+        path = Path('/usr/share/oguzdows/ui') / ('layout-' + identifier + '.png')
+        try:
+            pixels = GdkPixbuf.Pixbuf.new_from_file_at_scale(str(path), 160, 96, True)
+            preview = Gtk.Image.new_from_pixbuf(pixels)
+        except GLib.Error:
+            preview = Gtk.Image.new_from_icon_name('preferences-desktop-theme', Gtk.IconSize.DIALOG)
+        frame.add(preview)
+        frame.get_accessible().set_name(profiles.PROFILES[identifier]['name'] + ' yerleşim çizimi')
         return frame
 
     def styles_page(self):
@@ -593,7 +564,7 @@ class Welcome(Gtk.Application):
         self.profile_restore = Gtk.Button(label='İlk görünüm ayarlarıma dön')
         self.profile_restore.connect('clicked', lambda *_: self.change_style(None))
         page.pack_start(self.profile_restore, False, False, 0)
-        self.profile_status = label('OğuzDows: Başlat. Windows 11: ortalı Başlat / simge grubu, ayrı üst durum şeridi. macOS: üst panel + alt iskele. Ubuntu: üst panel + sol iskele.', 'muted', 75)
+        self.profile_status = label('OğuzDows: Başlat. Windows 11: ortalı Başlat / simge grubu ve sağda küçük tepsi, tek alt çubukta. macOS: üst panel + alt iskele. Ubuntu: üst panel + sol iskele.', 'muted', 75)
         page.pack_start(self.profile_status, False, False, 0)
         reload_button = Gtk.Button(label='Panelleri şimdi yenile…')
         reload_button.connect('clicked', self.reload_panels)

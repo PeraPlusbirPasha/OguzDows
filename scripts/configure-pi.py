@@ -59,7 +59,7 @@ def packages_for(arch='armhf') -> list[str]:
             if package and package not in packages:
                 packages.append(package)
     if arch == 'arm64':
-        packages.extend(['flatpak', 'gir1.2-flatpak-1.0', 'xdg-desktop-portal', 'xdg-desktop-portal-gtk'])
+        packages.extend(['flatpak', 'gir1.2-flatpak-1.0'])  # Settings portal is common to both architectures.
     return packages
 
 

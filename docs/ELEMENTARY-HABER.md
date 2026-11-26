@@ -1,5 +1,7 @@
 # elementary esintili düzen, özgün simgeler ve hafif Haber
 
+> **Güncel görsel yenileme:** [Uygulama teması, PrintScreen, görselli Haber ve Mağaza](MASAUSTU-GORSEL-YENILEME.md). Aşağıdaki “görsel indirilmez” / üst durum şeridi ifadeleri önceki sürümü anlatır; yeni kaynakta değişmiştir.
+
 > **Yeni geliştirme kaynağı:** ortak GTK materyali, Python 3.13 RSS düzeltmesi, dürüst örnek akış ve güvenli yükle/kaldır/güncelle için [native arayüz rehberi](NATIVE-MATERYAL-HABER-MAGAZA.md). Aşağıdaki v1.1 / eski kanıt açıklamaları tarihsel kapsamını korur.
 
 > **v1.1’e ait kaynak / imaj geçmişi:** bu sayfadaki XRender ve “GLX / blur yok” sınırı o yayının sınırıdır. Daha sonraki opt-in yerel Aero, GNOME / Plasma entegrasyonu ve canlı grafikler **[ayrı geliştirme rehberinde](YEREL-MASAUSTU.md)** anlatılır; bu sayfanın eski CI sonuçları yeni özelliklere mal edilmez.

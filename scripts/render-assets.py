@@ -388,6 +388,170 @@ def own_app_icon(identifier: str, size: int) -> Image.Image:
     return image.resize((size, size), Image.Resampling.LANCZOS)
 
 
+def editorial_cover(topic: int, width=320, height=180) -> Image.Image:
+    """Original category illustrations, NEVER publisher / current-news photos."""
+    palettes = (('#3a689a', '#203e63'), ('#328f98', '#215570'), ('#6559a0', '#303c6f'),
+                ('#b16d67', '#633c6c'), ('#407d74', '#18434f'), ('#2a91a3', '#28597d'))
+    top, bottom = (ImageColor.getrgb(value) for value in palettes[topic % len(palettes)])
+    image = Image.new('RGB', (640, 360)); d = ImageDraw.Draw(image)
+    for y in range(360):
+        d.line((0, y, 640, y), fill=tuple(round(a + (b-a)*y/359) for a, b in zip(top, bottom)))
+    d.ellipse((400, -170, 850, 280), fill=tuple(min(255, v+16) for v in top))
+    d.polygon(((0, 280), (150, 200), (390, 300), (640, 240), (640, 360), (0, 360)), fill=bottom)
+    pale, teal, gold = '#e3f0e7', '#75d2c5', '#f3c77f'
+    if topic == 0:  # skyline, abstract editorial scene
+        for x, h in ((88, 120), (166, 190), (250, 154), (342, 222), (438, 145), (522, 180)):
+            d.rounded_rectangle((x, 306-h, x+62, 306), radius=6, fill=teal if x % 3 else pale)
+            for y in range(326-h, 284, 24): d.line((x+14, y, x+46, y), fill=bottom, width=6)
+        d.ellipse((466, 42, 528, 104), fill=gold)
+    elif topic == 1:  # globe
+        d.ellipse((206, 64, 442, 300), fill=teal, outline=pale, width=7)
+        d.ellipse((256, 64, 392, 300), outline=pale, width=6)
+        d.arc((206, 114, 442, 246), 0, 360, fill=pale, width=6)
+        d.line((210, 182, 439, 182), fill=pale, width=6)
+        d.arc((161, 32, 490, 327), 30, 179, fill=gold, width=9)
+    elif topic == 2:  # science / orbit, not a rocket photograph
+        for angle in (0, 60, 120):
+            orbit = Image.new('RGBA', (640, 360)); od = ImageDraw.Draw(orbit)
+            od.ellipse((152, 123, 488, 237), outline=teal, width=7)
+            orbit = orbit.rotate(angle, resample=Image.Resampling.BICUBIC)
+            image.paste(orbit, (0, 0), orbit)
+        d = ImageDraw.Draw(image); d.ellipse((293, 153, 347, 207), fill=gold)
+        d.ellipse((477, 165, 503, 191), fill=pale)
+    elif topic == 3:  # culture, open book and sun
+        d.polygon(((128, 110), (316, 134), (316, 288), (128, 264)), fill=pale)
+        d.polygon(((328, 134), (512, 110), (512, 264), (328, 288)), fill='#b7d8d8')
+        for y in (164, 190, 216):
+            d.line((157, y, 281, y+14), fill=top, width=6); d.line((362, y+14, 482, y), fill=top, width=6)
+        d.ellipse((284, 44, 356, 116), fill=gold)
+    elif topic == 4:  # playing field
+        d.rounded_rectangle((106, 82, 534, 306), radius=18, outline=pale, width=7)
+        d.ellipse((258, 130, 382, 254), outline=pale, width=6); d.line((320, 85, 320, 304), fill=pale, width=6)
+        d.rectangle((106, 143, 179, 246), outline=teal, width=6); d.rectangle((461, 143, 534, 246), outline=teal, width=6)
+        d.ellipse((367, 186, 403, 222), fill=gold)
+    else:  # guide / compass
+        d.ellipse((218, 66, 434, 282), fill=pale)
+        d.ellipse((235, 83, 417, 265), outline=top, width=6)
+        d.polygon(((344, 103), (350, 189), (289, 244), (296, 160)), fill=teal)
+        d.polygon(((344, 103), (350, 189), (296, 160)), fill='#d27766')
+        for x, y in ((326, 88), (326, 246), (246, 169), (405, 169)): d.ellipse((x-4, y-4, x+4, y+4), fill=bottom)
+    return image.resize((width, height), Image.Resampling.LANCZOS)
+
+
+def store_art(topic: str) -> Image.Image:
+    """Static transparent editorial art. No remote images / frame clock."""
+    image = Image.new('RGBA', (480, 380)); d = ImageDraw.Draw(image)
+    d.ellipse((35, 291, 438, 357), fill='#061c2f30')
+    d.rounded_rectangle((70, 57, 377, 281), radius=23, fill='#71cdd1')
+    d.rounded_rectangle((84, 67, 363, 262), radius=17, fill='#e9f2e6')
+    d.rounded_rectangle((84, 67, 363, 106), radius=13, fill='#b8dfe0')
+    for x, color in ((105, '#f39883'), (125, '#f7cf87'), (145, '#6cbbad')): d.ellipse((x, 81, x+9, 90), fill=color)
+    if topic == 'create':
+        d.ellipse((159, 133, 277, 251), fill='#6892cd')
+        d.polygon(((119, 253), (192, 125), (266, 253)), fill='#78c5b0')
+        d.rounded_rectangle((272, 147, 331, 237), radius=14, fill='#e8a2b0')
+        pencil = Image.new('RGBA', (480, 380)); pd = ImageDraw.Draw(pencil)
+        pd.rounded_rectangle((342, 70, 378, 303), radius=9, fill='#f6cf86')
+        pd.rectangle((351, 97, 358, 280), fill='#fff0bf'); pd.polygon(((342, 297), (378, 297), (360, 339)), fill='#ffebd5')
+        pd.polygon(((354, 325), (366, 325), (360, 339)), fill='#365275')
+        pencil = pencil.rotate(-23, resample=Image.Resampling.BICUBIC); image.alpha_composite(pencil)
+    elif topic == 'media':
+        d.ellipse((147, 124, 309, 286), fill='#385f96')
+        d.ellipse((165, 142, 291, 268), fill='#193b69'); d.polygon(((213, 166), (213, 245), (264, 207)), fill='#d3eee0')
+        for i, h in enumerate((42, 68, 108, 78, 45)):
+            x = 318 + i*21; d.rounded_rectangle((x, 297-h, x+12, 297), radius=6, fill='#f5d296' if i%2 else '#8ed3c9')
+    else:
+        for y, color in ((134, '#5c9aab'), (165, '#b3ced0'), (196, '#b3ced0')): d.rounded_rectangle((110, y, 247, y+10), radius=4, fill=color)
+        d.rounded_rectangle((278, 182, 433, 317), radius=19, fill='#5b9bad')
+        for i, h in enumerate((34, 66, 92)):
+            x = 297+i*39; d.rounded_rectangle((x, 295-h, x+22, 296), radius=5, fill='#d7f0da')
+        d.ellipse((34, 209, 132, 307), fill='#f3cf88'); d.line((62, 258, 82, 278, 108, 239), fill='#547366', width=10, joint='curve')
+    return image.resize((240, 190), Image.Resampling.LANCZOS)
+
+
+def layout_preview(identifier):
+    """Build-time illustration of actual panel placement, not a live screenshot."""
+    image = Image.new('RGBA', (480, 284), '#89bfc6'); d = ImageDraw.Draw(image)
+    d.polygon(((0, 220), (178, 12), (480, 184), (480, 284), (0, 284)), fill='#6484b3')
+    d.polygon(((0, 284), (249, 83), (480, 167), (480, 284)), fill='#6177a1')
+    d.ellipse((323, -67, 573, 183), fill='#a3d1d0')
+    top = identifier in ('mac', 'gnome', 'xfce')
+    dark = identifier == 'kde'; panel = '#29394d' if dark or identifier == 'gnome' else '#eff3f6'
+    y = 0 if top else 254
+    d.rectangle((0, y, 480, y+30), fill=panel)
+    d.rounded_rectangle((102, 64, 384, 229), radius=12, fill='#ebeff4')
+    d.rounded_rectangle((102, 64, 384, 93), radius=12, fill='#d7e0ea')
+    d.rectangle((102, 80, 384, 94), fill='#d7e0ea')
+    for x, color in zip((116, 130, 144) if identifier == 'mac' else (332, 348, 364), ('#ed8d86', '#e7c478', '#83bda5')):
+        d.ellipse((x, 74, x+7, 81), fill=color)
+    d.rounded_rectangle((116, 108, 169, 213), radius=5, fill='#c6d8df')
+    for row in range(3):
+        d.rounded_rectangle((185, 110+row*34, 365, 133+row*34), radius=5, fill='#f9fbfb')
+        d.ellipse((197, 117+row*34, 207, 127+row*34), fill=('#69aeba', '#879bcc', '#d3b68a')[row])
+    icons = ('browser', 'files', 'store', 'terminal')
+    if identifier == 'mac':
+        d.rounded_rectangle((160, 241, 319, 280), radius=12, fill='#edf4f2e8')
+        for i, icon in enumerate(icons): image.alpha_composite(own_app_icon(icon, 32), (170+i*34, 243))
+    elif identifier == 'gnome':
+        d.rectangle((0, 30, 42, 284), fill='#29394d')
+        for i, icon in enumerate(icons): image.alpha_composite(own_app_icon(icon, 32), (5, 78+i*42))
+    else:
+        start = 153 if identifier == 'windows11' else 20
+        for i, icon in enumerate(icons): image.alpha_composite(own_app_icon(icon, 26), (start+i*35, y+2))
+    d.rounded_rectangle((419, y+11, 464, y+16), radius=2, fill='#8796a8')
+    return image.resize((240, 142), Image.Resampling.LANCZOS)
+
+
+def render_editorial_assets(root: Path) -> None:
+    for identifier in ('oguzdows', 'kde', 'gnome', 'xfce', 'windows11', 'mac'):
+        save(layout_preview(identifier), root, f'usr/share/oguzdows/ui/layout-{identifier}.png')
+    for topic in range(6):
+        save(editorial_cover(topic), root, f'usr/share/oguzdows/ui/news-cover-{topic}.png')
+    for topic in ('create', 'media', 'work'):
+        save(store_art(topic), root, f'usr/share/oguzdows/ui/store-{topic}.png')
+
+
+def store_badge(identifier, color, size):
+    """Pictorial offline fallback, not initials or a counterfeit vendor logo."""
+    image = Image.new('RGBA', (192, 192)); d = ImageDraw.Draw(image)
+    d.rounded_rectangle((8, 8, 184, 184), radius=44, fill=color)
+    d.arc((18, 17, 175, 176), 192, 282, fill='#ffffff70', width=4)
+    white, light = '#f4f6e9', '#bee4de'
+    if identifier in ('firefox', 'transmission', 'remmina', 'filezilla'):
+        d.ellipse((47, 46, 145, 144), outline=white, width=8)
+        d.ellipse((72, 46, 120, 144), outline=light, width=6); d.line((50, 95, 142, 95), fill=white, width=6)
+        if identifier != 'firefox': d.polygon(((132, 109), (163, 109), (147, 141)), fill='#f6ce8b')
+    elif identifier == 'thunderbird':
+        d.rounded_rectangle((37, 55, 155, 140), radius=14, fill=white)
+        d.line((43, 65, 96, 105, 149, 65), fill=color, width=9, joint='curve')
+    elif identifier in ('libreoffice', 'evince', 'xournalpp'):
+        d.rounded_rectangle((52, 32, 143, 160), radius=9, fill=white)
+        d.polygon(((117, 32), (143, 58), (117, 58)), fill=light)
+        for y in (84, 105, 126): d.line((69, y, 124, y), fill=color, width=7)
+        if identifier == 'xournalpp': d.line((87, 155, 147, 77), fill='#f6cc84', width=14)
+    elif identifier in ('gimp', 'krita', 'inkscape', 'blender'):
+        d.ellipse((39, 40, 151, 152), fill=white)
+        for x, y, fill in ((67, 67, '#de9083'), (110, 62, '#e6c582'), (129, 102, '#79bfc0'), (68, 123, '#8a9fd6')): d.ellipse((x-12, y-12, x+12, y+12), fill=fill)
+        d.line((76, 153, 126, 91), fill='#3f5875', width=14); d.ellipse((114, 77, 137, 102), fill='#f7d7a4')
+    elif identifier in ('vlc', 'audacity', 'kdenlive', 'obs', 'handbrake'):
+        d.rounded_rectangle((35, 48, 157, 147), radius=18, fill=white)
+        if identifier == 'audacity':
+            for x, h in ((60, 25), (82, 56), (104, 78), (126, 40)): d.line((x, 97-h//2, x, 97+h//2), fill=color, width=10)
+        else: d.polygon(((80, 71), (80, 126), (124, 99)), fill=color)
+    elif identifier in ('geany', 'builder', 'gitg'):
+        d.line((72, 64, 42, 96, 72, 128), fill=white, width=13, joint='curve')
+        d.line((120, 64, 150, 96, 120, 128), fill=white, width=13, joint='curve'); d.line((108, 49, 85, 146), fill=light, width=11)
+    elif identifier in ('supertuxkart', 'supertux', 'aisleriot'):
+        d.rounded_rectangle((34, 62, 158, 139), radius=30, fill=white)
+        d.line((69, 78, 69, 122), fill=color, width=10); d.line((47, 100, 91, 100), fill=color, width=10)
+        d.ellipse((115, 82, 130, 97), fill=color); d.ellipse((133, 105, 148, 120), fill=color)
+    else:
+        d.rounded_rectangle((50, 77, 142, 153), radius=15, fill=white)
+        d.arc((64, 37, 128, 115), 180, 360, fill=light, width=12)
+        d.ellipse((87, 101, 105, 119), fill=color); d.rectangle((92, 112, 100, 134), fill=color)
+    return image.resize((size, size), Image.Resampling.LANCZOS)
+
+
 def render_desktop_assets(root: Path) -> None:
     vectors = Path(__file__).resolve().parents[1] / 'system/usr/share/icons/hicolor/scalable'
     if vectors.is_dir() and vectors.resolve() != (root / 'usr/share/icons/hicolor/scalable').resolve():
@@ -396,6 +560,7 @@ def render_desktop_assets(root: Path) -> None:
     # çalınır. Boot / kurulum / normal hover sırasında ses veya işçi yoktur.
     target = root / 'usr/share/oguzdows/ui/confirm.wav'
     target.parent.mkdir(parents=True, exist_ok=True)
+    render_editorial_assets(root)
     rate, duration = 16000, .085
     with wave.open(str(target), 'wb') as sound:
         sound.setnchannels(1); sound.setsampwidth(2); sound.setframerate(rate)
@@ -423,16 +588,7 @@ def render_store_icons(root: Path) -> None:
         manifest = Path(__file__).resolve().parents[1] / 'system' / relative
     for item in json.loads(manifest.read_text()):
         for size in (48, 64):
-            n = size * 3
-            image = Image.new('RGBA', (n, n))
-            draw = ImageDraw.Draw(image)
-            draw.rounded_rectangle((2, 2, n - 3, n - 3), radius=n * .23, fill=item['color'])
-            draw.rounded_rectangle((n * .12, n * .10, n * .88, n * .88), radius=n * .17, outline='#ffffff50', width=2)
-            words = item['badge']
-            draw.text((n * .5, n * .47), words, fill='#ffffff', anchor='mm',
-                      font=font(round(n * (.32 if len(words) < 3 else .24)), True))
-            draw.line((n * .35, n * .78, n * .65, n * .78), fill='#ffffffb0', width=max(2, n // 50))
-            save(image.resize((size, size), Image.Resampling.LANCZOS), root,
+            save(store_badge(item['id'], item['color'], size), root,
                  f"usr/share/icons/hicolor/{size}x{size}/apps/oguzdows-app-{item['id']}.png")
 
 

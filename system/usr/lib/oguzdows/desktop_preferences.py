@@ -63,6 +63,11 @@ def apply_current(preferences, directory, resources, *, wallpaper=False, undo=No
             fallback = install(preferences['accent'], preferences['appearance'] == 'dark',
                                identifier=identifier, glass=False, base_theme=gtk_theme(preferences))
             profiles.set_shared(dict(preferences, blur=False), resources=resources, material_theme=fallback, surface_only=True, undo=undo)
+            material = fallback
+        # XSettings is live GTK3; INI covers subsequent GTK3 clients and
+        # color-scheme is what libadwaita / the Settings portal actually read.
+        import desktop_appearance
+        notes.extend(desktop_appearance.apply(preferences, material, directory, undo=undo))
     elif desktop == 'gnome':
         import desktop_gnome as gnome
         backend = gnome.GnomeSettings()
@@ -239,7 +244,8 @@ def restore():
             import profiles
             effects.reconcile('off')
             profiles.restore()
-            skipped = []
+            import desktop_appearance
+            skipped = desktop_appearance.restore(directory)
         else:
             if desktop == 'gnome':
                 from desktop_gnome import GnomeSettings

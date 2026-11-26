@@ -21,8 +21,8 @@ class NativeAssetTests(unittest.TestCase):
     def test_svg_icons_are_original_scalable_offline_data_not_external_or_scripts(self):
         root = ROOT / 'system/usr/share/icons/hicolor/scalable'
         files = sorted(root.glob('*/*.svg'))
-        self.assertEqual(len(files), 25)
-        self.assertEqual(len(list((root / 'apps').glob('*.svg'))), 18)
+        self.assertEqual(len(files), 26)
+        self.assertEqual(len(list((root / 'apps').glob('*.svg'))), 19)
         for path in files:
             with self.subTest(path=path.name):
                 self.assertLess(path.stat().st_size, 12000)
@@ -68,7 +68,29 @@ class NativeAssetTests(unittest.TestCase):
             with wave.open(str(root / 'usr/share/oguzdows/ui/confirm.wav'), 'rb') as sound:
                 self.assertEqual(sound.getnchannels(), 1); self.assertEqual(sound.getframerate(), 16000)
                 self.assertLessEqual(sound.getnframes(), 1600); self.assertGreater(sound.getnframes(), 1000)
-            self.assertEqual(len(list((root / 'usr/share/icons/hicolor/scalable/apps').glob('*.svg'))), 18)
+            self.assertEqual(len(list((root / 'usr/share/icons/hicolor/scalable/apps').glob('*.svg'))), 19)
+
+    def test_editorial_art_and_layout_previews_are_offline_distinct_bounded_rasters(self):
+        from PIL import Image
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary); renderer.render_editorial_assets(root)
+            folder = root / 'usr/share/oguzdows/ui'
+            expected = ['news-cover-' + str(index) for index in range(6)]
+            expected += ['store-create', 'store-media', 'store-work']
+            expected += ['layout-' + key for key in ('oguzdows', 'kde', 'gnome', 'xfce', 'windows11', 'mac')]
+            blobs = set()
+            for name in expected:
+                path = folder / (name + '.png')
+                with Image.open(path) as image:
+                    self.assertLessEqual(image.width, 640); self.assertLessEqual(image.height, 360)
+                    self.assertIn(image.mode, ('RGB', 'RGBA'))
+                self.assertLess(path.stat().st_size, 256 * 1024); blobs.add(path.read_bytes())
+            self.assertEqual(len(blobs), len(expected))
+        source = (ROOT / 'system/usr/lib/oguzdows/welcome.py').read_text()
+        preview = source[source.index('    def style_preview('):source.index('    def styles_page(')]
+        self.assertIn("'layout-' + identifier", preview)
+        self.assertNotIn('Gtk.DrawingArea', preview)
+        self.assertNotIn('●', preview)
 
     def test_build_time_installer_chooses_real_gnome_js_abi_without_enabling_extension(self):
         import shutil
@@ -94,6 +116,21 @@ class NativeAssetTests(unittest.TestCase):
                                     capture_output=True, text=True, timeout=8, check=False, env=env)
             self.assertNotEqual(result.returncode, 0)
             self.assertNotIn('No module named', result.stderr)
+
+    def test_polish_smoke_refuses_real_user_home_and_tests_real_apps_not_only_own_css(self):
+        script = ROOT / 'tests/smoke-desktop-polish.py'
+        for env, args in (({**os.environ, 'CI': 'false'}, ['--output', '/should-not-write']),
+                          ({**os.environ, 'CI': 'true'}, ['--adwaita-probe', '/home/a-real-user'])):
+            result = subprocess.run([sys.executable, str(script), *args], capture_output=True, text=True,
+                                    timeout=8, check=False, env=env)
+            self.assertNotEqual(result.returncode, 0)
+            self.assertNotIn('No module named', result.stderr)
+        source = script.read_text()
+        for marker in ('Adw.StyleManager.get_default()', "GSETTINGS_BACKEND='dconf'", "key('Print')", 'xfsettingsd', 'thunar', "'--toggle'"):
+            self.assertIn(marker, source)
+        workflow = (ROOT / '.github/workflows/main.yml').read_text()
+        self.assertIn('tests/smoke-desktop-polish.py', workflow)
+        self.assertIn('gir1.2-adw-1', workflow)
 
     def test_wrappers_and_recipes_build_on_target_and_no_foreign_abi_binary_is_committed(self):
         for component in ('hub', 'monitor'):

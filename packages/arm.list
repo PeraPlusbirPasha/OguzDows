@@ -5,5 +5,3 @@ policykit-1
 firmware-linux-free
 flatpak
 gir1.2-flatpak-1.0
-xdg-desktop-portal
-xdg-desktop-portal-gtk

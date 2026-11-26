@@ -90,6 +90,7 @@ def setup(window):
         theme = settings.get_property('gtk-theme-name') or ''
         for name, enabled in (('oguzdows-modern', 'HighContrast' not in theme),
                               ('oguzdows-dark', prefs['appearance'] == 'dark'),
+                              ('solid-surface', not screen.is_composited()),
                               ('oguzdows-mac', theme.startswith('OguzDowsMac')),
                               ('oguzdows-eleven', theme.startswith('OguzDowsEleven')),
                               ('reduced-motion', not motion),
