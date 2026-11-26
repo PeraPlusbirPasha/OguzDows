@@ -167,7 +167,7 @@ static void set_picture(GtkWidget *image, GdkPixbuf *picture, gint width, gint h
 /* Change layout only at the breakpoint; keep articles, selection, search and
  * scroll/reader state. No feed reload, network request or per-frame resizing. */
 static void fit_news(gint width) {
-    compact = width < 600;
+    compact = width < 720;
     GtkStyleContext *style = gtk_widget_get_style_context(window);
     if (compact) gtk_style_context_add_class(style, "compact-news");
     else gtk_style_context_remove_class(style, "compact-news");
@@ -190,7 +190,7 @@ static void fit_news(gint width) {
 }
 static gboolean configured(GtkWidget *widget, GdkEventConfigure *event, gpointer data) {
     (void)widget; (void)data;
-    if (compact != (event->width < 600)) fit_news(event->width);
+    if (compact != (event->width < 720)) fit_news(event->width);
     return FALSE;
 }
 
@@ -404,7 +404,7 @@ static void service_done(GObject *object, GAsyncResult *result, gpointer data) {
     if (!closing) {
         set_busy(FALSE);
         JsonParser *parser = json_parser_new();
-        if (ok && output && strlen(output) <= 2 * 1024 * 1024 && json_parser_load_from_data(parser, output, -1, &error) && JSON_NODE_HOLDS_OBJECT(json_parser_get_root(parser))) {
+        if (ok && output && strlen(output) <= 2 * 1024 * 1024 && json_parser_load_from_data(parser, output, -1, &error) && json_parser_get_root(parser) && JSON_NODE_HOLDS_OBJECT(json_parser_get_root(parser))) {
             JsonObject *root = json_node_get_object(json_parser_get_root(parser));
             if (*text_member(root, "error")) status(text_member(root, "error"));
             else if (!load_feed(root)) status("Haber işçisinin yanıtı okunamadı; ağ isteği tekrarlanmadı.");
@@ -487,7 +487,7 @@ static void activate(GtkApplication *app, gpointer data) {
     GdkMonitor *monitor = gdk_display_get_primary_monitor(display);
     if (!monitor) monitor = gdk_display_get_monitor(display, 0);
     GdkRectangle area = {0, 0, 1024, 768}; if (monitor) gdk_monitor_get_workarea(monitor, &area);
-    compact = area.width < 600;
+    compact = area.width < 720;
     if (compact) gtk_style_context_add_class(gtk_widget_get_style_context(window), "compact-news");
     gtk_window_set_default_size(GTK_WINDOW(window), MIN(920, area.width - 24), MIN(660, area.height - 48));
     gtk_widget_set_size_request(window, 296, 300);
@@ -605,6 +605,11 @@ static void activate(GtkApplication *app, gpointer data) {
 }
 
 #ifdef OGUZDOWS_NEWS_TEST
+static void width_diagnostic(GtkWidget *widget, gpointer depth) {
+    gint minimum, natural; gtk_widget_get_preferred_width(widget, &minimum, &natural);
+    if (minimum > 200) g_print("News minimum %u %s: %d (natural %d)\n", GPOINTER_TO_UINT(depth), G_OBJECT_TYPE_NAME(widget), minimum, natural);
+    if (GTK_IS_CONTAINER(widget)) gtk_container_foreach(GTK_CONTAINER(widget), width_diagnostic, GUINT_TO_POINTER(GPOINTER_TO_UINT(depth) + 1));
+}
 static void screenshot(const gchar *name) {
     GdkWindow *surface = gtk_widget_get_window(window);
     GdkPixbuf *pixels = gdk_pixbuf_get_from_window(surface, 0, 0, gtk_widget_get_allocated_width(window), gtk_widget_get_allocated_height(window));
@@ -682,10 +687,14 @@ static gboolean smoke(gpointer data) {
         for (GList *it = rows; it; it = it->next)
             if (article_filter(it->data, NULL)) { g_signal_emit_by_name(headlines, "row-activated", it->data); break; }
         g_list_free(rows); g_assert_nonnull(current); smoke_current = current;
-        gtk_window_resize(GTK_WINDOW(window), MIN(560, area.width - 24), MIN(680, area.height - 48));
+        gtk_window_resize(GTK_WINDOW(window), MIN(680, area.width - 24), MIN(680, area.height - 48));
         smoke_step = 6; return G_SOURCE_CONTINUE;
     }
     if (smoke_step == 6) {
+        if (!compact) {
+            g_print("News requested compact size; actual %dx%d\n", gtk_widget_get_allocated_width(window), gtk_widget_get_allocated_height(window));
+            width_diagnostic(window, NULL);
+        }
         g_assert_true(compact);
         gtk_window_resize(GTK_WINDOW(window), MIN(360, area.width - 24), MIN(680, area.height - 48));
         smoke_step = 7; return G_SOURCE_CONTINUE;

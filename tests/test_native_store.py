@@ -206,6 +206,9 @@ class FlatpakTransactionTests(unittest.TestCase):
         self.assertIn('g_assert_cmpint(width, <=, workarea.width)', source)
         self.assertIn('g_assert_cmpint(height, <=, workarea.height)', source)
         self.assertIn('store-native-source-confirmation.png', source)
+        self.assertIn('assert_feature_background();', source)
+        self.assertIn('gtk_overlay_add_overlay(GTK_OVERLAY(overlay), art)', source)
+        self.assertIn('GtkWidget *hero = gtk_box_new(GTK_ORIENTATION_VERTICAL, 0)', source)
 
 
 if __name__ == '__main__':

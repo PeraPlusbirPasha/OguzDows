@@ -64,7 +64,7 @@ sudo apt install gnome-software gnome-software-plugin-flatpak
 
 ## Haber: resimler, tek tıkla okuma, gerçek kaynak
 
-Başlığa tek tıklamak RSS metni/özetini okuyucuda açar. **Kaynakta aç ↗** yayıncının tam sayfasını kullanıcının tarayıcısına yalnız açık tıklamayla gönderir. A−/A+, kategori, arama, kaynak ekle/kaldır, iptal ve çevrimdışı okuma korunur. Pencere 600px eşiğinden geçince araç çubuğu ve küçük resim/metin yerleşimi yeniden açmadan değişir; açık haber ve seçili filtre korunur. Bu uyarlama her karede değil yalnız eşik değişiminde çalışır; akışı yeniden indirmez.
+Başlığa tek tıklamak RSS metni/özetini okuyucuda açar. **Kaynakta aç ↗** yayıncının tam sayfasını kullanıcının tarayıcısına yalnız açık tıklamayla gönderir. A−/A+, kategori, arama, kaynak ekle/kaldır, iptal ve çevrimdışı okuma korunur. Pencere 720px eşiğinden geçince araç çubuğu ve küçük resim/metin yerleşimi yeniden açmadan değişir; açık haber ve seçili filtre korunur. Bu uyarlama her karede değil yalnız eşik değişiminde çalışır; akışı yeniden indirmez.
 
 Resim düğmesi açıksa **Yenile**, yalnız yayıncının RSS `media:thumbnail`, image `media:content` veya raster `enclosure` alanlarını kullanır. HTML içindeki takip `img` etiketleri kazınmaz. Soğuk açılış / kaynak seçimi / kaynak ekleme **ağ isteği başlatmaz**. Düğme kapatılınca sonraki yenileme yalnız metindir; önceden kaydedilen resimler çevrimdışı kalabilir.
 

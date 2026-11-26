@@ -127,7 +127,7 @@ jobs:
           sh scripts/build-native.sh /tmp/oguzdows-store-ui-test --test
           python3 scripts/ci-run.py --title 'Derlenen yerel mağaza' -- \
             xvfb-run -a -s '-screen 0 1280x900x24' dbus-run-session -- \
-            /tmp/oguzdows-store-ui-test --smoke-test test-results
+            /tmp/oguzdows-store-ui-test --smoke-test test-results/native-store
           python3 scripts/ci-run.py --title 'C Store GTK 360x800 (fixture only)' -- \
             xvfb-run -a -s '-screen 0 360x800x24' dbus-run-session -- \
             /tmp/oguzdows-store-ui-test --smoke-test test-results/store-360x800
@@ -286,23 +286,19 @@ jobs:
             python3 tests/smoke-installer.py --config /etc/calamares --output test-results
 
       - name: Mağaza · masaüstü görsel önizleme
-        if: ${{ !cancelled() }}
-        run: python3 scripts/ci-preview.py test-results/store-native.png
+        if: ${{ !cancelled() && matrix.suite == 'trixie' }}
+        run: python3 scripts/ci-preview.py test-results/native-store/store-native.png
 
       - name: Mağaza · kompakt görsel önizleme
-        if: ${{ !cancelled() }}
-        run: python3 scripts/ci-preview.py test-results/store-native-compact.png
+        if: ${{ !cancelled() && matrix.suite == 'bookworm' }}
+        run: python3 scripts/ci-preview.py test-results/native-store/store-native-compact.png
 
-      - name: Haber · görsel önizleme
-        if: ${{ !cancelled() }}
-        run: python3 scripts/ci-preview.py test-results/news-1024x768/news-list.png
-
-      - name: Başlat · koyu görsel önizleme
-        if: ${{ !cancelled() }}
-        run: python3 scripts/ci-preview.py test-results/desktop-polish/hub-dark.png
+      - name: Haber · küçültülmüş okuyucu görsel önizleme
+        if: ${{ !cancelled() && matrix.suite == 'bookworm' }}
+        run: python3 scripts/ci-preview.py test-results/news-1024x768/news-compact.png
 
       - name: Thunar · koyu görsel önizleme
-        if: ${{ !cancelled() }}
+        if: ${{ !cancelled() && matrix.suite == 'trixie' }}
         run: python3 scripts/ci-preview.py test-results/desktop-polish/thunar-dark.png
 
       - name: Arayüz ekran görüntüleri

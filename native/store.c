@@ -30,7 +30,7 @@ static GtkWidget *detail_text, *source_combo, *install_button, *detail_icon;
 static GtkWidget *remote_button, *source_status, *results_info, *no_results;
 static GtkWidget *launch_button, *scope_note, *setup_button, *remove_button, *featured_box, *catalog_title;
 static gboolean current_installed, current_launchable, current_update;
-static GtkWidget *store_header, *voice_button, *toolbar, *filters, *featured_stack;
+static GtkWidget *store_header, *voice_button, *toolbar, *filters, *filter_reset, *featured_stack;
 static GtkWidget *nav_titles[4], *page_boxes[4];
 static guint page_count;
 static gboolean compact, wide, catalog_dirty;
@@ -211,7 +211,11 @@ static void feature(App *app) {
     const gchar *topic = !strcmp(app->category, "Görsel") ? "create" : !strcmp(app->category, "Ses ve video") ? "media" : "work";
     const gchar *tab = !strcmp(topic, "create") ? "Üret" : !strcmp(topic, "media") ? "Dinle" : "Çalış";
     const gchar *headline = !strcmp(topic, "create") ? "Fikirlerine alan aç." : !strcmp(topic, "media") ? "Sesi aç. Keyfine bak." : "Gününü kolaylaştır.";
-    GtkWidget *hero = gtk_overlay_new(), *box = gtk_box_new(GTK_ORIENTATION_VERTICAL, 10);
+    /* GtkOverlay does not paint a CSS box. A real GtkBox owns the opaque
+     * editorial surface/padding; overlay art still contributes no minimum. */
+    GtkWidget *hero = gtk_box_new(GTK_ORIENTATION_VERTICAL, 0), *overlay = gtk_overlay_new();
+    GtkWidget *box = gtk_box_new(GTK_ORIENTATION_VERTICAL, 10);
+    gtk_box_pack_start(GTK_BOX(hero), overlay, TRUE, TRUE, 0);
     gtk_widget_set_halign(box, GTK_ALIGN_START);
     gtk_style_context_add_class(gtk_widget_get_style_context(hero), "store-feature");
     gchar *css = g_strconcat("feature-", topic, NULL); gtk_style_context_add_class(gtk_widget_get_style_context(hero), css); g_free(css);
@@ -224,15 +228,15 @@ static void feature(App *app) {
     GtkWidget *button = gtk_button_new_with_label("Keşfet  →"); gtk_widget_set_halign(button, GTK_ALIGN_START);
     gtk_style_context_add_class(gtk_widget_get_style_context(button), "hero-cta");
     g_signal_connect(button, "clicked", G_CALLBACK(show_app), app);
-    gtk_box_pack_start(GTK_BOX(box), button, FALSE, FALSE, 0); gtk_container_add(GTK_CONTAINER(hero), box);
+    gtk_box_pack_start(GTK_BOX(box), button, FALSE, FALSE, 0); gtk_container_add(GTK_CONTAINER(overlay), box);
     gchar *path = g_strdup_printf("/usr/share/oguzdows/ui/store-%s.png", topic);
     GdkPixbuf *pixels = gdk_pixbuf_new_from_file_at_scale(path, 190, 150, TRUE, NULL); g_free(path);
     GtkWidget *art = pixels ? gtk_image_new_from_pixbuf(pixels) : gtk_image_new_from_icon_name(app->fallback_icon, GTK_ICON_SIZE_DIALOG);
     if (pixels) g_object_unref(pixels);
     gtk_widget_set_no_show_all(art, compact); gtk_widget_set_visible(art, !compact);
     gtk_widget_set_halign(art, GTK_ALIGN_END); gtk_widget_set_valign(art, GTK_ALIGN_CENTER);
-    gtk_overlay_add_overlay(GTK_OVERLAY(hero), art);
-    gtk_overlay_set_overlay_pass_through(GTK_OVERLAY(hero), art, TRUE); g_object_set_data(G_OBJECT(hero), "art", art);
+    gtk_overlay_add_overlay(GTK_OVERLAY(overlay), art);
+    gtk_overlay_set_overlay_pass_through(GTK_OVERLAY(overlay), art, TRUE); g_object_set_data(G_OBJECT(hero), "art", art);
     gtk_stack_add_titled(GTK_STACK(featured_stack), hero, app->id, tab);
     gtk_widget_show_all(hero); gtk_widget_set_visible(art, !compact);
 }
@@ -583,8 +587,9 @@ static void fit_layout(gint width) {
     }
     for (guint index = 0; index < page_count; index++)
         gtk_container_set_border_width(GTK_CONTAINER(page_boxes[index]), compact ? 8 : 24);
-    gtk_orientable_set_orientation(GTK_ORIENTABLE(toolbar), compact ? GTK_ORIENTATION_VERTICAL : GTK_ORIENTATION_HORIZONTAL);
-    gtk_orientable_set_orientation(GTK_ORIENTABLE(filters), compact ? GTK_ORIENTATION_VERTICAL : GTK_ORIENTATION_HORIZONTAL);
+    gtk_entry_set_width_chars(GTK_ENTRY(search_entry), compact ? 8 : 20);
+    gtk_button_set_label(GTK_BUTTON(remote_button), compact ? "Flathub" : "Flathub’da ara");
+    gtk_button_set_label(GTK_BUTTON(filter_reset), compact ? "Temizle" : "Yerel kataloğa dön");
     gtk_flow_box_set_max_children_per_line(GTK_FLOW_BOX(apps_grid), compact ? 1 : width >= 1140 ? 3 : 2);
     GList *heroes = gtk_container_get_children(GTK_CONTAINER(featured_stack));
     for (GList *it = heroes; it; it = it->next) {
@@ -670,6 +675,8 @@ static void build(void) {
     g_signal_connect(search_entry, "search-changed", G_CALLBACK(refilter), NULL);
     gtk_box_pack_start(GTK_BOX(toolbar), search_entry, TRUE, TRUE, 0);
     remote_button = action(toolbar, "Flathub’da ara", G_CALLBACK(remote_search), NULL);
+    gtk_widget_set_tooltip_text(remote_button, "Flathub’da açık ağ araması yap");
+    atk_object_set_name(gtk_widget_get_accessible(remote_button), "Flathub’da ara");
     gtk_box_pack_start(GTK_BOX(discover), toolbar, FALSE, FALSE, 0);
     filters = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 8);
     category = gtk_combo_box_text_new();
@@ -678,7 +685,8 @@ static void build(void) {
     gtk_combo_box_set_active(GTK_COMBO_BOX(category), 0);
     g_signal_connect(category, "changed", G_CALLBACK(refilter), NULL);
     gtk_box_pack_start(GTK_BOX(filters), category, TRUE, TRUE, 0);
-    action(filters, "Yerel kataloğa dön", G_CALLBACK(reset_catalog), NULL);
+    filter_reset = action(filters, "Yerel kataloğa dön", G_CALLBACK(reset_catalog), NULL);
+    gtk_widget_set_tooltip_text(filter_reset, "Arama ve filtreleri temizle, yerel kataloğa dön");
     gtk_box_pack_start(GTK_BOX(discover), filters, FALSE, FALSE, 0);
     featured_box = gtk_box_new(GTK_ORIENTATION_VERTICAL, 10);
     featured_stack = gtk_stack_new(); og_ui_stack_setup(featured_stack);
@@ -781,6 +789,18 @@ static void width_diagnostic(GtkWidget *widget, gpointer depth) {
     if (minimum > 220) g_print("Minimum width %u %s / %s: %d (natural %d)\n", GPOINTER_TO_UINT(depth), G_OBJECT_TYPE_NAME(widget), gtk_widget_get_name(widget), minimum, natural);
     if (GTK_IS_CONTAINER(widget)) gtk_container_foreach(GTK_CONTAINER(widget), width_diagnostic, GUINT_TO_POINTER(GPOINTER_TO_UINT(depth) + 1));
 }
+static void assert_feature_background(void) {
+    GtkWidget *hero = gtk_stack_get_visible_child(GTK_STACK(featured_stack));
+    gint x, y;
+    g_assert_true(gtk_widget_translate_coordinates(hero, window, gtk_widget_get_allocated_width(hero) - 18, 18, &x, &y));
+    GdkPixbuf *sample = gdk_pixbuf_get_from_window(gtk_widget_get_window(window), x, y, 1, 1);
+    g_assert_nonnull(sample);
+    guchar *rgb = gdk_pixbuf_get_pixels(sample);
+    /* All three original editorial gradients are dark; white hero text must
+     * never be painted directly on the light application's page surface. */
+    g_assert_cmpuint(MAX(rgb[0], MAX(rgb[1], rgb[2])), <, 200);
+    g_object_unref(sample);
+}
 static void capture_window(GtkWidget *target, const gchar *name) {
     GdkWindow *native = gtk_widget_get_window(target);
     gint width, height; gtk_window_get_size(GTK_WINDOW(target), &width, &height);
@@ -841,7 +861,7 @@ static gboolean smoke(gpointer data) {
     if (busy) return G_SOURCE_CONTINUE;
     switch (smoke_step++) {
         case 0:
-            g_assert_cmpuint(apps->len, ==, 27); g_assert_true(gtk_widget_get_visible(featured_box)); capture("store-native.png");
+            g_assert_cmpuint(apps->len, ==, 27); g_assert_true(gtk_widget_get_visible(featured_box)); capture("store-native.png"); assert_feature_background();
             gtk_combo_box_set_active_id(GTK_COMBO_BOX(category), "Görsel"); break;
         case 1: capture("store-native-category.png"); gtk_combo_box_set_active(GTK_COMBO_BOX(category), 0);
             show_app(NULL, g_ptr_array_index(apps, 0)); break;
@@ -870,7 +890,7 @@ static gboolean smoke(gpointer data) {
             if (width > 480) width_diagnostic(window, NULL);
             g_assert_cmpint(width, <=, 480);
             g_assert_false(gtk_widget_get_visible(nav_titles[0]));
-            capture("store-native-compact.png");
+            capture("store-native-compact.png"); assert_feature_background();
             show_app(NULL, g_ptr_array_index(apps, 0)); break;
         }
         case 8: capture("store-native-compact-detail.png");

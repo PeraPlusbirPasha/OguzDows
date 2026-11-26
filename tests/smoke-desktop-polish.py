@@ -183,6 +183,8 @@ def child(directory, hub):
         report['color_scheme_transport'] = json.loads((directory / 'adwaita.json').read_text())
         thunar = start('thunar', ['/usr/bin/thunar', str(Path.home())])
         until(lambda: owned_window(thunar.pid) is not None, 'Real Thunar did not open')
+        owned_window(thunar.pid).configure(x=70, y=85, width=870, height=580)
+        connection.sync(); pump(.2)
         screenshot('thunar-dark.png')
         report['real_thunar_opened'] = True
         # A real Print key goes through xfsettingsd, xfconf and the installed
