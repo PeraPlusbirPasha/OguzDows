@@ -121,6 +121,7 @@ class ResourcePolicyTests(unittest.TestCase):
                     'usr/share/xsessions/oguzdows.desktop',
                     'usr/share/themes/OguzDowsAero/gtk-3.0/gtk.css', 'usr/share/themes/OguzDowsEleven/gtk-3.0/gtk.css',
                     'usr/lib/oguzdows/resource_policy.py', 'usr/lib/oguzdows/resource_tune.py',
+                    'usr/lib/oguzdows/file_manager.py', 'usr/share/oguzdows/ui/shell.css',
                     'etc/oguzdows/resources.conf', 'etc/systemd/system/oguzdows-resource-tune.service',
                     'usr/share/themes/OguzDowsMac/gtk-3.0/gtk.css', 'usr/share/themes/OguzDowsGnomeDark/gtk-3.0/gtk.css',
                     'usr/share/oguzdows/store-icons.json', 'usr/share/applications/oguzdows-files.desktop']

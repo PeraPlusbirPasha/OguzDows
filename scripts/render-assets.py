@@ -146,8 +146,9 @@ def boot_background(width: int, height: int) -> Image.Image:
 def window_theme(root: Path, name='OguzDows', light=False, xp=False, accent=None, glass=None) -> None:
     """One contiguous 32px title baseline, 1px frame and shaped top corners.
 
-    GTK owns CSD geometry, Xfwm owns SSD assets; Picom optionally clips outer
-    SSD corners once. No painted rectangular button patch across a corner.
+    GTK owns CSD geometry, Xfwm owns SSD assets and their native shape mask.
+    Picom must not clip either again. Structural pixels have alpha 255: Xfwm
+    builds its XShape mask from EXACTLY opaque pixels, not an alpha threshold.
     """
     base = f'usr/share/themes/{name}/xfwm4/'
     mac = name.startswith('OguzDowsMac')
@@ -183,16 +184,16 @@ def window_theme(root: Path, name='OguzDows', light=False, xp=False, accent=None
 
     for state in ('active', 'inactive'):
         bg = active_bg if state == 'active' else inactive_bg
-        edge = (*ImageColor.getrgb(accent), 190) if state == 'active' else ((70, 83, 102, 110) if light else (180, 193, 213, 90))
+        # Xfwm's xfwmPixmapDrawFromGdkPixbuf mask includes alpha == 0xff
+        # only. The former 190/110/90 rails disappeared from the shape even
+        # with a compositor. Preblend ink, never structural frame opacity.
+        ink, strength = (ImageColor.getrgb(accent), .56) if state == 'active' else ((70, 83, 102), .32) if light else ((180, 193, 213), .25)
+        edge = tuple(round(c * strength + b * (1 - strength)) for c, b in zip(ink, ImageColor.getrgb(bg))) + (255,)
         for part in ('title-1', 'title-2', 'title-3', 'title-4', 'title-5'):
             image = tile((32 if part == 'title-3' else 5, 32), bg)
             ImageDraw.Draw(image).line((0, 0, image.width, 0), fill=edge)
-            if glass:
-                # Alpha only on decorative strips, behind no title glyphs.
-                for y in (1, 2, 29, 30, 31):
-                    for x in range(image.width):
-                        red, green, blue, _alpha = image.getpixel((x, y))
-                        image.putpixel((x, y), (red, green, blue, 220))
+            # Glass sheen is pre-rendered by tile(). Alpha 220 bands would
+            # cut horizontal holes in Xfwm's binary mask; keep all rows solid.
             save(image, root, base + f'{part}-{state}.png')
         for part in ('top-left', 'top-right'):
             scale, radius = 4, 10
@@ -206,8 +207,8 @@ def window_theme(root: Path, name='OguzDows', light=False, xp=False, accent=None
             if part == 'top-right': image = image.transpose(Image.Transpose.FLIP_LEFT_RIGHT)
             save(image.resize((radius, 32), Image.Resampling.LANCZOS), root, base + f'{part}-{state}.png')
         for part, size in (('left', (1, 1)), ('right', (1, 1)), ('bottom', (1, 1)), ('bottom-left', (1, 1)), ('bottom-right', (1, 1))):
-            # SSD fallback is square at the 1px bottom rail. Picom radius=10
-            # clips all four outer corners; do not fake 10px of client padding.
+            # A complete square 1px bottom rail on every backend. Native
+            # shaped top corners suffice; never cut 10px out of client data.
             save(Image.new('RGBA', size, edge), root, base + f'{part}-{state}.png')
     for state in ('active', 'inactive', 'prelight', 'pressed'):
         for button in ('close', 'hide', 'maximize', 'maximize-toggled', 'menu'):

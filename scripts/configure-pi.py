@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import argparse
+import hashlib
 import importlib.util
 import json
 import shutil
@@ -128,6 +129,16 @@ def configure(arch: str, output: Path) -> None:
     contract['asset_hashes'].update({
         'usr/share/oguzdows/rifki/' + entry['file']: entry['sha256']
         for entry in json.loads((ROOT / 'artwork/rifki-narration.json').read_text())['clips']})
+    # Export must contain these exact repaired UI / resource-policy bytes, not
+    # merely files with the right names. The read-only image verifier hashes
+    # them without importing or executing any code from the mounted image.
+    desktop_content = ['usr/lib/oguzdows/' + name for name in (
+        'file_manager.py', 'resource_policy.py', 'desktop_material.py',
+        'desktop_preferences.py', 'session.sh', 'render-assets.py')]
+    desktop_content += ['usr/share/oguzdows/ui/' + name for name in ('modern.css', 'window-geometry.css', 'shell.css')]
+    desktop_content += ['usr/share/oguzdows/picom.conf']
+    desktop_content += [str(path.relative_to(overlay)) for path in sorted((overlay / 'usr/share/oguzdows/compositor').glob('*.conf'))]
+    contract['asset_hashes'].update({name: hashlib.sha256((overlay / name).read_bytes()).hexdigest() for name in desktop_content})
     write(overlay / 'usr/share/oguzdows/pi-contract.json', json.dumps(contract, ensure_ascii=False, indent=2) + '\n')
     shutil.copy2(ROOT / 'scripts/pi-runtime-smoke.py', stage / '00-desktop/files/pi-runtime-smoke.py')
     shutil.copy2(ROOT / 'scripts/pi_contract.py', stage / '00-desktop/files/pi_contract.py')

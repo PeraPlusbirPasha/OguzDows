@@ -7,18 +7,29 @@ window.csd, window.csd.background { border-radius: 10px; }
 .csd decoration {
   border-radius: 10px;
   border: 1px solid alpha(@theme_fg_color, .20);
-  box-shadow: 0 3px 8px 0 rgba(0, 0, 0, .14);
-  margin: 0;
+  /* A small shadow plus a stable 6px invisible resize grip. GTK accounts
+   * for the decoration extent; no manual client padding or negative margin. */
+  box-shadow: 0 2px 4px 0 rgba(0, 0, 0, .12);
+  margin: 6px;
 }
 headerbar.titlebar, .csd > .titlebar { border-radius: 10px 10px 0 0; }
 window.maximized, window.fullscreen, window.tiled,
 .maximized decoration, .fullscreen decoration, .tiled decoration {
-  border-radius: 0; box-shadow: none;
+  border-radius: 0; box-shadow: none; margin: 0;
 }
 .maximized headerbar, .fullscreen headerbar, .tiled headerbar { border-radius: 0; }
-/* Without RGBA composition, square and complete is better than black corners. */
-.solid-csd decoration { border-radius: 0; box-shadow: none; }
-.solid-csd headerbar { border-radius: 0; }
+/* Without RGBA composition, square and complete is better than black corners.
+ * Reset the window as well, not just its header / decoration nodes. */
+window.solid-csd, window.solid-csd.background { border-radius: 0; }
+.solid-csd decoration { border-radius: 0; box-shadow: none; margin: 0; }
+.solid-csd headerbar, .solid-csd .titlebar { border-radius: 0; }
+window.tiled-left, window.tiled-right, window.tiled-top, window.tiled-bottom,
+.tiled-left decoration, .tiled-right decoration, .tiled-top decoration, .tiled-bottom decoration {
+  border-radius: 0; box-shadow: none; margin: 0;
+}
+.tiled-left headerbar, .tiled-right headerbar, .tiled-top headerbar, .tiled-bottom headerbar {
+  border-radius: 0;
+}
 menu, .menu, popover.background { border-radius: 8px; padding: 4px; }
 menuitem { border-radius: 5px; padding: 5px 10px; }
 .xfce4-panel.background { border-radius: 0; box-shadow: none; }

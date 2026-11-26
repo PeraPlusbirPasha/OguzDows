@@ -246,6 +246,8 @@ def restore():
             profiles.restore()
             import desktop_appearance
             skipped = desktop_appearance.restore(directory)
+            import file_manager
+            skipped.extend('thunar:' + key for key in file_manager.restore(directory))
         else:
             if desktop == 'gnome':
                 from desktop_gnome import GnomeSettings

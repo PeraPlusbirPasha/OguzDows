@@ -175,7 +175,12 @@ class PiAbiAndFeatureTests(unittest.TestCase):
                 if arch == 'armhf':
                     self.assertTrue({'firefox-esr', 'firefox-esr-l10n-tr'}.isdisjoint(contract['required_packages']))
                     self.assertIn('netsurf-gtk', contract['required_packages'])
-                self.assertEqual(len(contract['asset_hashes']), 31)
+                self.assertEqual(len(contract['asset_hashes']), 50)  # 31 assets + 19 repaired desktop sources
+                self.assertIn('file_manager', contract['python_modules'])
+                for relative in ('usr/lib/oguzdows/file_manager.py', 'usr/lib/oguzdows/render-assets.py',
+                                 'usr/share/oguzdows/ui/modern.css', 'usr/share/oguzdows/ui/window-geometry.css',
+                                 'usr/share/oguzdows/compositor/full.conf'):
+                    self.assertEqual(contract['asset_hashes'][relative], hashlib.sha256((overlay / relative).read_bytes()).hexdigest())
                 self.assertNotIn('xvfb', contract['required_packages'])
                 self.assertNotIn('xauth', contract['required_packages'])
                 self.assertFalse((overlay / 'etc/lsb-release').exists())

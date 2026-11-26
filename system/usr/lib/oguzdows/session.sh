@@ -9,6 +9,10 @@ fi
 if ! /usr/bin/python3 -I /usr/lib/oguzdows/desktop_shortcuts.py --session; then
     echo "OğuzDows PrintScreen kısayolları tamamlanamadı; klavye ayarları korundu." >&2
 fi
+# Tek seferlik PC/Pi küçük resim bütçesi; kişisel Thunar ayarları korunur.
+if ! /usr/bin/python3 -I /usr/lib/oguzdows/file_manager.py --session; then
+    echo "OğuzDows dosya önizleme bütçesi uygulanamadı; Thunar ayarları korunuyor." >&2
+fi
 # Yalnızca ilk girişte uygula; sonraki girişler duvar kâğıdı seçimini korur.
 python3 /usr/lib/oguzdows/wallpapers.py --initialize
 # Tek sıralı uzlaştırıcı: profil / galeri ile iki autostart yarışıp cam

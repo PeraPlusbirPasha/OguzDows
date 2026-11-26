@@ -120,7 +120,7 @@ def feature_presence(root, contract):
         with open_regular(checked_path(root, relative), MAX_ASSET_BYTES) as stream:
             digest = hashlib.file_digest(stream, 'sha256').hexdigest()
         if digest != expected:
-            raise ValueError('Duvar kâğıdı / doğal kayıt hash eşleşmedi: ' + relative)
+            raise ValueError('Kaynak / görsel / doğal kayıt hash eşleşmedi: ' + relative)
     for key in ('minimum_wallpapers', 'minimum_selected_narration'):
         if type(contract[key]) is not int or not 0 < contract[key] <= 512:
             raise ValueError('Geçersiz özellik alt sınırı: ' + key)

@@ -16,7 +16,7 @@ from pathlib import Path
 from desktop_state import private_directory
 from profiles import atomic_text, theme, PROFILES
 
-MARKER = 'oguzdows-generated-material-v4\n'
+MARKER = 'oguzdows-generated-material-v5\n'
 PREFIX = 'OguzDowsAeroGlassUser-'
 
 

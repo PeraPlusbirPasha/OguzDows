@@ -495,6 +495,23 @@ class PiImageValidationTests(unittest.TestCase):
             with self.assertRaisesRegex(ValueError, 'hash'):
                 verify.validate(root, 'arm64')
 
+    def test_export_rejects_stale_thunar_policy_theme_or_compositor_without_executing_it(self):
+        with tempfile.TemporaryDirectory() as directory, patch('sys.stdout', io.StringIO()):
+            root = self.fixture(directory, 'arm64')
+            contract = json.loads((root / 'usr/share/oguzdows/pi-contract.json').read_text())
+            for relative in ('usr/lib/oguzdows/file_manager.py', 'usr/lib/oguzdows/render-assets.py',
+                             'usr/share/oguzdows/ui/window-geometry.css', 'usr/share/oguzdows/ui/modern.css',
+                             'usr/share/oguzdows/compositor/full.conf'):
+                with self.subTest(relative=relative):
+                    self.assertIn(relative, contract['asset_hashes'])
+                    path = root / relative
+                    original = path.read_bytes()
+                    path.write_text('stale repair bytes / never executed\n')
+                    with self.assertRaisesRegex(ValueError, 'hash'):
+                        verify.validate(root, 'arm64')
+                    path.write_bytes(original)
+            verify.validate(root, 'arm64')
+
     def test_export_requires_complete_nonroot_session_and_netsurf_receipts(self):
         for broken in ('missing', 'root', 'panel', 'version-only', 'samples-type', 'browser'):
             with self.subTest(broken=broken), tempfile.TemporaryDirectory() as directory:

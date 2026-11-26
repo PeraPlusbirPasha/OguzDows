@@ -32,7 +32,7 @@ class NativeAssetTests(unittest.TestCase):
                 self.assertNotIn('href=', source); self.assertNotIn('http://', source.replace('http://www.w3.org/2000/svg', ''))
         self.assertNotEqual((root / 'apps/oguzdows-hub.svg').read_bytes(), (root / 'apps/oguzdows-store.svg').read_bytes())
 
-    def test_glass_xfwm_edges_have_real_alpha_but_title_text_and_all_controls_remain_opaque(self):
+    def test_glass_xfwm_titles_and_controls_are_opaque_for_native_binary_shape(self):
         from PIL import Image
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)
@@ -41,8 +41,9 @@ class NativeAssetTests(unittest.TestCase):
                 renderer.window_theme(root, name, light=not dark, accent='#aa6688')
                 directory = root / 'usr/share/themes' / name / 'xfwm4'
                 with Image.open(directory / 'title-3-active.png') as image:
-                    self.assertLess(image.getchannel('A').getextrema()[0], 255)
-                    self.assertEqual(image.crop((0, 4, image.width, 28)).getchannel('A').getextrema(), (255, 255))
+                    self.assertEqual(image.getchannel('A').getextrema(), (255, 255))
+                    # Sheen is still visible, without any alpha-mask holes.
+                    self.assertNotEqual(image.getpixel((4, 3)), image.getpixel((4, 27)))
                 for action in ('close', 'hide', 'maximize', 'menu'):
                     for mode in ('active', 'inactive', 'prelight', 'pressed'):
                         with Image.open(directory / (action + '-' + mode + '.png')) as image:

@@ -142,6 +142,9 @@ MODE_CONTENT = {relative: ROOT / 'system' / relative for relative in (
     'usr/lib/oguzdows/accent.py', 'usr/lib/oguzdows/profiles.py',
     'usr/lib/oguzdows/desktop_material.py', 'usr/lib/oguzdows/desktop_preferences.py',
     'usr/lib/oguzdows/desktop_state.py', 'usr/lib/oguzdows/desktop_ui.py',
+    'usr/lib/oguzdows/file_manager.py', 'usr/lib/oguzdows/resource_policy.py',
+    'usr/lib/oguzdows/desktop_appearance.py', 'usr/lib/oguzdows/desktop_shortcuts.py',
+    'usr/lib/oguzdows/screenshot.py', 'usr/share/oguzdows/ui/shell.css',
     'usr/lib/oguzdows/session.sh', 'usr/lib/oguzdows/wallpapers.py',
     'usr/local/bin/oguzdows-accent', 'usr/share/oguzdows/ui/window-geometry.css',
     'usr/share/xfce4/panel/plugins/oguzdows-tasks.desktop', 'usr/share/oguzdows/picom.conf')}

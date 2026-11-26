@@ -61,7 +61,8 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y --no-install-recommends python3-pil python3-yaml shellcheck \
-            fonts-dejavu-core python3-gi gir1.2-gtk-3.0 xvfb xauth dbus-x11 \
+            fonts-dejavu-core python3-gi python3-gi-cairo python3-cairo gir1.2-gtk-3.0 xvfb xauth dbus-x11 \
+            thunar xfconf xfwm4 xfce4-settings picom python3-xlib dconf-gsettings-backend \
             build-essential pkg-config libgtk-3-dev libjson-glib-dev xfce4-session \
             librsvg2-common shared-mime-info
       - name: Birim / kaynak / hesap güvenliği testleri
@@ -89,6 +90,15 @@ jobs:
           python3 scripts/ci-run.py --title 'Pi GTK görünümü' -- \
             xvfb-run -a -s '-screen 0 1024x768x24' dbus-run-session -- \
             python3 tests/smoke-welcome.py --pi --output test-results/pi-ui
+      - name: Ortak Thunar maskesi ve kaynak bütçesi (host, fiziksel Pi değil)
+        run: |
+          sudo install -Dm644 scripts/render-assets.py /usr/lib/oguzdows/render-assets.py
+          sudo install -Dm644 system/usr/share/oguzdows/picom.conf /usr/share/oguzdows/picom.conf
+          sudo cp -a system/usr/share/oguzdows/compositor /usr/share/oguzdows/
+          python3 scripts/ci-run.py --title 'Pi shared Thunar / native GTK geometry (host only)' -- \
+            xvfb-run -a -s '-screen 0 1024x768x24 -nolisten tcp' \
+            python3 tests/smoke-window-geometry.py --output test-results/pi-ui/window-geometry
+
       - name: Paylaşılan yerel mağazayı host üzerinde derle (ARM boot testi değil)
         run: |
           sh scripts/build-native.sh /tmp/oguzdows-store-native

@@ -1,6 +1,6 @@
 # Masaüstü görsel yenileme · uygulama teması, Başlat, PrintScreen, Mağaza ve Haber
 
-Bu belge **geliştirme dalındaki kaynak değişikliklerini** anlatır. Yayımlanmış v1.1 veya önceki `00ec2b1` ISO dosyaları kendiliğinden güncellenmez. Bu çalışma için yeni ISO/IMG veya yayın oluşturulmaz. Önceki RAM/boot ölçümleri bu değişikliğin performans kanıtı değildir.
+Bu belge **geliştirme dalındaki kaynak değişikliklerini** anlatır. Önceki v1.1, `00ec2b1` veya `775b0a7` imajları kendiliğinden güncellenmez. Son Thunar/çerçeve ve kaynak-bütçesi düzeltmeleri için yeni **amd64/i386 PC ISO** ve **armhf/arm64 Raspberry Pi IMG** derlemeleri istenir; indirme ve doğrulama sonuçları ilgili kaynak commit'i / CI çalışmasıyla raporlanır. PR birleştirme, etiket veya Release yayımlama bu işlemin parçası değildir. Önceki RAM/boot ölçümleri yeni değişikliklerin performans kanıtı değildir.
 
 ## Açık/koyu tercihi gerçek uygulamalara gider
 
@@ -82,14 +82,38 @@ Rıfkı'nın seçilmiş eski ses kaydı değiştirilmez. Haber anlatım penceres
 
 ## Kenarlar ve dosya yöneticisi
 
-GTK CSD ve Picom aynı kenarı iki kere gölgelemez. CSD gölgesi 3px/8px ve düşük alfa; SSD gölgesi daha dar/düşük alfa; gerçek blur reçeteleri daha düşük yarıçap kullanır. Bunlar tarayıcı CSS `backdrop-filter` hilesi değildir. Kompozitör yoksa opak, köşeleri bozulmayan yüzey kullanılır.
+### Gerçek çerçeve boşluklarının nedeni
 
-Thunar / GTK dosya seçicisinin dosya ve metin bölgeleri opaktır; seçili öğe vurgusu korunur. Tüm pencereye opaklık veya büyüyen dosya simgesi uygulanmaz. Fiziksel GPU/driver kaynaklı her çizim sorununun bu CSS ile çözüldüğü iddia edilmez.
+Xfwm 4.18'in [`xfwmPixmapDrawFromGdkPixbuf`](https://github.com/xfce-mirror/xfwm4/blob/xfwm4-4.18.0/src/mypixmap.c) işlevi, PNG'den ürettiği ikili pencere maskesine **yalnız alfa == 255** olan pikselleri katar. Önceki 190/110/90 alfa değerli 1px çerçeve çizgileri ve cam başlığın 220 alfa şeritleri bu maskede boşluğa dönüşebilirdi; sorun yalnız gölge rengi değildi. Yeni üretici kenar rengini önceden karıştırır ve bütün yapısal çizgileri / başlık satırlarını opak tutar. Sadece gerçek üst köşe dışı saydamdır. Alt kenar bütün arka uçlarda kesintisiz 1px kalır; içerikten 10px keserek yuvarlak köşe taklidi yapılmaz.
+
+Picom 12 [`rules` kullanıldığında eski `*-exclude` listelerini okumaz](https://github.com/yshui/picom/blob/v12.5/src/config_libconfig.c). Yeni 12+ reçetelerinde CSD, XShape ile zaten şekillendirilmiş çerçeve, açılır menü, diyalog, override-redirect, tam ekran ve iki eksende büyütülmüş pencere istisnaları gerçek `corner-radius = 0` kuralındadır. Eski 9/11 reçeteleri kendi destekledikleri listeyi kullanır. Böylece aynı köşeyi iki motor kesmez. Büyütülmüş / tam ekran yüzeylerde ek arka plan blur'u ve SSD gölgesi de atlanır.
+
+GTK CSD gölgesi **2px/4px, alfa .12** ve dengeli 6px görünmez yeniden boyutlandırma tutamacıyla sınırlıdır. Büyütülmüş, döşenmiş, tam ekran ve kompozitörsüz `solid-csd` durumları kare köşeye ve sıfır gölge marjına döner. Mağaza / Haber / Masaüstü Merkezi'nin uygulama öncelikli CSS'i de bu durumlara uyar; genel 10px uygulama yarıçapı tema kuralını ezmez. Kişiye özel değişmez materyaller **v5** anahtarıyla yeniden üretilir; eski geri-alma temaları silinmez veya yerinde değiştirilmez.
+
+Thunar'ın gerçek `GtkScrolledWindow.standard-view` içindeki simge/liste/kompakt bölgeleri düz ve opaktır; içe kabartma ve gereksiz köşe kesimi kaldırılır, aktif/pasif seçim vurgusu korunur. GTK dosya seçicisi, Nemo ve Caja'nın opak dosya/metin bölgeleri de korunur. Tüm pencereye opaklık veya büyüyen dosya simgesi uygulanmaz. Bunlar tarayıcı CSS `backdrop-filter` hilesi değildir. Fiziksel GPU/driver kaynaklı her çizim sorununun çözüldüğü iddia edilmez.
+
+### PC, Pi ve ortak ARM katmanında tek seferlik performans bütçesi
+
+`file_manager.py --session`, yalnız Xfce oturumunda Thunar için aşağıdaki varsayılanları uygular. Dizin taramaz, görsel çözümlemez, önbellek / kullanıcı dosyası silmez ve arka planda kalmaz.
+
+| Fiziksel kaynak / profil | Küçük resim varsayılanı | Tek dosya boyut sınırı |
+|---|---|---:|
+| ≤768MiB, eski Pi CPU'su, bilinmeyen RAM veya `mini` | Kapalı | 8MiB |
+| 768MiB–2GiB | Yalnız yerel dosyalar | 16MiB |
+| >2GiB | Yalnız yerel dosyalar | 32MiB |
+
+Küçük resimlerin ek siyah çerçevesi kapalıdır. Önceden seçilmiş kişisel Thunar ayarları veya sonradan kullanıcı tarafından değiştirilmiş değerler **ezilmez**. Yalnız eksik ya da hâlâ bize ait değerler bütçe değişince güncellenir; tipli günlük, kısmi hata geri alması ve Masaüstü Merkezi'nin geri-alma işlemiyle entegredir. Kullanıcı önizlemeleri Thunar tercihlerinden yeniden açabilir.
+
+Mevcut ≤2GiB / eski CPU / `nomodeset` / doğrulanmamış grafik koruması, isteğe bağlı efekt onayı, sınırlı LZ4 zram, kişisel swap koruması, azaltılmış hareket ve olay tabanlı native panel çizimi korunur. Bu ortak dosyalar iki PC, iki Pi ve desteklenen ARM64 katmanlarının tamamına kopyalanır; ARM64 katmanı fiziksel cihaz imajı / GPU doğrulaması sayılmaz.
 
 ## Doğrulama
 
 - `test_desktop_appearance.py`: INI/portal geri alma, güvensiz kişisel dosyaları koruma, sabit ekran yakalama argv'si, idempotent kısayol geçişi ve küçük tepsi tipleri.
 - `test_news_images.py`: metadata/HTML ayrımı, gerçek raster normalleştirme, boyut/piksel/tür/zaman/önbellek sınırları, çevrimdışı ve yalnız metin yolu; canlı ağ kullanılmaz.
+- `test_window_geometry.py`: 14 tema / iki odak durumunda bütün başlık ve 1px rayların tam alfa maskesi, değişmez v5 tema önbelleği, eski/yeni Picom istisnaları, uygulama öncelikli kare CSD durumları ve kesintisiz maske birleşimi.
+- `test_file_manager.py`: fiziksel RAM üst sınırı, tipli `uint64`, tekrarsız uygulama, kişisel tercihi koruma, kısmi yazı hatasını tam geri alma, açık geri-alma kararını koruma ve gerçek `python3 -I` girişinin yüklenmesi.
+- `smoke-window-geometry.py`: özel normal kullanıcıda gerçek Thunar'ın aktif/pasif XShape kenarlarının **tamamı**, 14 statik + 4 üretilmiş tema, kompozitörsüz / gerçek üretim Xrender, simge/liste/kompakt görünüm ve bağlam menüsü; gerçek GTK ölçeği 1×/2× PC kapısında çalıştırılır. Native öncelikli CSD stillerinin piksel probe'u ile gerçek büyütme / tam ekran işlemleri ayrı ayrı kaydedilir. Döşenmiş sınıfların probe'u fiziksel pencere döşeme testi değildir. Pi doğrulama işi de aynı kontrolü host üzerinde 1× çalıştırır; bu ARM GPU testi değildir.
+- PC imaj kapısı yeni politika / CSS / üretici dahil kurulu kaynak baytlarını SHA-256 ile karşılaştırır. Pi'nin ARM CPU / GUI kapısı ve salt okunur export doğrulaması 31 görsel/ses dosyasına ek **19 masaüstü kaynak dosyasını** hash ile denetler; imajdan host üzerinde Python kodu çalıştırılmaz.
 - Mevcut native Store/Haber/Başlat, azaltılmış hareket, kurulum/onay ve paket kapıları korunur. Haber fixture'ı gerçek normalleştirilmiş yerel JPEG ve dürüst kategori çizimi içerir.
 - `smoke-desktop-polish.py`: özel normal kullanıcıda gerçek xfsettingsd/xfwm; zaten açık sıradan GTK3 ve libadwaita istemcilerinde koyu→açık→koyu, gerçek Thunar, XTest Print tuşundan native ekran yakalama diyaloğuna giden yol, gerçek Başlat toggle/Escape. Çıktı JSON/PNG'ler CI artifact'ındadır. Bu testin varlığı tek başına başarılı çalıştırma sonucu değildir.
 

@@ -64,7 +64,7 @@ class AssetTests(unittest.TestCase):
                     with Image.open(root / f'usr/share/themes/{name}/xfwm4/{part}.png') as image:
                         if part.startswith('title-'):
                             self.assertEqual(image.crop((0, 1, image.width, image.height)).getchannel('A').getextrema(), (255, 255))
-                            self.assertEqual(image.getpixel((0, 0))[3], 190)  # 1px alpha border
+                            self.assertEqual(image.getpixel((0, 0))[3], 255)  # Xfwm mask requires exact opacity
                         else:
                             self.assertEqual(image.getchannel('A').getextrema(), (255, 255))
             original = bios.read_bytes()

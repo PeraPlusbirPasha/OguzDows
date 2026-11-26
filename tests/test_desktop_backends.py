@@ -75,7 +75,10 @@ class AeroPlanTests(unittest.TestCase):
         for name in ('motion', 'full', 'snap', 'full-snap'):
             text = (ROOT / 'system/usr/share/oguzdows/compositor' / (name + '.conf')).read_text()
             self.assertIn('rules = (', text)
-            self.assertNotIn('shadow-exclude =', text); self.assertNotIn('blur-background-exclude =', text)
+            for ignored in ('shadow-exclude =', 'blur-background-exclude =', 'rounded-corners-exclude ='):
+                self.assertNotIn(ignored, text)
+            self.assertIn('corner-radius = 0;', text)
+            self.assertIn('bounding_shaped || override_redirect || fullscreen || _GTK_FRAME_EXTENTS@:c', text)
             self.assertIn("window_type = 'desktop'\"; shadow = false; blur-background = false", text)
             self.assertIn("window_type = 'dock'\"; shadow = false; fade = false", text)
             self.assertEqual('triggers = [ "geometry" ]' in text, name in ('snap', 'full-snap'))

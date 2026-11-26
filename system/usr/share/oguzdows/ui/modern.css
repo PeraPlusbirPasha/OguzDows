@@ -224,3 +224,17 @@ window.oguzdows-modern.hub-window.solid-surface { border-radius: 0; }
 
 /* Plain, selectable RSS body; the complete article has one native scrollbar. */
 .oguzdows-modern .news-body { padding: 8px 6px; }
+
+/* Application-priority decoration rules must honor the same state geometry as
+ * the GTK theme. A generic 10px app radius otherwise wins over maximized/tiled
+ * theme rules, leaving cut corners in Store / News / the desktop center. */
+.oguzdows-modern.maximized decoration, .oguzdows-modern.fullscreen decoration,
+.oguzdows-modern.tiled decoration, .oguzdows-modern.solid-csd decoration,
+.oguzdows-modern.tiled-left decoration, .oguzdows-modern.tiled-right decoration,
+.oguzdows-modern.tiled-top decoration, .oguzdows-modern.tiled-bottom decoration,
+.oguzdows-modern.maximized headerbar, .oguzdows-modern.fullscreen headerbar,
+.oguzdows-modern.tiled headerbar, .oguzdows-modern.solid-csd headerbar,
+.oguzdows-modern.tiled-left headerbar, .oguzdows-modern.tiled-right headerbar,
+.oguzdows-modern.tiled-top headerbar, .oguzdows-modern.tiled-bottom headerbar {
+  border-radius: 0; box-shadow: none; margin: 0;
+}

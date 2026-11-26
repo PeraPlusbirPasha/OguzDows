@@ -45,6 +45,20 @@ filechooser .view, .thunar .standard-view, .nemo-window .view, .caja-navigation-
 filechooser .view:selected, .nemo-window .view:selected, .caja-navigation-window .view:selected {
   background-color: @theme_selected_bg_color; color: @theme_selected_fg_color;
 }
+/* ThunarStandardView is a GtkScrolledWindow with GTK_SHADOW_IN, not a web
+ * surface. Keep the icon/list/compact viewport rectangular and remove the
+ * inherited inset bevel; do not change toolbar buttons or selection geometry. */
+.thunar .standard-view {
+  background-color: @theme_base_color; background-image: none;
+  border: 1px solid alpha(@theme_fg_color, .18); border-radius: 0;
+  box-shadow: none;
+}
+.thunar .standard-view .view, .thunar .standard-view viewport {
+  background-image: none; border-radius: 0; box-shadow: none; text-shadow: none;
+}
+.thunar .standard-view .view:selected:backdrop {
+  background-color: @theme_selected_bg_color; color: @theme_selected_fg_color;
+}
 
 .xfce4-panel.background #whiskermenu-button,
 .xfce4-panel.background #whiskermenu-button:backdrop {
