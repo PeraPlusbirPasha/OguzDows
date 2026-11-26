@@ -55,6 +55,13 @@ def active_window_matches(values, xid):
     return bool(values) and values[0] == xid
 
 
+def decoration_corner_matches(alpha, colors, square):
+    # The white fill is absent from a round corner, but the real .12 black
+    # shadow may contribute at most 31/255 alpha. Exact alpha zero would test
+    # for "no shadow", not for the correct native rounded geometry.
+    return (alpha > 240 and min(colors) > 240) if square else (alpha <= 31 and not any(colors))
+
+
 def child(directory, scale):
     if (os.getuid() == 0 or directory.parent != Path(tempfile.gettempdir())
             or not directory.name.startswith('oguzdows-geometry-ci-')
@@ -212,8 +219,17 @@ def child(directory, scale):
         Gtk.render_background(context, draw, 0, 0, 40, 40)
         Gtk.render_frame(context, draw, 0, 0, 40, 40)
         surface.flush()
-        alpha = bytes(surface.get_data())[3 if sys.byteorder == 'little' else 0]
-        assert (alpha > 240) if square else (alpha == 0), (path.to_string(), square, alpha)
+        data = bytes(surface.get_data())
+        def pixel(x, y):
+            offset = y * surface.get_stride() + x * 4
+            value = data[offset:offset + 4]
+            return (value[3], value[:3]) if sys.byteorder == 'little' else (value[0], value[1:])
+        alpha, colors = pixel(0, 0)
+        assert decoration_corner_matches(alpha, colors, square), (path.to_string(), square, alpha, list(colors))
+        # A transparent / missing decoration must not pass as a rounded one:
+        # both straight rails and the center must contain opaque white fill.
+        for x, y in ((20, 20), (20, 0), (0, 20)):
+            assert decoration_corner_matches(*pixel(x, y), True), (path.to_string(), x, y, pixel(x, y))
         margin = context.get_margin(Gtk.StateFlags.NORMAL)
         assert (margin.left, margin.right, margin.top, margin.bottom) == ((0, 0, 0, 0) if square else (6, 6, 6, 6))
 

@@ -97,6 +97,19 @@ class WindowGeometryTests(unittest.TestCase):
             with self.subTest(values=values):
                 self.assertIs(smoke.active_window_matches(values, 42), expected)
 
+    def test_cairo_probe_distinguishes_budgeted_black_shadow_from_white_geometry(self):
+        for alpha, colors, square, expected in ((0, (0, 0, 0), False, True),
+                                                (2, (0, 0, 0), False, True),
+                                                (31, (0, 0, 0), False, True),
+                                                (32, (0, 0, 0), False, False),
+                                                (2, (2, 2, 2), False, False),
+                                                (255, (255, 255, 255), False, False),
+                                                (255, (255, 255, 255), True, True),
+                                                (0, (0, 0, 0), True, False),
+                                                (255, (0, 0, 0), True, False)):
+            with self.subTest(alpha=alpha, colors=colors, square=square):
+                self.assertIs(smoke.decoration_corner_matches(alpha, colors, square), expected)
+
     def test_exact_mask_union_detects_one_pixel_holes_and_overlaps(self):
         for intervals, start, end, expected in (([(0, 4), (4, 10)], 0, 10, True),
                                                 ([(0, 4), (5, 10)], 0, 10, False),
