@@ -115,10 +115,10 @@ def child(directory, scale):
                 return window
         return None
 
-    focus_clicks = {}
     def activate(window):
-        # A real timestamped titlebar click goes through the window manager's
-        # focus path. Alternate points per window to avoid double-click actions.
+        # A real timestamped click goes through the window manager's focus
+        # path. Use inert client content, never a titlebar: rapid focus changes
+        # must not trigger a double-click maximize action in the test fixture.
         assert all(process.poll() is None for process in processes[:3]), [(p.args, p.poll()) for p in processes[:3]]
         window.configure(stack_mode=X.Above); connection.sync(); pump(.06)
         frame = window
@@ -127,15 +127,14 @@ def child(directory, scale):
             if parent.id == root.id: break
             frame = parent
         geometry = frame.get_geometry()
-        count = focus_clicks.get(window.id, 0); focus_clicks[window.id] = count + 1
-        x = geometry.x + geometry.width * (35 if count % 2 else 55) // 100
-        y = geometry.y + 16 * scale
+        x = geometry.x + geometry.width * 3 // 4
+        y = geometry.y + geometry.height * 4 // 5
         xtest.fake_input(connection, X.MotionNotify, x=x, y=y)
         xtest.fake_input(connection, X.ButtonPress, 1); xtest.fake_input(connection, X.ButtonRelease, 1)
         connection.sync()
         try:
             until(lambda: active_window_matches(prop(root, '_NET_ACTIVE_WINDOW'), window.id),
-                  'WM did not activate titlebar-clicked client ' + str(window.id))
+                  'WM did not activate clicked client ' + str(window.id))
         except AssertionError:
             focus = connection.get_input_focus().focus
             report['focus_failure'] = {
@@ -195,6 +194,10 @@ def child(directory, scale):
         # DOES NOT set a radius, margin or box shadow. This is a style probe,
         # separate from the actual WM maximize / fullscreen checks below.
         path = window.get_style_context().get_path().copy()
+        # GtkWidgetPath can retain the previous CSS-node snapshot after an
+        # explicit add/remove_class. Replace its classes, do not union stale
+        # maximized/fullscreen classes into the actual current context.
+        path.iter_clear_classes(path.length() - 1)
         for name in window.get_style_context().list_classes():
             path.iter_add_class(path.length() - 1, name)
         index = path.append_type(Gtk.Widget)
@@ -292,12 +295,16 @@ def child(directory, scale):
                 activate(thunar); frame_contract(thunar, theme, engine, 'active')
                 activate(other); until(sample.is_active, 'CSD did not take focus')
                 frame_contract(thunar, theme, engine, 'inactive')
+            context = sample.get_style_context()
+            original_classes = set(context.list_classes())
+            assert not original_classes.intersection(('maximized', 'fullscreen', 'tiled'))
             for style in ('solid-csd', 'maximized', 'fullscreen', 'tiled', 'tiled-left', 'tiled-right', 'tiled-top', 'tiled-bottom'):
                 context = sample.get_style_context()
                 was_present = context.has_class(style)
                 context.add_class(style); pump(.02)
                 decoration_style(sample, True)
                 if not was_present: context.remove_class(style)
+            assert set(context.list_classes()) == original_classes, context.list_classes()
             report['csd'].append({'engine': engine, 'native_application_priority_square_state_styles': True})
             decoration_style(sample, engine == 'none')
             sample.maximize(); until(lambda: sample.get_window().get_state() & Gdk.WindowState.MAXIMIZED, 'Real CSD did not maximize')
