@@ -37,6 +37,7 @@ jobs:
           sudo apt-get install -y --no-install-recommends debootstrap debian-archive-keyring \
             qemu-user-static binfmt-support ca-certificates
           sudo --preserve-env=CI,GITHUB_ACTIONS,RUNNER_TEMP \
+            python3 scripts/ci-run.py --title '32-bit ${{ matrix.arch }} real ABI and tools' -- \
             bash scripts/smoke-portable.sh '${{ matrix.arch }}' bookworm
       - uses: actions/upload-artifact@v4
         if: always()

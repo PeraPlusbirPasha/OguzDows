@@ -32,6 +32,9 @@ static gchar *source_name, *selected_source;
 static Article *current;
 static gint points = 16;
 static GKeyFile *library;
+static gboolean library_writable = TRUE, library_saving;
+static gchar *pending_library;
+static gsize pending_library_length;
 static GtkWidget *save_article_button, *saved_filter, *unread_filter;
 static gboolean unread_only, reading_list, changing_library, exporting;
 static void filter_articles(GtkWidget *widget, gpointer data);
@@ -223,15 +226,66 @@ static gchar *saved_group(Article *article) {
 static gboolean is_saved(Article *article) {
     gchar *group = saved_group(article); gboolean value = g_key_file_has_group(library, group); g_free(group); return value;
 }
+typedef struct { gchar *path, *data; gsize length; } LibraryWrite;
+static void library_write_free(gpointer pointer) {
+    LibraryWrite *job = pointer; g_free(job->path); g_free(job->data); g_free(job);
+}
+static void library_write_worker(GTask *task, gpointer source, gpointer pointer, GCancellable *cancel) {
+    (void)source; (void)cancel; LibraryWrite *job = pointer; GError *error = NULL;
+    if (og_ui_write_file(job->path, job->data, (gssize)job->length, &error)) g_task_return_boolean(task, TRUE);
+    else g_task_return_error(task, error);
+}
+static void start_library_write(gchar *data, gsize length);
+static void library_write_done(GObject *source, GAsyncResult *result, gpointer data) {
+    (void)source; (void)data; GError *error = NULL;
+    gboolean saved = g_task_propagate_boolean(G_TASK(result), &error);
+    library_saving = FALSE;
+    if (!closing && (!saved || (!pending_library && !busy))) status(saved ? "Okuma kitaplığı bu hesabın özel dosyasına kaydedildi." :
+        "Okuma kitaplığı diske kaydedilemedi; son değişiklik yalnız bu oturumda. Özgün dosya korundu.");
+    if (error) { g_printerr("Haber kitaplığı: %s\n", error->message); g_clear_error(&error); }
+    /* Coalesce bursts (read + save), never parallel writes or per-click fsync
+     * on the GTK thread. Hold the application until the last snapshot finishes. */
+    if (pending_library) {
+        gchar *next = pending_library; gsize length = pending_library_length;
+        pending_library = NULL; pending_library_length = 0; start_library_write(next, length);
+    }
+    g_application_release(G_APPLICATION(application));
+}
+static void start_library_write(gchar *data, gsize length) {
+    LibraryWrite *job = g_new0(LibraryWrite, 1); job->data = data; job->length = length;
+    job->path = g_build_filename(g_get_user_data_dir(), "oguzdows/news/library.ini", NULL);
+    GTask *task = g_task_new(NULL, NULL, library_write_done, NULL);
+    g_task_set_task_data(task, job, library_write_free);
+    library_saving = TRUE; g_application_hold(G_APPLICATION(application));
+    g_task_run_in_thread(task, library_write_worker); g_object_unref(task);
+}
 static gboolean save_library(void) {
+    if (!library_writable) {
+        status("Okuma kitaplığı okunamadı / sınır dışında; özgün dosya değiştirilmedi. Önce kişisel library.ini dosyasını yedekleyip denetleyin."); return FALSE;
+    }
     gsize length; gchar *data = g_key_file_to_data(library, &length, NULL);
-    gchar *path = g_build_filename(g_get_user_data_dir(), "oguzdows/news/library.ini", NULL); GError *error = NULL;
-    gboolean saved = og_ui_write_file(path, data, (gssize)length, &error);
-    if (!saved) { status(error ? error->message : "Okuma kitaplığı kaydedilemedi."); g_clear_error(&error); }
-    g_free(path); g_free(data); return saved;
+    if (length > 2 * 1024 * 1024) {
+        g_free(data); status("2 MiB okuma kitaplığı sınırı aşıldı; özgün dosya korunuyor."); return FALSE;
+    }
+    if (library_saving) { g_free(pending_library); pending_library = data; pending_library_length = length; }
+    else start_library_write(data, length);
+    return TRUE;
+}
+static gboolean library_valid(void) {
+    gsize count; gchar **groups = g_key_file_get_groups(library, &count); gboolean valid = count <= 41;
+    for (gsize i = 0; valid && i < count; i++) {
+        if (!strcmp(groups[i], "Read")) {
+            gsize keys; gchar **values = g_key_file_get_keys(library, "Read", &keys, NULL);
+            valid = keys <= 1000;
+            for (gsize key = 0; valid && key < keys; key++) valid = g_regex_match_simple("^[a-f0-9]{64}$", values[key], 0, 0);
+            g_strfreev(values);
+        } else valid = g_regex_match_simple("^Saved-[a-f0-9]{64}$", groups[i], 0, 0);
+    }
+    g_strfreev(groups); return valid;
 }
 static void mark_read(Article *article) {
     gchar *key = article_key(article);
+    if (!library_writable || g_key_file_has_key(library, "Read", key, NULL)) { g_free(key); return; }
     gsize count = 0; gchar **keys = g_key_file_get_keys(library, "Read", &count, NULL);
     if (count >= 1000 && !g_key_file_has_key(library, "Read", key, NULL)) {
         const gchar *oldest = keys[0]; gint64 stamp = G_MAXINT64;
@@ -298,7 +352,7 @@ static void save_article(GtkButton *button, gpointer data) {
         for (guint i = 0; i < G_N_ELEMENTS(fields); i++) g_key_file_set_string(library, group, fields[i], values[i] ? values[i] : "");
     }
     if (!save_library()) g_key_file_load_from_data(library, snapshot, (gssize)length, G_KEY_FILE_NONE, NULL);
-    else status(is_saved(current) ? "RSS metni okuma listene kaydedildi; çevrimdışı okunabilir." : "Kaydedilen RSS metni kaldırıldı; kaynak / dosya silinmedi.");
+    else status(is_saved(current) ? "RSS metni kaydetme kuyruğunda; kitaplık sonucu aşağıda bildirilecek." : "Okuma listesinden çıkarma kaydediliyor; kaynak dosya silinmez.");
     gtk_widget_set_tooltip_text(save_article_button, is_saved(current) ? "Okuma listesinden çıkar" : "RSS metnini çevrimdışı okumak için kaydet");
     g_free(group); g_free(snapshot);
     if (reading_list) show_saved_articles();
@@ -336,14 +390,15 @@ static void export_to_path(gchar *path, gchar *text) {
 static void export_article(GtkButton *button, gpointer data) {
     (void)button; (void)data;
     if (!current || exporting) return;
+    gchar *text = article_as_text(current); /* Snapshot before the nested chooser loop. */
     GtkFileChooserNative *dialog = gtk_file_chooser_native_new("RSS metnini TXT olarak kaydet", GTK_WINDOW(window), GTK_FILE_CHOOSER_ACTION_SAVE, "Kaydet", "Vazgeç");
     gtk_file_chooser_set_current_name(GTK_FILE_CHOOSER(dialog), "OguzDows-Haber.txt");
     if (gtk_native_dialog_run(GTK_NATIVE_DIALOG(dialog)) == GTK_RESPONSE_ACCEPT) {
         gchar *path = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(dialog));
-        if (path) export_to_path(path, article_as_text(current));
+        if (path) { export_to_path(path, text); text = NULL; }
         else status("Yerel bir dosya yolu seçin.");
     }
-    g_object_unref(dialog);
+    g_object_unref(dialog); g_free(text);
 }
 static void clear_read_history(GtkButton *button, gpointer data) {
     (void)button; (void)data;
@@ -351,7 +406,12 @@ static void clear_read_history(GtkButton *button, gpointer data) {
         GTK_MESSAGE_QUESTION, GTK_BUTTONS_OK_CANCEL, "Yerel okundu geçmişi temizlensin mi?");
     gtk_message_dialog_format_secondary_text(GTK_MESSAGE_DIALOG(dialog), "Kaydedilen haberler ve RSS önbelleği korunur. Hiçbir bilgi gönderilmez.");
     gtk_dialog_set_default_response(GTK_DIALOG(dialog), GTK_RESPONSE_CANCEL); og_ui_setup(dialog);
-    if (gtk_dialog_run(GTK_DIALOG(dialog)) == GTK_RESPONSE_OK) { g_key_file_remove_group(library, "Read", NULL); save_library(); filter_articles(NULL, NULL); }
+    if (gtk_dialog_run(GTK_DIALOG(dialog)) == GTK_RESPONSE_OK) {
+        gsize length; gchar *before = g_key_file_to_data(library, &length, NULL);
+        g_key_file_remove_group(library, "Read", NULL);
+        if (!save_library()) g_key_file_load_from_data(library, before, (gssize)length, G_KEY_FILE_NONE, NULL);
+        g_free(before); filter_articles(NULL, NULL);
+    }
     gtk_widget_destroy(dialog);
 }
 
@@ -403,9 +463,9 @@ static void narrate(GtkButton *button, gpointer data) {
 static void set_busy(gboolean value) {
     busy = value;
     gtk_widget_set_sensitive(sources, !value);
-    gtk_widget_set_sensitive(refresh_button, !value);
+    gtk_widget_set_sensitive(refresh_button, !value && !reading_list);
     gtk_widget_set_sensitive(add_button, !value);
-    gtk_widget_set_sensitive(remove_button, !value);
+    gtk_widget_set_sensitive(remove_button, !value && !reading_list);
     gtk_widget_set_sensitive(cancel_button, value);
     gtk_widget_set_sensitive(images_button, !value);
     if (value) gtk_spinner_start(GTK_SPINNER(spinner)); else gtk_spinner_stop(GTK_SPINNER(spinner));
@@ -615,7 +675,7 @@ static void add_source(GtkButton *button, gpointer data) {
 
 static void remove_source(GtkButton *button, gpointer data) {
     (void)button; (void)data;
-    if (!selected_source) return;
+    if (!selected_source || reading_list) return;
     GtkWidget *dialog = gtk_message_dialog_new(GTK_WINDOW(window), GTK_DIALOG_MODAL | GTK_DIALOG_DESTROY_WITH_PARENT,
         GTK_MESSAGE_QUESTION, GTK_BUTTONS_OK_CANCEL, "Kişisel RSS kaynağı kaldırılsın mı?");
     gtk_message_dialog_format_secondary_text(GTK_MESSAGE_DIALOG(dialog), "Yalnızca seçili kişisel kaynak ve kendi haber önbelleği kaldırılır. Yerleşik kaynaklar korunur.");
@@ -630,7 +690,9 @@ static void activate(GtkApplication *app, gpointer data) {
     if (window) { gtk_window_present(GTK_WINDOW(window)); return; }
     library = g_key_file_new();
     gchar *library_path = g_build_filename(g_get_user_data_dir(), "oguzdows/news/library.ini", NULL), *library_data = NULL;
-    if (og_ui_read_file(library_path, 2 * 1024 * 1024, &library_data)) g_key_file_load_from_data(library, library_data, -1, G_KEY_FILE_NONE, NULL);
+    if (og_ui_read_file(library_path, 2 * 1024 * 1024, &library_data))
+        library_writable = g_key_file_load_from_data(library, library_data, -1, G_KEY_FILE_NONE, NULL) && library_valid();
+    else { GStatBuf info; library_writable = g_lstat(library_path, &info) != 0 && errno == ENOENT; }
     g_free(library_path); g_free(library_data);
     articles = g_ptr_array_new_with_free_func(article_free);
     gchar *path = preference_path(); GStatBuf st;
@@ -826,7 +888,7 @@ static void screenshot(const gchar *name) {
 static gboolean smoke(gpointer data) {
     (void)data;
     if (++smoke_wait > 200) g_error("Haber GTK testi 20 saniyede bitmedi.");
-    if (busy || exporting) return G_SOURCE_CONTINUE;
+    if (busy || exporting || library_saving) return G_SOURCE_CONTINUE;
     GdkDisplay *display = gtk_widget_get_display(window);
     GdkMonitor *monitor = gdk_display_get_primary_monitor(display); GdkRectangle area;
     if (!monitor) monitor = gdk_display_get_monitor(display, 0);
@@ -969,6 +1031,7 @@ int main(int argc, char **argv) {
     int result = g_application_run(G_APPLICATION(application), argc, argv);
     if (articles) g_ptr_array_unref(articles);
     if (library) g_key_file_unref(library);
+    g_free(pending_library);
     g_free(source_name); g_free(selected_source); g_free(query); g_free(feed_hash); g_object_unref(application);
 #ifdef OGUZDOWS_NEWS_TEST
     g_free(private_home);

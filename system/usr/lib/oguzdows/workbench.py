@@ -125,6 +125,7 @@ def application():
             self.spinner = Gtk.Spinner()
             self.status = label('Yerel araçlar · ağ isteği ve arka plan indekslemesi yok.', 'dim-label')
             self.status.set_max_width_chars(60)
+            self.status.set_lines(3); self.status.set_ellipsize(3)
             self.stop = Gtk.Button.new_from_icon_name('process-stop-symbolic', Gtk.IconSize.BUTTON)
             self.stop.set_tooltip_text('Okuma / hesaplama isteğini durdur')
             self.stop.connect('clicked', self.stop_job)
@@ -251,7 +252,9 @@ def application():
             self.say('İşleniyor… Kaynak dosyalar yalnızca açıkça onaylanan adlandırmada değişir.')
             def work():
                 try:
+                    if not mutating: core.check_cancel(self.cancel)
                     value, error = function(self.cancel), None
+                    if not mutating: core.check_cancel(self.cancel)
                 except Exception as problem:
                     value, error = None, problem
                 GLib.idle_add(finished, value, error)
@@ -399,12 +402,16 @@ def application():
             for widget, signal in ((title, 'changed'), (body, 'changed'), (due, 'changed'), (priority, 'changed'), (done, 'toggled')):
                 if widget: widget.connect(signal, lambda *_: setattr(self, 'dirty', True))
             state = {'rows': []}
+            def indexed(row):
+                # Unicode folding of up to 4 MiB belongs on the worker, not on
+                # every GTK keystroke. The derived key is never persisted.
+                return {**row, '_search': core.normalized(row['title'] + ' ' + row.get('body', ''))}
             def display():
                 for row in records.get_children(): row.destroy()
                 needle = core.normalized(query.get_text())
                 rows = sorted(state['rows'], key=lambda row: (row.get('done', False), {'high': 0, 'normal': 1, 'low': 2}.get(row.get('priority'), 1), row.get('due') or '9999', row['updated']), reverse=False)
                 for row in rows:
-                    if needle not in core.normalized(row['title'] + ' ' + row.get('body', '')): continue
+                    if needle not in row['_search']: continue
                     if mode:
                         chosen = mode.get_active()
                         if chosen == 0 and row['done'] or chosen == 2 and not row['done'] or chosen == 3 and row['priority'] != 'high': continue
@@ -418,8 +425,8 @@ def application():
                     records.add(label('Henüz kayıt yok veya filtreyle eşleşmiyor.', 'dim-label'))
                 records.show_all()
             def refresh(_value=None):
-                def received(value): state['rows'] = value[kind]; display()
-                self.job(lambda _cancel: self.lib.read(), received)
+                def received(value): state['rows'] = value; display()
+                self.job(lambda _cancel: [indexed(row) for row in self.lib.read()[kind]], received)
             def set_record(row=None):
                 if self.dirty and not self.confirm('Kaydedilmemiş metin var', 'Başka kayda kaydetmeden geçilsin mi?'): return
                 row = row or {}
@@ -437,7 +444,7 @@ def application():
                     self.record_id = value['id']; self.dirty = False
                     state['rows'] = [row for row in state['rows'] if row['id'] != value['id']] + [value]
                     display(); self.say('Kaydedildi · yalnızca bu hesabın özel kitaplığında.')
-                self.job(lambda _cancel: self.lib.update(kind, identifier=identifier, **fields), saved, mutating=True)
+                self.job(lambda _cancel: indexed(self.lib.update(kind, identifier=identifier, **fields)), saved, mutating=True)
             def delete():
                 identifier = self.record_id
                 if not identifier or not self.confirm('Seçili kayıt silinsin mi?', 'Yalnızca bu kitaplık kaydı silinir; dosya / klasör silinmez.'): return

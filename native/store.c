@@ -1028,6 +1028,7 @@ static gboolean smoke(gpointer data) {
             g_assert_true(current_installed); g_assert_true(gtk_widget_get_sensitive(launch_button));
             gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(wishlist_button), TRUE);
             g_assert_true(is_wished(selected_id));
+            gtk_entry_set_text(GTK_ENTRY(search_entry), ""); refilter(NULL, NULL);
             gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(wishlist_filter), TRUE);
             g_assert_true(matches(g_ptr_array_index(apps, 0))); g_assert_false(matches(g_ptr_array_index(apps, 1)));
             gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(wishlist_filter), FALSE);
@@ -1095,13 +1096,13 @@ int main(int argc, char **argv) {
         g_print("OğuzDows Mağaza · GTK %u.%u.%u\n", gtk_get_major_version(), gtk_get_minor_version(), gtk_get_micro_version());
         return 0;
     }
-    application = gtk_application_new(APP_ID, G_APPLICATION_HANDLES_COMMAND_LINE);
 #ifdef OGUZDOWS_STORE_TEST
     if (argc == 3 && !strcmp(argv[1], "--smoke-test")) {
         gchar *absolute = g_canonicalize_filename(argv[2], NULL), *home = g_build_filename(absolute, ".private-config", NULL);
         g_mkdir_with_parents(home, 0700); g_setenv("XDG_CONFIG_HOME", home, TRUE); g_free(home); g_free(absolute);
     }
 #endif
+    application = gtk_application_new(APP_ID, G_APPLICATION_HANDLES_COMMAND_LINE);
     g_signal_connect(application, "activate", G_CALLBACK(activate), NULL);
     g_signal_connect(application, "command-line", G_CALLBACK(command_line), NULL);
     gint result = g_application_run(G_APPLICATION(application), argc, argv);

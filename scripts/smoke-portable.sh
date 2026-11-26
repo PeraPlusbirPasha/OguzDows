@@ -21,6 +21,10 @@ revision=$(git -c safe.directory="$project" rev-parse HEAD)
 : "${RUNNER_TEMP:?GitHub runner geçici dizini gerekli}"
 root=$(mktemp -d "$RUNNER_TEMP/oguzdows-portable-$arch-XXXXXX")
 cleanup() {
+    result=$?
+    if [[ $result != 0 && -f "$root/debootstrap/debootstrap.log" ]]; then
+        tail -n 70 "$root/debootstrap/debootstrap.log" >&2
+    fi
     case "$root" in
         "$RUNNER_TEMP"/oguzdows-portable-*)
             for part in proc sys dev/pts; do
