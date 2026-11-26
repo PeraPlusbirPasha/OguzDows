@@ -61,7 +61,7 @@ def child(directory, hub):
     private_child(directory)
     import gi
     gi.require_version('Gtk', '3.0'); gi.require_version('Gdk', '3.0')
-    from gi.repository import Gdk, Gtk
+    from gi.repository import Gdk, Gio, GLib, Gtk
     from Xlib import X, XK, display
     from Xlib.ext import xtest
     import desktop_preferences as preferences
@@ -76,6 +76,18 @@ def child(directory, hub):
     report = {'scope': 'private-nonroot-Xvfb-real-Xfce-GTK3-libadwaita',
               'physical_gpu_verified': False, 'performance_benchmark': False}
     sample = None
+    bus = Gio.bus_get_sync(Gio.BusType.SESSION, None)
+    portal_values = []
+
+    def portal_matches(expected):
+        try:
+            reply = bus.call_sync('org.freedesktop.portal.Desktop', '/org/freedesktop/portal/desktop',
+                                  'org.freedesktop.portal.Settings', 'Read',
+                                  GLib.Variant('(ss)', ('org.freedesktop.appearance', 'color-scheme')),
+                                  None, Gio.DBusCallFlags.NONE, 2000, None).unpack()[0]
+            return type(reply) is int and reply == (1 if expected else 2)
+        except GLib.Error:
+            return False
 
     def pump(seconds=.03):
         deadline = time.monotonic() + seconds
@@ -158,6 +170,8 @@ def child(directory, hub):
             until(lambda: ('Dark' in Gtk.Settings.get_default().get_property('gtk-theme-name')) is expected,
                   'Already open standard GTK3 application did not change theme')
             until(lambda: adwaita_dark(expected), 'Already open libadwaita application did not follow the standard color preference')
+            until(lambda: portal_matches(expected), 'Standard Settings portal did not expose the selected color-scheme')
+            portal_values.append(1 if expected else 2)
             found, base = tree.get_style_context().lookup_color('theme_base_color')
             assert found and (max(base.red, base.green, base.blue) < .4 if expected else min(base.red, base.green, base.blue) > .7), (mode, base)
             dark_theme = Gtk.Settings.get_default().get_property('gtk-theme-name')
@@ -165,6 +179,7 @@ def child(directory, hub):
         assert adwaita.poll() is None
         report['already_open_standard_gtk3_dark_light_dark'] = True
         report['already_open_standard_libadwaita_dark_light_dark'] = True
+        report['portal_color_scheme_dark_light_dark'] = portal_values
         report['color_scheme_transport'] = json.loads((directory / 'adwaita.json').read_text())
         thunar = start('thunar', ['/usr/bin/thunar', str(Path.home())])
         until(lambda: owned_window(thunar.pid) is not None, 'Real Thunar did not open')

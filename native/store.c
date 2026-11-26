@@ -211,25 +211,28 @@ static void feature(App *app) {
     const gchar *topic = !strcmp(app->category, "Görsel") ? "create" : !strcmp(app->category, "Ses ve video") ? "media" : "work";
     const gchar *tab = !strcmp(topic, "create") ? "Üret" : !strcmp(topic, "media") ? "Dinle" : "Çalış";
     const gchar *headline = !strcmp(topic, "create") ? "Fikirlerine alan aç." : !strcmp(topic, "media") ? "Sesi aç. Keyfine bak." : "Gününü kolaylaştır.";
-    GtkWidget *hero = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 8), *box = gtk_box_new(GTK_ORIENTATION_VERTICAL, 10);
+    GtkWidget *hero = gtk_overlay_new(), *box = gtk_box_new(GTK_ORIENTATION_VERTICAL, 10);
+    gtk_widget_set_halign(box, GTK_ALIGN_START);
     gtk_style_context_add_class(gtk_widget_get_style_context(hero), "store-feature");
     gchar *css = g_strconcat("feature-", topic, NULL); gtk_style_context_add_class(gtk_widget_get_style_context(hero), css); g_free(css);
     gtk_box_pack_start(GTK_BOX(box), label("ÖNE ÇIKANLAR · AÇIK KAYNAK", "eyebrow"), FALSE, FALSE, 0);
-    GtkWidget *title = label(headline, "feature-title"); gtk_label_set_max_width_chars(GTK_LABEL(title), 25);
+    GtkWidget *title = label(headline, "feature-title"); gtk_label_set_max_width_chars(GTK_LABEL(title), 20);
     gtk_box_pack_start(GTK_BOX(box), title, FALSE, FALSE, 0);
     GtkWidget *name = label(app->name, "feature-app"); gtk_box_pack_start(GTK_BOX(box), name, FALSE, FALSE, 0);
-    GtkWidget *summary = label(app->summary, "feature-summary"); gtk_label_set_max_width_chars(GTK_LABEL(summary), 32);
+    GtkWidget *summary = label(app->summary, "feature-summary"); gtk_label_set_max_width_chars(GTK_LABEL(summary), 28);
     gtk_box_pack_start(GTK_BOX(box), summary, FALSE, FALSE, 0);
     GtkWidget *button = gtk_button_new_with_label("Keşfet  →"); gtk_widget_set_halign(button, GTK_ALIGN_START);
     gtk_style_context_add_class(gtk_widget_get_style_context(button), "hero-cta");
     g_signal_connect(button, "clicked", G_CALLBACK(show_app), app);
-    gtk_box_pack_start(GTK_BOX(box), button, FALSE, FALSE, 0); gtk_box_pack_start(GTK_BOX(hero), box, TRUE, TRUE, 0);
+    gtk_box_pack_start(GTK_BOX(box), button, FALSE, FALSE, 0); gtk_container_add(GTK_CONTAINER(hero), box);
     gchar *path = g_strdup_printf("/usr/share/oguzdows/ui/store-%s.png", topic);
     GdkPixbuf *pixels = gdk_pixbuf_new_from_file_at_scale(path, 190, 150, TRUE, NULL); g_free(path);
     GtkWidget *art = pixels ? gtk_image_new_from_pixbuf(pixels) : gtk_image_new_from_icon_name(app->fallback_icon, GTK_ICON_SIZE_DIALOG);
     if (pixels) g_object_unref(pixels);
     gtk_widget_set_no_show_all(art, compact); gtk_widget_set_visible(art, !compact);
-    gtk_box_pack_end(GTK_BOX(hero), art, FALSE, FALSE, 0); g_object_set_data(G_OBJECT(hero), "art", art);
+    gtk_widget_set_halign(art, GTK_ALIGN_END); gtk_widget_set_valign(art, GTK_ALIGN_CENTER);
+    gtk_overlay_add_overlay(GTK_OVERLAY(hero), art);
+    gtk_overlay_set_overlay_pass_through(GTK_OVERLAY(hero), art, TRUE); g_object_set_data(G_OBJECT(hero), "art", art);
     gtk_stack_add_titled(GTK_STACK(featured_stack), hero, app->id, tab);
     gtk_widget_show_all(hero); gtk_widget_set_visible(art, !compact);
 }
@@ -772,6 +775,11 @@ static void build(void) {
 }
 
 #ifdef OGUZDOWS_STORE_TEST
+static void width_diagnostic(GtkWidget *widget, gpointer depth) {
+    gint minimum, natural; gtk_widget_get_preferred_width(widget, &minimum, &natural);
+    if (minimum > 300) g_print("Minimum width %u %s / %s: %d (natural %d)\n", GPOINTER_TO_UINT(depth), G_OBJECT_TYPE_NAME(widget), gtk_widget_get_name(widget), minimum, natural);
+    if (GTK_IS_CONTAINER(widget)) gtk_container_foreach(GTK_CONTAINER(widget), width_diagnostic, GUINT_TO_POINTER(GPOINTER_TO_UINT(depth) + 1));
+}
 static void capture_window(GtkWidget *target, const gchar *name) {
     GdkWindow *native = gtk_widget_get_window(target);
     gint width, height; gtk_window_get_size(GTK_WINDOW(target), &width, &height);
@@ -850,7 +858,9 @@ static gboolean smoke(gpointer data) {
         case 6: {
             gint width, height; gtk_window_get_size(GTK_WINDOW(window), &width, &height);
             (void)height;
-            g_assert_true(compact); g_assert_cmpint(width, <=, 480);
+            g_assert_true(compact);
+            if (width > 480) width_diagnostic(window, NULL);
+            g_assert_cmpint(width, <=, 480);
             g_assert_false(gtk_widget_get_visible(nav_titles[0]));
             capture("store-native-compact.png");
             show_app(NULL, g_ptr_array_index(apps, 0)); break;

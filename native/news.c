@@ -599,7 +599,8 @@ static gboolean smoke(gpointer data) {
         gtk_entry_set_text(GTK_ENTRY(search_entry), "__missing__"); filter_articles(NULL, NULL);
         g_assert_true(gtk_widget_get_visible(empty_note));
         gtk_entry_set_text(GTK_ENTRY(search_entry), ""); filter_articles(NULL, NULL);
-        select_article(GTK_LIST_BOX(headlines), gtk_list_box_get_row_at_index(GTK_LIST_BOX(headlines), 0), NULL);
+        g_assert_true(gtk_list_box_get_activate_on_single_click(GTK_LIST_BOX(headlines)));
+        g_signal_emit_by_name(headlines, "row-activated", gtk_list_box_get_row_at_index(GTK_LIST_BOX(headlines), 0));
         larger(NULL, NULL); g_assert_cmpint(points, ==, 17);
         smoke_step = 1; return G_SOURCE_CONTINUE;
     }

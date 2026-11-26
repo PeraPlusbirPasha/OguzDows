@@ -128,7 +128,10 @@ def main(argv=None):
                 if Gtk.init_check([])[0]:
                     dialog = Gtk.MessageDialog(message_type=Gtk.MessageType.INFO, buttons=Gtk.ButtonsType.CLOSE,
                                                text='Yerel masaüstü işlemi tamamlanamadı')
-                    dialog.format_secondary_text(str(error)); dialog.run(); dialog.destroy()
+                    dialog.format_secondary_text(str(error))
+                    import ui_theme
+                    ui_theme.setup(dialog)
+                    dialog.run(); dialog.destroy()
             except ImportError:
                 pass
         return 1

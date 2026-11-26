@@ -133,6 +133,7 @@ jobs:
             /tmp/oguzdows-store-ui-test --smoke-test test-results/store-360x800
 
       - name: Yerel hafif haber okuyucusu ve kısa ömürlü RSS işçisi (ağsız fixture)
+        if: ${{ !cancelled() }}
         run: |
           sh scripts/build-news.sh /tmp/oguzdows-news-native
           sh scripts/build-news.sh /tmp/oguzdows-news-ui-test --test
@@ -213,10 +214,15 @@ jobs:
           done
 
       - name: Açık GTK3 / libadwaita uygulamalarında koyu-açık senkronu, gerçek Print ve Başlat
+        if: ${{ !cancelled() }}
         run: |
           install -m755 system/usr/local/bin/oguzdows-screenshot /usr/local/bin/oguzdows-screenshot
           install -Dm644 system/etc/xdg/xdg-desktop-portal/xfce-portals.conf /etc/xdg/xdg-desktop-portal/xfce-portals.conf
           sh scripts/build-desktop.sh hub /tmp/oguzdows-hub-polish
+          install -m755 /tmp/oguzdows-hub-polish /usr/lib/oguzdows/oguzdows-hub-native
+          install -m755 system/usr/local/bin/oguzdows-hub /usr/local/bin/oguzdows-hub
+          install -m755 system/usr/local/bin/oguzdows-desktop /usr/local/bin/oguzdows-desktop
+          cp system/usr/share/applications/oguzdows-hub.desktop system/usr/share/applications/oguzdows-desktop.desktop /usr/share/applications/
           python3 scripts/ci-run.py --title 'Real application themes / PrintScreen / Start' -- \
             xvfb-run -a -s '-screen 0 1024x768x24 -nolisten tcp' \
             python3 tests/smoke-desktop-polish.py --hub /tmp/oguzdows-hub-polish --output test-results/desktop-polish

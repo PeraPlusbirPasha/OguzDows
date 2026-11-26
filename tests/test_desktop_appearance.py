@@ -40,6 +40,19 @@ class AppearanceTests(unittest.TestCase):
         self.assertEqual(parser['Settings']['gtk-theme-name'], 'Theme')
         self.assertEqual(parser['Other']['value'], 'yes')
 
+    def test_personal_crlf_comments_and_gtk4_settings_are_not_reformatted_or_forced(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary); gtk3 = root / 'gtk-3.0/settings.ini'; gtk3.parent.mkdir()
+            gtk3.write_bytes(b'# personal\r\n[Settings]\r\ngtk-font-name=Keep 11\r\n')
+            gtk4 = root / 'gtk-4.0/settings.ini'; gtk4.parent.mkdir()
+            original = b'# gtk4 is personal\n[Settings]\ngtk-font-name=Keep 12\n'
+            gtk4.write_bytes(original)
+            backend = appearance.AppearanceSettings(root, Settings())
+            values, _ = backend.changes({'appearance': 'dark'}, 'Dark')
+            state.Journal(backend, root / 'journal').apply(values)
+            self.assertTrue(gtk3.read_bytes().startswith(b'# personal\r\n[Settings]\r\ngtk-font-name=Keep 11\r\n'))
+            self.assertEqual(gtk4.read_bytes(), original)
+
     def test_live_portal_and_both_gtk_generations_have_one_reversible_choice(self):
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary); backend = appearance.AppearanceSettings(root, Settings())
@@ -131,7 +144,7 @@ class AppearanceTests(unittest.TestCase):
                 rows = {(channel, key): (typ, val) for channel, key, typ, val in profiles.settings(identifier, resources={'compositing': False})}
                 self.assertEqual(rows['xfce4-panel', '/plugins/plugin-4/' + path], (kind, value))
         source = (ROOT / 'native/hub.c').read_text()
-        for marker in ('public_recent(', 'gtk_recent_info_get_private_hint', 'g_application_hold(application)', 'g_application_release(G_APPLICATION(data))'):
+        for marker in ('public_recent(', 'gtk_recent_info_get_private_hint', 'g_application_hold(application)', 'g_application_release(launch->application)'):
             self.assertIn(marker, source)
 
 

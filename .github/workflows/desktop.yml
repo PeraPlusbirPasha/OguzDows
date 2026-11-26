@@ -91,6 +91,11 @@ jobs:
         run: |
           cp -a system/usr/share/themes/. /usr/share/themes/
           python3 scripts/ci-run.py --title 'Yerel cam materyalleri' -- python3 scripts/render-assets.py --root /
+          # Pinned defaults must refer to real installed launchers, not absent
+          # Exec paths which GIO correctly omits from its application list.
+          cp system/usr/local/bin/oguzdows-{desktop,hub,monitor} /usr/local/bin/
+          install -m755 test-results/bin/hub /usr/lib/oguzdows/oguzdows-hub-native
+          install -m755 test-results/bin/monitor /usr/lib/oguzdows/oguzdows-monitor-native
           cp system/usr/share/applications/oguzdows-{desktop,hub,monitor}.desktop /usr/share/applications/
           gtk-update-icon-cache -f -t /usr/share/icons/hicolor
           result=0

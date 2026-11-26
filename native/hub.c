@@ -12,6 +12,8 @@
 #include <unistd.h>
 
 typedef struct { GAppInfo *info; gchar *search, *id; gboolean pinned; } App;
+typedef struct { GtkWidget *window; GApplication *application; } RecentLaunch;
+static gint monitor_x, monitor_y;
 static GPtrArray *apps;
 static GtkWidget *window, *flow, *search_entry, *status_label, *clock_label, *network_label, *battery_label, *sound_label, *more;
 static GtkWidget *section_title, *all_button, *recent_section;
@@ -182,13 +184,14 @@ static void toggle_apps(GtkButton *button, gpointer data) {
 }
 
 static void recent_opened(GObject *source, GAsyncResult *result, gpointer data) {
-    (void)source;
+    (void)source; RecentLaunch *launch = data;
     GError *error = NULL;
     if (!g_app_info_launch_default_for_uri_finish(result, &error)) {
-        if (window) gtk_label_set_text(GTK_LABEL(status_label), error ? error->message : "Dosya açılamadı.");
+        if (window == launch->window) gtk_label_set_text(GTK_LABEL(status_label), error ? error->message : "Dosya açılamadı.");
         g_clear_error(&error);
-    } else if (window) gtk_widget_destroy(window);
-    g_application_release(G_APPLICATION(data));
+    } else if (window == launch->window) gtk_widget_destroy(window);
+    g_object_unref(launch->window);
+    g_application_release(launch->application); g_free(launch);
 }
 static void open_recent(GtkButton *button, gpointer data) {
     (void)button;
@@ -197,8 +200,10 @@ static void open_recent(GtkButton *button, gpointer data) {
     GdkAppLaunchContext *context = gdk_display_get_app_launch_context(gtk_widget_get_display(window));
     gdk_app_launch_context_set_timestamp(context, gtk_get_current_event_time());
     GApplication *application = G_APPLICATION(gtk_window_get_application(GTK_WINDOW(window)));
+    RecentLaunch *launch = g_new0(RecentLaunch, 1);
+    launch->window = g_object_ref(window); launch->application = application;
     g_application_hold(application);
-    g_app_info_launch_default_for_uri_async(uri, G_APP_LAUNCH_CONTEXT(context), NULL, recent_opened, application);
+    g_app_info_launch_default_for_uri_async(uri, G_APP_LAUNCH_CONTEXT(context), NULL, recent_opened, launch);
     g_object_unref(context);
 }
 static gint recent_compare(gconstpointer a, gconstpointer b) {
@@ -232,7 +237,8 @@ static void load_recent(GtkWidget *box, gint columns) {
         if (!public_recent(info)) continue;
         GtkWidget *button = gtk_button_new(), *line = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 10);
         gtk_style_context_add_class(gtk_widget_get_style_context(button), "hub-recent");
-        GIcon *icon = g_content_type_get_icon(gtk_recent_info_get_mime_type(info));
+        const gchar *mime = gtk_recent_info_get_mime_type(info);
+        GIcon *icon = g_content_type_get_icon(mime ? mime : "application/octet-stream");
         GtkWidget *image = gtk_image_new_from_gicon(icon, GTK_ICON_SIZE_LARGE_TOOLBAR); g_object_unref(icon);
         gtk_image_set_pixel_size(GTK_IMAGE(image), 26);
         GtkWidget *name = gtk_label_new(gtk_recent_info_get_display_name(info));
@@ -277,7 +283,7 @@ static gboolean focus_out(GtkWidget *widget, GdkEventFocus *event, gpointer data
 static void position_hub(void) {
     if (!window) return;
     GdkDisplay *display = gtk_widget_get_display(window);
-    GdkMonitor *monitor = gdk_display_get_monitor_at_window(display, gtk_widget_get_window(window));
+    GdkMonitor *monitor = gdk_display_get_monitor_at_point(display, monitor_x, monitor_y);
     if (!monitor) return;
     GdkRectangle work; gdk_monitor_get_workarea(monitor, &work);
     gint width, height; gtk_window_get_size(GTK_WINDOW(window), &width, &height);
@@ -427,6 +433,7 @@ static void activate(GtkApplication *application, gpointer data) {
     GdkDisplay *display = gtk_widget_get_display(window);
     GdkSeat *seat = gdk_display_get_default_seat(display); gint px = 0, py = 0;
     if (seat && gdk_seat_get_pointer(seat)) gdk_device_get_position(gdk_seat_get_pointer(seat), NULL, &px, &py);
+    monitor_x = px; monitor_y = py;
     GdkMonitor *monitor = gdk_display_get_monitor_at_point(display, px, py); GdkRectangle work = {0, 0, 1024, 768};
     if (monitor) gdk_monitor_get_workarea(monitor, &work);
     gint width = MIN(660, work.width - 24), columns = width >= 590 ? 6 : width >= 480 ? 5 : width >= 390 ? 4 : 3;

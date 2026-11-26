@@ -145,6 +145,8 @@ def native_control(action, desktop=None, *, spawn=spawn_command):
         raise ValueError('Bilinmeyen masaüstü işlemi.')
     normal_session()
     desktop = current() if desktop is None else desktop
+    if action == 'session' and installation_busy():
+        raise RuntimeError('Kurulum / sürücü işlemi sürüyor; oturum kapatma seçenekleri işlem bitene kadar açılmaz.')
     if action == 'monitor':
         return spawn('/usr/local/bin/oguzdows-monitor', ['/usr/local/bin/oguzdows-monitor'], os.environ)
     if desktop == 'kde' and action == 'session':

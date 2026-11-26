@@ -105,6 +105,24 @@ class RuntimeTests(unittest.TestCase):
             runtime.native_control('widgets', 'gnome', spawn=spawn)
         with self.assertRaises(ValueError): runtime.native_control('sh -c anything', spawn=spawn)
 
+    def test_session_actions_never_logout_without_confirmation_or_while_installing(self):
+        spawn = Mock()
+        with patch.object(runtime, 'normal_session'), patch.object(runtime, 'installation_busy', return_value=True), patch.object(runtime, 'dbus') as bus:
+            for desktop in ('xfce', 'gnome', 'kde'):
+                with self.subTest(desktop=desktop), self.assertRaisesRegex(RuntimeError, 'Kurulum'):
+                    runtime.native_control('session', desktop, spawn=spawn)
+            bus.assert_not_called(); spawn.assert_not_called()
+        with patch.object(runtime, 'normal_session'), patch.object(runtime, 'installation_busy', return_value=False), patch.object(runtime, 'binary', side_effect=lambda names: '/usr/bin/' + names[0]), patch.object(runtime, 'dbus') as bus:
+            runtime.native_control('session', 'xfce', spawn=spawn)
+            self.assertEqual(spawn.call_args.args[1], ['/usr/bin/xfce4-session-logout'])
+            runtime.native_control('session', 'gnome', spawn=spawn)
+            self.assertEqual(spawn.call_args.args[1], ['/usr/bin/gnome-session-quit', '--logout'])
+            runtime.native_control('session', 'kde', spawn=spawn)
+            self.assertEqual(bus.call_args.args[-1], (1, -1, -1))  # request confirmation
+            for call in spawn.call_args_list:
+                for forbidden in ('--no-prompt', '--fast', '--force', '--poweroff', '--reboot'):
+                    self.assertNotIn(forbidden, call.args[1])
+
     def test_plasma_operations_use_fixed_native_panel_and_widget_apis(self):
         with patch.object(runtime, 'normal_session'), patch.object(runtime, 'dbus') as bus:
             runtime.native_control('widgets', 'kde'); self.assertEqual(bus.call_args.args[3], 'toggleWidgetExplorer')
