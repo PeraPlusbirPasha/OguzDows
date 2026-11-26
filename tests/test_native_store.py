@@ -20,7 +20,7 @@ PC = {'arch': 'amd64', 'suite': 'trixie'}
 
 class CatalogTests(unittest.TestCase):
     def test_fixed_catalog_is_unique_and_has_valid_flatpak_ids(self):
-        self.assertEqual(len(catalog.APPS), 27)
+        self.assertEqual(len(catalog.APPS), 29)
         self.assertEqual(len(catalog.BY_ID), len(catalog.APPS))
         for item in catalog.APPS:
             self.assertIn(item['category'], catalog.CATEGORIES)

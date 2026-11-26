@@ -28,18 +28,15 @@ PC_ONLY = (
     "usr/local/sbin/oguzdows-driver-helper", "usr/share/applications/oguzdows-install.desktop",
     "usr/share/polkit-1/actions/org.oguzdows.install.policy",
     "usr/share/polkit-1/actions/org.oguzdows.drivers.policy",
-    # PC güncelleyici / Pardus / gelişmiş GNOME merkezi taşınmaz. Yerel C
+    # PC güncelleyici / Pardus taşınmaz. GNOME merkezi isteğe bağlı kalır. Yerel C
     # mağazası yalnızca app: demetlerini Pi imzalı tabanında ayrıca doğrular.
     "usr/lib/oguzdows/updater.py",
-    "usr/lib/oguzdows/store.py", "usr/lib/oguzdows/store_lifecycle.py", "usr/lib/oguzdows/memory_probe.py",
+    "usr/lib/oguzdows/memory_probe.py",
     "usr/local/bin/oguzdows-update",
     "usr/local/bin/oguzdows-memory-report",
     "usr/share/applications/oguzdows-update.desktop",
-    "usr/local/share/applications/org.gnome.Software.desktop",
     "etc/apt/sources.list.d/oguzdows-pardus.sources", "etc/apt/preferences.d/oguzdows-pardus",
     "usr/share/keyrings/oguzdows-pardus.asc",
-    "usr/share/glib-2.0/schemas/90_oguzdows-store.gschema.override",
-    "etc/xdg/autostart/org.gnome.Software.desktop",
 )
 
 
@@ -134,9 +131,12 @@ def configure(arch: str, output: Path) -> None:
     # them without importing or executing any code from the mounted image.
     desktop_content = ['usr/lib/oguzdows/' + name for name in (
         'file_manager.py', 'resource_policy.py', 'desktop_material.py',
-        'desktop_preferences.py', 'session.sh', 'render-assets.py')]
+        'desktop_preferences.py', 'session.sh', 'render-assets.py',
+        'workbench.py', 'workbench_core.py', 'app_catalog.py', 'store_core.py',
+        'store_service.py', 'store.py', 'store_lifecycle.py', 'maintenance.py')]
     desktop_content += ['usr/share/oguzdows/ui/' + name for name in ('modern.css', 'window-geometry.css', 'shell.css')]
-    desktop_content += ['usr/share/oguzdows/picom.conf']
+    desktop_content += ['usr/share/oguzdows/picom.conf', 'usr/local/bin/oguzdows-workbench',
+                        'usr/share/applications/oguzdows-workbench.desktop', 'usr/share/applications/oguzdows-software.desktop']
     desktop_content += [str(path.relative_to(overlay)) for path in sorted((overlay / 'usr/share/oguzdows/compositor').glob('*.conf'))]
     contract['asset_hashes'].update({name: hashlib.sha256((overlay / name).read_bytes()).hexdigest() for name in desktop_content})
     write(overlay / 'usr/share/oguzdows/pi-contract.json', json.dumps(contract, ensure_ascii=False, indent=2) + '\n')

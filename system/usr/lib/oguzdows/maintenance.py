@@ -130,6 +130,8 @@ def request_packages(request, info, suggestions=None):
         if info.get('arch') not in ('amd64', 'i386') and identifier == 'wine':
             raise MaintenanceError('Windows Wine demeti yalnızca x86 PC içindir. ARM emülasyonu varsayılmadı.')
         try:
+            if request.startswith('remove-app:') and app_catalog.get(identifier).get('managed_bundle'):
+                raise MaintenanceError('Mağaza altyapısı dar uygulama kaldırma işlemi değildir; portallar / paket motoru korunuyor.')
             return app_catalog.packages(identifier)
         except ValueError as error:
             raise MaintenanceError(str(error)) from error

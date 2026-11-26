@@ -42,6 +42,8 @@ class Desktops(Gtk.Application):
 
     def build(self):
         self.window = Gtk.ApplicationWindow(application=self, title='OğuzDows · Gerçek oturumlar')
+        import ui_theme
+        ui_theme.setup(self.window)
         self.window.set_default_size(650, 530)
         self.window.connect('delete-event', lambda *_: self.busy)
         box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=12, margin=20)

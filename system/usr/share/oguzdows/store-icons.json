@@ -138,5 +138,15 @@
     "id": "flathub",
     "badge": "+",
     "color": "#287f87"
+  },
+  {
+    "id": "flatpak-support",
+    "badge": "Fp",
+    "color": "#356e89"
+  },
+  {
+    "id": "software-center",
+    "badge": "Gs",
+    "color": "#7b4b96"
   }
 ]

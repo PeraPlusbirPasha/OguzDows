@@ -33,6 +33,8 @@ class Culture(Gtk.Application):
 
     def build(self):
         self.window = Gtk.ApplicationWindow(application=self, title='OğuzDows · İmece')
+        import ui_theme
+        ui_theme.setup(self.window)
         self.window.set_icon_name('oguzdows-imece')
         self.window.set_default_size(760, 560)
         self.window.connect('delete-event', self.close)
@@ -41,6 +43,7 @@ class Culture(Gtk.Application):
         self.window.set_titlebar(header)
         box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=16, margin=24)
         self.stack = stack = Gtk.Stack()
+        ui_theme.configure_stack(self.window, stack)
         box.pack_start(Gtk.StackSwitcher(stack=stack), False, False, 0)
         for title, identifier, factory in [('Çay Molası', 'tea', self.tea_page), ('Türkçe Yazım', 'text', self.text_page),
                                            ('Heybe', 'backup', self.backup_page), ('İmece Paketi', 'share', self.share_page)]:

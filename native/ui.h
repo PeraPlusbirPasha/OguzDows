@@ -3,6 +3,7 @@
 #define OGUZDOWS_UI_H
 #include <gtk/gtk.h>
 gboolean og_ui_read_file(const char *path, gsize maximum, gchar **contents);
+gboolean og_ui_write_file(const char *path, const gchar *contents, gssize length, GError **error);
 void og_ui_setup(GtkWidget *window);
 void og_ui_stack_setup(GtkWidget *stack);
 gboolean og_ui_motion_enabled(void);

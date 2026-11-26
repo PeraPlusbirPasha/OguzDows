@@ -155,6 +155,8 @@ class Store(Gtk.Application):
             button = Gtk.Button(label=title)
             button.connect('clicked', callback)
             box.pack_start(button, False, False, 0)
+        import ui_theme
+        ui_theme.setup(self.window)
         self.window.add(box)
         self.window.show_all()
 
@@ -228,6 +230,8 @@ class Store(Gtk.Application):
         self.skip = Gtk.Button(label='Yalnızca sistem uygulamalarıyla devam et')
         self.skip.connect('clicked', self.only_system)
         box.pack_start(self.skip, False, False, 0)
+        import ui_theme
+        ui_theme.setup(self.window)
         self.window.add(box)
         self.window.show_all()
 

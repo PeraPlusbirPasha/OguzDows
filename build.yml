@@ -121,6 +121,17 @@ jobs:
             xvfb-run -a -s '-screen 0 1024x768x24' dbus-run-session -- \
             python3 tests/smoke-welcome.py --live --output test-results/live
 
+      - name: Atölye · 16 gerçek GTK sayfası / özel dosyalar / tek işçi / boşta yük
+        shell: bash
+        run: |
+          for spec in '1024x768 light' '360x800 dark'; do
+            read -r screen appearance <<< "$spec"
+            python3 scripts/ci-run.py --title "Atölye $screen $appearance · ${{ matrix.suite }}" -- \
+              xvfb-run -a -s "-screen 0 ${screen}x24 -nolisten tcp" \
+              python3 tests/smoke-workbench.py --appearance "$appearance" --output "test-results/workbench-$screen"
+          done
+          sh scripts/test-native-files.sh
+
       - name: Yerel C mağazasını derle ve gerçek GTK ile aç
         run: |
           sh scripts/build-native.sh /tmp/oguzdows-store-native

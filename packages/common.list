@@ -98,6 +98,7 @@ libreoffice-gtk3
 libreoffice-l10n-tr
 vlc
 locales
+tzdata
 console-setup
 keyboard-configuration
 

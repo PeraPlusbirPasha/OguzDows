@@ -1,0 +1,149 @@
+name: OğuzDows Taşınabilir Araçlar
+
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - 'native/**'
+      - 'system/**'
+      - 'scripts/**'
+      - 'tests/**'
+      - 'packages/**'
+      - '.github/workflows/portable.yml'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: oguzdows-portable-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  emulated:
+    name: Gerçek 32 bit kullanıcı ABI · ${{ matrix.arch }} / bookworm (QEMU)
+    runs-on: ubuntu-24.04
+    timeout-minutes: 50
+    strategy:
+      fail-fast: false
+      matrix:
+        arch: [i386, armhf]
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: İmzalı kök ve mimarinin kendi Python / GTK / C araçları
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends debootstrap debian-archive-keyring \
+            qemu-user-static binfmt-support ca-certificates
+          sudo --preserve-env=CI,GITHUB_ACTIONS,RUNNER_TEMP \
+            bash scripts/smoke-portable.sh '${{ matrix.arch }}' bookworm
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: portable-${{ matrix.arch }}-bookworm
+          path: test-results/portable-*/
+          if-no-files-found: warn
+          retention-days: 14
+
+  arm64:
+    name: ARM64 gerçek GTK / kurulum · ${{ matrix.suite }} (kart değil)
+    runs-on: ubuntu-24.04-arm
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        suite: [bookworm, trixie]
+    container:
+      image: debian:${{ matrix.suite }}
+    env:
+      NO_AT_BRIDGE: '1'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: ARM64 taban araçları (Flatpak ve GNOME Software önceden kurulmaz)
+        run: |
+          apt-get update
+          apt-get install -y --no-install-recommends python3 python3-apt python3-gi python3-pil \
+            build-essential pkg-config libgtk-3-dev libjson-glib-dev ca-certificates tzdata \
+            xauth xvfb dbus-x11 adwaita-icon-theme fonts-dejavu-core librsvg2-common
+          test "$(dpkg --print-architecture)" = arm64
+      - name: Aynı Python araçları, geri alma ve kaynak güvenlik testleri
+        run: |
+          python3 -W error::ResourceWarning -m unittest discover -s tests -p test_workbench.py -v
+          python3 -W error::ResourceWarning -m unittest discover -s tests -p test_store_bootstrap.py -v
+      - name: Gerçek ARM64 C / GTK ABI (üretim + ayrı fixture derlemeleri)
+        shell: bash
+        run: |
+          mkdir -p test-results/bin
+          sh scripts/test-native-files.sh
+          sh scripts/build-native.sh test-results/bin/store
+          sh scripts/build-native.sh test-results/bin/store-test --test
+          sh scripts/build-news.sh test-results/bin/news
+          sh scripts/build-news.sh test-results/bin/news-test --test
+          for component in hub monitor; do
+            sh scripts/build-desktop.sh "$component" "test-results/bin/$component"
+            sh scripts/build-desktop.sh "$component" "test-results/bin/$component-test" --test
+          done
+          for component in store news hub monitor; do "test-results/bin/$component" --version; done
+      - name: Normal kullanıcıda ARM64 Atölye ve yerel C eylemleri
+        shell: bash
+        run: |
+          cp -a system/usr/share/themes/. /usr/share/themes/
+          mkdir -p /usr/share/oguzdows /usr/lib/oguzdows
+          python3 scripts/render-assets.py --root /
+          cp system/usr/lib/oguzdows/*.py /usr/lib/oguzdows/
+          cp system/usr/local/bin/oguzdows-{desktop,hub,monitor,workbench} /usr/local/bin/
+          cp system/usr/share/applications/oguzdows-{desktop,hub,monitor,workbench}.desktop /usr/share/applications/
+          gtk-update-icon-cache -f -t /usr/share/icons/hicolor
+          for spec in '1024x768 light' '360x800 dark'; do
+            read -r screen appearance <<< "$spec"
+            python3 scripts/ci-run.py --title "ARM64 Atölye $screen · ${{ matrix.suite }}" -- \
+              xvfb-run -a -s "-screen 0 ${screen}x24 -nolisten tcp" \
+              python3 tests/smoke-workbench.py --appearance "$appearance" --output "test-results/arm64-workbench-$screen"
+            for component in store news; do
+              python3 scripts/ci-run.py --title "ARM64 C $component $screen · ${{ matrix.suite }}" -- \
+                xvfb-run -a -s "-screen 0 ${screen}x24 -nolisten tcp" dbus-run-session -- \
+                "test-results/bin/$component-test" --smoke-test "test-results/arm64-$component-$screen"
+            done
+          done
+      - name: Gerçek imzalı Flatpak / GNOME Software demetlerini onaylı yardımcıyla kur
+        if: ${{ !cancelled() }}
+        run: |
+          python3 scripts/ci-run.py --title 'ARM64 real Flatpak + GNOME Software bootstrap · ${{ matrix.suite }}' -- \
+            python3 tests/smoke-store-bootstrap.py --disposable-container --output test-results/arm64-bootstrap
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: portable-arm64-${{ matrix.suite }}
+          path: |
+            test-results/arm64-*/
+          if-no-files-found: warn
+          retention-days: 14
+
+  bootstrap:
+    name: amd64 / trixie · gerçek Flatpak + GNOME Yazılımlar kurulumu
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    container:
+      image: debian:trixie
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Yalnız test yardımcıları, temiz paket tabanı
+        run: |
+          apt-get update
+          apt-get install -y --no-install-recommends python3 python3-apt python3-gi ca-certificates
+      - name: Onay özeti, yeniden planlama, imzalı adaylar, gerçek kurulum ve GI
+        run: |
+          python3 scripts/ci-run.py --title 'amd64 real Flatpak + GNOME Software bootstrap' -- \
+            python3 tests/smoke-store-bootstrap.py --disposable-container --output test-results/bootstrap
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: portable-amd64-bootstrap
+          path: test-results/bootstrap/
+          if-no-files-found: warn
+          retention-days: 14

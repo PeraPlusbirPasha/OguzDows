@@ -18,7 +18,8 @@
     "session_start",
     "desktop_sessions",
     "news_core",
-    "effects"
+    "effects",
+    "workbench_core"
   ],
   "architectures": {
     "armhf": {
@@ -155,7 +156,11 @@
         "usr/share/icons/hicolor/64x64/apps/oguzdows-app-keepassxc.png",
         "usr/share/icons/hicolor/64x64/apps/oguzdows-app-baobab.png",
         "usr/share/icons/hicolor/64x64/apps/oguzdows-app-bleachbit.png",
-        "usr/share/icons/hicolor/64x64/apps/oguzdows-app-wine.png"
+        "usr/share/icons/hicolor/64x64/apps/oguzdows-app-wine.png",
+        "usr/lib/oguzdows/store_core.py",
+        "usr/lib/oguzdows/store.py",
+        "usr/lib/oguzdows/store_lifecycle.py",
+        "usr/share/applications/oguzdows-software.desktop"
       ]
     },
     "device-and-file-inspection": {
@@ -264,6 +269,20 @@
         "usr/share/icons/hicolor/64x64/apps/oguzdows-browser.png",
         "usr/share/icons/hicolor/64x64/apps/oguzdows-files.png",
         "usr/share/icons/hicolor/64x64/apps/oguzdows-terminal.png"
+      ]
+    },
+    "offline-workbench": {
+      "packages": [
+        "python3",
+        "python3-gi",
+        "python3-pil"
+      ],
+      "files": [
+        "usr/lib/oguzdows/workbench.py",
+        "usr/lib/oguzdows/workbench_core.py",
+        "usr/local/bin/oguzdows-workbench",
+        "usr/share/applications/oguzdows-workbench.desktop",
+        "usr/share/icons/hicolor/64x64/apps/oguzdows-workbench.png"
       ]
     }
   }

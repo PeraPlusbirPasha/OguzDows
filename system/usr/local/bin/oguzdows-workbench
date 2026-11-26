@@ -1,0 +1,3 @@
+#!/bin/sh
+# Tek pencere / tek istek üzerine işçi. Derleme, servis veya kabuk metni yok.
+exec /usr/bin/python3 -I /usr/lib/oguzdows/workbench.py "$@"

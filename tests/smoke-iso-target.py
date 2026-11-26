@@ -121,7 +121,11 @@ NATIVE_CONTENT = {relative: ROOT / 'system' / relative for relative in (
     'usr/lib/oguzdows/news_core.py', 'usr/lib/oguzdows/news_service.py',
     'usr/lib/oguzdows/store_service.py', 'usr/lib/oguzdows/app_catalog.py',
     'usr/lib/oguzdows/maintenance.py', 'usr/local/sbin/oguzdows-maintenance',
-    'usr/lib/oguzdows/welcome.py', 'usr/lib/oguzdows/desktop_center.py')}
+    'usr/lib/oguzdows/welcome.py', 'usr/lib/oguzdows/desktop_center.py',
+    'usr/lib/oguzdows/workbench.py', 'usr/lib/oguzdows/workbench_core.py',
+    'usr/local/bin/oguzdows-workbench', 'usr/share/applications/oguzdows-workbench.desktop',
+    'usr/lib/oguzdows/store_core.py', 'usr/lib/oguzdows/store.py',
+    'usr/lib/oguzdows/store_lifecycle.py', 'usr/share/applications/oguzdows-software.desktop')}
 NATIVE_CONTENT.update({'usr/share/oguzdows/native/' + name: ROOT / 'native' / name
                        for name in ('ui.c', 'ui.h', 'news.c', 'store.c', 'hub.c', 'monitor.c')})
 

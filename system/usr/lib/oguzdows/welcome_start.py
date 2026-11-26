@@ -33,6 +33,8 @@ def main():
     gi.require_version('Gtk', '3.0')
     from gi.repository import Gtk
     window = Gtk.Window(title='OğuzDows · Hafif başlangıç', border_width=18)
+    import ui_theme
+    ui_theme.setup(window)
     window.set_default_size(min(380, window.get_screen().get_width() - 24), 180)
     box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=12)
     note = Gtk.Label(label='Hoş geldin! Düşük RAM için rehber ve donanım taraması yalnızca istediğinde yüklenir.\n\nBaşlat → OğuzDows Rehberi içinde tarzlar, Rıfkı, sesli paneller ve tüm araçlar yerinde.', wrap=True, xalign=0)

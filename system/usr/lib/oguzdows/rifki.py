@@ -97,6 +97,8 @@ class Avatar(Gtk.Image):
 class Companion(Gtk.ApplicationWindow):
     def __init__(self,app,callbacks,reduced=False,installing=False,speaker=None):
         super().__init__(application=app)
+        import ui_theme
+        ui_theme.setup(self)
         self.callbacks=callbacks
         self.installing=bool(installing)
         self.current_page='welcome'

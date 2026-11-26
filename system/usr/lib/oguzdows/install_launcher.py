@@ -48,6 +48,8 @@ class Installer(Gtk.Application):
             self.window.present()
             return
         self.window=Gtk.ApplicationWindow(application=self,title='OğuzDows Kurucusu')
+        import ui_theme
+        ui_theme.setup(self.window)
         self.window.set_icon_name('oguzdows-install')
         self.window.set_default_size(530,350)
         self.window.get_style_context().add_class('oguzdows-window')

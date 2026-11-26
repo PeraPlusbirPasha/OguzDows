@@ -3,7 +3,7 @@
 
 class X11Windows:
     def __init__(self):
-        # İçe aktarırken X sunucusuna bağlanılmaz. Pi bu PC modülünü almaz.
+        # İçe aktarırken X sunucusuna bağlanılmaz. Eksik Xlib varsa görünür elle-çıkış denetimine dönülür.
         from Xlib import X, display, error
         self.X, self.error = X, error
         self.connection = display.Display()

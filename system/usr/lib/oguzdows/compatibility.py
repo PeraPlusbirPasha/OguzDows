@@ -49,6 +49,8 @@ class Compatibility(Gtk.Application):
 
     def build(self):
         self.window = Gtk.ApplicationWindow(application=self, title='OğuzDows Uyumluluk')
+        import ui_theme
+        ui_theme.setup(self.window)
         self.window.set_icon_name('oguzdows-compatibility')
         screen = self.window.get_screen()
         phone = device_support.current()['phone'] or screen.get_width() < 600

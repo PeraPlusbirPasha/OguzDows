@@ -52,6 +52,8 @@ class Updater(Gtk.Application):
 
     def build(self):
         self.window = Gtk.ApplicationWindow(application=self, title='OğuzDows Güncelleyici')
+        import ui_theme
+        ui_theme.setup(self.window)
         self.window.set_icon_name('oguzdows-update')
         self.window.set_default_size(850, 640)
         self.window.set_size_request(540, 380)
@@ -63,6 +65,7 @@ class Updater(Gtk.Application):
         box.pack_start(text('Güncel kal, kontrol sende kalsın.', 'heading'), False, False, 0)
         box.pack_start(text('Açılışta indirme veya otomatik kurulum yok. Uygulamalar kapalıyken denetle; paket işlemi sürerken bilgisayarı kapatma.', 'muted'), False, False, 0)
         self.stack = Gtk.Stack()
+        ui_theme.configure_stack(self.window, self.stack)
         switcher = Gtk.StackSwitcher(stack=self.stack, halign=Gtk.Align.CENTER)
         box.pack_start(switcher, False, False, 0)
         self.stack.add_titled(self.updates_page(), 'updates', 'Güncellemeler')

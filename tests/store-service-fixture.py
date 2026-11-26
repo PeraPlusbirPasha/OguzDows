@@ -32,17 +32,24 @@ elif len(sys.argv) in (4, 5) and sys.argv[1] in ('plan', 'apply', 'remove-plan',
     assert sys.argv[3] == 'system'
     removing = sys.argv[1].startswith('remove-')
     if sys.argv[1].endswith('plan'):
-        result = {'source': 'system', 'intent': 'remove' if removing else 'install', 'token': 'b' * 64,
+        result = {'source': 'system', 'identifier': sys.argv[2], 'intent': 'remove' if removing else 'install', 'token': 'b' * 64,
                   'changes': [{'package': 'TEST-only', 'operation': 'remove' if removing else 'install'}],
                   'detail': 'FIXTURE ONLY · No APT / Flatpak / Polkit is called.',
                   'note': 'Fake plan for GTK action wiring, not a real package transaction.'}
     else:
         assert sys.argv[4] == 'b' * 64
-        if removing:
+        if app_catalog.get(sys.argv[2]).get('managed_bundle'):
+            Path(str(state) + '.bundle').write_text(sys.argv[2])
+        elif removing:
             state.write_text('fixture removal, not real APT')
         else:
             state.unlink(missing_ok=True)
         result = {'source': 'system', 'message': 'TEST fixture action complete · no real packages changed.'}
+elif sys.argv[1:] == ['health']:
+    result = {'message': 'TEST health fixture', 'detail': 'TEST · offline health UI; no real package mutation.'}
+elif len(sys.argv) == 3 and sys.argv[1] == 'compare':
+    app_catalog.get(sys.argv[2])
+    result = {'message': 'TEST compare fixture', 'detail': 'TEST · APT / Flatpak comparison UI; no network.'}
 else:
     raise SystemExit('Bu test işçisi kurulum, indirme veya plan başlatamaz.')
 print(json.dumps(result, ensure_ascii=False))

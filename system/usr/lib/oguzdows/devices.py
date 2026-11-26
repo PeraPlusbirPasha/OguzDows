@@ -21,6 +21,8 @@ class Devices(Gtk.Application):
     def do_activate(self):
         if self.window is None:
             self.window = Gtk.ApplicationWindow(application=self, title='OğuzDows Cihaz Merkezi')
+            import ui_theme
+            ui_theme.setup(self.window)
             self.window.set_icon_name('oguzdows-device')
             screen = self.window.get_screen()
             self.window.set_default_size(min(760, screen.get_width() - 24), min(620, screen.get_height() - 48))

@@ -61,16 +61,18 @@ jobs:
         run: |
           python3 -m pyflakes system/usr/lib/oguzdows/desktop_*.py \
             system/usr/lib/oguzdows/aero.py tests/test_desktop_*.py tests/smoke-desktop.py tests/smoke-aero.py \
-            scripts/install-desktop-assets.py
+            scripts/install-desktop-assets.py system/usr/lib/oguzdows/workbench*.py \
+            tests/test_workbench.py tests/test_store_bootstrap.py tests/smoke-workbench.py
           python3 scripts/ci-run.py --title 'Yerel masaüstü birim testleri' -- \
             python3 -W error::ResourceWarning -m unittest discover -s tests -p 'test_desktop_*.py' -v
-          shellcheck scripts/build-desktop.sh system/usr/lib/oguzdows/session.sh
+          shellcheck scripts/build-desktop.sh scripts/test-native-files.sh scripts/smoke-portable.sh system/usr/lib/oguzdows/session.sh
+          sh scripts/test-native-files.sh
           node --check system/usr/share/oguzdows/gnome/core.js
           node --check system/usr/share/kwin/effects/oguzdows-aero/contents/code/main.js
           node --check system/usr/share/oguzdows/kwin/snap.js
           cp system/usr/share/glib-2.0/schemas/org.oguzdows.desktop.gschema.xml /usr/share/glib-2.0/schemas/
           glib-compile-schemas --strict /usr/share/glib-2.0/schemas
-          for component in desktop hub monitor; do
+          for component in desktop hub monitor workbench software; do
             desktop-file-validate "system/usr/share/applications/oguzdows-$component.desktop"
           done
       - name: Yerel hedef ABI'sinde derle; mock C / HTML yok
@@ -93,10 +95,10 @@ jobs:
           python3 scripts/ci-run.py --title 'Yerel cam materyalleri' -- python3 scripts/render-assets.py --root /
           # Pinned defaults must refer to real installed launchers, not absent
           # Exec paths which GIO correctly omits from its application list.
-          cp system/usr/local/bin/oguzdows-{desktop,hub,monitor} /usr/local/bin/
+          cp system/usr/local/bin/oguzdows-{desktop,hub,monitor,workbench} /usr/local/bin/
           install -m755 test-results/bin/hub /usr/lib/oguzdows/oguzdows-hub-native
           install -m755 test-results/bin/monitor /usr/lib/oguzdows/oguzdows-monitor-native
-          cp system/usr/share/applications/oguzdows-{desktop,hub,monitor}.desktop /usr/share/applications/
+          cp system/usr/share/applications/oguzdows-{desktop,hub,monitor,workbench}.desktop /usr/share/applications/
           gtk-update-icon-cache -f -t /usr/share/icons/hicolor
           result=0
           for spec in '1024x768 light' '360x800 dark'; do

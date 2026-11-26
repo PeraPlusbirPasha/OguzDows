@@ -175,7 +175,7 @@ class PiAbiAndFeatureTests(unittest.TestCase):
                 if arch == 'armhf':
                     self.assertTrue({'firefox-esr', 'firefox-esr-l10n-tr'}.isdisjoint(contract['required_packages']))
                     self.assertIn('netsurf-gtk', contract['required_packages'])
-                self.assertEqual(len(contract['asset_hashes']), 50)  # 31 assets + 19 repaired desktop sources
+                self.assertEqual(len(contract['asset_hashes']), 61)  # 31 assets + 30 portable desktop / store sources
                 self.assertIn('file_manager', contract['python_modules'])
                 for relative in ('usr/lib/oguzdows/file_manager.py', 'usr/lib/oguzdows/render-assets.py',
                                  'usr/share/oguzdows/ui/modern.css', 'usr/share/oguzdows/ui/window-geometry.css',
@@ -192,7 +192,7 @@ class PiAbiAndFeatureTests(unittest.TestCase):
                 reader = (ROOT / 'scripts/pi_contract.py').read_bytes()
                 self.assertEqual((overlay / 'usr/lib/oguzdows/pi_contract.py').read_bytes(), reader)
                 self.assertEqual((output / 'stage-oguzdows/00-desktop/files/pi_contract.py').read_bytes(), reader)
-                self.assertEqual(len(contract['features']), 11)
+                self.assertEqual(len(contract['features']), 12)
                 self.assertIn('lightweight-news', contract['features'])
                 self.assertIn('original-icons-and-budgeted-transitions', contract['features'])
                 self.assertIn('flatpak', contract['required_packages']) if arch == 'arm64' else self.assertNotIn('flatpak', contract['required_packages'])

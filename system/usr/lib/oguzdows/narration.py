@@ -171,6 +171,8 @@ class Narration(Gtk.Application):
     def do_activate(self):
         if self.window is None:
             self.window = Gtk.ApplicationWindow(application=self, title='Rıfkı · Ekran rehberi')
+            import ui_theme
+            ui_theme.setup(self.window)
             screen = self.window.get_screen()
             self.window.set_default_size(min(560, screen.get_width() - 24), min(350, screen.get_height() - 48))
             self.window.set_size_request(min(320, screen.get_width() - 24), 240)

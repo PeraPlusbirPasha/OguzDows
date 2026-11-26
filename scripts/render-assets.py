@@ -377,6 +377,20 @@ def own_app_icon(identifier: str, size: int) -> Image.Image:
         d.rounded_rectangle((42, 85, 213, 163), radius=10, fill='#e6f2e7')
         d.polygon([(25, 116), (232, 116), (216, 214), (41, 214)], fill='#63bec9')
         d.line((44, 130, 215, 130), fill='#a8e5db', width=5)
+    elif identifier == 'workbench':
+        # Açık çalışma defteri + dört araç; özgün, statik ve saydam siluet.
+        d.rounded_rectangle((31, 44, 207, 220), radius=22, fill='#285166')
+        d.rounded_rectangle((44, 31, 220, 207), radius=20, fill='#e8f2ed', outline='#9cbbc0', width=4)
+        d.line((82, 33, 82, 204), fill='#b6d1cc', width=4)
+        for y in (64, 103, 142, 181):
+            d.rounded_rectangle((23, y-5, 54, y+6), radius=5, fill='#65b1b6')
+        d.rounded_rectangle((101, 60, 138, 97), radius=8, fill='#2a8593')
+        d.line((108, 79, 117, 88, 131, 70), fill=white, width=5)
+        d.rounded_rectangle((151, 60, 190, 97), radius=8, fill='#d8985c')
+        d.line((159, 77, 182, 77), fill=white, width=5)
+        d.ellipse((102, 115, 138, 151), fill='#7975b1')
+        d.polygon(((156, 149), (189, 115), (201, 127), (168, 161), (150, 168)), fill='#3a9d96')
+        d.line((101, 184, 190, 184), fill='#a6bdbb', width=5)
     elif identifier == 'terminal':
         d.rounded_rectangle((25, 42, 231, 207), radius=27, fill='#31475d')
         d.rounded_rectangle((34, 51, 222, 197), radius=21, fill='#21374b')

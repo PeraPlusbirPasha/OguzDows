@@ -38,18 +38,35 @@ def gui():
             self.window.set_titlebar(header)
             import ui_theme
             ui_theme.setup(self.window)
-            notebook = Gtk.Notebook()
+            root = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
+            body = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL)
+            stack = Gtk.Stack()
+            ui_theme.configure_stack(self.window, stack)
+            sidebar = Gtk.StackSidebar(stack=stack)
+            sidebar.set_size_request(176, -1)
+            sidebar.get_style_context().add_class('center-sidebar')
+            switcher = Gtk.StackSwitcher(stack=stack, halign=Gtk.Align.CENTER)
+            root.pack_start(switcher, False, False, 8)
+            body.pack_start(sidebar, False, False, 0)
+            body.pack_start(stack, True, True, 0)
+            root.pack_start(body, True, True, 0)
+            def fit(_window, event):
+                sidebar.set_visible(event.width >= 680)
+                switcher.set_visible(event.width < 680)
+                return False
+            self.window.connect('configure-event', fit)
             scroll = Gtk.ScrolledWindow()
             scroll.set_policy(Gtk.PolicyType.NEVER, Gtk.PolicyType.AUTOMATIC)
             panel = PreferencesPanel(self.window); panel.set_border_width(20)
             self.window.connect('delete-event', lambda *_: panel.busy)
-            scroll.add(panel); notebook.append_page(scroll, Gtk.Label(label='Aero ve görünüm'))
+            scroll.add(panel); stack.add_titled(scroll, 'appearance', 'Görünüm')
             actions = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=14, margin=20)
             actions.pack_start(note('Kabuğun kendi araçları', True), False, False, 0)
             actions.pack_start(note('GNOME: üst çubuk / Etkinlikler ve uzantı sistemi; Plasma: panel düzenleyici / gerçek plasmoid gezgini; Xfce: kendi panel eklentileri. Bir kabuğun widget’ı diğerinin sürecine yüklenmez.'), False, False, 0)
             status = note('Bir işlem seç. Eksik yerel araç varsa başka masaüstünün aracı zorla açılmaz.')
             actions.pack_start(control_grid(self.window, status), False, False, 0)
-            for title, command in (('Modern Başlat menüsünü aç', '/usr/local/bin/oguzdows-hub'),
+            for title, command in (('Atölye · 16 çevrimdışı araç', '/usr/local/bin/oguzdows-workbench'),
+                                   ('Modern Başlat menüsünü aç', '/usr/local/bin/oguzdows-hub'),
                                    ('Gerçek GNOME / Plasma oturumlarını yönet…', '/usr/local/bin/oguzdows-desktops'),
                                    ('Türkiye duvar kâğıtları…', '/usr/local/bin/oguzdows-welcome')):
                 button = Gtk.Button(label=title)
@@ -62,8 +79,9 @@ def gui():
             actions.pack_start(note(preferences.status()['session_note']), False, False, 0)
             actions.pack_start(note('Kısayol atamak için yerel kısayol düzenleyicide şu sabit komutlar kullanılabilir: oguzdows-hub · oguzdows-monitor · oguzdows-desktop --snap left / right / maximize / restore / minimize. Mevcut kişisel kısayollar otomatik ezilmez. Bildirimler için mevcut panelin yerel merkezi korunur.'), False, False, 0)
             scroll = Gtk.ScrolledWindow(); scroll.set_policy(Gtk.PolicyType.NEVER, Gtk.PolicyType.AUTOMATIC)
-            scroll.add(actions); notebook.append_page(scroll, Gtk.Label(label='Yerel araçlar'))
-            self.window.add(notebook); self.window.show_all()
+            scroll.add(actions); stack.add_titled(scroll, 'tools', 'Yerel araçlar')
+            self.window.add(root); self.window.show_all()
+            switcher.set_visible(self.window.get_allocated_width() < 680)
     return Center().run([sys.argv[0]])
 
 

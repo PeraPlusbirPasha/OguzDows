@@ -8,7 +8,10 @@
 #include <sys/stat.h>
 #include <unistd.h>
 #include <string.h>
+#include <stdio.h>
 #include <math.h>
+#include <errno.h>
+#include <glib/gstdio.h>
 #ifndef OGUZDOWS_UI_CSS
 #define OGUZDOWS_UI_CSS "/usr/share/oguzdows/ui/modern.css"
 #endif
@@ -34,6 +37,71 @@ gboolean og_ui_read_file(const char *path, gsize maximum, gchar **contents) {
     close(fd);
     if (!complete || memchr(data, '\0', used)) { g_free(data); return FALSE; }
     data[used] = '\0'; *contents = data; return TRUE;
+}
+
+/* Small private libraries only. Walk each directory with openat/NOFOLLOW,
+ * then write and rename relative to that SAME descriptor. A symlink swap cannot
+ * redirect the save after a path-based precheck. Never truncate an old file. */
+static gboolean private_target(gint parent, const gchar *name) {
+    struct stat info;
+    if (fstatat(parent, name, &info, AT_SYMLINK_NOFOLLOW)) return errno == ENOENT;
+    return S_ISREG(info.st_mode) && info.st_uid == getuid();
+}
+
+gboolean og_ui_write_file(const char *path, const gchar *contents, gssize length, GError **error) {
+    gint parent = -1, output = -1, failure = EACCES;
+    gboolean saved = FALSE;
+    gchar **parts = NULL, *temporary = NULL;
+    if (!path || !g_path_is_absolute(path) || !contents || length < -1) goto done;
+    if (length == -1) length = (gssize)strnlen(contents, 2 * 1024 * 1024 + 1);
+    if (length > 2 * 1024 * 1024) { failure = EFBIG; goto done; }
+    parts = g_strsplit(path + 1, "/", -1);
+    guint count = g_strv_length(parts);
+    if (!count || !*parts[count - 1]) goto done;
+    for (guint i = 0; i < count; i++)
+        if (!*parts[i] || !strcmp(parts[i], ".") || !strcmp(parts[i], "..")) goto done;
+    parent = open("/", O_RDONLY | O_DIRECTORY | O_CLOEXEC);
+    if (parent < 0) { failure = errno; goto done; }
+    for (guint i = 0; i + 1 < count; i++) {
+        gint next = openat(parent, parts[i], O_RDONLY | O_DIRECTORY | O_NOFOLLOW | O_CLOEXEC);
+        if (next < 0 && errno == ENOENT) {
+            if (mkdirat(parent, parts[i], 0700) && errno != EEXIST) { failure = errno; goto done; }
+            next = openat(parent, parts[i], O_RDONLY | O_DIRECTORY | O_NOFOLLOW | O_CLOEXEC);
+        }
+        if (next < 0) { failure = errno; goto done; }
+        close(parent); parent = next;
+    }
+    struct stat info;
+    if (fstat(parent, &info) || info.st_uid != getuid() || (info.st_mode & 0022)
+            || !private_target(parent, parts[count - 1])) goto done;
+    gchar *token = g_uuid_string_random();
+    temporary = g_strconcat(".oguzdows-", token, NULL); g_free(token);
+    output = openat(parent, temporary, O_WRONLY | O_CREAT | O_EXCL | O_NOFOLLOW | O_CLOEXEC, 0600);
+    if (output < 0) { failure = errno; goto done; }
+    gsize used = 0;
+    while (used < (gsize)length) {
+        ssize_t written = write(output, contents + used, (gsize)length - used);
+        if (written < 0 && errno == EINTR) continue;
+        if (written <= 0) { failure = written < 0 ? errno : EIO; goto done; }
+        used += (gsize)written;
+    }
+    if (fsync(output)) { failure = errno; goto done; }
+    if (close(output)) { output = -1; failure = errno; goto done; }
+    output = -1;
+    if (!private_target(parent, parts[count - 1])) goto done;
+    if (renameat(parent, temporary, parent, parts[count - 1])) { failure = errno; goto done; }
+    saved = TRUE;
+done:
+    if (output >= 0) close(output);
+    if (temporary && parent >= 0) {
+        /* It may already have been atomically renamed. */
+        if (unlinkat(parent, temporary, 0) && errno != ENOENT) g_debug("Temporary record cleanup failed");
+    }
+    if (parent >= 0) close(parent);
+    g_strfreev(parts); g_free(temporary);
+    if (!saved) g_set_error(error, G_FILE_ERROR, g_file_error_from_errno(failure),
+        "Kişisel kayıt yazılmadı; özgün dosya korunuyor: %s", g_strerror(failure));
+    return saved;
 }
 
 /* Event-driven material + motion. No idle animation loop, no renderer daemon. */

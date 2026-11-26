@@ -238,3 +238,61 @@ window.oguzdows-modern.hub-window.solid-surface { border-radius: 0; }
 .oguzdows-modern.tiled-top headerbar, .oguzdows-modern.tiled-bottom headerbar {
   border-radius: 0; box-shadow: none; margin: 0;
 }
+
+/* Atölye / next native shell. Static surfaces, one-pixel edges, no tile blur
+ * or layout animation. Existing window-geometry rules remain authoritative. */
+window.oguzdows-modern { background-color: #f7f9fc; }
+.oguzdows-modern:not(.oguzdows-mac):not(.oguzdows-eleven) headerbar {
+  background-image: none; background-color: #ffffff; box-shadow: none;
+}
+.oguzdows-modern .field-label { font-size: 11px; font-weight: 600; color: @og_muted; margin-top: 5px; }
+.oguzdows-modern .workbench-sidebar, .oguzdows-modern .center-sidebar {
+  background: #eef2f7; border: 0; padding: 10px 5px;
+}
+.oguzdows-modern .workbench-sidebar row, .oguzdows-modern .center-sidebar row {
+  background: transparent; border: 0; border-radius: 7px; margin: 2px 0; padding: 0;
+}
+.oguzdows-modern .workbench-sidebar row:hover, .oguzdows-modern .center-sidebar row:hover { background: #e3ebf3; }
+.oguzdows-modern .workbench-sidebar row:selected, .oguzdows-modern .center-sidebar row:selected {
+  background: #ddeaf2; color: #213247; box-shadow: inset 3px 0 @og_accent;
+}
+.oguzdows-modern .workbench-sidebar row:selected label, .oguzdows-modern .center-sidebar row:selected label { color: #213247; }
+.oguzdows-modern .tool-card {
+  background: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 12px; box-shadow: none;
+}
+.oguzdows-modern .tool-card:hover { background: #fafdff; border-color: alpha(@og_accent, .6); }
+.oguzdows-modern .tool-card:active { background: #e6f0f5; }
+.oguzdows-modern .workbench-hero {
+  background-image: linear-gradient(120deg, #173c53, #1c5661); border-radius: 14px; padding: 26px;
+}
+.oguzdows-modern .workbench-hero .hero-title { color: #f5fcff; font-size: 32px; font-weight: 700; letter-spacing: -.8px; }
+.oguzdows-modern .workbench-hero .hero-description { color: #d9e9f0; font-size: 13px; }
+.oguzdows-modern .workbench-hero .hero-caption { color: #a7dbd8; font-size: 9px; font-weight: 600; letter-spacing: 1px; margin-top: 12px; }
+.oguzdows-modern .workbench-status { border-top: 1px solid @og_line; padding-top: 8px; }
+.oguzdows-modern .record-list { background: #ffffff; border: 1px solid @og_line; border-radius: 9px; }
+.oguzdows-modern .record-list row { padding: 4px; border-bottom: 1px solid @og_line; }
+.oguzdows-modern .record-list row:selected { background: #e2edf4; color: #213247; }
+.oguzdows-modern .record-list row:selected label { color: #213247; }
+.oguzdows-modern .calculator-result { font-size: 28px; font-weight: 600; color: @og_accent; padding: 16px 0; }
+.oguzdows-modern .color-preview { padding: 22px; border: 1px solid @og_line; border-radius: 10px; font-size: 23px; font-weight: 600; }
+.oguzdows-modern .world-clocks { font-family: monospace; font-size: 14px; padding: 10px; }
+.oguzdows-modern button:hover image { -gtk-icon-transform: translateY(-1px); }
+.oguzdows-modern button:active image { -gtk-icon-transform: scale(.94); }
+.oguzdows-modern.reduced-motion button image,
+.oguzdows-modern.reduced-motion button:hover image,
+.oguzdows-modern.reduced-motion button:active image { -gtk-icon-transform: none; transition: none; }
+window.oguzdows-modern.oguzdows-dark { background-color: #182330; }
+.oguzdows-modern.oguzdows-dark:not(.oguzdows-mac):not(.oguzdows-eleven) headerbar { background-image: none; background-color: #213043; }
+.oguzdows-modern.oguzdows-dark .workbench-sidebar, .oguzdows-modern.oguzdows-dark .center-sidebar { background: #14202e; }
+.oguzdows-modern.oguzdows-dark .workbench-sidebar row:hover, .oguzdows-modern.oguzdows-dark .center-sidebar row:hover { background: #23364a; }
+.oguzdows-modern.oguzdows-dark .workbench-sidebar row:selected, .oguzdows-modern.oguzdows-dark .center-sidebar row:selected { background: #294357; color: #edf5fc; }
+.oguzdows-modern.oguzdows-dark .workbench-sidebar row:selected label, .oguzdows-modern.oguzdows-dark .center-sidebar row:selected label { color: #edf5fc; }
+.oguzdows-modern.oguzdows-dark .tool-card, .oguzdows-modern.oguzdows-dark .record-list { background: #213043; border-color: rgba(183,209,237,.16); }
+.oguzdows-modern.oguzdows-dark .tool-card:hover { background: #283c50; border-color: alpha(@og_accent,.7); }
+.oguzdows-modern.oguzdows-dark .tool-card:active, .oguzdows-modern.oguzdows-dark .record-list row:selected { background: #2c485c; }
+.oguzdows-modern.oguzdows-dark .record-list row:selected label { color: #edf5fc; }
+.oguzdows-modern.oguzdows-dark .field-label { color: #afc4d7; }
+.oguzdows-modern.oguzdows-dark .calculator-result { color: #8cdae1; }
+/* Do not let the modern chrome override normal square maximized / tiled CSD. */
+.oguzdows-modern.maximized headerbar, .oguzdows-modern.tiled headerbar,
+.oguzdows-modern.fullscreen headerbar, .oguzdows-modern.solid-csd headerbar { border-radius: 0; box-shadow: none; }

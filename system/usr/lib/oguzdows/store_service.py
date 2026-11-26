@@ -92,6 +92,7 @@ def local_metadata():
             'installed_version': next((value.installed.version for value in values if value.installed is not None), ''),
             'update_available': any(value.is_upgradable for value in values),
             'download_bytes': sum(value.size for value in candidates),
+            'installed_bytes': sum(value.installed_size for value in candidates),
             'metadata_known': len(candidates) == len(item['packages']),
         }
     return result
@@ -112,6 +113,8 @@ def catalogue(execute=command, info=None, metadata=None):
                       'installed': all(name in installed for name in item['packages']),
                       'flatpak_installed': item['flatpak'] in flatpaks,
                       'featured': item['id'] in app_catalog.FEATURED,
+                      'can_remove': not item.get('managed_bundle', False),
+                      'system_available': not (item['id'] == 'wine' and info.get('arch') not in ('amd64', 'i386')) and metadata.get(item['id'], {}).get('available', True),
                       **metadata.get(item['id'], {})} for item in app_catalog.APPS],
             'categories': list(app_catalog.CATEGORIES), 'supports_apt': supported, 'supports_updates': pc_supported,
             'supports_advanced': Path('/usr/bin/gnome-software').is_file() and Path('/usr/lib/oguzdows/store.py').is_file(),
@@ -246,7 +249,8 @@ def detail(identifier, source, execute=command):
         lines.append(package + '\nSürüm: ' + value.version + '\nKaynak: ' + origins
                      + '\nLisans / telif: kurulum sonrası /usr/share/doc/' + package + '/copyright\n'
                      + value.description[:4500])
-    return {**state, 'update_available': any(cache[package].is_upgradable for package in app_catalog.packages(name) if package in cache),
+    return {**state, 'can_remove': not app_catalog.get(name).get('managed_bundle', False),
+            'update_available': any(cache[package].is_upgradable for package in app_catalog.packages(name) if package in cache),
             'detail': '\n\n'.join(lines), 'message': 'Yerel paket listesi okundu. Aday ve imzalı köken kurulum planında yeniden doğrulanır.'}
 
 
@@ -262,6 +266,7 @@ def apt_request(operation, identifier, token='', execute=command, *, remove=Fals
     result = json.loads(execute(arguments, timeout=None))
     if not isinstance(result, dict) or 'error' in result:
         raise RuntimeError(result.get('error', 'Paket yardımcısından geçersiz yanıt.') if isinstance(result, dict) else 'Geçersiz yanıt.')
+    result['identifier'] = identifier
     result['source'] = 'system'
     result['intent'] = 'remove' if remove else 'install'
     result['detail'] = result.get('detail', result.get('message', ''))
@@ -382,14 +387,89 @@ def flatpak_transaction(identifier, operation, token='', api=None, *, remove=Fal
     return captured
 
 
+def store_health(execute=command, info=None, root=Path('/')):
+    """Offline checks only: do not auto-start PackageKit, contact a remote or install."""
+    info = image_info() if info is None else info
+    installed = dpkg_installed(execute)
+    lines = ['OğuzDows mağaza teşhisi · yalnız yerel okuma',
+             'Taban: ' + str(info.get('suite', 'bilinmiyor')) + ' / ' + str(info.get('arch', 'bilinmiyor')),
+             'Flatpak mimarisi: ' + (flatpak_arch(execute) or 'Flatpak yok / okunamadı')]
+    for identifier in ('flatpak-support', 'software-center'):
+        item = app_catalog.get(identifier)
+        missing = [name for name in item['packages'] if name not in installed]
+        lines.append(item['name'] + ': ' + ('eksik paketler: ' + ', '.join(missing) if missing else 'paketler kurulu'))
+    try:
+        state = store_core.remote_state(execute([FLATPAK, '--user', 'remotes', '--columns=name,url,options']))
+        lines.append('Kullanıcı Flathub: ' + {'ready': 'etkin / resmî HTTPS / GPG açık', 'disabled': 'devre dışı; Ekle / doğrula ile açık onayla etkinleştirilebilir', 'missing': 'eklenmemiş; ayrıca onay gerekir'}[state])
+    except (OSError, ValueError, RuntimeError, subprocess.SubprocessError) as error:
+        lines.append('Kullanıcı Flathub: ' + str(error)[:700])
+    for name, path in (('GNOME çalıştırılabilir dosyası', 'usr/bin/gnome-software'),
+                       ('GNOME başlatıcı', 'usr/lib/oguzdows/store.py'),
+                       ('ISO639 dil verisi', 'usr/share/xml/iso-codes/iso_639.xml')):
+        lines.append(name + ': ' + ('var' if (root / path).is_file() else 'EKSİK'))
+    try:
+        import gi
+        gi.require_version('Flatpak', '1.0')
+        from gi.repository import Flatpak
+        lines.append('libflatpak Python API: ' + ('var' if Flatpak else 'yok'))
+    except (ImportError, ValueError) as error:
+        lines.append('libflatpak Python API: eksik · ' + str(error)[:200])
+    lines.extend(['', 'Eksik bileşenler: Kaynaklar → ilgili sabit demetin planını görüntüleyin.',
+                  'Aday paket bulunamazsa: Paket listelerini yenile, sonra planı tekrar aç.',
+                  'Kilit hatasında başka paket yöneticisinin bitmesini bekleyin; kilit dosyası silmeyin.',
+                  'Canlı USB’de kalıcı APT kurulumu bilerek kapalıdır; kurulu disk oturumunu kullanın.',
+                  'armhf / i386 için Flathub uygulama desteği varsayılmaz. İmzalı sistem paketleri ayrı sunulur.',
+                  'Bu rapor indirme, ağ erişimi veya başarılı kurulum kanıtı değildir.'])
+    return {'detail': '\n'.join(lines), 'message': 'Yerel bileşenler denetlendi. Rapor kendiliğinden gönderilmedi.'}
+
+
+def compare_sources(identifier, execute=command, metadata=None):
+    item = app_catalog.get(identifier)
+    metadata = local_metadata() if metadata is None else metadata
+    value = metadata.get(identifier, {})
+    architecture = flatpak_arch(execute)
+    lines = [item['name'] + ' · Kaynak karşılaştırması (çevrimdışı)', '',
+             'SİSTEM / APT', 'Kapsam: bu cihazın tüm kullanıcıları; kurulum için yönetici onayı.',
+             'Paketler: ' + ', '.join(item['packages']),
+             'Aday: ' + (value.get('version') or 'yerel listede bilinmiyor'),
+             'Kurulu sürüm: ' + (value.get('installed_version') or 'kurulu değil / bilinmiyor')]
+    if value.get('metadata_known'):
+        lines.append('Bu demetin aday indirmesi: ' + str(value.get('download_bytes', 0)) + ' bayt')
+        lines.append('Demet aday kurulu boyutu: ' + str(value.get('installed_bytes', 0)) + ' bayt')
+    lines.extend(['Boyutlar paylaşılan / yeni bağımlılıkların tamamını içermez. Gerçek işlem planı belirleyicidir.', '', 'KULLANICI / FLATPAK'])
+    if not item['flatpak']:
+        lines.append('Bu demet için Flatpak alternatifi tanımlı değil.')
+    elif architecture not in ('x86_64', 'aarch64'):
+        lines.append('Bu mimaride Flathub sunulmuyor; ARMv6 / armhf / i386 varsayılmadı.')
+    else:
+        lines.extend(['Kimlik: ' + item['flatpak'], 'Kapsam: yalnız bu hesap. Sistem APT uygulamasından ayrı veri / izin alanı.',
+                      'Runtime ilk kurulumda büyük olabilir; ortak runtime’lar paylaşılır.',
+                      'Yeni indirme boyutu ve izinler ayrıntı / plan ile ağdan ayrıca istenir; burada tahmin edilmez.'])
+        if item['flatpak'] in installed_flatpaks(execute):
+            try:
+                lines.extend(['', 'Bu hesapta kurulu Flatpak bilgisi:', execute([FLATPAK, '--user', 'info', item['flatpak']])[:5000]])
+            except (OSError, RuntimeError, subprocess.SubprocessError):
+                lines.append('Kurulu bilgi okunamadı; başarı varsayılmadı.')
+    return {'detail': '\n'.join(lines), 'message': 'İki kaynak yerel verilerle karşılaştırıldı; ağ / kurulum yok.'}
+
+
 def dispatch(arguments):
     if arguments == ['catalog']:
         return catalogue()
+    if arguments == ['health']:
+        return store_health()
+    if arguments == ['refresh']:
+        result = json.loads(command([*HELPER, 'store-refresh'], timeout=None))
+        if not isinstance(result, dict) or result.get('error'):
+            raise ValueError(result.get('error', 'Paket listeleri yenilenemedi.') if isinstance(result, dict) else 'Geçersiz yanıt.')
+        return result
+    if len(arguments) == 2 and arguments[0] == 'compare':
+        return compare_sources(arguments[1])
     if arguments == ['setup']:
         if os.geteuid() == 0:
             raise ValueError('Kaynak kurulumu için kendi masaüstü hesabınızı kullanın.')
         store_core.setup_flathub()
-        return {'message': 'Flathub yalnızca bu hesaba eklendi. Hiçbir uygulama kurulmadı.'}
+        return {'message': 'Resmî, imzalı Flathub yalnızca bu hesapta etkinleştirildi / doğrulandı. Hiçbir uygulama kurulmadı.'}
     if len(arguments) == 2 and arguments[0] == 'search':
         return search(arguments[1])
     if len(arguments) == 3 and arguments[0] == 'detail':

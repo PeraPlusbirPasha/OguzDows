@@ -52,7 +52,7 @@ static gint compare_apps(gconstpointer a, gconstpointer b) {
 }
 
 static gboolean default_pin(const char *id) {
-    const char *defaults[] = {"oguzdows-store.desktop", "oguzdows-news.desktop", "oguzdows-monitor.desktop", "oguzdows-desktop.desktop", "oguzdows-browser.desktop", "oguzdows-files.desktop", "oguzdows-terminal.desktop", "oguzdows-welcome.desktop", NULL};
+    const char *defaults[] = {"oguzdows-workbench.desktop", "oguzdows-store.desktop", "oguzdows-news.desktop", "oguzdows-monitor.desktop", "oguzdows-desktop.desktop", "oguzdows-browser.desktop", "oguzdows-files.desktop", "oguzdows-terminal.desktop", "oguzdows-welcome.desktop", NULL};
     for (unsigned i = 0; defaults[i]; i++) if (!g_strcmp0(defaults[i], id)) return TRUE;
     return FALSE;
 }
@@ -90,6 +90,58 @@ static void launch(GtkButton *button, gpointer pointer) {
         gtk_label_set_text(GTK_LABEL(status_label), error->message); g_clear_error(&error);
     } else { og_ui_feedback(); gtk_widget_destroy(window); }
     g_object_unref(context);
+}
+
+typedef struct { const gchar *name, *keywords, *icon; const gchar *argv[5]; } HubAction;
+#define TOOL(id, title, words, glyph) {title, words, glyph, {"/usr/local/bin/oguzdows-workbench", "--tool", id, NULL}}
+static const HubAction hub_actions[] = {
+    TOOL("tasks", "Günüm", "görev todo öncelik tarih tasks", "view-list-symbolic"),
+    TOOL("notes", "Defter", "not metin yaz notes", "accessories-text-editor-symbolic"),
+    TOOL("snippets", "Metin rafı", "pano parça snippet", "edit-paste-symbolic"),
+    TOOL("folders", "Yerlerim", "klasör yer imleri folders", "folder-favorites-symbolic"),
+    TOOL("find", "Dosya bul", "arama dosya find", "system-search-symbolic"),
+    TOOL("rename", "Toplu adlandır", "dosya yeniden adlandır rename", "edit-find-replace-symbolic"),
+    TOOL("checksum", "Dosya doğrula", "sha256 sha512 checksum özet", "security-high-symbolic"),
+    TOOL("image", "Görsel hazırla", "resim boyut küçült fotoğraf", "image-x-generic-symbolic"),
+    TOOL("diff", "Metin karşılaştır", "diff fark", "view-dual-symbolic"),
+    TOOL("json", "JSON masası", "doğrula biçim json", "text-x-script-symbolic"),
+    TOOL("calculator", "Hesap", "hesap makinesi calculator", "accessories-calculator-symbolic"),
+    TOOL("units", "Birimler", "dönüştür ölçü sıcaklık veri", "applications-science-symbolic"),
+    TOOL("colors", "Renk stüdyosu", "kontrast palet renk", "applications-graphics-symbolic"),
+    TOOL("clocks", "Dünya saatleri", "saat zaman şehir clock", "preferences-system-time-symbolic"),
+    TOOL("text", "Metin işle", "türkçe büyük küçük harf satır", "format-text-bold-symbolic"),
+    TOOL("startup", "Başlangıç", "otomatik açılış başlangıç startup", "system-run-symbolic"),
+    {"Mağaza kaynakları", "flatpak gnome yazılımlar kurulum depo", "system-software-install-symbolic", {"/usr/local/bin/oguzdows-store", "--setup", NULL}},
+    {"Masaüstü Merkezi", "görünüm tema ayarlar", "preferences-desktop-theme-symbolic", {"/usr/local/bin/oguzdows-desktop", NULL}},
+    {"Sistem İzleyici", "cpu ram ağ performans", "utilities-system-monitor-symbolic", {"/usr/local/bin/oguzdows-monitor", NULL}}
+};
+#undef TOOL
+static gboolean command_mode(void) { return query && query[0] == '>'; }
+static gboolean action_matches(const HubAction *action) {
+    const gchar *needle = query + 1;
+    while (g_ascii_isspace(*needle)) needle++;
+    gchar *text = g_strjoin(" ", action->name, action->keywords, NULL), *folded = normalized(text);
+    gboolean matches = !*needle || strstr(folded, needle);
+    g_free(text); g_free(folded); return matches;
+}
+static void launch_action(GtkButton *button, gpointer pointer) {
+    (void)button; const HubAction *action = pointer; GError *error = NULL;
+    GSubprocess *process = g_subprocess_newv(action->argv, G_SUBPROCESS_FLAGS_NONE, &error);
+    if (!process) { gtk_label_set_text(GTK_LABEL(status_label), error ? error->message : "Araç açılamadı."); g_clear_error(&error); }
+    else { g_object_unref(process); og_ui_feedback(); gtk_widget_destroy(window); }
+}
+static GtkWidget *action_button(const HubAction *action) {
+    GtkWidget *button = gtk_button_new(), *box = gtk_box_new(GTK_ORIENTATION_VERTICAL, 7);
+    gtk_style_context_add_class(gtk_widget_get_style_context(button), "hub-app");
+    GtkWidget *image = gtk_image_new_from_icon_name(action->icon, GTK_ICON_SIZE_DIALOG); gtk_image_set_pixel_size(GTK_IMAGE(image), 30);
+    GtkWidget *title = gtk_label_new(action->name); gtk_label_set_line_wrap(GTK_LABEL(title), TRUE);
+    gtk_label_set_max_width_chars(GTK_LABEL(title), 12); gtk_label_set_lines(GTK_LABEL(title), 2);
+    gtk_label_set_ellipsize(GTK_LABEL(title), PANGO_ELLIPSIZE_END); gtk_label_set_justify(GTK_LABEL(title), GTK_JUSTIFY_CENTER);
+    gtk_box_pack_start(GTK_BOX(box), image, FALSE, FALSE, 0); gtk_box_pack_start(GTK_BOX(box), title, FALSE, FALSE, 0);
+    gtk_container_add(GTK_CONTAINER(button), box); gtk_widget_set_size_request(button, 78, 88);
+    gtk_widget_set_tooltip_text(button, action->keywords); atk_object_set_name(gtk_widget_get_accessible(button), action->name);
+    gtk_widget_set_sensitive(button, g_file_test(action->argv[0], G_FILE_TEST_IS_EXECUTABLE));
+    g_signal_connect(button, "clicked", G_CALLBACK(launch_action), (gpointer)action); return button;
 }
 
 static void populate(void);
@@ -153,6 +205,13 @@ static void populate(void) {
     GList *children = gtk_container_get_children(GTK_CONTAINER(flow));
     for (GList *item = children; item; item = item->next) gtk_widget_destroy(item->data);
     g_list_free(children);
+    if (command_mode()) {
+        for (guint i = 0; i < G_N_ELEMENTS(hub_actions); i++)
+            if (action_matches(&hub_actions[i])) gtk_container_add(GTK_CONTAINER(flow), action_button(&hub_actions[i]));
+        gtk_label_set_text(GTK_LABEL(section_title), "Komut paleti");
+        gtk_label_set_text(GTK_LABEL(status_label), "Sabit yerel araçlar · Enter ilk sonucu açar · serbest shell komutu çalıştırılmaz");
+        gtk_widget_hide(recent_section); gtk_widget_hide(more); gtk_widget_show_all(flow); return;
+    }
     gboolean searching = query && *query;
     unsigned shown = 0, matches = 0, pinned_count = 0;
     for (unsigned i = 0; i < apps->len; i++) pinned_count += ((App *)g_ptr_array_index(apps, i))->pinned;
@@ -260,6 +319,11 @@ static void load_recent(GtkWidget *box, gint columns) {
 static void search_activate(GtkEntry *entry, gpointer data) {
     (void)entry; (void)data;
     if (!query || !*query) return;
+    if (command_mode()) {
+        for (guint i = 0; i < G_N_ELEMENTS(hub_actions); i++)
+            if (action_matches(&hub_actions[i])) { launch_action(NULL, (gpointer)&hub_actions[i]); break; }
+        return;
+    }
     for (guint i = 0; i < apps->len; i++) {
         App *app = g_ptr_array_index(apps, i);
         if (strstr(app->search, query)) { launch(NULL, app); break; }
@@ -406,12 +470,18 @@ static gboolean smoke_finish(gpointer data) {
     gtk_entry_set_text(GTK_ENTRY(search_entry), "oguzdows");
     search_changed(GTK_SEARCH_ENTRY(search_entry), NULL);
     g_assert_nonnull(query);
+    gtk_entry_set_text(GTK_ENTRY(search_entry), "> hesap"); search_changed(GTK_SEARCH_ENTRY(search_entry), NULL);
+    g_assert_true(command_mode());
+    g_assert_true(action_matches(&hub_actions[10])); g_assert_false(action_matches(&hub_actions[0]));
+    GList *commands = gtk_container_get_children(GTK_CONTAINER(flow)); g_assert_cmpuint(g_list_length(commands), ==, 1); g_list_free(commands);
+    gtk_entry_set_text(GTK_ENTRY(search_entry), "> __import__('os')"); search_changed(GTK_SEARCH_ENTRY(search_entry), NULL);
+    commands = gtk_container_get_children(GTK_CONTAINER(flow)); g_assert_null(commands);
     gtk_entry_set_text(GTK_ENTRY(search_entry), ""); search_changed(GTK_SEARCH_ENTRY(search_entry), NULL);
     GtkFlowBoxChild *first = gtk_flow_box_get_child_at_index(GTK_FLOW_BOX(flow), 0);
     g_assert_nonnull(first);
     gchar *path = g_build_filename(smoke_directory, "hub.json", NULL);
     gint width, height; gtk_window_get_size(GTK_WINDOW(window), &width, &height);
-    gchar *json = g_strdup_printf("{\"schema\":1,\"native\":true,\"app_count\":%u,\"unicode_search\":true,\"no_apps_launched\":true,\"window_width\":%d,\"window_height\":%d,\"physical_device_verified\":false}\n", apps->len, width, height);
+    gchar *json = g_strdup_printf("{\"schema\":1,\"native\":true,\"app_count\":%u,\"unicode_search\":true,\"fixed_command_palette\":true,\"shell_input_rejected\":true,\"no_apps_launched\":true,\"window_width\":%d,\"window_height\":%d,\"physical_device_verified\":false}\n", apps->len, width, height);
     g_file_set_contents(path, json, -1, NULL); g_free(path); g_free(json);
     GdkWindow *surface = gtk_widget_get_window(window);
     GdkPixbuf *capture = gdk_pixbuf_get_from_window(surface, 0, 0, gdk_window_get_width(surface), gdk_window_get_height(surface));
@@ -443,7 +513,7 @@ static void activate(GtkApplication *application, gpointer data) {
     GtkWidget *root = gtk_box_new(GTK_ORIENTATION_VERTICAL, 0); gtk_container_add(GTK_CONTAINER(window), root);
     GtkWidget *box = gtk_box_new(GTK_ORIENTATION_VERTICAL, 16); gtk_container_set_border_width(GTK_CONTAINER(box), width < 480 ? 18 : 28);
     gtk_box_pack_start(GTK_BOX(root), box, TRUE, TRUE, 0);
-    search_entry = gtk_search_entry_new(); gtk_entry_set_placeholder_text(GTK_ENTRY(search_entry), "Uygulama ara…");
+    search_entry = gtk_search_entry_new(); gtk_entry_set_placeholder_text(GTK_ENTRY(search_entry), "Uygulama ara veya > komut…");
     gtk_style_context_add_class(gtk_widget_get_style_context(search_entry), "hub-search");
     gtk_box_pack_start(GTK_BOX(box), search_entry, FALSE, FALSE, 0);
     g_signal_connect(search_entry, "search-changed", G_CALLBACK(search_changed), NULL);
@@ -519,7 +589,12 @@ static int command_line(GApplication *application, GApplicationCommandLine *line
     (void)data;
     gboolean toggle = g_variant_dict_contains(g_application_command_line_get_options_dict(line), "toggle");
     if (toggle && window && gtk_widget_get_mapped(window)) gtk_widget_destroy(window);
-    else g_application_activate(application);
+    else {
+        g_application_activate(application);
+        if (g_variant_dict_contains(g_application_command_line_get_options_dict(line), "commands")) {
+            gtk_entry_set_text(GTK_ENTRY(search_entry), "> "); search_changed(GTK_SEARCH_ENTRY(search_entry), NULL);
+        }
+    }
     return 0;
 }
 
@@ -529,12 +604,13 @@ int main(int argc, char **argv) {
 #ifdef OGUZDOWS_HUB_TEST
     if (argc == 3 && !strcmp(argv[1], "--smoke-test")) { smoke_directory = argv[2]; g_mkdir_with_parents(smoke_directory, 0700); argc = 1; test = TRUE; }
 #endif
-    if (argc != 1 && !(argc == 2 && !strcmp(argv[1], "--toggle"))) { fputs("Kullanım: oguzdows-hub [--toggle|--version]\n", stderr); return 2; }
+    if (argc != 1 && !(argc == 2 && (!strcmp(argv[1], "--toggle") || !strcmp(argv[1], "--commands")))) { fputs("Kullanım: oguzdows-hub [--toggle|--commands|--version]\n", stderr); return 2; }
     if (!test && getuid() == 0) { fputs("Başlat normal kullanıcı hesabında çalışır.\n", stderr); return 1; }
     GtkApplication *application = gtk_application_new("org.oguzdows.Hub", G_APPLICATION_HANDLES_COMMAND_LINE);
     g_signal_connect(application, "activate", G_CALLBACK(activate), NULL);
     g_signal_connect(application, "command-line", G_CALLBACK(command_line), NULL);
     g_application_add_main_option(G_APPLICATION(application), "toggle", 0, G_OPTION_FLAG_NONE, G_OPTION_ARG_NONE, "Başlat menüsünü aç / kapat", NULL);
+    g_application_add_main_option(G_APPLICATION(application), "commands", 0, G_OPTION_FLAG_NONE, G_OPTION_ARG_NONE, "Sabit araçların komut paleti", NULL);
     int result = g_application_run(G_APPLICATION(application), argc, argv);
     if (cancellable) g_cancellable_cancel(cancellable);
     g_clear_object(&cancellable); g_clear_object(&volume_process);

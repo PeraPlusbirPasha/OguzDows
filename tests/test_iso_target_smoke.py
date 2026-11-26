@@ -25,7 +25,7 @@ class IsoTargetSmokeContractTests(unittest.TestCase):
                 target.write_bytes(source.read_bytes())
             with patch('builtins.print'):
                 hashes = smoke.native_material_contract(root)
-            self.assertEqual(len(hashes), 16)
+            self.assertEqual(len(hashes), 24)
             (root / 'usr/share/oguzdows/ui/modern.css').write_text('stale old theme')
             with self.assertRaisesRegex(RuntimeError, 'eşleşmiyor'):
                 smoke.native_material_contract(root)

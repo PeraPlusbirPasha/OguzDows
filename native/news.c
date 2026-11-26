@@ -16,7 +16,7 @@
 #define NEWS_SERVICE "/usr/lib/oguzdows/news_service.py"
 #endif
 
-typedef struct { gchar *title, *body, *link, *published, *category, *publisher, *search; GdkPixbuf *picture; gboolean publisher_image; } Article;
+typedef struct { gchar *title, *body, *link, *published, *category, *publisher, *search, *image_path; GdkPixbuf *picture; gboolean publisher_image; } Article;
 static GtkApplication *application;
 static GtkWidget *window, *pages, *headlines, *sources, *refresh_button, *add_button, *remove_button;
 static GtkWidget *status_label, *cancel_button, *spinner, *article_title, *article_meta, *article_text;
@@ -31,6 +31,11 @@ static gboolean filling, closing, busy;
 static gchar *source_name, *selected_source;
 static Article *current;
 static gint points = 16;
+static GKeyFile *library;
+static GtkWidget *save_article_button, *saved_filter, *unread_filter;
+static gboolean unread_only, reading_list, changing_library, exporting;
+static void filter_articles(GtkWidget *widget, gpointer data);
+static gboolean load_feed(JsonObject *root);
 #ifdef OGUZDOWS_NEWS_TEST
 static const gchar *smoke_directory;
 static guint smoke_step, smoke_wait;
@@ -108,7 +113,7 @@ static void larger(GtkButton *button, gpointer data) { (void)button; (void)data;
 static void article_free(gpointer data) {
     Article *article = data;
     g_free(article->title); g_free(article->body); g_free(article->link); g_free(article->published);
-    g_free(article->category); g_free(article->publisher); g_free(article->search); g_clear_object(&article->picture); g_free(article);
+    g_free(article->category); g_free(article->publisher); g_free(article->search); g_free(article->image_path); g_clear_object(&article->picture); g_free(article);
 }
 
 /* The worker emits normalized 320x180 JPEGs, never arbitrary local paths.
@@ -205,11 +210,160 @@ static void show_list(GtkButton *button, gpointer data) {
     gtk_widget_set_sensitive(back_button, FALSE);
 }
 
+static gchar *article_key(Article *article) {
+    gchar *identity = *article->link ? g_strdup(article->link) : g_strjoin("\n", article->publisher, article->title, article->published, NULL);
+    gchar *key = g_compute_checksum_for_string(G_CHECKSUM_SHA256, identity, -1); g_free(identity); return key;
+}
+static gboolean was_read(Article *article) {
+    gchar *key = article_key(article); gboolean value = g_key_file_has_key(library, "Read", key, NULL); g_free(key); return value;
+}
+static gchar *saved_group(Article *article) {
+    gchar *key = article_key(article), *group = g_strconcat("Saved-", key, NULL); g_free(key); return group;
+}
+static gboolean is_saved(Article *article) {
+    gchar *group = saved_group(article); gboolean value = g_key_file_has_group(library, group); g_free(group); return value;
+}
+static gboolean save_library(void) {
+    gsize length; gchar *data = g_key_file_to_data(library, &length, NULL);
+    gchar *path = g_build_filename(g_get_user_data_dir(), "oguzdows/news/library.ini", NULL); GError *error = NULL;
+    gboolean saved = og_ui_write_file(path, data, (gssize)length, &error);
+    if (!saved) { status(error ? error->message : "Okuma kitaplığı kaydedilemedi."); g_clear_error(&error); }
+    g_free(path); g_free(data); return saved;
+}
+static void mark_read(Article *article) {
+    gchar *key = article_key(article);
+    gsize count = 0; gchar **keys = g_key_file_get_keys(library, "Read", &count, NULL);
+    if (count >= 1000 && !g_key_file_has_key(library, "Read", key, NULL)) {
+        const gchar *oldest = keys[0]; gint64 stamp = G_MAXINT64;
+        for (gsize i = 0; i < count; i++) {
+            gint64 candidate = g_key_file_get_int64(library, "Read", keys[i], NULL);
+            if (candidate < stamp) { oldest = keys[i]; stamp = candidate; }
+        }
+        g_key_file_remove_key(library, "Read", oldest, NULL);
+    }
+    g_strfreev(keys);
+    g_key_file_set_int64(library, "Read", key, g_get_real_time() / G_USEC_PER_SEC);
+    g_free(key); save_library();
+}
+static void show_saved_articles(void) {
+    JsonObject *root = json_object_new(); JsonArray *items = json_array_new(), *feed_sources = json_array_new();
+    JsonObject *source = json_object_new();
+    json_object_set_string_member(source, "id", "@saved"); json_object_set_string_member(source, "name", "Okuma listem · çevrimdışı");
+    json_array_add_object_element(feed_sources, source);
+    json_object_set_array_member(root, "sources", feed_sources);
+    json_object_set_string_member(root, "selected", "@saved"); json_object_set_string_member(root, "source", "Okuma listem");
+    json_object_set_string_member(root, "mode", "saved");
+    json_object_set_string_member(root, "note", "Kaydettiğin RSS metinleri / özetleri · ağ isteği yok. Tam makale / site kopyası değildir.");
+    gsize count; gchar **groups = g_key_file_get_groups(library, &count);
+    const gchar *fields[] = {"title", "body", "url", "published", "category", "publisher", "image_path"};
+    for (gsize i = 0; i < count && json_array_get_length(items) < 40; i++) {
+        if (!g_regex_match_simple("^Saved-[a-f0-9]{64}$", groups[i], 0, 0)) continue;
+        JsonObject *item = json_object_new();
+        for (guint field = 0; field < G_N_ELEMENTS(fields); field++) {
+            gchar *value = g_key_file_get_string(library, groups[i], fields[field], NULL);
+            json_object_set_string_member(item, fields[field], value ? value : ""); g_free(value);
+        }
+        json_array_add_object_element(items, item);
+    }
+    g_strfreev(groups); json_object_set_array_member(root, "items", items);
+    if (!load_feed(root)) status("Okuma listesi okunamadı; özgün dosya korunuyor.");
+    json_object_unref(root);
+}
+static void saved_toggled(GtkToggleButton *button, gpointer data) {
+    (void)data;
+    if (changing_library) return;
+    if (busy) {
+        changing_library = TRUE; gtk_toggle_button_set_active(button, reading_list); changing_library = FALSE;
+        status("Önce açık RSS isteğinin bitmesini bekleyin."); return;
+    }
+    reading_list = gtk_toggle_button_get_active(button);
+    if (reading_list) show_saved_articles(); else run_service("list", NULL, NULL);
+}
+static void unread_toggled(GtkToggleButton *button, gpointer data) {
+    (void)data; unread_only = gtk_toggle_button_get_active(button); filter_articles(NULL, NULL);
+}
+static void save_article(GtkButton *button, gpointer data) {
+    (void)button; (void)data;
+    if (!current) return;
+    gchar *group = saved_group(current);
+    gsize length; gchar *snapshot = g_key_file_to_data(library, &length, NULL);
+    if (is_saved(current)) g_key_file_remove_group(library, group, NULL);
+    else {
+        gsize count, saved = 0; gchar **groups = g_key_file_get_groups(library, &count);
+        for (gsize i = 0; i < count; i++) saved += g_str_has_prefix(groups[i], "Saved-");
+        g_strfreev(groups);
+        if (saved >= 40) { status("40 haberlik sınır doldu; önce bir kaydı kaldırın veya TXT dışa aktarın."); g_free(group); g_free(snapshot); return; }
+        const gchar *fields[] = {"title", "body", "url", "published", "category", "publisher", "image_path"};
+        const gchar *values[] = {current->title, current->body, current->link, current->published, current->category, current->publisher, current->image_path};
+        for (guint i = 0; i < G_N_ELEMENTS(fields); i++) g_key_file_set_string(library, group, fields[i], values[i] ? values[i] : "");
+    }
+    if (!save_library()) g_key_file_load_from_data(library, snapshot, (gssize)length, G_KEY_FILE_NONE, NULL);
+    else status(is_saved(current) ? "RSS metni okuma listene kaydedildi; çevrimdışı okunabilir." : "Kaydedilen RSS metni kaldırıldı; kaynak / dosya silinmedi.");
+    gtk_widget_set_tooltip_text(save_article_button, is_saved(current) ? "Okuma listesinden çıkar" : "RSS metnini çevrimdışı okumak için kaydet");
+    g_free(group); g_free(snapshot);
+    if (reading_list) show_saved_articles();
+}
+typedef struct { gchar *path, *text; } ArticleExport;
+static void export_free(gpointer pointer) { ArticleExport *job = pointer; g_free(job->path); g_free(job->text); g_free(job); }
+static void export_worker(GTask *task, gpointer source, gpointer pointer, GCancellable *cancel) {
+    (void)source; (void)cancel; ArticleExport *job = pointer;
+    GError *error = NULL; GFile *file = g_file_new_for_path(job->path);
+    GFileOutputStream *stream = g_file_create(file, G_FILE_CREATE_PRIVATE, NULL, &error);
+    gboolean ok = FALSE;
+    if (stream) {
+        ok = g_output_stream_write_all(G_OUTPUT_STREAM(stream), job->text, strlen(job->text), NULL, NULL, &error);
+        if (ok) ok = g_output_stream_close(G_OUTPUT_STREAM(stream), NULL, &error);
+        g_object_unref(stream);
+    }
+    g_object_unref(file);
+    if (ok) g_task_return_boolean(task, TRUE); else g_task_return_error(task, error);
+}
+static void export_done(GObject *object, GAsyncResult *result, gpointer data) {
+    (void)object; (void)data; GError *error = NULL; exporting = FALSE;
+    gboolean ok = g_task_propagate_boolean(G_TASK(result), &error);
+    if (!closing) status(ok ? "RSS metni yeni TXT dosyasına aktarıldı. Kaynak bağlantısı ve yayıncı eklendi." : error ? error->message : "Dışa aktarma tamamlanamadı; kısmi dosyayı kontrol edin.");
+    g_clear_error(&error); g_application_release(G_APPLICATION(application));
+}
+static gchar *article_as_text(Article *article) {
+    return g_strdup_printf("%s\n%s · %s\n%s\n\n%s\n\nKaynak: %s\nRSS metni / özeti; tam makale garantisi yok.\n", article->title, article->publisher, article->category, article->published, article->body, article->link);
+}
+static void export_to_path(gchar *path, gchar *text) {
+    ArticleExport *job = g_new0(ArticleExport, 1); job->path = path; job->text = text;
+    GTask *task = g_task_new(NULL, NULL, export_done, NULL); g_task_set_task_data(task, job, export_free);
+    exporting = TRUE; g_application_hold(G_APPLICATION(application)); g_task_run_in_thread(task, export_worker); g_object_unref(task);
+    status("Yeni dosya yazılıyor; mevcut dosyanın üzerine yazılmaz…");
+}
+static void export_article(GtkButton *button, gpointer data) {
+    (void)button; (void)data;
+    if (!current || exporting) return;
+    GtkFileChooserNative *dialog = gtk_file_chooser_native_new("RSS metnini TXT olarak kaydet", GTK_WINDOW(window), GTK_FILE_CHOOSER_ACTION_SAVE, "Kaydet", "Vazgeç");
+    gtk_file_chooser_set_current_name(GTK_FILE_CHOOSER(dialog), "OguzDows-Haber.txt");
+    if (gtk_native_dialog_run(GTK_NATIVE_DIALOG(dialog)) == GTK_RESPONSE_ACCEPT) {
+        gchar *path = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(dialog));
+        if (path) export_to_path(path, article_as_text(current));
+        else status("Yerel bir dosya yolu seçin.");
+    }
+    g_object_unref(dialog);
+}
+static void clear_read_history(GtkButton *button, gpointer data) {
+    (void)button; (void)data;
+    GtkWidget *dialog = gtk_message_dialog_new(GTK_WINDOW(window), GTK_DIALOG_MODAL | GTK_DIALOG_DESTROY_WITH_PARENT,
+        GTK_MESSAGE_QUESTION, GTK_BUTTONS_OK_CANCEL, "Yerel okundu geçmişi temizlensin mi?");
+    gtk_message_dialog_format_secondary_text(GTK_MESSAGE_DIALOG(dialog), "Kaydedilen haberler ve RSS önbelleği korunur. Hiçbir bilgi gönderilmez.");
+    gtk_dialog_set_default_response(GTK_DIALOG(dialog), GTK_RESPONSE_CANCEL); og_ui_setup(dialog);
+    if (gtk_dialog_run(GTK_DIALOG(dialog)) == GTK_RESPONSE_OK) { g_key_file_remove_group(library, "Read", NULL); save_library(); filter_articles(NULL, NULL); }
+    gtk_widget_destroy(dialog);
+}
+
 static void select_article(GtkListBox *box, GtkListBoxRow *row, gpointer data) {
     (void)box; (void)data;
     if (!row) return;
     current = g_object_get_data(G_OBJECT(row), "article");
     if (!current) return;
+    mark_read(current);
+    gtk_widget_set_sensitive(save_article_button, TRUE);
+    gtk_widget_set_tooltip_text(save_article_button, is_saved(current) ? "Okuma listesinden çıkar" : "RSS metnini çevrimdışı okumak için kaydet");
+    filter_articles(NULL, NULL);
     gtk_label_set_text(GTK_LABEL(article_title), current->title);
     set_picture(reader_image, current->picture, compact ? 160 : 224, compact ? 90 : 126);
     gtk_label_set_text(GTK_LABEL(image_caption), current->publisher_image ? "Yayıncının RSS görseli · çevrimdışı önbellek" : "Özgün kategori çizimi · haber fotoğrafı değildir");
@@ -286,7 +440,7 @@ static gboolean article_filter(GtkListBoxRow *row, gpointer data) {
     (void)data;
     Article *article = g_object_get_data(G_OBJECT(row), "article");
     const gchar *chosen = gtk_combo_box_get_active_id(GTK_COMBO_BOX(category_combo));
-    return article && (!chosen || !strcmp(chosen, "Tümü") || !strcmp(chosen, article->category)) &&
+    return article && (!unread_only || !was_read(article)) && (!chosen || !strcmp(chosen, "Tümü") || !strcmp(chosen, article->category)) &&
         (!query || !*query || strstr(article->search, query));
 }
 
@@ -313,6 +467,8 @@ static gboolean load_feed(JsonObject *root) {
     gboolean unchanged = !g_strcmp0(feed_hash, hash);
     g_free(serialized); g_free(identity);
     filling = TRUE;
+    reading_list = !strcmp(text_member(root, "mode"), "saved");
+    changing_library = TRUE; gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(saved_filter), reading_list); changing_library = FALSE;
     gtk_combo_box_text_remove_all(GTK_COMBO_BOX_TEXT(sources));
     for (guint i = 0; i < json_array_get_length(feed_sources); i++) {
         JsonNode *node = json_array_get_element(feed_sources, i);
@@ -338,6 +494,7 @@ static gboolean load_feed(JsonObject *root) {
         article->link = g_strdup(text_member(item, "url")); article->published = g_strdup(text_member(item, "published"));
         article->category = g_strdup(*text_member(item, "category") ? text_member(item, "category") : "Gündem");
         article->publisher = g_strdup(*text_member(item, "publisher") ? text_member(item, "publisher") : source_name);
+        article->image_path = g_strdup(text_member(item, "image_path"));
         gchar *searchable = g_strjoin(" ", article->title, article->body, article->category, NULL);
         article->search = g_utf8_casefold(searchable, -1); g_free(searchable);
         if (g_utf8_strlen(article->body, -1) > 8192 || g_utf8_strlen(article->title, -1) > 240) { article_free(article); return FALSE; }
@@ -376,6 +533,7 @@ static gboolean load_feed(JsonObject *root) {
     }
     gtk_widget_show_all(headlines);
     gtk_widget_set_sensitive(open_button, FALSE);
+    gtk_widget_set_sensitive(save_article_button, FALSE);
     show_list(NULL, NULL);
     g_free(feed_hash); feed_hash = g_strdup(hash);
     }
@@ -390,6 +548,8 @@ static gboolean load_feed(JsonObject *root) {
     gchar *info = g_strdup_printf("%u başlık · %s%s · Yayıncı metni / özeti; tam makale garantisi yok.", articles->len,
         *text_member(root, "cached_at") ? "Önbellek: " : "Henüz yayıncıdan indirme yok", text_member(root, "cached_at"));
     status(info); g_free(info);
+    gtk_widget_set_sensitive(refresh_button, !busy && !reading_list);
+    gtk_widget_set_sensitive(remove_button, !busy && !reading_list);
     /* Opt-in GLib diagnostics: counts only, never article text / URLs. */
     g_debug("cached-view-ready: %u items", articles->len);
     return TRUE;
@@ -429,7 +589,7 @@ static void run_service(const gchar *first, const gchar *second, const gchar *th
     g_subprocess_communicate_utf8_async(worker, NULL, NULL, service_done, NULL);
 }
 
-static void refresh(GtkButton *button, gpointer data) { (void)button; (void)data; if (selected_source) run_service("refresh", selected_source, images_enabled ? NULL : "text-only"); }
+static void refresh(GtkButton *button, gpointer data) { (void)button; (void)data; if (reading_list) { status("Okuma listesi yereldir; güncel haber için RSS kaynağına dönün."); return; } if (selected_source) run_service("refresh", selected_source, images_enabled ? NULL : "text-only"); }
 
 static void add_source(GtkButton *button, gpointer data) {
     (void)button; (void)data;
@@ -468,6 +628,10 @@ static void remove_source(GtkButton *button, gpointer data) {
 static void activate(GtkApplication *app, gpointer data) {
     (void)data;
     if (window) { gtk_window_present(GTK_WINDOW(window)); return; }
+    library = g_key_file_new();
+    gchar *library_path = g_build_filename(g_get_user_data_dir(), "oguzdows/news/library.ini", NULL), *library_data = NULL;
+    if (og_ui_read_file(library_path, 2 * 1024 * 1024, &library_data)) g_key_file_load_from_data(library, library_data, -1, G_KEY_FILE_NONE, NULL);
+    g_free(library_path); g_free(library_data);
     articles = g_ptr_array_new_with_free_func(article_free);
     gchar *path = preference_path(); GStatBuf st;
     if (!g_lstat(path, &st) && S_ISREG(st.st_mode) && st.st_size <= 4096 && st.st_uid == getuid()) {
@@ -546,6 +710,17 @@ static void activate(GtkApplication *app, gpointer data) {
     gtk_box_pack_start(GTK_BOX(box), filters, FALSE, FALSE, 0);
     g_signal_connect(category_combo, "changed", G_CALLBACK(filter_articles), NULL);
     g_signal_connect(search_entry, "search-changed", G_CALLBACK(filter_articles), NULL);
+    GtkWidget *library_controls = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 6);
+    gtk_widget_set_margin_start(library_controls, 12); gtk_widget_set_margin_end(library_controls, 12);
+    saved_filter = gtk_toggle_button_new_with_label("★ Okuma listem");
+    unread_filter = gtk_toggle_button_new_with_label("Okunmamış");
+    gtk_widget_set_tooltip_text(saved_filter, "Kaydettiğin RSS metinleri, kaynak değişse de çevrimdışı kalır · en fazla 40");
+    g_signal_connect(saved_filter, "toggled", G_CALLBACK(saved_toggled), NULL);
+    g_signal_connect(unread_filter, "toggled", G_CALLBACK(unread_toggled), NULL);
+    gtk_box_pack_start(GTK_BOX(library_controls), saved_filter, FALSE, FALSE, 0);
+    gtk_box_pack_start(GTK_BOX(library_controls), unread_filter, FALSE, FALSE, 0);
+    gtk_box_pack_end(GTK_BOX(library_controls), icon_button("edit-clear-all-symbolic", "Yerel okundu geçmişini temizle…", G_CALLBACK(clear_read_history)), FALSE, FALSE, 0);
+    gtk_box_pack_start(GTK_BOX(box), library_controls, FALSE, FALSE, 0);
     pages = gtk_stack_new(); og_ui_stack_setup(pages);
     gtk_box_pack_start(GTK_BOX(box), pages, TRUE, TRUE, 0);
     GtkWidget *list_page = gtk_box_new(GTK_ORIENTATION_VERTICAL, 8);
@@ -591,6 +766,15 @@ static void activate(GtkApplication *app, gpointer data) {
     gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(scroll), GTK_POLICY_NEVER, GTK_POLICY_AUTOMATIC);
     gtk_container_add(GTK_CONTAINER(scroll), reader);
     gtk_stack_add_named(GTK_STACK(pages), scroll, "reader");
+    GtkWidget *reading_actions = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 6);
+    gtk_widget_set_margin_start(reading_actions, 12); gtk_widget_set_margin_end(reading_actions, 12);
+    save_article_button = icon_button("emblem-favorite-symbolic", "RSS metnini çevrimdışı okumak için kaydet", G_CALLBACK(save_article));
+    gtk_widget_set_sensitive(save_article_button, FALSE);
+    gtk_box_pack_start(GTK_BOX(reading_actions), save_article_button, FALSE, FALSE, 0);
+    GtkWidget *export_button = gtk_button_new_with_label("TXT dışa aktar…");
+    g_signal_connect(export_button, "clicked", G_CALLBACK(export_article), NULL);
+    gtk_box_pack_start(GTK_BOX(reading_actions), export_button, FALSE, FALSE, 0);
+    gtk_box_pack_start(GTK_BOX(box), reading_actions, FALSE, FALSE, 0);
     GtkWidget *controls = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 6); gtk_container_set_border_width(GTK_CONTAINER(controls), 8);
     back_button = gtk_button_new_with_label("Liste"); g_signal_connect(back_button, "clicked", G_CALLBACK(show_list), NULL);
     gtk_box_pack_start(GTK_BOX(controls), back_button, FALSE, FALSE, 0);
@@ -642,7 +826,7 @@ static void screenshot(const gchar *name) {
 static gboolean smoke(gpointer data) {
     (void)data;
     if (++smoke_wait > 200) g_error("Haber GTK testi 20 saniyede bitmedi.");
-    if (busy) return G_SOURCE_CONTINUE;
+    if (busy || exporting) return G_SOURCE_CONTINUE;
     GdkDisplay *display = gtk_widget_get_display(window);
     GdkMonitor *monitor = gdk_display_get_primary_monitor(display); GdkRectangle area;
     if (!monitor) monitor = gdk_display_get_monitor(display, 0);
@@ -670,6 +854,28 @@ static gboolean smoke(gpointer data) {
     if (smoke_step == 1) {
         g_assert_nonnull(current); g_assert_nonnull(strstr(current->body, "TEST"));
         screenshot("news-reader.png");
+        g_assert_true(was_read(current)); save_article(NULL, NULL); g_assert_true(is_saved(current));
+        gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(unread_filter), TRUE);
+        guint unread = 0; GList *rows = gtk_container_get_children(GTK_CONTAINER(headlines));
+        for (GList *it = rows; it; it = it->next) if (article_filter(it->data, NULL)) unread++;
+        g_list_free(rows); g_assert_cmpuint(unread, ==, 1);
+        gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(unread_filter), FALSE);
+        gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(saved_filter), TRUE);
+        g_assert_cmpuint(articles->len, ==, 1); g_assert_true(reading_list);
+        g_signal_emit_by_name(headlines, "row-activated", gtk_list_box_get_row_at_index(GTK_LIST_BOX(headlines), 0));
+        g_assert_nonnull(current); g_assert_true(is_saved(current));
+        screenshot("news-saved.png");
+        export_to_path(g_build_filename(smoke_directory, "news-article.txt", NULL), article_as_text(current));
+        smoke_step = 101; return G_SOURCE_CONTINUE;
+    }
+    if (smoke_step == 101) {
+        gchar *path = g_build_filename(smoke_directory, "news-article.txt", NULL), *text = NULL;
+        g_assert_true(g_file_get_contents(path, &text, NULL, NULL));
+        g_assert_nonnull(strstr(text, "TEST")); g_assert_nonnull(strstr(text, "Kaynak:")); g_free(path); g_free(text);
+        gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(saved_filter), FALSE); smoke_step = 102; return G_SOURCE_CONTINUE;
+    }
+    if (smoke_step == 102) {
+        g_assert_cmpuint(articles->len, ==, 2); g_assert_false(reading_list);
         gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(images_button), FALSE); g_assert_false(images_enabled);
         refresh(NULL, NULL); smoke_step = 2; return G_SOURCE_CONTINUE;
     }
@@ -731,7 +937,7 @@ static gboolean smoke(gpointer data) {
     g_assert_cmpuint(articles->len, ==, 6);
     screenshot("news-compact.png");
     gchar *path = g_build_filename(smoke_directory, "news-native.json", NULL);
-    gchar *receipt = g_strdup_printf("{\"native_gtk\":true,\"fixture_not_network\":true,\"cold_start_fetch\":false,\"offline_after_error\":true,\"category_filter\":true,\"local_search\":true,\"honest_example_fallback\":true,\"cached_thumbnail\":true,\"single_click_reader\":true,\"text_only_option\":true,\"dynamic_compact_resize\":true,\"resize_preserves_reader_filter\":true,\"font_limits\":true,\"worker_exited\":true,\"cancellation\":true,\"deadline_callback\":true,\"physical_device\":false,\"screen_width\":%d,\"screen_height\":%d,\"window_width\":%d}", area.width, area.height, gtk_widget_get_allocated_width(window));
+    gchar *receipt = g_strdup_printf("{\"native_gtk\":true,\"fixture_not_network\":true,\"cold_start_fetch\":false,\"offline_after_error\":true,\"category_filter\":true,\"local_search\":true,\"honest_example_fallback\":true,\"cached_thumbnail\":true,\"single_click_reader\":true,\"offline_saved_reading_list\":true,\"read_unread_filter\":true,\"txt_export_real_private_file\":true,\"text_only_option\":true,\"dynamic_compact_resize\":true,\"resize_preserves_reader_filter\":true,\"font_limits\":true,\"worker_exited\":true,\"cancellation\":true,\"deadline_callback\":true,\"physical_device\":false,\"screen_width\":%d,\"screen_height\":%d,\"window_width\":%d}", area.width, area.height, gtk_widget_get_allocated_width(window));
     g_assert_true(g_file_set_contents(path, receipt, -1, NULL));
     g_print("::notice title=C Haber GTK::%s\n", receipt);
     g_free(receipt); g_free(path); gtk_widget_destroy(window); g_application_quit(G_APPLICATION(application)); return G_SOURCE_REMOVE;
@@ -750,6 +956,7 @@ int main(int argc, char **argv) {
         private_home = g_dir_make_tmp("oguzdows-news-test-XXXXXX", NULL); g_assert_nonnull(private_home);
         g_setenv("XDG_CONFIG_HOME", private_home, TRUE);
         g_setenv("XDG_CACHE_HOME", private_home, TRUE);
+        g_setenv("XDG_DATA_HOME", private_home, TRUE);
         /* GTK resize / redraw idles must run before the next test step, even
          * when fixture / preference writes consumed the previous interval. */
         argc = 1; g_timeout_add_full(G_PRIORITY_DEFAULT_IDLE, 100, smoke, NULL, NULL);
@@ -761,6 +968,7 @@ int main(int argc, char **argv) {
     g_signal_connect(application, "activate", G_CALLBACK(activate), NULL);
     int result = g_application_run(G_APPLICATION(application), argc, argv);
     if (articles) g_ptr_array_unref(articles);
+    if (library) g_key_file_unref(library);
     g_free(source_name); g_free(selected_source); g_free(query); g_free(feed_hash); g_object_unref(application);
 #ifdef OGUZDOWS_NEWS_TEST
     g_free(private_home);

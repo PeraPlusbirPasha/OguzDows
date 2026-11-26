@@ -16,7 +16,7 @@ profiles = load('own_icons_profiles', 'system/usr/lib/oguzdows/profiles.py')
 class OwnIconTests(unittest.TestCase):
     def test_all_own_launchers_use_their_own_declared_icon_not_the_product_flag(self):
         manifest = json.loads((ROOT / 'system/usr/share/oguzdows/own-app-icons.json').read_text())
-        self.assertEqual(len(manifest['icons']), 15)
+        self.assertEqual(len(manifest['icons']), 16)
         for identifier in manifest['icons']:
             config = configparser.ConfigParser(interpolation=None)
             config.read(ROOT / f'system/usr/share/applications/oguzdows-{identifier}.desktop')

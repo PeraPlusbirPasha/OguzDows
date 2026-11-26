@@ -43,6 +43,8 @@ APPS = (
     app('keepassxc', 'KeePassXC', 'Parolalarını yerel şifreli kasada sakla.', 'Araçlar', 'keepassxc', 'org.keepassxc.KeePassXC', 'keepassxc'),
     app('baobab', 'Disk Kullanımı', 'Klasörlerin kapladığı alanı incele.', 'Araçlar', 'baobab', 'org.gnome.baobab', 'org.gnome.baobab'),
     app('bleachbit', 'BleachBit', 'Temizlik aracıdır; sileceği dosyaları dikkatle incele.', 'Araçlar', 'bleachbit', 'org.bleachbit.BleachBit', 'bleachbit'),
+    dict(app('flatpak-support', 'Flatpak bileşenleri', 'Flatpak, Python API ve yerel portal. Flathub yalnız uygun 64 bit mimaride ayrıca onayla eklenir.', 'Araçlar', 'flatpak gir1.2-flatpak-1.0 xdg-desktop-portal xdg-desktop-portal-gtk ca-certificates', '', 'package-x-generic'), managed_bundle=True),
+    dict(app('software-center', 'GNOME Yazılımlar', 'GNOME Software, Flatpak eklentisi, PackageKit ve dil verisi. Ağır katalog isteğe bağlıdır; otomatik açılmaz.', 'Araçlar', 'gnome-software gnome-software-plugin-flatpak packagekit iso-codes flatpak gir1.2-flatpak-1.0 python3-xlib', '', 'org.gnome.Software'), managed_bundle=True),
     app('wine', 'Windows Uyumluluğu', 'Wine ile uygun EXE dosyaları; güvenlik alanı değildir.', 'Araçlar', 'wine', '', 'application-x-ms-dos-executable'),
 )
 FEATURED = ('gimp', 'vlc', 'geany', 'libreoffice', 'keepassxc')
@@ -50,6 +52,7 @@ BY_ID = {item['id']: item for item in APPS}
 # Yalnızca sabit, sistem paketinin sağladığı masaüstü dosyaları. Bir uygulama
 # motorunun (Wine) dosyasız çalıştırılacağı varsayılmaz; EXE inceleyici ayrıdır.
 DESKTOP_IDS = {
+    'software-center': ('oguzdows-software.desktop',),
     'firefox': ('firefox-esr.desktop', 'firefox.desktop'),
     'thunderbird': ('thunderbird.desktop',), 'transmission': ('transmission-gtk.desktop',),
     'filezilla': ('filezilla.desktop',), 'remmina': ('org.remmina.Remmina.desktop',),
