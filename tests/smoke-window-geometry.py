@@ -51,7 +51,7 @@ def child(directory, scale):
     gi.require_foreign('cairo')
     gi.require_version('Gtk', '3.0'); gi.require_version('Gdk', '3.0'); gi.require_version('GdkX11', '3.0')
     from gi.repository import Gdk, GdkX11, Gtk
-    from Xlib import X, XK, display, error, protocol
+    from Xlib import X, XK, display, error
     from Xlib.ext import shape, xtest
     import desktop_material
     import desktop_state as state
@@ -101,11 +101,13 @@ def child(directory, scale):
         return None
 
     def activate(window):
-        event = protocol.event.ClientMessage(window=window, client_type=connection.intern_atom('_NET_ACTIVE_WINDOW'),
-                                             data=(32, [2, X.CurrentTime, 0, 0, 0]))
-        root.send_event(event, event_mask=X.SubstructureRedirectMask | X.SubstructureNotifyMask)
+        # These are already mapped private test clients, not a pager request
+        # with a zero event timestamp (which Xfwm 4.20 may correctly refuse).
+        window.configure(stack_mode=X.Above)
+        window.set_input_focus(X.RevertToParent, X.CurrentTime)
         connection.sync()
-        until(lambda: prop(root, '_NET_ACTIVE_WINDOW') == [window.id], 'WM did not activate test window')
+        until(lambda: prop(root, '_NET_ACTIVE_WINDOW') == [window.id],
+              'WM did not observe direct X focus on test client ' + str(window.id))
 
     def keys(name, control=False):
         key = connection.keysym_to_keycode(XK.string_to_keysym(name))
@@ -202,7 +204,7 @@ def child(directory, scale):
             # Parse the installed version's actual production recipes. The CLI
             # backend override only avoids pretending that Xvfb is a real GPU;
             # this diagnostics exit is NOT GLX rendering / animation proof.
-            parsed = subprocess.run(['/usr/bin/picom', '--config', str(recipe), '--diagnostics', '--backend', 'xrender'],
+            parsed = subprocess.run(['/usr/bin/picom', '--config', str(recipe), '--diagnostics', '--backend', 'xrender', '--no-vsync'],
                                     capture_output=True, text=True, timeout=12, check=False)
             text = parsed.stdout + parsed.stderr
             (directory / ('parse-' + recipe.stem + '.log')).write_text(text)

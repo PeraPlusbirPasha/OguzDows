@@ -307,9 +307,9 @@ jobs:
         if: ${{ !cancelled() && matrix.suite == 'bookworm' }}
         run: python3 scripts/ci-preview.py test-results/news-1024x768/news-compact.png
 
-      - name: Thunar · koyu görsel önizleme
+      - name: Thunar · Xrender koyu görünüm ve bağlam menüsü önizlemesi
         if: ${{ !cancelled() && matrix.suite == 'trixie' }}
-        run: python3 scripts/ci-preview.py test-results/desktop-polish/thunar-dark.png
+        run: python3 scripts/ci-preview.py test-results/window-geometry-1/xrender-thunar-dark-menu.png
 
       - name: Gerçek Windows görev çubuğu · kırpılmış panel önizleme
         if: ${{ !cancelled() && matrix.suite == 'trixie' }}
