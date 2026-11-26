@@ -310,11 +310,15 @@ jobs:
             xvfb-run -a -s '-screen 0 1024x768x24' dbus-run-session -- \
             python3 tests/smoke-installer.py --config /etc/calamares --output test-results
 
-      - name: Atölye · gerçek masaüstü / kompakt önizleme
+      # Each preview can use seven notices; keep them in separate steps so
+      # GitHub's ten-annotations-per-step cap cannot truncate either image.
+      - name: Atölye · gerçek açık masaüstü önizleme
         if: ${{ !cancelled() }}
-        run: |
-          python3 scripts/ci-preview.py test-results/workbench-1024x768/workbench-home.png
-          python3 scripts/ci-preview.py test-results/workbench-360x800/workbench-home.png
+        run: python3 scripts/ci-preview.py test-results/workbench-1024x768/workbench-home.png
+
+      - name: Atölye · gerçek koyu kompakt önizleme
+        if: ${{ !cancelled() }}
+        run: python3 scripts/ci-preview.py test-results/workbench-360x800/workbench-home.png
 
       - name: Mağaza · masaüstü görsel önizleme
         if: ${{ !cancelled() && matrix.suite == 'trixie' }}

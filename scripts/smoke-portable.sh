@@ -64,6 +64,10 @@ chroot "$root" /usr/bin/env DEBIAN_FRONTEND=noninteractive /bin/sh -ec '
     apt-get install -y --no-install-recommends python3 python3-pil python3-gi \
         tzdata build-essential pkg-config libgtk-3-dev libjson-glib-dev
 '
+# debootstrap's second stage unmounts its temporary procfs. Target Python and
+# the native FD-leak tests need the real process view, not a missing /proc.
+stage=target-runtime
+mount -t proc proc "$root/proc"
 mkdir -p "$root/src"
 git -c safe.directory="$project" -C "$project" archive HEAD | tar -x -C "$root/src"
 # The inner shell expands only the fixed interpreter path passed via env.
