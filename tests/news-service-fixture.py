@@ -10,8 +10,9 @@ args = sys.argv[1:]
 if args == ['cached', 'test']:
     time.sleep(60)  # Only the native test's cancellation / deadline path.
     raise SystemExit(3)
-if args == ['refresh', 'test']:
-    print(json.dumps({'error': 'Test bağlantı hatası; eski haberler ve önbellek korunur.'}, ensure_ascii=False))
+if args in (['refresh', 'test'], ['refresh', 'test', 'text-only']):
+    suffix = ' · text-only verified' if args[-1] == 'text-only' else ''
+    print(json.dumps({'error': 'Test bağlantı hatası; eski haberler ve önbellek korunur.' + suffix}, ensure_ascii=False))
     raise SystemExit(1)
 if args == ['cached', 'example']:
     sys.path.insert(0, str(Path(__file__).resolve().parents[1] / 'system/usr/lib/oguzdows'))
