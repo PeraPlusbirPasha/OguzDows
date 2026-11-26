@@ -99,6 +99,10 @@ jobs:
             xvfb-run -a -s '-screen 0 1024x768x24 -nolisten tcp' \
             python3 tests/smoke-window-geometry.py --output test-results/pi-ui/window-geometry
 
+      - name: Özel geometri ekranı · yalnız host test hatasında
+        if: ${{ failure() }}
+        run: python3 scripts/ci-preview.py test-results/pi-ui/window-geometry/geometry-failure.png
+
       - name: Paylaşılan yerel mağazayı host üzerinde derle (ARM boot testi değil)
         run: |
           sh scripts/build-native.sh /tmp/oguzdows-store-native

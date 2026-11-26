@@ -40,6 +40,13 @@ def coverage(intervals, start, end):
     return cursor >= end
 
 
+def picom_major(version):
+    match = re.match(r'(?:picom\s+)?v?(\d+)(?:\.\d+)*(?=$|\s|[-+])', version.strip())
+    if not match:
+        raise ValueError('Unrecognized Picom version: ' + version)
+    return int(match[1])
+
+
 def child(directory, scale):
     if (os.getuid() == 0 or directory.parent != Path(tempfile.gettempdir())
             or not directory.name.startswith('oguzdows-geometry-ci-')
@@ -100,14 +107,41 @@ def child(directory, scale):
                 return window
         return None
 
+    focus_clicks = {}
     def activate(window):
-        # These are already mapped private test clients, not a pager request
-        # with a zero event timestamp (which Xfwm 4.20 may correctly refuse).
-        window.configure(stack_mode=X.Above)
-        window.set_input_focus(X.RevertToParent, X.CurrentTime)
+        # A real timestamped titlebar click goes through the window manager's
+        # focus path. Alternate points per window to avoid double-click actions.
+        assert all(process.poll() is None for process in processes[:3]), [(p.args, p.poll()) for p in processes[:3]]
+        window.configure(stack_mode=X.Above); connection.sync(); pump(.06)
+        frame = window
+        while True:
+            parent = frame.query_tree().parent
+            if parent.id == root.id: break
+            frame = parent
+        geometry = frame.get_geometry()
+        count = focus_clicks.get(window.id, 0); focus_clicks[window.id] = count + 1
+        x = geometry.x + geometry.width * (35 if count % 2 else 55) // 100
+        y = geometry.y + 16 * scale
+        xtest.fake_input(connection, X.MotionNotify, x=x, y=y)
+        xtest.fake_input(connection, X.ButtonPress, 1); xtest.fake_input(connection, X.ButtonRelease, 1)
         connection.sync()
-        until(lambda: prop(root, '_NET_ACTIVE_WINDOW') == [window.id],
-              'WM did not observe direct X focus on test client ' + str(window.id))
+        try:
+            until(lambda: prop(root, '_NET_ACTIVE_WINDOW') == [window.id],
+                  'WM did not activate titlebar-clicked client ' + str(window.id))
+        except AssertionError:
+            focus = connection.get_input_focus().focus
+            report['focus_failure'] = {
+                'requested': window.id, 'actual_active': prop(root, '_NET_ACTIVE_WINDOW'),
+                'input_focus': getattr(focus, 'id', focus), 'click': [x, y],
+                'frame': [frame.id, geometry.x, geometry.y, geometry.width, geometry.height],
+                'clients': [{'id': item.id, 'class': item.get_wm_class(), 'title': item.get_wm_name(),
+                             'mapped': item.get_attributes().map_state, 'state': prop(item, '_NET_WM_STATE')}
+                            for item in clients()],
+                'processes': [{'command': process.args, 'exit': process.poll()} for process in processes],
+            }
+            screenshot('focus-failure')
+            print('::error title=Private X11 focus diagnostics::' + json.dumps(report['focus_failure']), flush=True)
+            raise
 
     def keys(name, control=False):
         key = connection.keysym_to_keycode(XK.string_to_keysym(name))
@@ -193,17 +227,17 @@ def child(directory, scale):
             assert profiles.read_property('thunar', '/misc-thumbnail-mode', 'string', profiles.run) == 'THUNAR_THUMBNAIL_MODE_ALWAYS'
         report['real_xfconf_uint64_budget_idempotence_and_personal_restore'] = True
         version = subprocess.check_output(['/usr/bin/picom', '--version'], text=True, timeout=8).strip()
-        match = re.search(r'v?(\d+)\.(\d+)', version)
-        assert match, version
-        major = int(match[1]); folder = effects.CONFIG.parent / 'compositor'
+        major = picom_major(version); folder = effects.CONFIG.parent / 'compositor'
         recipes = [effects.CONFIG, folder / 'still.conf']
         recipes += [folder / (name + '.conf') for name in (('blur9', 'blur9-still') if major == 9 else ('blur', 'blur-still'))]
         if major >= 12:
             recipes += [folder / (name + '.conf') for name in ('motion', 'full', 'snap', 'full-snap')]
         for recipe in recipes:
             # Parse the installed version's actual production recipes. The CLI
-            # backend override only avoids pretending that Xvfb is a real GPU;
-            # this diagnostics exit is NOT GLX rendering / animation proof.
+            # backend override avoids pretending that Xvfb is a real GPU;
+            # --no-vsync is also test-only: Picom 9 initializes the backend
+            # even for diagnostics, but Xvfb has no swap-control extension.
+            # This diagnostics exit is NOT GLX rendering / animation proof.
             parsed = subprocess.run(['/usr/bin/picom', '--config', str(recipe), '--diagnostics', '--backend', 'xrender', '--no-vsync'],
                                     capture_output=True, text=True, timeout=12, check=False)
             text = parsed.stdout + parsed.stderr
@@ -212,7 +246,8 @@ def child(directory, scale):
             for failure in ('failed to parse', 'failed to compile', 'will have no effect'):
                 assert failure not in text.lower(), (recipe, text[-2500:])
         report['picom_recipe_parser'] = {'version': version, 'recipes': [path.name for path in recipes],
-                                         'diagnostics_backend_override': 'xrender', 'glx_rendering_verified': False}
+                                         'diagnostics_backend_override': 'xrender', 'ci_only_no_vsync': True,
+                                         'glx_rendering_verified': False}
         pump(.15)
         profiles.set_property('xsettings', '/Gtk/EnableAnimations', 'bool', 'false', profiles.run)
         profiles.set_property('thunar', '/last-view', 'string', 'ThunarIconView', profiles.run)
@@ -245,6 +280,7 @@ def child(directory, scale):
                 profiles.set_property('xfwm4', '/general/theme', 'string', theme, profiles.run)
                 until(lambda: Gtk.Settings.get_default().get_property('gtk-theme-name') == theme, 'GTK theme did not change')
                 pump(.08)
+                report['current_case'] = {'theme': theme, 'engine': engine, 'stage': 'frame-focus'}
                 activate(thunar); frame_contract(thunar, theme, engine, 'active')
                 activate(other); until(sample.is_active, 'CSD did not take focus')
                 frame_contract(thunar, theme, engine, 'inactive')
@@ -293,6 +329,21 @@ def child(directory, scale):
                 os.killpg(compositor.pid, signal.SIGTERM); compositor.wait(timeout=8)
                 until(lambda: not Gdk.Screen.get_default().is_composited(), 'Private Picom did not release composition')
         report['passed'] = True
+    except Exception:
+        try:
+            screenshot('geometry-failure')
+            print('::notice title=Private geometry progress::' + json.dumps({
+                'case': report.get('current_case'), 'frames_checked': len(report['frames']),
+                'view_cases': len(report['view_modes']), 'csd': report['csd'],
+            }), flush=True)
+            for name in ('xfwm', 'picom', 'thunar'):
+                log = directory / (name + '.log')
+                if log.is_file():
+                    print('::notice title=Private geometry ' + name + '::' + log.read_text(errors='replace')[-1600:]
+                          .replace('%', '%25').replace('\n', '%0A').replace('\r', '%0D'), flush=True)
+        except Exception as diagnostic_error:
+            print('Geometry failure capture: ' + str(diagnostic_error), flush=True)
+        raise
     finally:
         for window in windows: window.destroy()
         for process in reversed(processes):

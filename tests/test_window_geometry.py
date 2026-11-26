@@ -82,6 +82,15 @@ class WindowGeometryTests(unittest.TestCase):
         for path in (ROOT / '.github/workflows/main.yml', ROOT / '.github/workflows/raspberrypi.yml'):
             self.assertIn('python3 tests/smoke-window-geometry.py', path.read_text())
 
+    def test_installed_picom_version_accepts_major_only_and_package_suffixes(self):
+        for version, major in (('v9.1', 9), ('v10', 10), ('v12.5', 12),
+                               ('v12.5-dirty', 12), ('picom v12.5+git123', 12)):
+            with self.subTest(version=version):
+                self.assertEqual(smoke.picom_major(version), major)
+        for version in ('', 'unknown', 'libGL 3.2 (picom unknown)'):
+            with self.subTest(version=version), self.assertRaises(ValueError):
+                smoke.picom_major(version)
+
     def test_exact_mask_union_detects_one_pixel_holes_and_overlaps(self):
         for intervals, start, end, expected in (([(0, 4), (4, 10)], 0, 10, True),
                                                 ([(0, 4), (5, 10)], 0, 10, False),
