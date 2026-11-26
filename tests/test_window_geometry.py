@@ -91,6 +91,12 @@ class WindowGeometryTests(unittest.TestCase):
             with self.subTest(version=version), self.assertRaises(ValueError):
                 smoke.picom_major(version)
 
+    def test_active_client_uses_ewmh_window_not_xfwm_timestamp_extension(self):
+        for values, expected in (([42], True), ([42, 0], True), ([42, 1234567], True),
+                                 ([], False), ([0, 42], False), ([41, 42], False)):
+            with self.subTest(values=values):
+                self.assertIs(smoke.active_window_matches(values, 42), expected)
+
     def test_exact_mask_union_detects_one_pixel_holes_and_overlaps(self):
         for intervals, start, end, expected in (([(0, 4), (4, 10)], 0, 10, True),
                                                 ([(0, 4), (5, 10)], 0, 10, False),

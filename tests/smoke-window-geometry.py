@@ -47,6 +47,14 @@ def picom_major(version):
     return int(match[1])
 
 
+def active_window_matches(values, xid):
+    # EWMH designates the first WINDOW. Xfwm's clientSetNetActiveWindow
+    # (src/netwm.c) also publishes a second 32-bit value: a timestamp, not
+    # another client. Requiring the entire property to be [xid] rejects real
+    # successful activation on both 4.18 and 4.20.
+    return bool(values) and values[0] == xid
+
+
 def child(directory, scale):
     if (os.getuid() == 0 or directory.parent != Path(tempfile.gettempdir())
             or not directory.name.startswith('oguzdows-geometry-ci-')
@@ -126,7 +134,7 @@ def child(directory, scale):
         xtest.fake_input(connection, X.ButtonPress, 1); xtest.fake_input(connection, X.ButtonRelease, 1)
         connection.sync()
         try:
-            until(lambda: prop(root, '_NET_ACTIVE_WINDOW') == [window.id],
+            until(lambda: active_window_matches(prop(root, '_NET_ACTIVE_WINDOW'), window.id),
                   'WM did not activate titlebar-clicked client ' + str(window.id))
         except AssertionError:
             focus = connection.get_input_focus().focus
