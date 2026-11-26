@@ -301,6 +301,14 @@ jobs:
         if: ${{ !cancelled() && matrix.suite == 'trixie' }}
         run: python3 scripts/ci-preview.py test-results/desktop-polish/thunar-dark.png
 
+      - name: Gerçek Windows görev çubuğu · kırpılmış panel önizleme
+        if: ${{ !cancelled() && matrix.suite == 'trixie' }}
+        run: python3 scripts/ci-preview.py test-results/profiles-1024x768/panels-windows11-three-windows.png --bottom 72
+
+      - name: Gerçek Mac Dock · kırpılmış panel önizleme
+        if: ${{ !cancelled() && matrix.suite == 'bookworm' }}
+        run: python3 scripts/ci-preview.py test-results/profiles-1024x768/panels-mac.png --bottom 96
+
       - name: Arayüz ekran görüntüleri
         if: always()
         uses: actions/upload-artifact@v4

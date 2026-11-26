@@ -22,6 +22,15 @@ class PreviewTests(unittest.TestCase):
             self.assertLessEqual(image.width, 900)
             self.assertLessEqual(image.height, 700)
 
+    def test_panel_crop_has_explicit_bounded_height_without_stretching(self):
+        with Image.new('RGB', (1024, 768), '#304050') as original:
+            data = previewer.preview(original, bottom=72)
+            with Image.open(io.BytesIO(data)) as image:
+                self.assertEqual(image.width, 900)
+                self.assertEqual(image.height, 63)
+            for bad in (-1, 129):
+                with self.assertRaises(ValueError): previewer.preview(original, bottom=bad)
+
     def test_excessive_dimensions_are_rejected_before_encoding(self):
         with Image.new('RGB', (3000, 3000)) as image, self.assertRaises(ValueError):
             previewer.preview(image)

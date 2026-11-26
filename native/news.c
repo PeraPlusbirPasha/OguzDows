@@ -573,7 +573,11 @@ static void activate(GtkApplication *app, gpointer data) {
     gtk_box_pack_start(GTK_BOX(reader), reader_image, FALSE, FALSE, 0);
     image_caption = label("", "news-image-caption"); gtk_label_set_max_width_chars(GTK_LABEL(image_caption), 42);
     gtk_box_pack_start(GTK_BOX(reader), image_caption, FALSE, FALSE, 0);
-    scroll = gtk_scrolled_window_new(NULL, NULL); gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(scroll), GTK_POLICY_NEVER, GTK_POLICY_AUTOMATIC);
+    scroll = gtk_scrolled_window_new(NULL, NULL);
+    /* NEVER propagates GtkTextView's last laid-out width as the window's
+     * minimum (800px after zoom). EXTERNAL permits reflow without a horizontal
+     * scrollbar; wrapping and the vertical scrollbar remain native GTK. */
+    gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(scroll), GTK_POLICY_EXTERNAL, GTK_POLICY_AUTOMATIC);
     article_text = gtk_text_view_new(); gtk_text_view_set_editable(GTK_TEXT_VIEW(article_text), FALSE); gtk_text_view_set_cursor_visible(GTK_TEXT_VIEW(article_text), FALSE);
     gtk_text_view_set_wrap_mode(GTK_TEXT_VIEW(article_text), GTK_WRAP_WORD_CHAR); gtk_text_view_set_left_margin(GTK_TEXT_VIEW(article_text), 8); gtk_text_view_set_right_margin(GTK_TEXT_VIEW(article_text), 8);
     gtk_text_view_set_pixels_above_lines(GTK_TEXT_VIEW(article_text), 6); gtk_text_view_set_pixels_below_lines(GTK_TEXT_VIEW(article_text), 6);

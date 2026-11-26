@@ -136,6 +136,7 @@ class ThumbnailTests(unittest.TestCase):
             self.assertIn(marker, source)
         self.assertIn('Haberi oku', source)
         self.assertIn('fit_news(event->width)', source)
+        self.assertIn('GTK_POLICY_EXTERNAL', source)
         self.assertIn('current == smoke_current', source)
         self.assertIn('text-only verified', source)
         self.assertNotIn('soup_session', source)
