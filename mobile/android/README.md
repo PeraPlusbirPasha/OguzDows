@@ -1,14 +1,24 @@
-# OğuzDows Mobile 0.3 · native Aero launcher
+# OğuzDows Mobile 0.4 · bağlı native Aero kabuk
 
-**Sürüm: `0.3.0-launcher` · Kotlin + Jetpack Compose ana ekranı.** MAIN/HOME/LAUNCHER artık `LauncherActivity`’dir; native ana ekran WebView değildir. Kabul edilmiş Java Telefon/SMS/Mağaza servisleri ve çevrimdışı paketli günlük araçlar korunur. Bu, normal kullanıcı yetkili uygulamadır; web sitesinden SIM’e uzaktan erişim değildir.
+**Güncel dal: `0.4.0-connected` · geliştirme/kabul aşaması.** [Bağlı kabuk, rehber, kilit ve OğuzKöprü kapsamı/gerçek koşu sonuçları](../CONNECTED.md). 0.4 için 20 JVM ve 24 cihaz vakasının tamamı, bağımsız dosya makbuzları ve gerçek ekran yakalaması geçmeden paket hazırlanmaz.
 
-**Native 0.3 kabulü geçti:** [`fb6cad5` / koşu 46065713858](https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/46065713858), **17/17 gerçek emülatör vakası, 13/13 JVM testi**, lint **0 hata / 43 uyarı**. Paketleme, `apksigner verify` ve artifact yüklemesi başarılıdır. [**Launcher APK’sını indir ve kur**](../INSTALL.md) · [SDK kaydı](evidence/sdk-fb6cad5.json) · [Native cihaz kaydı](evidence/emulator-fb6cad5.json) · [Paket kökeni ve yerel indirme sınırı](evidence/package-fb6cad5.json). Başarısız geçmiş silinmeden [doğrulama kaydında](../VERIFICATION.md) saklanır.
+**Kotlin + Jetpack Compose ana ekranı.** MAIN/HOME/LAUNCHER artık `LauncherActivity`’dir; native ana ekran WebView değildir. Kabul edilmiş Java Telefon/SMS/Mağaza servisleri ve çevrimdışı paketli günlük araçlar korunur. Bu, normal kullanıcı yetkili uygulamadır; web sitesinden SIM’e uzaktan erişim değildir.
+
+**Tarihsel, indirilebilir 0.3 kabulü geçti:** [`fb6cad5` / koşu 46065713858](https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/46065713858), **17/17 gerçek emülatör vakası, 13/13 JVM testi**, lint **0 hata / 43 uyarı**. Paketleme, `apksigner verify` ve artifact yüklemesi başarılıdır. [**Launcher APK’sını indir ve kur**](../INSTALL.md) · [SDK kaydı](evidence/sdk-fb6cad5.json) · [Native cihaz kaydı](evidence/emulator-fb6cad5.json) · [Paket kökeni ve yerel indirme sınırı](evidence/package-fb6cad5.json). Başarısız geçmiş silinmeden [doğrulama kaydında](../VERIFICATION.md) saklanır.
 
 Önceki 0.2 tabanının [`023a89c` / 12-vaka kabulü](evidence/emulator-023a89c.json) tarihsel olarak korunur; yeni 17-vaka kapısı o kapsamı düşürmeden 5 gerçek native launcher testi ekler.
 
 > APK, ROM/OTA/GSI/ISO değildir. Bootloader açma, flash veya root gerekmez. Fiziksel SIM/operatör, acil arama, MMS/RCS, GMS/Play Integrity/bankacılık/DRM ve her uygulamanın uyumluluğu doğrulanmış değildir. Günlük fiziksel telefonunda varsayılan Telefon/SMS uygulamanı bu deneysel paketle değiştirme.
 
 ## Gerçek platform yolları
+
+### 0.4 bağlı kabuk
+
+Altı gerçek masaüstü profil kimliği mobil ızgara/raf/dock ailelerine uyarlanır; PC pencere yöneticilerini çalıştırmaz. Tam ekran kontrol/çekmece yüzeyleri, kendi penceresinde immersive görünüm ve gerçek sistem Ayarları bağlantıları vardır. Duvar kâğıdı vurgu rengi native/Java/paketli modüllere uygulanır; üçüncü taraf uygulamalar zorlanmaz.
+
+Kişiler artık gerçek sistem sağlayıcısından, ayrı READ/WRITE izinleriyle okunur/eklenir. En çok 1000 satır taranır, yeni yerel kayıt son onaydan sonra eklenir, mevcut kişi silinmez/değiştirilmez. Telefon/SMS seçimi yalnız taslak hazırlar. Nazarın açtığı markalı kilit yüzeyi sistem PIN/biometrik kilidinin yerine geçmez.
+
+OğuzKöprü: native SAF/drag-drop ve Python/GTK PC/ARM eşleri, yerel IPv4, davette sabitlenmiş TLS, iki ekranda kod karşılaştırma ve alıcı dosya onayı. 15 dakika, 2 eş, 8 öğe/kuyruk, 128 MiB/dosya ve 256 MiB/kuyruk. Gerçek MediaProjection her başlangıçta sistem izni/foreground bildirim/durdurma gerektirir; salt görüntü, ses/uzaktan dokunma yoktur. PC/ARM X11 yakalaması gerçek açık/kilitsiz oturum doğrulamasında açılır; bilinmeyen durum/Wayland reddedilir. Oturum özel kopyaları kapanışta temizlenir; cihazlar birbirinin rehber/SMS/kurulum yetkisini alamaz. Ayrıntılı protokol ve sınırlar [CONNECTED.md](../CONNECTED.md) içindedir.
 
 ### Telefon ve mesajlaşma
 
@@ -41,9 +51,9 @@
 
 ## Güvenlik sınırı
 
-Paketlenmiş origin: `https://appassets.androidplatform.net`. AndroidX `WebViewAssetLoader` ve ana çerçeve + tam origin bağlı `WebMessageListener`; uzak sayfa köprüye alınmaz. WebView uzak ağ isteklerini engeller; CSP, dosya erişimi ve izin kısıtları vardır. `addJavascriptInterface`, serbest shell/root/exec, genel dosya erişimi, mikrofon, sistem rehberi veya çağrı günlüğü izni yoktur. Sabit depoya ağ erişimi yalnız yerel istemcidedir.
+Paketlenmiş origin: `https://appassets.androidplatform.net`. AndroidX `WebViewAssetLoader` ve ana çerçeve + tam origin bağlı `WebMessageListener`; uzak sayfa köprüye alınmaz. WebView uzak ağ isteklerini engeller; CSP, dosya erişimi ve izin kısıtları vardır. `addJavascriptInterface`, serbest shell/root/exec, genel dosya erişimi, mikrofon veya çağrı günlüğü izni yoktur. Rehber okuma/yazma ayrı native izin/onay yollarıdır. Ağ yalnız native imzalı depo istemcisi ve açıkça eşleşmiş kısa ömürlü yerel TLS oturumundadır; WebView uzak ağ açamaz.
 
-SMS sistem sağlayıcısında, gönderim günlüğü uygulama özel alanında, arayüz not/kişileri WebView’in yerel alanındadır; bunlar **uygulama düzeyinde şifreli kasa değildir**. Sistem bildirimlerinin davranışı/rol geri alma/OEM farkları ayrıca sınanmalıdır. Otomatik veri gönderimi, analitik ve ücretli işlem tekrarı yoktur.
+SMS ve gerçek rehber sistem sağlayıcısında, gönderim günlüğü uygulama özel alanında, notlar ve yalnız web laboratuvarının elle oluşturulmuş kişileri WebView’in yerel alanındadır. Sistem rehberi alıcı listesi bellektedir; bunlar **uygulama düzeyinde şifreli kasa değildir**. Sistem bildirimlerinin davranışı/rol geri alma/OEM farkları ayrıca sınanmalıdır. Otomatik veri gönderimi, analitik ve ücretli işlem tekrarı yoktur.
 
 ## Tekrar üretim
 
@@ -71,15 +81,16 @@ Android Studio AVD Manager’da **API 35 / Google APIs / x86_64 / Pixel 6** olu�
 
 ```sh
 python3 mobile/scripts/emulator-smoke.py
+python3 mobile/scripts/acceptance.py  # 20 JVM / 24 native / bağımsız hash’ler / gerçek JPEG / ANR kapısı
 ```
 
-Sürücü yalnız tek `emulator-*` ve `ro.kernel.qemu=1` hedefini kabul eder. APK/test APK’sını yükler, gerçek HOME/Telefon/SMS rollerini seçer, yalnız bu harcanabilir emülatörde izin/kaynak ayarını yapar, sanal GSM/SMS enjekte eder. **Rol uygunluğu atlanmaz.** 8 korunmuş Telefon/SMS/köprü/yükleyici + 5 yeni launcher + 3 depo güvenliği + 1 canlı depo testi; 11 seçimde tam **17 gerçek vaka** zorunludur. Launcher kabulü: gerçek HOME/inventory/Koleksiyon/Cihazım, kurulu fixture’ı arama/başlatma/HOME, kısayol taşıma/yeni ViewModel’de disk/bozuk kayıt, gerçek ses/ortak Phone rengi/Rıfkı, gerçek widget bağlama/RemoteViews/host yeniden yaratma/kaldırma. Embed AndroidView’da sahte Compose etiketi yerine sağlayıcının gerçek RemoteViews içeriği okunur. Boş/atlanmış test sonucu başarı kabul edilmez. Canlı test gerçek imzalı kataloğu ve Aegis APK’sını indirip inceler ve **kurmadan iptal eder**; ayrıca etkisiz fixture sistem yükleyicisiyle kurulur.
+Sürücü yalnız tek `emulator-*` ve `ro.kernel.qemu=1` hedefini kabul eder. APK/test APK’sını yükler, gerçek HOME/Telefon/SMS rollerini seçer, yalnız bu harcanabilir emülatörde izin/kaynak ayarını yapar, sanal GSM/SMS enjekte eder. **Rol uygunluğu atlanmaz.** 8 Telefon/SMS/köprü/yükleyici + 5 launcher + 4 bağlı kabuk/rehber/kilit + 3 TLS/çift yönlü aktarım/gerçek MediaProjection + 3 depo güvenliği + 1 canlı depo testi: 15 seçimde tam **24 gerçek vaka** zorunludur. Launcher kabulü: gerçek HOME/inventory/Koleksiyon/Cihazım, kurulu fixture’ı arama/başlatma/HOME, kısayol taşıma/yeni ViewModel’de disk/bozuk kayıt, gerçek ses/ortak Phone rengi/Rıfkı, gerçek widget bağlama/RemoteViews/host yeniden yaratma/kaldırma. Embed AndroidView’da sahte Compose etiketi yerine sağlayıcının gerçek RemoteViews içeriği okunur. Boş/atlanmış test sonucu başarı kabul edilmez. Canlı test gerçek imzalı kataloğu ve Aegis APK’sını indirip inceler ve **kurmadan iptal eder**; ayrıca etkisiz fixture sistem yükleyicisiyle kurulur.
 
 Headless CI, 4–6 GB ürün hedefinin alt sınırında **4 GiB AVD / 256 MiB uygulama heap’i**, SwiftShader/GL ve kapalı Vulkan kullanır; fiziksel GPU/pil/RAM performans testi değildir. Kotlin derleyicisi derleme JVM’inde çalışır; AVD yanında ikinci 2 GiB daemon bırakılmaz. Sanal SIM’in tam `READY`/`LOADED` değeri beklenir; `NOT_READY` kabul edilmez, hat uydurulmaz veya mesaj onayı atlanmaz.
 
 [46065058564](https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/46065058564) koşusu, **ürün APK’sı kurulmadan önce** emülatörün stok **Pixel Launcher**’ında ANR penceresini yakaladı; sıfır ürün testiyle başarısız olarak korunur. Yalnız bu tanınmış stok uygulama penceresi, yalnız QEMU hazırlığında gerçek “Close app” düğmesinden kapatılabilir; paket varlığı doğrulanan stok launcher durdurulur ve ürün gerçek HOME rolünü alır. Yapılırsa `stock_boot_recovery` kanıtına yazılır. OğuzDows veya başka bir ANR bu istisnaya girmez; gerçek DropBox/main-thread/UI kimliği kaydedilir, eksik kabul başarısızdır ve paketlenmez. Bu hazırlık APK kodunda yoktur, fiziksel telefonlarda çalıştırılmaz. Başarılı `fb6cad5` koşusunda bu kurtarma istisnası kullanılmadı (`stock_boot_recovery` kaydı yok).
 
-[Test iş akışı](../../.github/workflows/mobile-emulator.yml), yalnız bu daldaki manuel/PR koşularında çalışır. Geçerse APK/test/fixture, `APK-SIGNATURE.txt`, `SHA256SUMS` ve kaynak SHA’sı paketlenir. Raporlar, kısa API’den okunabilir derleme/cihaz bildirimleri ve ekran görüntüleri `test-results/mobile/` içinde; Actions artifact saklama süresi **14 gündür**. Bu bir mobil Release yayını değildir. Farklı koşuların debug anahtarı değişebilir; mevcut kuruluma güncelleme garantisi yoktur.
+[Test iş akışı](../../.github/workflows/mobile-emulator.yml), yalnız bu daldaki manuel/PR koşularında çalışır. Geçerse APK/test/fixture, `APK-SIGNATURE.txt`, `SHA256SUMS` ve kaynak SHA’sı paketlenir. Hiçbir ürün ANR’ı kapatılıp başarıya çevrilmez; eksik kabulde dağıtım paketi oluşmaz. Raporlar, kısa API’den okunabilir derleme/cihaz bildirimleri ve ekran görüntüleri `test-results/mobile/` içinde; Actions artifact saklama süresi **14 gündür**. Bu bir mobil Release yayını değildir. Farklı koşuların debug anahtarı değişebilir; mevcut kuruluma güncelleme garantisi yoktur.
 
 ## Sonraki kabul kapıları
 

@@ -75,7 +75,10 @@ class ConnectedDeviceTest {
         val oldLayout = store.layout(); val oldWallpaper = store.wallpaper(); val oldFull = store.fullscreen()
         try {
             store.fullscreen(true); store.layout("oguzdows")
-            ActivityScenario.launch<LauncherActivity>(Intent(context, LauncherActivity::class.java).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)).use { scenario ->
+            // Own the actual HOME task from the start. A plain explicit app launch
+            // can remain STOPPED while the system creates its distinct HOME task.
+            ActivityScenario.launch<LauncherActivity>(Intent(context, LauncherActivity::class.java)
+                .setAction(Intent.ACTION_MAIN).addCategory(Intent.CATEGORY_HOME).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)).use { scenario ->
                 val root = node("launcher-root").visibleBounds
                 node("launcher-controls") // The first-use system education may initially cover the header.
                 // Whole-workspace vertical movement, not the old 54 dp header-only hit area.
@@ -89,6 +92,7 @@ class ConnectedDeviceTest {
                 scrollTo("layout-mac").click()
                 device.pressHome(); node("launcher-root")
                 assertTrue(node("launcher-layout-label").text.contains("macOS"))
+                waitFor("tracked real HOME remains resumed before recreation") { scenario.state == androidx.lifecycle.Lifecycle.State.RESUMED }
                 scenario.recreate(); node("launcher-root")
                 assertEquals("mac", LauncherStore(context).layout())
                 screenshot("connected-mac-layout")

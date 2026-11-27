@@ -2,18 +2,22 @@
 
 Dört düzey ayrıdır: **tarayıcı**, **SDK/Java/lint**, **sanal radyo/sağlayıcı/yükleyici emülatörü**, **gerçek SIM/cihaz/ROM**. Bir düzeyin başarısı diğerine aktarılmaz. Bu kayıt, başarısız kabul koşularını da saklar; hazırlanmış test kodu geçmiş test sayılmaz.
 
+## 0.4 bağlı kabuk · güncel kabul ayrı
+
+[CONNECTED.md](CONNECTED.md), 20 JVM / 24 native vakalık yeni kapıyı, bağımsız iki yönlü TLS dosya makbuzlarını, gerçek MediaProjection gereksinimini ve başarısız/ANR ile kesilen koşuları tutar. 0.3 ve 0.2 aşağıda tarihsel kabul olarak korunur; yeni dalın kabulü yerine kullanılamaz. Gerçek sistem rehberi ve kısa ömürlü yerel ekran paylaşımı bu yeni kapsamdır; eski “yapılmayanlar” listesi tarihsel 0.3 içindir.
+
 ## Son yerel kontrol ve sınırı
 
 | Kontrol                | Gözlenen sonuç                | Sınır                                                                       |
 | ---------------------- | ----------------------------- | --------------------------------------------------------------------------- |
 | `npm run build`        | Başarılı                      | TypeScript + Vite 6.4.6, 1594 modül                                         |
 | `npm test`             | **31 geçti, 0 atlama**        | 13 temel mantık/kanıt + 8 günlük deneyim/varlık/durum + 10 API testi                    |
-| `npm run test:native`  | **15 geçti, 0 atlama**         | Yalnız manifest/XML/izin/köprü/rol/depoya güven/simge/kaynak sözleşmeleri                |
+| `npm run test:native`  | **30 geçti, 0 atlama**         | 20 kaynak sözleşmesi + 10 sentetik kabul/orkestrasyon/tanı; SDK veya cihaz testi değil                |
 | `npm run test:browser` | **31 senaryo geçti**          | 15 mevcut + 16 günlük deneyim; iki kapsayıcıyla Node raporu 33/33           |
 | `npm run format:check` | Başarılı                      | TSX/MJS/CSS/config/test kaynakları                                          |
 | `npm audit`            | **0 raporlanan açık**         | Bu lockfile ve sorgu anı; genel güvenlik sertifikası değil                  |
-| Başlangıç JS           | **99383 gzip bayt**           | Hedef ≤112640 bayt (110 KiB), geçildi                                       |
-| Günlük uygulamalar JS  | **12081 gzip bayt**            | Ayrı, dinamik yüklenen modül; yukarıdaki ilk paket değildir                 |
+| Başlangıç JS           | **99578 gzip bayt**           | Hedef ≤112640 bayt (110 KiB), geçildi                                       |
+| Günlük uygulamalar JS  | **12244 gzip bayt**            | Ayrı, dinamik yüklenen modül; yukarıdaki ilk paket değildir                 |
 | CSS                    | **16460 gzip bayt**           | İki stil kaynağının üretim dosyası                                          |
 | Mağaza simgeleri       | **24 / 24 yerel SVG**         | Tarayıcıda her birinin gerçek yüklenmesi, manifest SHA-256/lisans kontrolü  |
 | Önceki çalışma         | **633 dosyanın içeriği aynı** | Mobil işe başlamadan kaydedilen SHA-256 tabanı; PC/Pi yayını değiştirilmedi |
@@ -175,7 +179,7 @@ AOSP yardımcı metadata’sının zorunlu `recognitionService` alanı kaynak in
 - [VoiceInteractionService](https://github.com/aosp-mirror/platform_frameworks_base/blob/android-15.0.0_r1/core/java/android/service/voice/VoiceInteractionService.java)
 - [RecognitionService](https://github.com/aosp-mirror/platform_frameworks_base/blob/android-15.0.0_r1/core/java/android/speech/RecognitionService.java)
 
-## Özellikle yapılmayanlar
+## Tarihsel 0.3 kapsamında özellikle yapılmayanlar
 
 - API35/QEMU kabulünün ötesinde fiziksel ürün/üretim dağıtım kabulü yoktur. AOSP/GSI/boot/vendor/ROM üretimi, unlock/flash/root yapılmadı; artifact yerel olarak indirilemedi.
 - GMS/Play dağıtımı, lisans/sertifika, CTS/VTS, Play Integrity, banka veya DRM uygulaması testi.

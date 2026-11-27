@@ -45,7 +45,7 @@ class LauncherDeviceTest {
         originalDark = NativeUi.dark(context)
         LauncherStore(context).reset()
         device.wakeUp(); device.pressMenu()
-        scenario = ActivityScenario.launch(Intent(context, LauncherActivity::class.java).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
+        scenario = ActivityScenario.launch(Intent(context, LauncherActivity::class.java).setAction(Intent.ACTION_MAIN).addCategory(Intent.CATEGORY_HOME).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
         node("launcher-root")
         waitFor("real application scan") {
             val loaded = AtomicReference(false)
@@ -132,7 +132,7 @@ class LauncherDeviceTest {
         device.pressHome(); node("launcher-root")
         // A new ViewModel must read disk; configuration recreation alone retains a ViewModel.
         scenario.close()
-        scenario = ActivityScenario.launch(Intent(context, LauncherActivity::class.java).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
+        scenario = ActivityScenario.launch(Intent(context, LauncherActivity::class.java).setAction(Intent.ACTION_MAIN).addCategory(Intent.CATEGORY_HOME).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
         node("launcher-root")
         assertEquals(expected,pins())
         assertEquals(expected,LauncherStore(context).pins())

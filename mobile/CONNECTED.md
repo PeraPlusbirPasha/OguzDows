@@ -143,6 +143,21 @@ başarı kanıtı yerine geçmez. Davet/sır dosyaları raporlara alınmaz.
   bilinmiyor der. HomeActivity, kendi WebView'inde `onPause`/`onResume` yaşam
   döngüsünü uygular; global zamanlayıcılar veya GPU kapatılmaz. Bu, ANR'ın kök
   nedeninin kanıtlandığı/giderildiği anlamına gelmez; yeni tam kabul zorunludur.
+- [`266e623` / 46080969683](https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/46080969683):
+  **20 JVM, önceki 8 platform + 5 launcher + 3 köprü + 4 depo vakası geçti**.
+  Rehber reddi, gerçek sağlayıcıda ekle/iptal/değişiklik/SMS taslağı ve kilit
+  eşlikçisi de bireysel geçti. Gerçek MediaProjection: iptal → yeni sistem izni →
+  foreground service → TLS üzerinden **12.258 bayt JPEG** → durdurma geçti;
+  SHA-256 `f34c28fcf365fc2bcddb42e5be27de4201f0e126db62bdde2bb9742ca966968b`.
+  Görüntü yalnız etkisiz fixture'dır, tam JPEG artifact'tadır; burada yerel olarak
+  indirilmiş/görsel incelenmiş değildir. Ürün ANR/çökme görülmedi; önceki ANR'ın
+  kök nedeninin kesin giderildiği çıkarılamaz.
+  **Kalan hata:** düzen testinde HOME dönüşünden sonra testin izlediği Activity
+  `STOPPED` iken `recreate` istemesi. Test başlangıcı gerçek `MAIN/HOME` intent'i
+  kullanır; yeniden oluşturmadan önce izlenen HOME'un gerçekten `RESUMED` olması
+  zorunludur. Yeni gerçek Ayarlar/yukarı çekmece adımları henüz tamamlanmadığı için
+  **24-vaka kabulü/paket yok**. [SDK](android/evidence/sdk-266e623.json)
+  · [cihaz ve bağımsız dosya/ekran makbuzları](android/evidence/emulator-266e623.json).
 - [`18034bb` masaüstü / 46076502634](https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/46076502634):
   Debian bookworm/trixie üzerinde **1024×768 ve 360×800: dört gerçek GTK köprü
   koşusu geçti**. Gerçek düğme/dosya/loopback TLS/GDK kareleri sınandı. Üretimin
