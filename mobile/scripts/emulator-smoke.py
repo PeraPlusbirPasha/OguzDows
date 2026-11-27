@@ -68,6 +68,13 @@ def main():
         adb('shell', 'pm', 'grant', PACKAGE, 'android.permission.' + permission)
     # This is equivalent to approving this source in a throwaway emulator, not a production bypass.
     adb('shell', 'appops', 'set', PACKAGE, 'REQUEST_INSTALL_PACKAGES', 'allow')
+    # Boot-completed does not imply that the disposable modem/SIM has finished loading.
+    # Wait for the actual virtual SIM, never manufacture a subscription or choose a real line.
+    sim_deadline = time.monotonic() + 90
+    while not any(state in adb('shell', 'getprop', 'gsm.sim.state').upper() for state in ('LOADED', 'READY')):
+        if time.monotonic() >= sim_deadline:
+            raise RuntimeError('The disposable emulator virtual SIM did not become ready')
+        time.sleep(0.5)
     # ActivityScenario owns the first visible launch. Do not cold-launch a WebView only
     # to have am instrument immediately tear that process down during focus delivery.
 
@@ -123,7 +130,7 @@ def main():
                     main_stack = re.search(r'"main"[^\n]*\n[\s\S]{0,2800}', dropbox)
                     annotation('error', 'Emulator main-thread ANR', main_stack.group() if main_stack else (events + '\n' + anr)[:2800])
                     evidence['passed'] = False
-                    annotation('notice', 'Mobile emulator evidence', json.dumps(evidence, separators=(',', ':')))
+                    annotation('notice', 'Mobile emulator evidence', json.dumps(evidence, ensure_ascii=False, separators=(',', ':')))
                     raise SystemExit('App ANR: abort incomplete acceptance; no package. Inspect the recorded main-thread trace.')
             if klass == 'LauncherDeviceTest' and passed:
                 # Bounded visual diagnostic from a disposable emulator, not personal device data.
@@ -179,7 +186,7 @@ def main():
                           and sum(item['test_cases'] for item in evidence['tests']) == 17)
     (OUT / 'evidence.json').write_text(json.dumps(evidence, indent=2))
     print(json.dumps(evidence, indent=2))
-    annotation('notice', 'Mobile emulator evidence', json.dumps(evidence, separators=(',', ':')))
+    annotation('notice', 'Mobile emulator evidence', json.dumps(evidence, ensure_ascii=False, separators=(',', ':')))
     return 0 if evidence['passed'] else 1
 
 

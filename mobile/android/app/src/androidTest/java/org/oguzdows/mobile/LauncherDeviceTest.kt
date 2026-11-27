@@ -26,6 +26,8 @@ import org.junit.runner.RunWith
 import org.junit.runners.MethodSorters
 import java.io.ByteArrayOutputStream
 import java.io.File
+import java.util.concurrent.CountDownLatch
+import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicReference
 import java.util.regex.Pattern
 
@@ -68,6 +70,22 @@ class LauncherDeviceTest {
         val out=AtomicReference<List<String>>()
         scenario.onActivity{out.set(it.model.ui.value.pins)}
         return out.get()
+    }
+    private fun phoneActuallyUsesDarkPixels(): Boolean {
+        val result = AtomicReference(false)
+        val ready = CountDownLatch(1)
+        instrumentation.runOnMainSync {
+            val activity = androidx.test.runner.lifecycle.ActivityLifecycleMonitorRegistry.getInstance()
+                .getActivitiesInStage(androidx.test.runner.lifecycle.Stage.RESUMED)
+                .filterIsInstance<HomeActivity>().firstOrNull()
+            if (activity == null) ready.countDown()
+            else activity.webView.evaluateJavascript(
+                "!!document.querySelector('[aria-label=\"OğuzDows içinde ara\"]') && " +
+                    "!!document.querySelector('.lab.theme-dark') && " +
+                    "getComputedStyle(document.querySelector('.phone-screen')).backgroundColor === 'rgb(23, 38, 43)'"
+            ) { value -> result.set(value == "true"); ready.countDown() }
+        }
+        return ready.await(2, TimeUnit.SECONDS) && result.get()
     }
     private fun screenshot(name:String):File {
         val dir=File(context.getExternalFilesDir(null),"evidence");dir.mkdirs()
@@ -153,6 +171,12 @@ class LauncherDeviceTest {
             waitFor("explicit suggestion applied native theme"){NativeUi.dark(context)}
             assertEquals(PackageManager.PERMISSION_DENIED,context.checkSelfPermission("android.permission.RECORD_AUDIO"))
             screenshot("launcher-native-rifki")
+            device.pressHome(); node("launcher-root")
+            desc("Dock: Telefon").click()
+            waitFor("launcher handoff renders the real Phone with the shared dark background", ::phoneActuallyUsesDarkPixels)
+            screenshot("launcher-phone-shared-dark")
+            device.pressBack(); node("launcher-root")
+            assertFalse("back returns to native HOME, not the web preview", device.hasObject(By.clazz("android.webkit.WebView")))
         } finally {audio.setStreamVolume(AudioManager.STREAM_MUSIC,before,0)}
     }
     @Test fun test05RealWidgetBindingRenderingAndRemoval() {
@@ -175,13 +199,14 @@ class LauncherDeviceTest {
         val bound=AtomicReference(false)
         scenario.onActivity{bound.set(it.widgets.manager.getAppWidgetInfo(id)?.provider?.packageName=="org.oguzdows.fixture")}
         assertTrue("real AppWidgetManager binding",bound.get())
-        node("launcher-widget-$id")
+        // AndroidView delegates accessibility to the provider's real RemoteViews, not
+        // Compose test-tag nodes. Verify the bound provider's actual content on screen.
+        desc("Widget alanı").click(); node("launcher-widget-space")
         assertTrue("provider RemoteViews rendered",device.wait(Until.hasObject(By.textContains("Widget hazır")),15000))
         screenshot("launcher-native-widget")
         scenario.recreate()
         desc("Widget alanı").click(); node("launcher-widget-space")
         assertEquals(listOf(id),LauncherStore(context).widgetIds())
-        node("launcher-widget-$id")
         assertTrue("RemoteViews restored with a new host",device.wait(Until.hasObject(By.textContains("Widget hazır")),15000))
         desc("Widget kaldır: $id").click()
         waitFor("widget removed from persisted layout"){LauncherStore(context).widgetIds().isEmpty()}

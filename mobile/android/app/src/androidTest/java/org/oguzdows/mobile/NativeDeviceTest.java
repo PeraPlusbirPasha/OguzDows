@@ -117,7 +117,12 @@ public final class NativeDeviceTest {
         if (object == null) {
             java.util.List<String> labels = new java.util.ArrayList<>();
             for (UiObject2 button : device.findObjects(By.clazz("android.widget.Button"))) labels.add(button.getText());
-            fail("Button not found: " + text + "; visible native buttons=" + labels);
+            String bridgeReply;
+            try { bridgeReply = js("window.__nativeTestReply || null"); }
+            catch (Exception error) { bridgeReply = "unavailable: " + error.getClass().getSimpleName(); }
+            int smsSubscription = android.telephony.SubscriptionManager.getDefaultSmsSubscriptionId();
+            fail("Button not found: " + text + "; last bridge reply=" + bridgeReply
+                + "; SMS subscription=" + smsSubscription + "; visible native buttons=" + labels);
         }
         object.click();
     }

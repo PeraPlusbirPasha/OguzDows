@@ -157,6 +157,11 @@ export default function App() {
     toastTimer.current = setTimeout(() => setToast(""), 4500);
   }, []);
   const go = useCallback((next: Screen) => {
+    if (inNativeApp && next === "home") {
+      // Only a typed, local navigation action; no new role or paid platform permission.
+      void nativeRequest("launcher.home").catch(() => {});
+      return;
+    }
     setScreen(next);
     setOverlay("");
     setLocked("");

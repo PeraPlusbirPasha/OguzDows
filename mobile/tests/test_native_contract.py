@@ -186,6 +186,8 @@ class NativeSourceContracts(unittest.TestCase):
         self.assertIn('draftIntentDelivered', self.home)
         self.assertIn('/index.html?nativeTheme=', self.home)
         self.assertIn('withNativeTheme', app)
+        self.assertIn('case "launcher.home":', self.home)
+        self.assertIn('nativeRequest("launcher.home")', app)
         self.assertNotIn('intent.setAction(Intent.ACTION_MAIN)', self.home)
 
     def test_build_wrapper_is_pinned_and_emulator_tests_refuse_physical_traffic(self):

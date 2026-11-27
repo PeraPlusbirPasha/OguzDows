@@ -189,6 +189,15 @@ public final class HomeActivity extends Activity {
             JSONObject args = request.optJSONObject("args"); if (args == null) args = new JSONObject();
             switch (request.optString("action")) {
                 case "ui.ready": frontendReady = true; deliverIntent(getIntent()); reply.ok(true); break;
+                case "launcher.home": {
+                    reply.ok(true);
+                    main.post(() -> {
+                        if (isFinishing() || isDestroyed()) return;
+                        startActivity(new Intent(this, LauncherActivity.class).setAction(Intent.ACTION_MAIN)
+                            .addCategory(Intent.CATEGORY_HOME).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP));
+                        finish();
+                    }); break;
+                }
                 case "status": reply.ok(PlatformState.snapshot(this)); break;
                 case "role.request": requestRole(args.getString("role"), reply); break;
                 case "permissions.request": requestPermissionsFor(args.getString("scope"), reply); break;
@@ -432,8 +441,9 @@ public final class HomeActivity extends Activity {
         }
     }
     private void back() {
-        if (webView.canGoBack()) webView.goBack();
-        else if (getIntent().getBooleanExtra("fromLauncher", false)) finish();
+        // A launcher module returns to the real native HOME, never to the obsolete web home.
+        if (getIntent().getBooleanExtra("fromLauncher", false)) finish();
+        else if (webView.canGoBack()) webView.goBack();
         else webView.evaluateJavascript("location.hash='/home'", null);
     }
     @SuppressWarnings("deprecation") @Override public void onBackPressed() { back(); }
