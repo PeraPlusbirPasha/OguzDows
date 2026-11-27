@@ -122,6 +122,26 @@ class AllReleaseAssetsTests(unittest.TestCase):
                     self.assertEqual(stream.read(), (inputs / 'evidence/OguzDows-Pi-gunluk-armhf/pi-runtime-report.json').read_bytes())
             self.assertEqual((root / 'output/INDIRME-REHBERI.md').read_bytes(), (ROOT / 'docs/releases/v1.1.md').read_bytes())
 
+    def test_host_evidence_is_version_scoped_and_old_published_evidence_is_not_reused(self):
+        self.assertEqual(release.host_evidence('v1.1', REVISION), ROOT / 'docs/releases/v1.1-elementary-host.json')
+        with tempfile.TemporaryDirectory() as directory, patch.object(release, 'ROOT', Path(directory)):
+            root = Path(directory)
+            old = root / 'docs/releases/v1.1-elementary-host.json'
+            write_json(old, {'source_revision': REVISION, 'conclusion': 'success'})
+            with self.assertRaises(ValueError):
+                release.host_evidence('v1.2', REVISION)
+            current = root / 'docs/releases/v1.2-host.json'
+            write_json(current, {'source_revision': REVISION, 'conclusion': 'success'})
+            self.assertEqual(release.host_evidence('v1.2', REVISION), current)
+            for changed in ({'source_revision': 'c' * 40}, {'conclusion': 'failure'}):
+                write_json(current, {'source_revision': REVISION, 'conclusion': 'success', **changed})
+                with self.assertRaises(ValueError):
+                    release.host_evidence('v1.2', REVISION)
+            for tag in ('../v1.2', '1.2', 'v1.2/../../x'):
+                with self.assertRaises(ValueError):
+                    release.host_evidence(tag, REVISION)
+            self.assertEqual(release.read_json(old), {'source_revision': REVISION, 'conclusion': 'success'})
+
     def test_pi_checksum_lock_source_arch_and_unperformed_physical_claim_fail_closed(self):
         cases = [('rpi-armhf/OguzDows-rpi-armhf.img.xz.sha256', None, None),
                  ('rpi-armhf/raspberrypi/pi-gen.lock.json', 'suite', 'wrong'),
@@ -187,6 +207,16 @@ class AllReleaseAssetsTests(unittest.TestCase):
             release.validate_identity(build, lsb.replace('1.1', '1.0'), 'amd64', REVISION, '1.1')
         with self.assertRaises(ValueError):
             release.validate_identity({'arch': 'amd64', 'source_revision': REVISION}, lsb, 'amd64', REVISION, '1.1')
+
+    def test_release_1_2_refuses_to_relabel_old_1_1_pc_and_pi_images(self):
+        for arch in (*release.ARCHES, *release.PI_ARCHES):
+            pi = arch in release.PI_ARCHES
+            build = {'arch': arch, 'source_revision': REVISION, 'source_dirty': None}
+            old = ('NAME="OğuzDows"\nID=raspbian\nVERSION_ID="12"\nOGUZDOWS_VERSION_ID="1.1"\n' if pi
+                   else 'DISTRIB_ID=OguzDows\nDISTRIB_RELEASE=1.1\n')
+            with self.subTest(arch=arch), self.assertRaises(ValueError):
+                release.validate_identity(build, old, arch, REVISION, '1.2', pi=pi)
+            release.validate_identity(build, old.replace('1.1', '1.2'), arch, REVISION, '1.2', pi=pi)
 
     def test_pi_product_version_is_separate_from_technical_bookworm_12(self):
         build = {'arch': 'armhf', 'source_revision': REVISION, 'source_dirty': None}

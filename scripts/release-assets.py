@@ -110,6 +110,18 @@ def validate_changes(paths):
             raise ValueError('ISO sonrasında ürün/derleme içeriği değişmiş; yeni ISO gerekir: ' + path)
 
 
+def host_evidence(tag, revision):
+    """Keep published 1.1 proof immutable; later releases need their own proof."""
+    if not TAG.fullmatch(tag):
+        raise ValueError('Geçerli sürüm etiketi gerekli.')
+    name = 'v1.1-elementary-host.json' if tag == 'v1.1' else tag + '-host.json'
+    path = ROOT / 'docs/releases' / name
+    report = read_json(path)
+    if report.get('source_revision') != revision or report.get('conclusion') != 'success':
+        raise ValueError('Host görsel/Haber kanıtı kaynakla eşleşmiyor.')
+    return path
+
+
 def inventory(directory):
     result = {}
     for path in sorted(directory.iterdir()):
@@ -357,10 +369,7 @@ def prepare(inputs, output, *, repository, run_id, release_id, revision, publish
             path = generated / ('image-identity-' + arch + '.json')
             path.write_text(json.dumps(identity, ensure_ascii=False, indent=2) + '\n')
             evidence[path.name] = path
-        host = ROOT / 'docs/releases/v1.1-elementary-host.json'
-        if read_json(host).get('source_revision') != revision or read_json(host).get('conclusion') != 'success':
-            raise ValueError('Host görsel/Haber kanıtı kaynakla eşleşmiyor.')
-        evidence['host-gtk-panels-effects.json'] = host
+        evidence['host-gtk-panels-effects.json'] = host_evidence(tag, revision)
         deterministic_bundle(evidence, output / 'test-evidence.tar.gz')
         shutil.copyfile(ROOT / 'docs/releases' / (tag + '.md'), output / 'INDIRME-REHBERI.md')
         manifest.update(format=2, pi_source_run_id=pi_run_id,

@@ -1,8 +1,10 @@
 # Atölye ve modern yerel arayüzler
 
-Bu belge **geliştirme dalındaki kaynak değişikliklerini** anlatır. Yayımlanmış
-v1.1 / `29f7738` indirmeleri ve önceki `85dc974` PC/Pi derlemeleri bu araçları
-**içermez**. Bir PR testi yeni ISO/IMG, Release veya fiziksel cihaz testi değildir.
+Bu belge **1.2 için hazırlanan ortak PC / Raspberry Pi kaynaklarını** anlatır.
+Yayımlanmış v1.1 / `29f7738` indirmeleri ve önceki `85dc974` PC/Pi derlemeleri
+bu araçları **içermez**. 1.2 ürün kimliğiyle dört imaj ayrıca derlenir ve yayın
+öncesi kaynak / checksum denetiminden geçer; bir PR testi tek başına yeni
+ISO/IMG, Release veya fiziksel cihaz testi değildir.
 
 ## Nereden açılır?
 

@@ -9,6 +9,16 @@
 - Yayın aracı hem yeni `v2.0` biçimini hem mevcut `v1.0.0` biçimini kabul eder. Bir etiket biçiminin kabul edilmesi o sürümün yayımlandığı anlamına gelmez.
 - Bu düzen bir yayın takvimi, otomatik yükseltme sistemi veya henüz tamamlanmamış özellik taahhüdü değildir. Yeni bir ISO mevcut kurulumları kendiliğinden değiştirmez.
 
+## 1.2 ara güncellemesi · hazırlık
+
+Kullanıcının açık isteğiyle **v1.2** ara yayını hazırlanır; bu, sonraki ana
+sürümlerin v2.0 / v3.0 adlandırmasını değiştirmez. Ürün / kurucu sürümü **1.2**
+yapılır ve **amd64, i386, Pi armhf, Pi arm64** bu ortak kaynaktan yeniden derlenir.
+İç kimliği 1.1 olan önceki imajlar yalnızca 1.2 adıyla yeniden yayımlanmaz.
+Eski v1.0.0 / v1.1 etiketleri, yayınları ve kanıt dosyaları korunur.
+Dört imajın kaynak / SHA-256 / mimari / test kanıtı ve taslak yeniden-indirme
+kontrolleri bitmeden v1.2 yayımlanmış sayılmaz.
+
 ## 1.1 ara güncellemesi
 
 **[v1.1 · OğuzDows 1.1](https://github.com/PeraPlusbirPasha/OguzDows/releases/tag/v1.1)**, v1.0.0 üzerine geliştirilen ara güncellemedir; sonraki ana sürümlerin v2.0 / v3.0 adlandırmasını değiştirmez. **amd64/i386 PC ISO’ları ve armhf/arm64 Raspberry Pi SD/USB imajları** aynı `29f7738534cd00bd87887f530355ef45e01eb28c` kaynağına bağlıdır. v1.0.0 etiketi/ISO’ları/sekiz yayın dosyası korunur. [1.1 sürüm notları ve CPU/RAM indirme tablosu](releases/v1.1.md) · [Test kanıtı](V1.1-TEST-KANITI.md).

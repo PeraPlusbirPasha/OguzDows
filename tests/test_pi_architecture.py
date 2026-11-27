@@ -40,6 +40,20 @@ def elf(expected, hard_float=True):
 
 
 class PiIdentityTests(unittest.TestCase):
+    def test_current_1_2_product_version_preserves_both_pi_base_identities(self):
+        product = identity.read_release(ROOT / 'system/usr/share/oguzdows/os-release')
+        self.assertEqual(product['VERSION_ID'], '1.2')
+        for native_id in ('raspbian', 'debian'):
+            with self.subTest(native_id=native_id), tempfile.TemporaryDirectory() as directory:
+                base = {'ID': native_id, 'VERSION_ID': '12', 'VERSION_CODENAME': 'bookworm'}
+                expected = {'os_id': native_id, 'base_version_id': '12', 'suite': 'bookworm'}
+                path = write(Path(directory), 'os-release', identity.render(base, product, expected))
+                result = identity.read_release(path)
+                self.assertEqual(result['OGUZDOWS_VERSION_ID'], '1.2')
+                self.assertEqual(result['PRETTY_NAME'], 'OğuzDows 1.2 · Ay Yıldız')
+                for key, value in base.items():
+                    self.assertEqual(result[key], value)
+
     def test_product_name_does_not_replace_pi_os_native_id_version_or_suite(self):
         for native_id in ('raspbian', 'debian'):
             with self.subTest(native_id=native_id), tempfile.TemporaryDirectory() as temporary:
