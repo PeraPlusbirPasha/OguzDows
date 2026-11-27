@@ -13,6 +13,8 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.*
@@ -98,19 +100,35 @@ class ContactsActivity : ComponentActivity() {
                 } else Text("${rows.size} numara · en çok ${SystemContacts.LIMIT}", modifier=Modifier.padding(vertical=8.dp))
                 if (notice.isNotBlank()) Text(notice, modifier=Modifier.testTag("contacts-notice"))
                 if (add) {
-                    OutlinedTextField(name, { name=it.take(120) }, label={Text("Ad soyad")}, singleLine=true, modifier=Modifier.fillMaxWidth().testTag("contact-name"))
-                    OutlinedTextField(number, {number=it.take(40)}, label={Text("Telefon numarası")}, singleLine=true, modifier=Modifier.fillMaxWidth().testTag("contact-number"))
-                    Text("Yeni kayıt cihazın yerel rehberine eklenir; mevcut kişiler değiştirilmez. Hesap eşitlemesini sistemin hesap ayarları yönetir.", style=MaterialTheme.typography.bodySmall, modifier=Modifier.padding(vertical=12.dp))
-                    if(!writeAllowed) Button(onClick={writePermission.launch(Manifest.permission.WRITE_CONTACTS)}) {Text("Yeni kişi için yazma izni ver")}
-                    Button(enabled=writeAllowed && !busy && name.isNotBlank() && PlatformRules.number(number).isNotEmpty(),
-                        onClick={confirm=true}, modifier=Modifier.testTag("contact-save")) {Text("Rehbere ekle")}
+                    Column(Modifier.weight(1f).verticalScroll(rememberScrollState())) {
+                        OutlinedTextField(name, { name=it.take(120) }, label={Text("Ad soyad")}, singleLine=true,
+                            modifier=Modifier.fillMaxWidth().testTag("contact-name"))
+                        OutlinedTextField(number, {number=it.take(40)}, label={Text("Telefon numarası")}, singleLine=true,
+                            modifier=Modifier.fillMaxWidth().testTag("contact-number"))
+                        Text("Yeni kayıt cihazın yerel rehberine eklenir; mevcut kişiler değiştirilmez. Hesap eşitlemesini sistemin hesap ayarları yönetir.",
+                            style=MaterialTheme.typography.bodySmall, modifier=Modifier.padding(vertical=12.dp))
+                        if(!writeAllowed) Button(onClick={writePermission.launch(Manifest.permission.WRITE_CONTACTS)}) {
+                            Text("Yeni kişi için yazma izni ver")
+                        }
+                        Button(enabled=writeAllowed && !busy && name.isNotBlank() && PlatformRules.number(number).isNotEmpty(),
+                            onClick={confirm=true}, modifier=Modifier.testTag("contact-save")) { Text("Rehbere ekle") }
+                    }
                 } else {
-                    OutlinedTextField(query,{query=it.take(120)},label={Text("Kişi ara")},singleLine=true,modifier=Modifier.fillMaxWidth().testTag("contacts-search"))
+                    OutlinedTextField(query,{query=it.take(120)},label={Text("Kişi ara")},singleLine=true,
+                        modifier=Modifier.fillMaxWidth().testTag("contacts-search"))
                     val q=LauncherRules.normalize(query)
                     LazyColumn(Modifier.weight(1f)) {
                         items(rows.filter{LauncherRules.normalize(it.name+" "+it.number).contains(q)},key={"${it.id}:${it.number}"}) { contact ->
-                            ListItem(headlineContent={Text(contact.name)},supportingContent={Text(contact.number)},
-                                trailingContent={Row {TextButton(onClick={draft(contact,false)}){Text("Ara")};TextButton(onClick={draft(contact,true)}){Text("SMS")}})
+                            ListItem(
+                                headlineContent={Text(contact.name)},
+                                supportingContent={Text(contact.number)},
+                                trailingContent={
+                                    Row {
+                                        TextButton(onClick={draft(contact,false)}) { Text("Ara") }
+                                        TextButton(onClick={draft(contact,true)}) { Text("SMS") }
+                                    }
+                                },
+                            )
                         }
                     }
                 }

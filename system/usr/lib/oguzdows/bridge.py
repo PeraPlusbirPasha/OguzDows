@@ -43,11 +43,11 @@ def dropped_paths(uris):
     return result
 
 
-def gui():
+def application():
     import gi
     gi.require_version('Gtk', '3.0')
     gi.require_version('Gdk', '3.0')
-    from gi.repository import Gdk, GdkPixbuf, Gio, GLib, Gtk
+    from gi.repository import Gdk, GdkPixbuf, Gio, GLib, Gtk, Pango
 
     class Bridge(Gtk.Application):
         def __init__(self):
@@ -75,7 +75,8 @@ def gui():
                 self.window.present(); return
             self.session = core.Session('OğuzDows PC · ARM')
             self.window = Gtk.ApplicationWindow(application=self, title='OğuzKöprü · Cihazların aynı masada')
-            self.window.set_default_size(680, 760)
+            screen = self.window.get_screen()
+            self.window.set_default_size(min(680, screen.get_width()-24), min(760, screen.get_height()-24))
             self.window.set_size_request(320, 360)
             self.window.set_icon_name('network-workgroup')
             self.window.connect('destroy', self.shutdown)
@@ -140,13 +141,15 @@ def gui():
         @staticmethod
         def label(text):
             value = Gtk.Label(label=text, xalign=0)
-            value.set_line_wrap(True); value.set_max_width_chars(70)
+            value.set_line_wrap(True); value.set_line_wrap_mode(Pango.WrapMode.WORD_CHAR); value.set_max_width_chars(70)
             value.set_selectable(False)
             return value
 
         @staticmethod
         def button(text, callback):
             value = Gtk.Button(label=text)
+            label = value.get_child()
+            label.set_line_wrap(True); label.set_line_wrap_mode(Pango.WrapMode.WORD_CHAR); label.set_max_width_chars(32)
             value.connect('clicked', lambda *_: callback())
             return value
 
@@ -443,7 +446,11 @@ def gui():
             elif self.session: self.session.close()
             self.client = None; self.pool.shutdown(wait=False, cancel_futures=True)
 
-    return Bridge().run([sys.argv[0]])
+    return Bridge()
+
+
+def gui():
+    return application().run([sys.argv[0]])
 
 
 def main(argv=None):
