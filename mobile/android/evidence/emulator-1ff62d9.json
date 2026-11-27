@@ -1,0 +1,79 @@
+{
+  "source_sha": "1ff62d92b25504cb484d640657a37fb9874a6a88",
+  "sdk": "35",
+  "abi": "x86_64",
+  "image_fingerprint": "google/sdk_gphone64_x86_64/emu64xa:15/AE3A.240806.043/12960925:userdebug/dev-keys",
+  "emulator_only": true,
+  "physical_sim_tested": false,
+  "emergency_calls_tested": false,
+  "gms_certification_tested": false,
+  "mms_rcs_supported": false,
+  "tests": [
+    {
+      "name": "NativeDeviceTest.bundledBridgeRolesValidationAndIsolation",
+      "passed": true,
+      "test_cases": 1,
+      "seconds": 24.29
+    },
+    {
+      "name": "NativeDeviceTest.paidActionsRequireFinalNativeConsent",
+      "passed": true,
+      "test_cases": 1,
+      "seconds": 16.51
+    },
+    {
+      "name": "NativeDeviceTest.systemVolumeBrightnessAndNativeThemeAreReal",
+      "passed": true,
+      "test_cases": 1,
+      "seconds": 15.2
+    },
+    {
+      "name": "NativeDeviceTest.incomingSmsUsesTheRealProviderAndRichInbox",
+      "passed": true,
+      "test_cases": 1,
+      "seconds": 13.16
+    },
+    {
+      "name": "NativeDeviceTest.outgoingSmsWaitsForActualSentCallback",
+      "passed": true,
+      "test_cases": 1,
+      "seconds": 10.49
+    },
+    {
+      "name": "NativeDeviceTest.outgoingCallUsesTelecomAndOurInCallService",
+      "passed": true,
+      "test_cases": 1,
+      "seconds": 14.71
+    },
+    {
+      "name": "NativeDeviceTest.incomingCallCanBeAnsweredMutedAndEndedInOurUi",
+      "passed": true,
+      "test_cases": 1,
+      "seconds": 9.28
+    },
+    {
+      "name": "NativeDeviceTest.localApkReviewCancelAndSystemInstall",
+      "passed": false,
+      "test_cases": 0,
+      "seconds": 8.52
+    }
+  ],
+  "stock_boot_recovery": {
+    "package": "com.google.android.apps.nexuslauncher",
+    "dialog": "Pixel Launcher isn't responding | Close app | Wait",
+    "action": "Close identified stock Pixel Launcher boot ANR and stop it before installing/selecting the target HOME.",
+    "product_anr_waived": false
+  },
+  "display": {
+    "pixels": "720x1600",
+    "density": 280,
+    "gpu": "headless SwiftShader"
+  },
+  "passed": false,
+  "github": {
+    "run_url": "https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/46079932383",
+    "job_id": 140776328872,
+    "job_url": "https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/46079932383/job/140776328872",
+    "scope": "Aborted after seven passing selections and the eighth selection reporting a HomeActivity focus-loss ANR (5084ms). The new launcher/connected/bridge selections were not reached. No package. The former first-main DropBox extraction was not process-scoped; do not attribute that stack without the full raw trace."
+  }
+}

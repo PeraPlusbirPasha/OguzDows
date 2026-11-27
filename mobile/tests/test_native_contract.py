@@ -74,6 +74,9 @@ class NativeSourceContracts(unittest.TestCase):
         self.assertNotRegex(self.home, r'Runtime\.getRuntime|ProcessBuilder|\bexec\(')
         self.assertIn('default: reply.error', self.home)
         self.assertNotIn('setWebContentsDebuggingEnabled(true)', self.home)
+        self.assertIn('webView.onPause()', self.home)
+        self.assertIn('webView.onResume()', self.home)
+        self.assertNotIn('.pauseTimers()', self.home)  # Never freeze all WebViews globally.
 
     def test_call_and_sms_require_native_consent_and_no_success_is_inferred_from_a_request(self):
         self.assertIn('telecom.placeCall', self.home)

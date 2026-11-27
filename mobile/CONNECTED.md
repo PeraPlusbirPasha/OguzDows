@@ -2,7 +2,8 @@
 
 **Durum:** 0.4 geliştirme dalıdır, henüz kabul edilmiş mobil paket değildir.
 Native derleme/20 JVM testi ve iki yönlü gerçek TLS dosya aktarımı geçti;
-genişletilmiş cihaz kabulü hareket/izin/seçici hataları buldu ve paketleme durdu.
+genişletilmiş cihaz kabulü hareket/izin/seçici hataları ve bir odak kaybı ANR'ı
+buldu, paketleme durdu.
 Düzeltmeler yeniden emülatörde sınanıyor.
 Bu belge fiziksel cihaz/ARM kabulü anlamına gelmez. Önceden kabul edilmiş
 0.3 APK bağlantısı [INSTALL.md](INSTALL.md) içindedir.
@@ -131,6 +132,17 @@ başarı kanıtı yerine geçmez. Davet/sır dosyaları raporlara alınmaz.
   isteğini görünür düğmeden yapar. Paylaşım testi AOSP 15'in **Start** düğmesini
   gerçek `com.android.systemui` seçicisinde bulur; tüm ekran seçimi ve son onay
   atlanmaz. Hata temizliğinde yalnız tanınan paylaşım seçicisi iptal edilir.
+- [`1ff62d9` / 46079932383](https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/46079932383):
+  **20 JVM geçti; 7 cihaz seçimi ardından 8. seçimde HomeActivity odak kaybı
+  ANR'ı (5084 ms) bildirildi**, kabul hemen durdu. Yeni hareket/rehber/yansıtma
+  vakalarına ulaşılmadı; düzeltmelere başarı yazılmaz. [SDK](android/evidence/sdk-1ff62d9.json)
+  · [tamamlanmamış cihaz kaydı](android/evidence/emulator-1ff62d9.json).
+  Eski DropBox tanısı ilk `main` iş parçacığını seçiyordu; stok boot kaydıyla
+  karıştırılabileceği için o yığın ürünün kök nedeni diye sunulmaz. Yeni tanı tam
+  `Process`/`Cmd line`/PID eşlemesiyle ana/render yığınlarını ayırır, bulunamazsa
+  bilinmiyor der. HomeActivity, kendi WebView'inde `onPause`/`onResume` yaşam
+  döngüsünü uygular; global zamanlayıcılar veya GPU kapatılmaz. Bu, ANR'ın kök
+  nedeninin kanıtlandığı/giderildiği anlamına gelmez; yeni tam kabul zorunludur.
 - [`18034bb` masaüstü / 46076502634](https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/46076502634):
   Debian bookworm/trixie üzerinde **1024×768 ve 360×800: dört gerçek GTK köprü
   koşusu geçti**. Gerçek düğme/dosya/loopback TLS/GDK kareleri sınandı. Üretimin
@@ -143,11 +155,11 @@ başarı kanıtı yerine geçmez. Davet/sır dosyaları raporlara alınmaz.
   Önceki 2da79b2 koşusundaki GNOME/trixie DBus zaman aşımı bu koşuda görülmedi;
   kök nedeninin giderildiği veya fiziksel performansın kabul edildiği iddia edilmez.
 - Yerel bütün depo testi: **727 vaka, 718 başarılı / 9 ortam bağımlı atlama**.
-  Mobil kaynak/sentetik kabul testleri ayrıca **29/29**, JS **31/31**, üretim derlemesi,
+  Mobil kaynak/sentetik kabul testleri ayrıca **30/30**, JS **31/31**, üretim derlemesi,
   biçim denetimi ve `npm audit` (0 açık) geçti; native cihaz kanıtı değildir.
 - Yerel tekrar: Python köprü **19/19** (takılı gerçek TLS el sıkışmasında anlık durdurma dahil); masaüstü birimleri **102/102**; Pi yapılandırma
-  ve doğrulama kuralları **35/35**; mobil kaynak/kabul kuralları **29/29** (9'u açıkça
-  sentetik rapor/orkestrasyon testi); JS mantık/API **31/31**, Chromium **33/33** (31 akış ve 2
+  ve doğrulama kuralları **35/35**; mobil kaynak/kabul kuralları **30/30** (10'u açıkça
+  sentetik rapor/orkestrasyon/tanı testi); JS mantık/API **31/31**, Chromium **33/33** (31 akış ve 2
   kapsayıcı). Bunlar derlenmiş APK'nın 24 cihaz vakası yerine kullanılamaz.
 
 Sonuç ve APK ancak yeni CI raporu incelendikten sonra teslim edilir. Henüz

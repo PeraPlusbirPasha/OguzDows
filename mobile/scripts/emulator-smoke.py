@@ -13,6 +13,7 @@ import xml.etree.ElementTree as ET
 
 import bridge_fixture
 from acceptance import SELECTIONS, validate_emulator
+from android_diagnostics import anr_threads
 
 ROOT = Path(__file__).resolve().parents[2]
 OUT = ROOT / 'test-results/mobile/emulator'
@@ -223,12 +224,20 @@ def main():
                     dropbox += adb('shell', 'dumpsys', 'dropbox', '--print', 'system_app_anr', check=False)
                     annotation('error', 'Emulator ANR dialog identity', visible_ui or events[:1200])
                     (OUT / f'{klass}-{name or "suite"}-anr.txt').write_text(events + '\n' + anr + '\n' + dropbox)
-                    # Only a disposable emulator's app main-thread diagnostic is surfaced.
-                    main_stack = re.search(r'"main"[^\n]*\n[\s\S]{0,2800}', dropbox)
-                    annotation('error', 'Emulator main-thread ANR', main_stack.group() if main_stack else (events + '\n' + anr)[:2800])
+                    # A stock boot ANR may precede or follow ours in the concatenated
+                    # DropBox output. Never call its first "main" the product's stack.
+                    scoped = anr_threads(dropbox, PACKAGE)
+                    annotation('error', 'Emulator ANR event and focus', (events[-1200:] + '\n' + anr[:1400]))
+                    if scoped:
+                        for thread, stack in scoped['threads'].items():
+                            annotation('error', f'Emulator product ANR {thread} pid {scoped["pid"]}', stack)
+                    else:
+                        annotation('error', 'Emulator product ANR trace unavailable', 'No exact product Cmd line in DropBox; do not attribute another process stack. Full diagnostic remains in the artifact.')
                     evidence['passed'] = False
+                    product_timeout = PACKAGE in output and ('keyDispatchingTimedOut' in output or 'Input dispatching timed out' in output)
+                    evidence['product_anr_detected'] = True if PACKAGE in events or product_timeout else None
                     evidence_notice(evidence)
-                    raise SystemExit('App ANR: abort incomplete acceptance; no package. Inspect the recorded main-thread trace.')
+                    raise SystemExit('ANR: abort incomplete acceptance; no package. Inspect the process-scoped trace.')
             if klass == 'LauncherDeviceTest' and passed:
                 # Bounded visual diagnostic from a disposable emulator, not personal device data.
                 # Chunk below the checks-message cap; full-resolution screenshots stay in the artifact.

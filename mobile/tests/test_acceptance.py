@@ -103,6 +103,29 @@ class AcceptanceRulesTests(unittest.TestCase):
         workflow = (ROOT / '.github/workflows/mobile-emulator.yml').read_text()
         self.assertLess(workflow.index('python3 mobile/scripts/acceptance.py'), workflow.index('mkdir -p test-results/mobile/package'))
 
+    def test_anr_attribution_never_uses_the_first_stock_or_a_different_process_trace(self):
+        from android_diagnostics import anr_threads
+        package = 'org.oguzdows.mobile'
+        def record(owner, pid, main):
+            return (f'========================================\nProcess: {owner}\n'
+                    f'----- pid {pid} at synthetic -----\nCmd line: {owner}\n'
+                    f'"main" prio=5\n  at {main}\n\n'
+                    f'"RenderThread" prio=7\n  at render_{main}\n\n')
+        old = record(package, 4, 'old_product')
+        stock = record('com.google.android.apps.nexuslauncher', 1, 'stock_boot')
+        newest = record(package, 8, 'new_product')
+        other_snapshot = ('----- pid 9 at synthetic -----\nCmd line: unrelated.app\n'
+                          '"main" prio=5\n  at unrelated_main\n\n')
+        result = anr_threads(old + stock + newest + other_snapshot + stock, package)
+        self.assertEqual(result['pid'], 8)
+        self.assertIn('at new_product', result['threads']['main'])
+        self.assertIn('render_new_product', result['threads']['RenderThread'])
+        self.assertNotIn('unrelated', result['threads']['RenderThread'])
+        self.assertEqual(anr_threads(stock, package), {})
+        self.assertEqual(anr_threads(record(package + '.lookalike', 9, 'not_ours'), package), {})
+        # A different ANR owner cannot borrow an app snapshot from its full-system dump.
+        self.assertEqual(anr_threads(stock + newest.split('Process: ' + package + '\n', 1)[1], package), {})
+
     def test_completed_interop_marker_is_checked_before_a_fast_process_exit(self):
         import bridge_fixture
         class Finished:

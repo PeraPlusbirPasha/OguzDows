@@ -422,7 +422,17 @@ public final class HomeActivity extends Activity {
             new IntentFilter(PlatformState.CHANGED), androidx.core.content.ContextCompat.RECEIVER_NOT_EXPORTED);
         receiverRegistered = true; observeSms();
     }
-    @Override protected void onResume() { super.onResume(); signal(); }
+    @Override protected void onResume() {
+        super.onResume();
+        if (webView != null) webView.onResume();
+        signal();
+    }
+    @Override protected void onPause() {
+        // Per-view lifecycle: stop unnecessary off-screen WebView rendering during
+        // native call/installer/settings transitions. Never pause global WebView timers.
+        if (webView != null) webView.onPause();
+        super.onPause();
+    }
     @Override protected void onStop() {
         if (receiverRegistered) { unregisterReceiver(stateReceiver); receiverRegistered = false; }
         if (observerRegistered) { getContentResolver().unregisterContentObserver(smsObserver); observerRegistered = false; }
