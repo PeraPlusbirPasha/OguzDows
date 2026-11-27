@@ -33,7 +33,8 @@ class LauncherActivity : ComponentActivity() {
         }
     }
     override fun onStart() { super.onStart(); model.start(); widgets.start() }
-    override fun onResume() { super.onResume(); model.refreshSystem() }
+    override fun onResume() { super.onResume(); model.refreshSystem(); shellFullscreen(model.ui.value.fullscreen) }
+    override fun onWindowFocusChanged(hasFocus: Boolean) { super.onWindowFocusChanged(hasFocus); if(hasFocus) shellFullscreen(model.ui.value.fullscreen) }
     override fun onStop() { widgets.stop(); model.stop(); super.onStop() }
     override fun onNewIntent(intent: Intent) { super.onNewIntent(intent); homeSignal++ }
     private fun report(message: String) { Toast.makeText(this, message, Toast.LENGTH_LONG).show() }
@@ -45,6 +46,8 @@ class LauncherActivity : ComponentActivity() {
         if (LauncherRules.destinations.none { it.id == route }) return
         try {
             when (route) {
+                "contacts" -> startActivity(Intent(this, ContactsActivity::class.java))
+                "files" -> startActivity(Intent(this, BridgeActivity::class.java))
                 "store" -> startActivity(Intent(this, SourceStoreActivity::class.java))
                 else -> startActivity(Intent(this, HomeActivity::class.java).putExtra("screen", route)
                     .putExtra("fromLauncher", true).putExtra("launcherTheme", if (model.ui.value.dark) "dark" else "light"))
@@ -64,8 +67,16 @@ class LauncherActivity : ComponentActivity() {
             "bluetooth" -> Settings.ACTION_BLUETOOTH_SETTINGS
             "dnd" -> Settings.ACTION_NOTIFICATION_POLICY_ACCESS_SETTINGS
             "battery" -> Settings.ACTION_BATTERY_SAVER_SETTINGS
+            "all" -> Settings.ACTION_SETTINGS
+            "display" -> Settings.ACTION_DISPLAY_SETTINGS
+            "security" -> Settings.ACTION_SECURITY_SETTINGS
+            "notifications" -> Settings.ACTION_APP_NOTIFICATION_SETTINGS
+            "defaults" -> Settings.ACTION_MANAGE_DEFAULT_APPS_SETTINGS
+            "lock" -> { startActivity(Intent(this, LockActivity::class.java)); return }
+            "bridge" -> { startActivity(Intent(this, BridgeActivity::class.java)); return }
+            "contacts" -> { startActivity(Intent(this, ContactsActivity::class.java)); return }
             else -> return
         }
-        try { startActivity(Intent(action)) } catch (_: Exception) { report("Bu sistem paneli bulunamadı.") }
+        try { startActivity(Intent(action).apply { if(panel=="notifications") putExtra(Settings.EXTRA_APP_PACKAGE, packageName) }) } catch (_: Exception) { report("Bu sistem paneli bulunamadı.") }
     }
 }

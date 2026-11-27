@@ -34,6 +34,8 @@ export type NativeStatus = {
   dialerRole: boolean;
   smsRole: boolean;
   phonePermission: boolean;
+  contactsPermission: boolean;
+  themeAccent: "sea" | "copper" | "plum";
   smsPermission: boolean;
   notificationPermission: boolean;
   notificationsEnabled: boolean;
@@ -47,6 +49,7 @@ export type NativeStatus = {
   rcsSupported: false;
   gmsBundled: false;
 };
+export type NativeContact = { id: string; name: string; number: string };
 export type NativeSms = {
   id: number;
   number: string;

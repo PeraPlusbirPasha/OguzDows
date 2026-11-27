@@ -87,6 +87,9 @@ plymouth-label
 librsvg2-common
 fontconfig
 ca-certificates
+# OğuzKöprü: yerel kısa ömürlü TLS kimliği ve sayısal ağ arayüzleri
+openssl
+iproute2
 
 # Türkçe uygulamalar
 firefox-esr

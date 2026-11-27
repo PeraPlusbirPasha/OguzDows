@@ -65,7 +65,8 @@ def gui():
             actions.pack_start(note('GNOME: üst çubuk / Etkinlikler ve uzantı sistemi; Plasma: panel düzenleyici / gerçek plasmoid gezgini; Xfce: kendi panel eklentileri. Bir kabuğun widget’ı diğerinin sürecine yüklenmez.'), False, False, 0)
             status = note('Bir işlem seç. Eksik yerel araç varsa başka masaüstünün aracı zorla açılmaz.')
             actions.pack_start(control_grid(self.window, status), False, False, 0)
-            for title, command in (('Atölye · 16 çevrimdışı araç', '/usr/local/bin/oguzdows-workbench'),
+            for title, command in (('OğuzKöprü · PC / telefon / ARM', '/usr/local/bin/oguzdows-bridge'),
+                                   ('Atölye · 16 çevrimdışı araç', '/usr/local/bin/oguzdows-workbench'),
                                    ('Modern Başlat menüsünü aç', '/usr/local/bin/oguzdows-hub'),
                                    ('Gerçek GNOME / Plasma oturumlarını yönet…', '/usr/local/bin/oguzdows-desktops'),
                                    ('Türkiye duvar kâğıtları…', '/usr/local/bin/oguzdows-welcome')):

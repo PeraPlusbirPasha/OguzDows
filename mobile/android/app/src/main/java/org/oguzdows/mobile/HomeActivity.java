@@ -62,7 +62,10 @@ public final class HomeActivity extends Activity {
     WebView webView;
     private Reply pending;
     private ValueCallback<Uri[]> fileCallback;
-    private boolean receiverRegistered, observerRegistered, frontendReady, intentDelivered;
+    private boolean receiverRegistered, observerRegistered, contactsObserved, frontendReady, intentDelivered;
+    private final ContentObserver contactsObserver = new ContentObserver(main) {
+        @Override public void onChange(boolean selfChange) { signal(); }
+    };
     private final BroadcastReceiver stateReceiver = new BroadcastReceiver() {
         @Override public void onReceive(Context context, Intent intent) { signal(); }
     };
@@ -151,7 +154,8 @@ public final class HomeActivity extends Activity {
         }
         // Bootstrap the shared native theme before React's first device.theme effect. This also
         // covers external DIAL/SENDTO launches, not just a launcher-provided screen intent.
-        webView.loadUrl(ORIGIN + "/index.html?nativeTheme=" + (NativeUi.dark(this) ? "dark" : "light"));
+        webView.loadUrl(ORIGIN + "/index.html?nativeTheme=" + (NativeUi.dark(this) ? "dark" : "light")
+            + "&nativeAccent=" + ShellStyles.webAccent(new LauncherStore(this).wallpaper()));
         if (Build.VERSION.SDK_INT >= 33) getOnBackInvokedDispatcher().registerOnBackInvokedCallback(
             android.window.OnBackInvokedDispatcher.PRIORITY_DEFAULT, this::back);
     }
@@ -219,6 +223,13 @@ public final class HomeActivity extends Activity {
                     reply.ok(new JSONObject().put("number", p.getString("number", "")).put("body", p.getString("body", ""))); break;
                 }
                 case "messages.clearPendingReply": getSharedPreferences("pending-reply", MODE_PRIVATE).edit().clear().apply(); reply.ok(true); break;
+                case "contacts.open": startActivity(new Intent(this, ContactsActivity.class)); reply.ok(true); break;
+                case "bridge.open": startActivity(new Intent(this, BridgeActivity.class)); reply.ok(true); break;
+                case "contacts.list": {
+                    Reply target = reply;
+                    worker.execute(() -> { try { target.ok(SystemContacts.json(this)); }
+                        catch (Exception error) { target.error("Rehber okunamadı. Kişiler ekranından açık okuma iznini kontrol et."); } }); break;
+                }
                 case "store.open": startActivity(new Intent(this, SourceStoreActivity.class)); reply.ok(true); break;
                 case "apk.pick": startActivity(new Intent(this, InstallReviewActivity.class)); reply.ok(true); break;
                 case "apps.open": startActivity(new Intent(this, InstalledAppsActivity.class)); reply.ok(true); break;
@@ -340,6 +351,8 @@ public final class HomeActivity extends Activity {
     private void openSettings(String panel) {
         String action;
         switch (panel) {
+            case "all": action = Settings.ACTION_SETTINGS; break;
+            case "security": action = Settings.ACTION_SECURITY_SETTINGS; break;
             case "wifi": action = Settings.Panel.ACTION_WIFI; break;
             case "bluetooth": action = Settings.ACTION_BLUETOOTH_SETTINGS; break;
             case "airplane": action = Settings.ACTION_AIRPLANE_MODE_SETTINGS; break;
@@ -390,6 +403,11 @@ public final class HomeActivity extends Activity {
     private void signal() {
         if (webView != null && !isDestroyed()) webView.evaluateJavascript("window.dispatchEvent(new Event('oguz-native-state'))", null);
         observeSms();
+        boolean contactsAllowed = PlatformState.granted(this, Manifest.permission.READ_CONTACTS);
+        if (contactsAllowed && !contactsObserved && receiverRegistered) {
+            try { getContentResolver().registerContentObserver(android.provider.ContactsContract.Contacts.CONTENT_URI, true, contactsObserver); contactsObserved = true; }
+            catch (SecurityException ignored) { }
+        } else if (!contactsAllowed && contactsObserved) { getContentResolver().unregisterContentObserver(contactsObserver); contactsObserved = false; }
     }
     private void observeSms() {
         boolean allowed = PlatformState.role(this, RoleManager.ROLE_SMS) && PlatformState.granted(this, Manifest.permission.READ_SMS);
@@ -408,6 +426,7 @@ public final class HomeActivity extends Activity {
     @Override protected void onStop() {
         if (receiverRegistered) { unregisterReceiver(stateReceiver); receiverRegistered = false; }
         if (observerRegistered) { getContentResolver().unregisterContentObserver(smsObserver); observerRegistered = false; }
+        if (contactsObserved) { getContentResolver().unregisterContentObserver(contactsObserver); contactsObserved = false; }
         super.onStop();
     }
     @Override protected void onNewIntent(Intent intent) {

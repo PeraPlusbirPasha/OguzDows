@@ -32,5 +32,11 @@ class LauncherStore(context: Context) {
     fun lightEffects(value: Boolean) { prefs.edit().putBoolean("light-effects", value).apply() }
     fun catSide(): Boolean = prefs.getBoolean("cat-right", true)
     fun catSide(right: Boolean) { prefs.edit().putBoolean("cat-right", right).apply() }
+    fun layout(): String = ShellStyles.layout(prefs.getString("layout", "oguzdows") ?: "oguzdows").id
+    fun layout(id: String) { prefs.edit().putString("layout", ShellStyles.layout(id).id).apply() }
+    fun glass(): Boolean = prefs.getBoolean("glass", true)
+    fun glass(enabled: Boolean) { prefs.edit().putBoolean("glass", enabled).apply() }
+    fun fullscreen(): Boolean = prefs.getBoolean("fullscreen", true)
+    fun fullscreen(enabled: Boolean) { prefs.edit().putBoolean("fullscreen", enabled).apply() }
     fun reset() { prefs.edit().remove("pins").commit(); writable = true }
 }

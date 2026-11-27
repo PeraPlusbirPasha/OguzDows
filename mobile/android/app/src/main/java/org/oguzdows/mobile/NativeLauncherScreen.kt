@@ -6,6 +6,9 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectHorizontalDragGestures
+import androidx.compose.foundation.gestures.awaitEachGesture
+import androidx.compose.foundation.gestures.awaitFirstDown
+import androidx.compose.ui.input.pointer.PointerEventPass
 import androidx.compose.foundation.gestures.detectVerticalDragGestures
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.pager.HorizontalPager
@@ -52,14 +55,13 @@ fun NativeLauncherScreen(
     route: (String) -> Unit, launch: (String) -> Unit, role: (String) -> Unit, system: (String) -> Unit,
     report: (String) -> Unit, brightness: (Float) -> Unit,
 ) {
-    val colors = if (state.dark) darkColorScheme(primary=Color(0xFFA0D9C1), background=Color(0xFF17262B), surface=Color(0xFF17262B), onSurface=Color(0xFFE2EEEB))
-                 else lightColorScheme(primary=Color(0xFF246254), background=Color(0xFFF3F6F1), surface=Color(0xFFF3F6F1), onSurface=Color(0xFF263C38))
-    MaterialTheme(colorScheme = colors) {
+    ConnectedTheme(state.dark, state.wallpaper, state.glass, state.lightEffects) {
         var panel by rememberSaveable { mutableStateOf<String?>(null) }
         val pager = rememberPagerState(pageCount = { 3 })
         val scope = rememberCoroutineScope()
         val view = LocalView.current
         val context = LocalContext.current
+        LaunchedEffect(state.fullscreen) { (context as? android.app.Activity)?.shellFullscreen(state.fullscreen) }
         SideEffect {
             (context as? android.app.Activity)?.let {
                 WindowCompat.getInsetsController(it.window, view).apply {
@@ -79,7 +81,25 @@ fun NativeLauncherScreen(
         }
         LaunchedEffect(homeSignal) { if (homeSignal > 0) { panel = null; pager.scrollToPage(0) } }
         BackHandler { if (panel != null) panel = null else scope.launch { pager.animateScrollToPage(0) } }
-        BoxWithConstraints(Modifier.fillMaxSize().testTag("launcher-root").semantics { testTagsAsResourceId = true }) {
+        val layout = ShellStyles.layout(state.layout)
+        val gestureThreshold = with(LocalDensity.current) { 64.dp.toPx() }
+        BoxWithConstraints(Modifier.fillMaxSize().testTag("launcher-root").semantics { testTagsAsResourceId = true }
+            .pointerInput(gestureThreshold) {
+                awaitEachGesture {
+                    val down = awaitFirstDown(requireUnconsumed = false)
+                    var blocked = false
+                    do {
+                        val event = awaitPointerEvent(PointerEventPass.Final)
+                        val change = event.changes.firstOrNull { it.id == down.id } ?: break
+                        if(change.isConsumed) blocked = true
+                        val dy = change.position.y - down.position.y
+                        val dx = change.position.x - down.position.x
+                        if(!blocked && kotlin.math.abs(dy)>gestureThreshold && kotlin.math.abs(dy)>kotlin.math.abs(dx)*1.5f) {
+                            panel = if(dy>0) "controls" else "apps"; blocked=true
+                        }
+                    } while(event.changes.any { it.pressed })
+                }
+            }) {
             val compact = maxHeight < 730.dp
             Image(painterResource(ShellWallpapers[state.wallpaper]), null, Modifier.fillMaxSize(), contentScale=ContentScale.Crop)
             Box(Modifier.fillMaxSize().background(Brush.verticalGradient(listOf(Color(0x8033443F), Color(0x20503C35), Color(0xD011282A)))))
@@ -89,7 +109,7 @@ fun NativeLauncherScreen(
                 Row(Modifier.fillMaxWidth().height(54.dp).pointerInput(Unit) {
                     detectVerticalDragGestures(onDragStart={downward=0f}, onDragEnd={if(downward>threshold) panel="controls"}) { _, delta -> downward += delta }
                 }, verticalAlignment=Alignment.CenterVertically) {
-                    Image(painterResource(R.drawable.nazar), "OğuzDows nazar güç simgesi", Modifier.size(30.dp))
+                    Image(painterResource(R.drawable.nazar), "OğuzDows nazar güç simgesi", Modifier.size(30.dp).clickable{system("lock")})
                     Spacer(Modifier.width(9.dp))
                     Column(Modifier.weight(1f)) {
                         Text("oğuzdows", fontSize=20.sp, letterSpacing=(-.6).sp, fontWeight=FontWeight.Bold, color=Color.White)
@@ -122,10 +142,17 @@ fun NativeLauncherScreen(
                 HorizontalPager(pager, Modifier.fillMaxWidth().weight(1f).testTag("launcher-pages"), verticalAlignment=Alignment.Top) { page ->
                     if (page < 2) Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(top=12.dp)) {
                         val pagePins = state.pins.drop(page * 8).take(8)
-                        for (row in 0..1) Row(Modifier.fillMaxWidth(), horizontalArrangement=Arrangement.spacedBy(5.dp)) {
-                            for (column in 0..3) {
-                                val key = pagePins.getOrNull(row * 4 + column)
-                                if (key == null) Box(Modifier.weight(1f).height(94.dp).clip(RoundedCornerShape(14.dp))
+                        Text(layout.label + " · " + (page + 1), color=Color.White.copy(.85f),fontSize=10.sp,modifier=Modifier.padding(bottom=4.dp).testTag("launcher-layout-label"))
+                        if(layout.rail) Row(Modifier.fillMaxWidth(),horizontalArrangement=Arrangement.spacedBy(8.dp)) {
+                            listOf("files" to "Köprü", "contacts" to "Rehber", "store" to "Mağaza").forEach { (id,label)->
+                                TextButton(onClick={onOpen("internal:$id")}){Text(label,color=Color.White)}
+                            }
+                        }
+                        for (row in 0 until ((8 + layout.columns - 1) / layout.columns)) Row(Modifier.fillMaxWidth(), horizontalArrangement=Arrangement.spacedBy(5.dp)) {
+                            for (column in 0 until layout.columns) {
+                                val key = pagePins.getOrNull(row * layout.columns + column)
+                                if(row * layout.columns + column >= 8) Spacer(Modifier.weight(1f))
+                                else if (key == null) Box(Modifier.weight(1f).height(94.dp).clip(RoundedCornerShape(14.dp))
                                     .clickable { panel="apps" }.semantics { contentDescription="Kısayol ekle" }, contentAlignment=Alignment.Center) {
                                     ShellGlyph("plus", tint=Color.White.copy(.45f))
                                 } else HomeShortcut(key, state, model.repository, ::onOpen, { panel="edit:$it" }, Modifier.weight(1f))
@@ -163,7 +190,8 @@ fun NativeLauncherScreen(
                     }
                 }
                 Spacer(Modifier.height(10.dp))
-                GlassSurface(Modifier.fillMaxWidth().height(64.dp), dark=true, light=state.lightEffects) {
+                GlassSurface(Modifier.fillMaxWidth(if(state.layout=="mac") .9f else 1f).align(Alignment.CenterHorizontally)
+                    .height(if(state.layout=="gnome") 56.dp else 64.dp), dark=true, light=state.lightEffects) {
                     Row(Modifier.fillMaxSize().padding(horizontal=4.dp), verticalAlignment=Alignment.CenterVertically) {
                         val dock = listOf("phone" to "Telefon", "messages" to "Mesajlar", "apps" to "Uygulamalar", "store" to "Mağaza", "settings" to "Ayarlar")
                         dock.forEach { (id, label) ->
@@ -171,8 +199,8 @@ fun NativeLauncherScreen(
                                 if(id=="apps") panel="apps" else onOpen("internal:$id")
                             }.semantics { contentDescription=if(id=="apps") "Uygulama çekmecesi" else "Dock: $label" },
                                 horizontalAlignment=Alignment.CenterHorizontally, verticalArrangement=Arrangement.Center) {
-                                ShellGlyph(when(id){"settings"->"controls";"messages"->"message";else->id}, Modifier.size(24.dp), Color(0xFFE5F0E9))
-                                Spacer(Modifier.height(4.dp)); Text(label, fontSize=8.sp, color=Color(0xFFD4E7DD))
+                                ShellGlyph(when(id){"settings"->"controls";"messages"->"message";else->id}, Modifier.size(if(state.layout=="mac")30.dp else 24.dp), Color(0xFFE5F0E9))
+                                if(state.layout !in listOf("windows11","gnome")) {Spacer(Modifier.height(4.dp)); Text(label, fontSize=8.sp, color=Color(0xFFD4E7DD))}
                             }
                         }
                     }
@@ -180,7 +208,11 @@ fun NativeLauncherScreen(
                 Spacer(Modifier.height(7.dp))
             }
         }
-        if (panel != null) ModalBottomSheet(onDismissRequest={panel=null}, containerColor=MaterialTheme.colorScheme.surface,
+        if(panel=="controls" || panel=="apps") FullAeroPanel(state, {panel=null}) {
+            if(panel=="controls") LauncherControls(state, model, role, system, brightness, {panel=null;system("all")}, report)
+            else LauncherDrawer(state, model, ::onOpen, {panel="edit:$it"}, report)
+        }
+        if (panel != null && panel!="controls" && panel!="apps") ModalBottomSheet(onDismissRequest={panel=null}, containerColor=MaterialTheme.colorScheme.surface,
             modifier=Modifier.imePadding().semantics { testTagsAsResourceId = true }, dragHandle={BottomSheetDefaults.DragHandle()}) {
             when {
                 panel=="apps" -> LauncherDrawer(state, model, ::onOpen, {panel="edit:$it"}, report)

@@ -20,7 +20,7 @@ final class NativeUi {
         muted = Color.parseColor(dark ? "#A6BBB2" : "#52665D");
         paper = Color.parseColor(dark ? "#17262B" : "#F8F9F5");
         surface = Color.parseColor(dark ? "#294047" : "#E7EFE7");
-        brand = Color.parseColor(dark ? "#A0D9C1" : "#256052");
+        brand = ShellStyles.accent(new LauncherStore(activity).wallpaper(), dark);
     }
     static boolean dark(Context context) { return context.getSharedPreferences("native-ui", Context.MODE_PRIVATE).getBoolean("dark", false); }
     static void theme(Activity activity) { activity.setTheme(dark(activity) ? R.style.AppThemeDark : R.style.AppTheme); }

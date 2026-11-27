@@ -59,10 +59,20 @@ function readSaved() {
   const nativeTheme = inNativeApp
     ? new URLSearchParams(location.search).get("nativeTheme")
     : null;
-  const withNativeTheme = (prefs: Preferences): Preferences =>
-    nativeTheme === "dark" || nativeTheme === "light"
-      ? { ...prefs, theme: nativeTheme }
-      : prefs;
+  const nativeAccent = inNativeApp
+    ? new URLSearchParams(location.search).get("nativeAccent")
+    : null;
+  const withNativeTheme = (prefs: Preferences): Preferences => ({
+    ...prefs,
+    ...(nativeTheme === "dark" || nativeTheme === "light"
+      ? { theme: nativeTheme }
+      : {}),
+    ...(nativeAccent === "sea" ||
+    nativeAccent === "copper" ||
+    nativeAccent === "plum"
+      ? { accent: nativeAccent }
+      : {}),
+  });
   try {
     return {
       prefs: withNativeTheme(
@@ -162,6 +172,12 @@ export default function App() {
       void nativeRequest("launcher.home").catch(() => {});
       return;
     }
+    if (inNativeApp && (next === "contacts" || next === "files")) {
+      void nativeRequest(
+        next === "contacts" ? "contacts.open" : "bridge.open",
+      ).catch((error: Error) => toast(error.message));
+      return;
+    }
     setScreen(next);
     setOverlay("");
     setLocked("");
@@ -254,6 +270,14 @@ export default function App() {
     else if (action === "previous-page")
       setHomePage((page) => (page - 1 + homePageCount) % homePageCount);
   }
+  useEffect(() => {
+    if (!inNativeApp || !nativeStatus?.themeAccent) return;
+    setPrefs((value) =>
+      value.accent === nativeStatus.themeAccent
+        ? value
+        : { ...value, accent: nativeStatus.themeAccent },
+    );
+  }, [nativeStatus?.themeAccent]);
   useEffect(() => {
     if (!inNativeApp) return;
     void nativeRequest("device.theme", { value: prefs.theme }).catch(() => {});

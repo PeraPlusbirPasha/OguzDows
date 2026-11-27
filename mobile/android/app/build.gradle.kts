@@ -11,8 +11,8 @@ android {
         applicationId = "org.oguzdows.mobile"
         minSdk = 29
         targetSdk = 35
-        versionCode = 3
-        versionName = "0.3.0-launcher"
+        versionCode = 4
+        versionName = "0.4.0-connected"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
     compileOptions {

@@ -32,11 +32,12 @@ import kotlinx.coroutines.withContext
 
 /** Glass is bounded tint/light, not a live full-screen blur shader. */
 @Composable
-fun GlassSurface(modifier: Modifier = Modifier, dark: Boolean = false, light: Boolean = false,
+fun GlassSurface(modifier: Modifier = Modifier, dark: Boolean = LocalAero.current.dark, light: Boolean = LocalAero.current.light,
                  content: @Composable BoxScope.() -> Unit) {
     val shape = RoundedCornerShape(18.dp)
-    val colors = if (dark) listOf(Color(0xE52A3C43), Color(0xD51B2A31))
-                 else listOf(Color.White.copy(alpha = if (light) .94f else .88f), Color(0xE9E7EEEA))
+    val glass = LocalAero.current.glass && !light
+    val colors = if (dark) listOf(Color(0xFF2A3C43).copy(alpha=if(glass).72f else 1f), Color(0xFF1B2A31).copy(alpha=if(glass).84f else 1f))
+                 else listOf(Color.White.copy(alpha = if(glass) .70f else .98f), Color(0xFFE7EEEA).copy(alpha=if(glass).84f else 1f))
     Box(modifier.clip(shape).background(Brush.linearGradient(colors))
         .border(1.dp, if (dark) Color.White.copy(.14f) else Color.White.copy(.72f), shape), content = content)
 }
@@ -105,7 +106,9 @@ fun HomeShortcut(key: String, state: LauncherUiState, repository: LauncherReposi
     val destination = LauncherRules.internalRoute(key)?.let { id -> LauncherRules.destinations.find { it.id == id } }
     val entry = state.entries.find { it.key == key }
     val label = destination?.label ?: entry?.label ?: if (state.loading) "Yükleniyor" else "Kullanılamıyor"
-    Column(modifier.clip(RoundedCornerShape(14.dp)).combinedClickable(onClick = { onOpen(key) }, onLongClick = { edit(key) })
+    val layout = ShellStyles.layout(state.layout)
+    val tileModifier = if(layout.tiles) modifier.padding(4.dp).background(Color(ShellStyles.accent(state.wallpaper, false)).copy(alpha=.68f), RoundedCornerShape(12.dp)) else modifier
+    Column(tileModifier.clip(RoundedCornerShape(14.dp)).combinedClickable(onClick = { onOpen(key) }, onLongClick = { edit(key) })
         .padding(vertical = 8.dp).semantics { contentDescription = "Kısayol: $label" }, horizontalAlignment = Alignment.CenterHorizontally) {
         when { destination != null -> DestinationIcon(destination)
             entry != null -> InstalledIcon(entry, repository, 52)

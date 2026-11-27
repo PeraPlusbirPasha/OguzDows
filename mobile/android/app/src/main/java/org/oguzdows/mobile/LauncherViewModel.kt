@@ -25,6 +25,7 @@ import java.time.LocalDateTime
 /** UI observes actual system snapshots. No polling while the launcher is stopped. */
 data class LauncherUiState(
     val entries: List<LauncherEntry> = emptyList(), val pins: List<String> = LauncherRules.defaultPins,
+    val layout: String = "oguzdows", val glass: Boolean = true, val fullscreen: Boolean = true,
     val dark: Boolean = false, val wallpaper: Int = 0, val lightEffects: Boolean = false,
     val clock: LocalDateTime = LocalDateTime.now(), val battery: Int? = null,
     val charging: Boolean = false, val inCall: Boolean = false, val mediaVolume: Float = 0f,
@@ -36,7 +37,7 @@ class LauncherViewModel(application: Application) : AndroidViewModel(application
     val store = LauncherStore(application)
     val repository = LauncherRepository(application)
     private val state = MutableStateFlow(LauncherUiState(pins = store.pins(), dark = NativeUi.dark(context),
-        wallpaper = store.wallpaper(), lightEffects = store.lightEffects(), catRight = store.catSide(), widgetIds = store.widgetIds()))
+        layout = store.layout(), glass = store.glass(), fullscreen = store.fullscreen(), wallpaper = store.wallpaper(), lightEffects = store.lightEffects(), catRight = store.catSide(), widgetIds = store.widgetIds()))
     val ui = state.asStateFlow()
     private var active = false
     private val writes = Mutex()
@@ -97,7 +98,10 @@ class LauncherViewModel(application: Application) : AndroidViewModel(application
         context.getSharedPreferences("native-ui", Context.MODE_PRIVATE).edit().putBoolean("dark", value).apply()
         state.value = state.value.copy(dark = value); PlatformState.changed(context)
     }
-    fun wallpaper(index: Int) { store.wallpaper(index); state.value = state.value.copy(wallpaper = store.wallpaper()) }
+    fun wallpaper(index: Int) { store.wallpaper(index); state.value = state.value.copy(wallpaper = store.wallpaper()); PlatformState.changed(context) }
+    fun layout(id: String) { store.layout(id); state.value = state.value.copy(layout = store.layout()) }
+    fun glass(value: Boolean) { store.glass(value); state.value = state.value.copy(glass = value) }
+    fun fullscreen(value: Boolean) { store.fullscreen(value); state.value = state.value.copy(fullscreen = value) }
     fun lightEffects(value: Boolean) { store.lightEffects(value); state.value = state.value.copy(lightEffects = value) }
     fun catSide(right: Boolean) { store.catSide(right); state.value = state.value.copy(catRight = right) }
     fun volume(value: Float) {

@@ -17,13 +17,14 @@ class NativeSourceContracts(unittest.TestCase):
         self.manifest = ET.parse(ANDROID / 'AndroidManifest.xml').getroot()
         self.home = (JAVA / 'HomeActivity.java').read_text()
 
-    def test_permissions_are_explicit_and_exclude_microphone_contacts_root_and_all_files(self):
+    def test_permissions_are_explicit_contacts_and_projection_are_scoped_no_microphone_root_or_all_files(self):
         actual = {p.attrib[NS + 'name'].removeprefix('android.permission.')
                   for p in self.manifest.findall('uses-permission')}
         self.assertEqual(actual, {'INTERNET', 'MODIFY_AUDIO_SETTINGS', 'REQUEST_INSTALL_PACKAGES',
             'CALL_PHONE', 'READ_PHONE_STATE', 'SEND_SMS', 'RECEIVE_SMS', 'READ_SMS', 'RECEIVE_MMS',
-            'RECEIVE_WAP_PUSH', 'POST_NOTIFICATIONS', 'USE_FULL_SCREEN_INTENT'})
-        for denied in ('RECORD_AUDIO', 'READ_CONTACTS', 'READ_CALL_LOG', 'MANAGE_EXTERNAL_STORAGE',
+            'RECEIVE_WAP_PUSH', 'POST_NOTIFICATIONS', 'USE_FULL_SCREEN_INTENT',
+            'READ_CONTACTS', 'WRITE_CONTACTS', 'FOREGROUND_SERVICE', 'FOREGROUND_SERVICE_MEDIA_PROJECTION'})
+        for denied in ('RECORD_AUDIO', 'READ_CALL_LOG', 'MANAGE_EXTERNAL_STORAGE',
                        'INSTALL_PACKAGES', 'WRITE_SECURE_SETTINGS', 'WRITE_SETTINGS', 'WRITE_SMS'):
             self.assertNotIn(denied, actual)
         feature = self.manifest.find('uses-feature')
@@ -245,8 +246,8 @@ class NativeSourceContracts(unittest.TestCase):
             self.assertNotIn(denied, rules)
         smoke = (ROOT / 'scripts/emulator-smoke.py').read_text()
         self.assertIn("klass='LauncherDeviceTest'", smoke)
-        self.assertIn("len(evidence['tests']) == 11", smoke)
-        self.assertIn("sum(item['test_cases'] for item in evidence['tests']) == 17", smoke)
+        self.assertIn("len(evidence['tests']) == 15", smoke)
+        self.assertIn("sum(item['test_cases'] for item in evidence['tests']) == 24", smoke)
 
     def test_native_shell_wallpapers_are_existing_bytes_with_provenance(self):
         rows = json.loads((ROOT / 'android/shell-assets.json').read_text())

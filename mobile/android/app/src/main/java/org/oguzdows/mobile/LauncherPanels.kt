@@ -54,7 +54,7 @@ fun LauncherDrawer(state: LauncherUiState, model: LauncherViewModel, onOpen: (St
     val q = LauncherRules.normalize(query).trim()
     val builtins = LauncherRules.destinations.filter { q.isEmpty() || LauncherRules.normalize(it.label+" "+it.keywords).contains(q) }
     val installed = state.entries.filter { q.isEmpty() || LauncherRules.normalize(it.label+" "+it.packageName).contains(q) }
-    Column(Modifier.fillMaxWidth().fillMaxHeight(.88f).padding(horizontal=20.dp).testTag("launcher-drawer")) {
+    Column(Modifier.fillMaxWidth().fillMaxHeight().padding(horizontal=20.dp).testTag("launcher-drawer")) {
         Text("Her şey, elinin altında.", style=MaterialTheme.typography.headlineSmall, fontWeight=FontWeight.SemiBold)
         Text("${state.entries.size} kurulu giriş · 20 OğuzDows modülü", fontSize=12.sp,
             color=MaterialTheme.colorScheme.onSurfaceVariant, modifier=Modifier.padding(top=4.dp, bottom=14.dp))
@@ -121,9 +121,9 @@ fun LauncherControls(state: LauncherUiState, model: LauncherViewModel, role:(Str
             while (true) { model.refreshSystem(); delay(1000) }
         }
     }
-    Column(Modifier.fillMaxWidth().heightIn(max=650.dp).verticalScroll(rememberScrollState()).padding(horizontal=24.dp).testTag("launcher-control-panel")) {
+    Column(Modifier.fillMaxWidth().fillMaxHeight().verticalScroll(rememberScrollState()).padding(horizontal=24.dp).testTag("launcher-control-panel")) {
         Text("Biraz sana göre.", style=MaterialTheme.typography.headlineSmall, fontWeight=FontWeight.SemiBold)
-        Text("OğuzDows 0.3 · yerel kabuk", fontSize=12.sp, color=MaterialTheme.colorScheme.onSurfaceVariant)
+        Text("OğuzDows 0.4 · bağlı kabuk", fontSize=12.sp, color=MaterialTheme.colorScheme.onSurfaceVariant)
         Row(Modifier.fillMaxWidth().padding(top=14.dp), verticalAlignment=Alignment.CenterVertically) {
             Column(Modifier.weight(1f)) { Text("Gece mavisi", fontWeight=FontWeight.Medium); Text("Kendi uygulama ekranlarımızda ortak tema", fontSize=11.sp) }
             Switch(checked=state.dark, onCheckedChange=model::dark, modifier=Modifier.testTag("launcher-dark-switch").semantics{contentDescription="Gece görünümü"})
@@ -137,6 +137,18 @@ fun LauncherControls(state: LauncherUiState, model: LauncherViewModel, role:(Str
         Slider(value=state.mediaVolume, onValueChange=model::volume, modifier=Modifier.fillMaxWidth().testTag("launcher-volume").semantics{contentDescription="Gerçek sistem medya sesi"})
         Text("Pencere parlaklığı · %${(ownBrightness*100).toInt()}")
         Slider(value=ownBrightness, onValueChange={ownBrightness=it;brightness(it)}, valueRange=.08f..1f, modifier=Modifier.fillMaxWidth().semantics{contentDescription="OğuzDows pencere parlaklığı"})
+        Row(Modifier.fillMaxWidth(),verticalAlignment=Alignment.CenterVertically) {
+            Column(Modifier.weight(1f)){Text("Şeffaf Aero");Text("Duvar kâğıdı üstünde sınırlı cam; canlı blur yok",fontSize=11.sp)}
+            Switch(state.glass, model::glass,modifier=Modifier.testTag("launcher-glass-switch"))
+        }
+        Row(Modifier.fillMaxWidth(),verticalAlignment=Alignment.CenterVertically) {
+            Column(Modifier.weight(1f)){Text("Tam ekran");Text("Yalnız OğuzDows penceresi; sistem kenar hareketi korunur",fontSize=11.sp)}
+            Switch(state.fullscreen, model::fullscreen,modifier=Modifier.testTag("launcher-fullscreen-switch"))
+        }
+        Text("MASAÜSTÜ AİLELERİ",fontSize=10.sp,modifier=Modifier.padding(top=14.dp))
+        ShellStyles.layouts.chunked(2).forEach { row->Row(horizontalArrangement=Arrangement.spacedBy(6.dp)) {
+            row.forEach { style->FilterChip(state.layout==style.id,{model.layout(style.id)},label={Text(style.label,fontSize=10.sp)},modifier=Modifier.weight(1f).testTag("layout-${style.id}")) }
+        }}
         Text("Radyo ve odak durumu uydurulmaz; gerçek sistem panelleri açılır.", fontSize=11.sp, color=MaterialTheme.colorScheme.onSurfaceVariant)
         Row(horizontalArrangement=Arrangement.spacedBy(8.dp)) {
             OutlinedButton(onClick={system("wifi")}) {Text("Wi-Fi")}
@@ -146,9 +158,12 @@ fun LauncherControls(state: LauncherUiState, model: LauncherViewModel, role:(Str
         if(!state.homeHeld) FilledTonalButton(onClick={role(RoleManager.ROLE_HOME)}, modifier=Modifier.fillMaxWidth()) {Text("Varsayılan ana ekran olarak seç")}
         OutlinedButton(onClick={role(RoleManager.ROLE_ASSISTANT)}, modifier=Modifier.fillMaxWidth()) {Text("Rıfkı’yı sistem yardımcısı seç")}
         Text("Sistem yardımcısı şu an metin tabanlıdır. Bulut, mikrofon ve uyandırma kelimesi bağlı değildir.", fontSize=11.sp, color=MaterialTheme.colorScheme.onSurfaceVariant)
-        TextButton(onClick=advanced, modifier=Modifier.fillMaxWidth()) {Text("Diğer OğuzDows ayarları ve lisanslar")}
+        FilledTonalButton(onClick=advanced,modifier=Modifier.fillMaxWidth().testTag("launcher-system-settings")){Text("Telefonun bütün sistem ayarları")}
+        listOf("display" to "Ekran ve sistem görünümü", "notifications" to "Gerçek bildirim ayarları", "security" to "PIN / parmak izi / güvenlik", "defaults" to "Varsayılan uygulamalar", "contacts" to "Telefon rehberi", "bridge" to "OğuzKöprü · cihazlar ve dosyalar", "lock" to "OğuzDows kilit yüzeyini göster").forEach { (id,label)->
+            TextButton(onClick={system(id)},modifier=Modifier.fillMaxWidth()){Text(label)}
+        }
         TextButton(onClick={confirmReset=true}, modifier=Modifier.fillMaxWidth()) {Text("Yalnız ana ekran kısayollarını sıfırla")}
-        Text("Nazar güç kimliğimizdir. Kapatma/kilit için telefonun fiziksel sistem menüsünü kullan; burada sahte kilit yok.", fontSize=11.sp, color=MaterialTheme.colorScheme.onSurfaceVariant, modifier=Modifier.padding(bottom=14.dp))
+        Text("Nazar özel kilit yüzeyini açar; gerçek güvenlik sistemin PIN/parmak izindedir. Normal APK, sistem perdesini/kilidini cihaz genelinde değiştiremez.", fontSize=11.sp, color=MaterialTheme.colorScheme.onSurfaceVariant, modifier=Modifier.padding(bottom=14.dp))
     }
     if(confirmReset) AlertDialog(onDismissRequest={confirmReset=false}, title={Text("Kısayol düzeni sıfırlansın mı?")},
         text={Text("Yalnız bu launcher’ın kısayolları varsayılana döner. Widget, SMS, kişi, uygulama ve roller silinmez.")},
@@ -193,7 +208,7 @@ fun LauncherDevicePanel(state: LauncherUiState, system: (String) -> Unit) {
         .padding(horizontal = 24.dp).testTag("launcher-device-panel")) {
         Text("Cihazım.", style = MaterialTheme.typography.headlineSmall)
         Text("Uydurma yüzdeler değil, sistemin söylediği.", fontSize = 12.sp, modifier = Modifier.padding(vertical = 12.dp))
-        Text("OğuzDows 0.3 · API ${android.os.Build.VERSION.SDK_INT}")
+        Text("OğuzDows 0.4 · API ${android.os.Build.VERSION.SDK_INT}")
         Text("${android.os.Build.MANUFACTURER} ${android.os.Build.MODEL}", fontSize = 14.sp)
         HorizontalDivider(Modifier.padding(vertical = 16.dp))
         Text(state.battery?.let { "Pil · %$it · ${if (state.charging) "şarjda" else "şarjda değil"}" } ?: "Pil durumu sistemden alınamadı")

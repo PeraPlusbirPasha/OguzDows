@@ -13,6 +13,8 @@ import sys
 import time
 import xml.etree.ElementTree as ET
 
+import bridge_fixture
+
 ROOT = Path(__file__).resolve().parents[2]
 OUT = ROOT / 'test-results/mobile/emulator'
 PACKAGE = 'org.oguzdows.mobile'
@@ -112,6 +114,12 @@ def main():
             annotation('error', 'Emulator boot health', boot_ui)
             evidence_notice(evidence)
             return 1
+    # The CI uses CPU-only SwiftShader, not a phone GPU. Keep the same ~411dp UI at
+    # 720x1600 / 280dpi instead of pushing 2.6 million software-rendered pixels/frame.
+    # This does not waive product ANRs or count as physical-device performance evidence.
+    adb('shell', 'wm', 'size', '720x1600')
+    adb('shell', 'wm', 'density', '280')
+    evidence['display'] = {'pixels': '720x1600', 'density': 280, 'gpu': 'headless SwiftShader'}
     adb('uninstall', 'org.oguzdows.fixture', check=False)
     adb('install', '-r', '-t', str(ROOT / 'mobile/android/app/build/outputs/apk/debug/app-debug.apk'))
     adb('install', '-r', '-t', str(ROOT / 'mobile/android/app/build/outputs/apk/androidTest/debug/app-debug-androidTest.apk'))
@@ -140,6 +148,7 @@ def main():
     def run_test(name, klass='NativeDeviceTest', fixture=None, timeout=180):
         started = time.monotonic()
         selection = f'{PACKAGE}.{klass}' + (f'#{name}' if name else '')
+        if fixture == 'device-bridge': bridge_fixture.clean(adb)
         marker = {'incoming-call': 'incoming-ready', 'incoming-sms': 'incoming-sms-ready'}.get(fixture)
         marker_path = f'/sdcard/Android/data/{PACKAGE}/files/{marker}' if marker else None
         if marker_path:
@@ -161,11 +170,13 @@ def main():
                     output = adb('emu', 'sms', 'send', '15555215554', 'OguzDows_emulator_inbound')
                 if 'OK' not in output:
                     raise RuntimeError('Virtual modem injection failed: ' + output)
+            if fixture == 'device-bridge':
+                evidence['device_bridge'] = bridge_fixture.exercise(adb, process)
             output, _ = process.communicate(timeout=timeout)
             (OUT / f'{klass}-{name or "suite"}.txt').write_text(output)
             match = re.search(r'OK \((\d+) tests?\)', output)
             cases = int(match.group(1)) if match else 0
-            expected = 5 if klass == 'LauncherDeviceTest' else 3 if klass == 'RepositorySecurityTest' else 1
+            expected = {'LauncherDeviceTest': 5, 'RepositorySecurityTest': 3, 'ConnectedDeviceTest': 4}.get(klass, 1)
             passed = process.returncode == 0 and cases == expected and 'FAILURES!!!' not in output and 'INSTRUMENTATION_FAILED' not in output
             record = {'name': f'{klass}.{name or "suite"}', 'passed': passed, 'test_cases': cases,
                       'seconds': round(time.monotonic() - started, 2)}
@@ -185,7 +196,7 @@ def main():
                 events = adb('logcat', '-b', 'events', '-d', '-s', 'am_anr', check=False)
                 has_anr_dialog = (any('close app' in text.lower() for text in labels)
                                   and any(text.lower() == 'wait' for text in labels))
-                if PACKAGE in events or has_anr_dialog:
+                if PACKAGE in events or has_anr_dialog or 'keyDispatchingTimedOut' in output or 'Input dispatching timed out' in output:
                     anr = adb('shell', 'dumpsys', 'activity', 'lastanr', check=False)
                     dropbox = adb('shell', 'dumpsys', 'dropbox', '--print', 'data_app_anr', check=False)
                     dropbox += adb('shell', 'dumpsys', 'dropbox', '--print', 'system_app_anr', check=False)
@@ -209,6 +220,12 @@ def main():
                     pieces = [encoded[i:i + 3400] for i in range(0, len(encoded), 3400)]
                     for index, piece in enumerate(pieces):
                         annotation('notice', f'Native launcher preview {index + 1:02}/{len(pieces):02}', piece)
+            if klass == 'BridgeDeviceTest':
+                for line in output.splitlines():
+                    if 'BRIDGE_CAPTURE_EVIDENCE ' in line:
+                        evidence['screen_capture'] = json.loads(line.split('BRIDGE_CAPTURE_EVIDENCE ', 1)[1])
+                    if 'BRIDGE_INTEROP_EVIDENCE ' in line:
+                        evidence['native_device_bridge'] = json.loads(line.split('BRIDGE_INTEROP_EVIDENCE ', 1)[1])
             if klass == 'LiveRepositoryTest':
                 for line in output.splitlines():
                     if 'LIVE_REPO_EVIDENCE ' in line:
@@ -240,14 +257,24 @@ def main():
     if PACKAGE not in adb('shell', 'cmd', 'role', 'get-role-holders', '--user', '0', 'android.app.role.HOME'):
         raise RuntimeError('HOME: app did not qualify for the real platform role')
     run_test('', klass='LauncherDeviceTest', timeout=300)
+    # Roles can themselves grant contacts on some systems. Explicitly revoke only in this
+    # guarded disposable emulator to exercise the denied screen before the real permission UI.
+    for permission in ('READ_CONTACTS', 'WRITE_CONTACTS'):
+        adb('shell', 'pm', 'revoke', PACKAGE, 'android.permission.' + permission)
+    run_test('', klass='ConnectedDeviceTest', timeout=300)
+    run_test('nativeTls', klass='BridgeDeviceTest')
+    run_test('pcArmInterop', klass='BridgeDeviceTest', fixture='device-bridge', timeout=240)
+    run_test('systemProjection', klass='BridgeDeviceTest', timeout=240)
+    for permission in ('READ_CONTACTS', 'WRITE_CONTACTS'):
+        adb('shell', 'pm', 'revoke', PACKAGE, 'android.permission.' + permission)
     run_test('', klass='RepositorySecurityTest')
     run_test('', klass='LiveRepositoryTest', timeout=480)
     adb('pull', f'/sdcard/Android/data/{PACKAGE}/files/evidence', str(OUT / 'screenshots'), check=False)
     # Dedicated emulator contains only fixture data, but keep the diagnostic narrowly scoped to app crashes.
     crash = adb('logcat', '-b', 'crash', '-d', '-t', '300', check=False)
     (OUT / 'crash-buffer.txt').write_text(crash)
-    evidence['passed'] = (all(item['passed'] for item in evidence['tests']) and len(evidence['tests']) == 11
-                          and sum(item['test_cases'] for item in evidence['tests']) == 17)
+    evidence['passed'] = (all(item['passed'] for item in evidence['tests']) and len(evidence['tests']) == 15
+                          and sum(item['test_cases'] for item in evidence['tests']) == 24)
     (OUT / 'evidence.json').write_text(json.dumps(evidence, indent=2))
     print(json.dumps(evidence, indent=2))
     evidence_notice(evidence)

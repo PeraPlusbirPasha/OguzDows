@@ -7,8 +7,43 @@ import {
   refreshNativeStatus,
   useNativeStatus,
   type NativeSms,
+  type NativeContact,
 } from "./native";
 import { Icon, Notice, ScreenTitle } from "./ui";
+
+// Live, memory-only system rows. They never enter Preferences/localStorage or a network model.
+function useSystemRecipients() {
+  const { status } = useNativeStatus();
+  const [contacts, setContacts] = useState<NativeContact[]>([]);
+  useEffect(() => {
+    let generation = 0;
+    let closed = false;
+    const read = () => {
+      const version = ++generation;
+      if (document.hidden || !status?.contactsPermission) {
+        setContacts([]);
+        return;
+      }
+      void nativeRequest<NativeContact[]>("contacts.list")
+        .then((rows) => {
+          if (!closed && version === generation) setContacts(rows);
+        })
+        .catch(() => {
+          if (!closed && version === generation) setContacts([]);
+        });
+    };
+    read();
+    window.addEventListener("oguz-native-state", read);
+    document.addEventListener("visibilitychange", read);
+    return () => {
+      closed = true;
+      generation++;
+      window.removeEventListener("oguz-native-state", read);
+      document.removeEventListener("visibilitychange", read);
+    };
+  }, [status?.contactsPermission]);
+  return contacts;
+}
 
 export function NativeRolePanel({ scope }: { scope: "phone" | "sms" }) {
   const { status, error } = useNativeStatus();
@@ -87,19 +122,13 @@ export function NativeRolePanel({ scope }: { scope: "phone" | "sms" }) {
   );
 }
 
-export function NativePhone({
-  number,
-  onNumber,
-  onCompose,
-  prefs,
-  go,
-  toast,
-}: Props) {
+export function NativePhone({ number, onNumber, onCompose, go, toast }: Props) {
   const { status } = useNativeStatus();
   const [busy, setBusy] = useState(false);
   const [result, setResult] = useState("");
+  const contacts = useSystemRecipients();
   const normalized = phoneNumber(number);
-  const contact = prefs.contacts.find((c) => c.number === normalized);
+  const contact = contacts.find((c) => c.number === normalized);
   async function call() {
     setBusy(true);
     setResult("");
@@ -248,10 +277,13 @@ export function NativePhone({
           Son alıcı/ücret onayından sonra cihazın hattına istek iletilir.
           Bağlandı durumu yalnız Telecom bildirirse gösterilir.
         </p>
-        {!!prefs.contacts.length && (
+        {!!contacts.length && (
           <div className="recipient-chips" aria-label="Aranacak kişiyi seç">
-            {prefs.contacts.slice(0, 12).map((c) => (
-              <button key={c.id} onClick={() => onNumber(c.number)}>
+            {contacts.slice(0, 12).map((c) => (
+              <button
+                key={`${c.id}:${c.number}`}
+                onClick={() => onNumber(c.number)}
+              >
                 {c.name}
               </button>
             ))}
@@ -269,6 +301,7 @@ export function NativePhone({
 
 export function NativeMessages({ prefs, update, go, toast }: Props) {
   const { status } = useNativeStatus();
+  const contacts = useSystemRecipients();
   const [rows, setRows] = useState<NativeSms[]>([]);
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
@@ -357,6 +390,9 @@ export function NativeMessages({ prefs, update, go, toast }: Props) {
             Bekleyen hızlı yanıtı taslağa al · gönderilmedi
           </button>
         )}
+        <button className="secondary-button" onClick={() => go("contacts")}>
+          <Icon name="ContactRound" size={16} /> Sistem rehberi / yeni kişi
+        </button>
         <label className="field-label">
           Alıcı
           <input
@@ -370,10 +406,13 @@ export function NativeMessages({ prefs, update, go, toast }: Props) {
             onChange={(e) => change({ number: e.target.value })}
           />
         </label>
-        {!!prefs.contacts.length && (
+        {!!contacts.length && (
           <div className="recipient-chips" aria-label="Alıcı seç">
-            {prefs.contacts.slice(0, 12).map((c) => (
-              <button key={c.id} onClick={() => change({ number: c.number })}>
+            {contacts.slice(0, 12).map((c) => (
+              <button
+                key={`${c.id}:${c.number}`}
+                onClick={() => change({ number: c.number })}
+              >
                 {c.name}
               </button>
             ))}

@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Application
+Name=OğuzKöprü · Cihazlar Aynı Masada
+Comment=Onaylı yerel TLS oturumunda PC / telefon / ARM dosyaları ve salt ekran paylaşımı
+Exec=/usr/local/bin/oguzdows-bridge
+Icon=network-workgroup
+Terminal=false
+Categories=Network;FileTransfer;Utility;
+StartupNotify=true
