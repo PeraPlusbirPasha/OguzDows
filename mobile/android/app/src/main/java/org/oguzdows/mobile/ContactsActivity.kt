@@ -93,7 +93,7 @@ class ContactsActivity : ComponentActivity() {
         var confirm by remember { mutableStateOf(false) }
         val appearance = LocalAero.current
         Box(Modifier.fillMaxSize()) {
-            Image(painterResource(ShellWallpapers[LauncherStore(this).wallpaper()]), null, Modifier.fillMaxSize(), contentScale=ContentScale.Crop)
+            Image(painterResource(ShellWallpapers[LauncherStore(this@ContactsActivity).wallpaper()]), null, Modifier.fillMaxSize(), contentScale=ContentScale.Crop)
             Box(Modifier.fillMaxSize().background(if(appearance.dark) Color(0xDC10262F) else Color(0xE8F1F6F2)))
             Surface(Modifier.fillMaxSize().testTag("system-contacts").semantics { testTagsAsResourceId = true }, color=Color.Transparent) {
             Column(Modifier.fillMaxSize().systemBarsPadding().imePadding().padding(20.dp)) {
