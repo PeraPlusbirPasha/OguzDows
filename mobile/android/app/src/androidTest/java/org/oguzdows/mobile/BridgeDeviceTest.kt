@@ -39,15 +39,21 @@ class BridgeDeviceTest {
         do { if (condition()) return; SystemClock.sleep(150) } while (SystemClock.elapsedRealtime() < end)
         throw AssertionError("Timed out: $label; package=${device.currentPackageName}")
     }
-    private fun node(tag: String): UiObject2 = device.wait(Until.findObject(By.res(tag)), 20000)
+    private fun node(tag: String): UiObject2 = DeviceDiagnostics.find(device, By.res(tag), 20000)
         ?: DeviceDiagnostics.missing(device, tag, image = false)
     private fun text(value: String): UiObject2 {
-        repeat(8) {
+        // Give the real host snapshot one poll before moving the viewport away from
+        // its new pair row; search both directions instead of blindly scrolling past it.
+        DeviceDiagnostics.find(device, By.text(value), 2500)?.let { return it }
+        var direction = Direction.DOWN
+        repeat(12) {
+            DeviceDiagnostics.education(device)
             device.findObject(By.text(value))?.let { return it }
-            device.findObject(By.res("bridge-scroll"))?.scroll(Direction.DOWN, .45f)
+            val scroll = device.findObject(By.res("bridge-scroll"))
+            if (scroll?.scroll(direction, .5f) != true) direction = if(direction == Direction.DOWN) Direction.UP else Direction.DOWN
             SystemClock.sleep(150)
         }
-        return device.wait(Until.findObject(By.text(value)), 10000) ?: DeviceDiagnostics.missing(device, value, image = false)
+        return DeviceDiagnostics.find(device, By.text(value), 3000) ?: DeviceDiagnostics.missing(device, value, image = false)
     }
     private fun invite(host: BridgeHost) = BridgeInvitation("127.0.0.1", host.server.port, host.server.pin, host.secret)
     private fun pairNative(client: BridgeClient, host: BridgeHost, name: String): JSONObject = try {

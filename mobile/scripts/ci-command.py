@@ -51,7 +51,8 @@ def main():
     print(output, end='')
     if code:
         meaningful = [line for line in output.splitlines()
-                      if (not line.startswith(('\tat ', '\t... ', '    at ', '> Task ', 'Daemon will ', 'To honour ', '::error ', '::notice '))
+                      if 'DEVICE_UI_PREVIEW ' not in line and 'NATIVE_LAUNCHER_PREVIEW ' not in line
+                      and (not line.startswith(('\tat ', '\t... ', '    at ', '> Task ', 'Daemon will ', 'To honour ', '::error ', '::notice '))
                           or 'at org.oguzdows.mobile.' in line)]
         detail = '\n'.join(meaningful)[-9000:]
         # Reverse chunks so the most recent error stays visible even when the step annotation limit is reached.

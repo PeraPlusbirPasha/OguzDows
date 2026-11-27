@@ -4,12 +4,16 @@ import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.os.Build
 import android.os.Bundle
+import android.os.SystemClock
 import android.util.Base64
 import android.util.Xml
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.runner.lifecycle.ActivityLifecycleMonitorRegistry
 import androidx.test.runner.lifecycle.Stage
 import androidx.test.uiautomator.UiDevice
+import androidx.test.uiautomator.By
+import androidx.test.uiautomator.BySelector
+import androidx.test.uiautomator.UiObject2
 import org.json.JSONArray
 import org.json.JSONObject
 import org.xmlpull.v1.XmlPullParser
@@ -21,6 +25,25 @@ import java.io.File
  * Never runs on a phone, captures a bridge invitation, or alters/dismisses a system dialog.
  */
 object DeviceDiagnostics {
+    /** Acknowledge ONLY the OS immersive education identified in the genuine CI capture.
+     * Not a permission, ANR, installer, keyguard or MediaProjection confirmation.
+     */
+    fun education(device: UiDevice) {
+        check(Build.HARDWARE.contains("ranchu") || Build.HARDWARE.contains("goldfish"))
+        if (device.hasObject(By.res("android:id/immersive_cling_title")) &&
+            device.hasObject(By.res("android:id/immersive_cling_description"))) {
+            device.findObject(By.res("android:id/ok"))?.click()
+        }
+    }
+    fun find(device: UiDevice, selector: BySelector, timeout: Long): UiObject2? {
+        val end = SystemClock.elapsedRealtime() + timeout
+        do {
+            education(device)
+            device.findObject(selector)?.let { return it }
+            SystemClock.sleep(150)
+        } while (SystemClock.elapsedRealtime() < end)
+        return null
+    }
     fun missing(device: UiDevice, label: String, image: Boolean = true): Nothing {
         val instrumentation = InstrumentationRegistry.getInstrumentation()
         if (Build.HARDWARE.contains("ranchu") || Build.HARDWARE.contains("goldfish")) try {
@@ -52,11 +75,11 @@ object DeviceDiagnostics {
                 if (device.takeScreenshot(file)) {
                     val source = BitmapFactory.decodeFile(file.absolutePath, BitmapFactory.Options().apply { inSampleSize = 3 })
                     if (source != null) {
-                        val small = Bitmap.createScaledBitmap(source, 234, (source.height * 234f / source.width).toInt().coerceAtLeast(1), true)
-                        val out = ByteArrayOutputStream(); small.compress(Bitmap.CompressFormat.JPEG, 45, out)
+                        val small = Bitmap.createScaledBitmap(source, 140, (source.height * 140f / source.width).toInt().coerceAtLeast(1), true)
+                        val out = ByteArrayOutputStream(); small.compress(Bitmap.CompressFormat.JPEG, 30, out)
                         if (source !== small) source.recycle()
                         small.recycle()
-                        if (out.size() <= 21000) instrumentation.sendStatus(0, Bundle().apply {
+                        if (out.size() <= 7400) instrumentation.sendStatus(0, Bundle().apply {
                             putString("stream", "\nDEVICE_UI_PREVIEW " + file.nameWithoutExtension + " " + Base64.encodeToString(out.toByteArray(), Base64.NO_WRAP) + "\n")
                         })
                     }

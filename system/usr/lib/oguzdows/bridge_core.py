@@ -387,9 +387,14 @@ class Server:
         stream = None
         try:
             connection.settimeout(15)
-            with self.lock:self.active.add(connection)
-            sock=self.tls.wrap_socket(connection,server_side=True)
-            with self.lock:self.active.discard(connection);self.active.add(sock)
+            # Replace the raw socket in the tracked set BEFORE the blocking handshake.
+            # Otherwise close() could only see the detached raw fd and wait 15 seconds
+            # for an untrusted peer instead of immediately terminating the TLS worker.
+            with self.lock:
+                if self.closed: return
+                sock=self.tls.wrap_socket(connection,server_side=True,do_handshake_on_connect=False)
+                self.active.discard(connection);self.active.add(sock)
+            sock.do_handshake()
             stream=sock.makefile('rb')
             line=stream.readline(2049)
             if len(line)>2048:raise Denied(413)

@@ -1,8 +1,10 @@
 # OğuzDows 0.4 · Bağlı kabuk (geliştirme dalı)
 
-**Durum:** Kaynak eklendi; yeni native derleme ve 24 cihaz vakasının sonucu henüz
-alınmadı. Bu belge 0.4'ün kabul edildiği veya fiziksel cihazlarda denendiği anlamına
-gelmez. Önceden kabul edilmiş 0.3 APK bağlantısı [INSTALL.md](INSTALL.md) içindedir.
+**Durum:** 0.4 geliştirme dalıdır, henüz kabul edilmiş mobil paket değildir.
+İlk native derleme/20 JVM testi geçti; genişletilmiş cihaz kabulü arayüz/TLS
+hataları buldu ve paketleme durdu. Düzeltmeler yeniden emülatörde sınanıyor.
+Bu belge fiziksel cihaz/ARM kabulü anlamına gelmez. Önceden kabul edilmiş
+0.3 APK bağlantısı [INSTALL.md](INSTALL.md) içindedir.
 
 ## Eklenen yollar
 
@@ -88,6 +90,44 @@ Mevcut 17 emülatör vakası korunur; 4 bağlı kabuk/rehber/kilit, 3 TLS/çift 
 Python–native protokolü/gerçek ekran izni vakası eklenir: **hedef 24 vaka / 15 seçim**.
 Python protokol testleri gerçek loopback TLS soketleri kullanır, cihaz testi değildir.
 Emülatör, CPU tabanlı SwiftShader'da aynı yaklaşık 411dp arayüzü 720×1600/280dpi ile
-çizer; fiziksel GPU/RAM/pil/gerçek SIM/ARM performansı kanıtı değildir. Sonuç ve APK
-ancak yeni CI raporu incelendikten sonra teslim edilir. Henüz ROM/ISO/OTA veya yeni
-public Release hazırlanmaz.
+çizer; fiziksel GPU/RAM/pil/gerçek SIM/ARM performansı kanıtı değildir.
+
+Paketleme ayrıca bağımsız `mobile/scripts/acceptance.py` kapısından geçer: üç JVM
+sınıfında 20 vaka, 15 benzersiz native seçimde 24 vaka; her iki uygulamadan dört
+aktarılmış dosyanın aynı gerçek SHA-256 özetleri; taze MediaProjection onayı,
+iptal/durdurma kontrolü ve cihazdan çekilmiş JPEG ile birebir hash/boyut eşleşmesi
+zorunludur. Eksik bildirim, eski commit, boş/atlanmış test, ürün ANR/çökmesi veya
+fiziksel başarı iddiası kabul edilmez. Kuralların sentetik rapor testleri native
+başarı kanıtı yerine geçmez. Davet/sır dosyaları raporlara alınmaz.
+
+### Gözlenmiş sonuçlar (kabul ile karıştırılmamalı)
+
+- [`6780523` / 46074610850](https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/46074610850):
+  **20/20 JVM**, lint 0 hata/47 uyarı/1 bilgi; eski telefon/SMS/yükleyici/depo
+  tabanının 12 vakası geçti. Launcher 5, bağlı kabuk 4 ve köprü 3 vakasında hata
+  oluştu. **0.4 kabul edilmedi, dağıtım paketi hazırlanmadı.**
+  [SDK](android/evidence/sdk-6780523.json) ve [başarısız cihaz kaydı](android/evidence/emulator-6780523.json).
+- [`2da79b2` / 46076879137](https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/46076879137):
+  [20 JVM/SDK tekrar geçti](android/evidence/sdk-2da79b2.json). Native/Python arasında
+  dört dosyanın iki yönlü TLS/özetleri ve native instrumentation `OK (1 test)`
+  gözlendi; sürücünün son işaretçiyi süreç çıkışından sonra okumaması kabulü bozdu.
+  Gerçek arayüz tanısı, ilk kullanım **Viewing full screen / Got it** sistem
+  öğreticisini gösterdi. Test yalnız `android:id/immersive_cling_title` ve
+  `immersive_cling_description` birlikteyse bu öğreticinin kendi düğmesine basar;
+  güvenlik/izin/MediaProjection/ANR pencerelerini böyle kapatmaz.
+  [Kısmi başarısız kayıt](android/evidence/emulator-2da79b2-partial.json); nihai özet
+  checks bildirim kotasında görünmediği için toplam cihaz başarısı çıkarılmaz.
+  Yeni sürücüde zorunlu makbuzlar görsel tanı parçalarından önce yazılır.
+- [`18034bb` masaüstü / 46076502634](https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/46076502634):
+  Debian bookworm/trixie üzerinde **1024×768 ve 360×800: dört gerçek GTK köprü
+  koşusu geçti**. Gerçek düğme/dosya/loopback TLS/GDK kareleri sınandı. Üretimin
+  bilinmeyen kilit durumunu reddetmesi ayrıca doğrulandı; ardından **yalnız özel
+  Xvfb test sürecinde** açık-oturum/onay koşulu test verisiyle sağlandı. Gerçek
+  logind/telefon/ARM/Wi-Fi kanıtı değildir. [Özgün CI makbuzları](../docs/evidence/bridge-gtk-18034bb.json).
+- Yerel tekrar: Python köprü **19/19** (takılı gerçek TLS el sıkışmasında anlık durdurma dahil); masaüstü birimleri **102/102**; Pi yapılandırma
+  ve doğrulama kuralları **35/35**; mobil kaynak/kabul kuralları **29/29** (9'u açıkça
+  sentetik rapor/orkestrasyon testi); JS mantık/API **31/31**, Chromium **33/33** (31 akış ve 2
+  kapsayıcı). Bunlar derlenmiş APK'nın 24 cihaz vakası yerine kullanılamaz.
+
+Sonuç ve APK ancak yeni CI raporu incelendikten sonra teslim edilir. Henüz
+ROM/ISO/OTA veya yeni public Release hazırlanmaz.

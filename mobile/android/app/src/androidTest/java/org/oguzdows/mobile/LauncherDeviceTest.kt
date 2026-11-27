@@ -62,9 +62,9 @@ class LauncherDeviceTest {
         do {if(condition())return;SystemClock.sleep(200)}while(SystemClock.elapsedRealtime()<end)
         throw AssertionError("Timed out: $label")
     }
-    private fun node(tag:String):UiObject2 = device.wait(Until.findObject(By.res(tag)),25000)
+    private fun node(tag:String):UiObject2 = DeviceDiagnostics.find(device, By.res(tag), 25000)
         ?:DeviceDiagnostics.missing(device, tag)
-    private fun desc(label:String):UiObject2 = device.wait(Until.findObject(By.desc(label)),25000)
+    private fun desc(label:String):UiObject2 = DeviceDiagnostics.find(device, By.desc(label), 25000)
         ?:DeviceDiagnostics.missing(device, label)
     private fun pins():List<String> {
         val out=AtomicReference<List<String>>()

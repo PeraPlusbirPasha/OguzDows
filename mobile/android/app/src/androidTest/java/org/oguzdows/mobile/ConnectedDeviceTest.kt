@@ -45,9 +45,9 @@ class ConnectedDeviceTest {
         do { if (condition()) return; SystemClock.sleep(200) } while (SystemClock.elapsedRealtime() < end)
         throw AssertionError("Timed out: $label; package=${device.currentPackageName}")
     }
-    private fun node(tag: String): UiObject2 = device.wait(Until.findObject(By.res(tag)), 20000)
+    private fun node(tag: String): UiObject2 = DeviceDiagnostics.find(device, By.res(tag), 20000)
         ?: DeviceDiagnostics.missing(device, tag)
-    private fun text(value: String): UiObject2 = device.wait(Until.findObject(By.text(value)), 15000)
+    private fun text(value: String): UiObject2 = DeviceDiagnostics.find(device, By.text(value), 15000)
         ?: DeviceDiagnostics.missing(device, value)
     private fun scrollTo(tag: String, scrollTag: String = "launcher-control-panel"): UiObject2 {
         repeat(10) {
@@ -77,6 +77,7 @@ class ConnectedDeviceTest {
             store.fullscreen(true); store.layout("oguzdows")
             ActivityScenario.launch<LauncherActivity>(Intent(context, LauncherActivity::class.java).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)).use { scenario ->
                 val root = node("launcher-root").visibleBounds
+                node("launcher-controls") // The first-use system education may initially cover the header.
                 // Whole-workspace vertical movement, not the old 54 dp header-only hit area.
                 device.swipe(root.centerX(), (root.height() * .35f).toInt(), root.centerX(), (root.height() * .68f).toInt(), 24)
                 val panel = node("launcher-control-panel").visibleBounds

@@ -12,6 +12,8 @@ import ssl
 import struct
 import subprocess
 import tempfile
+import threading
+import time
 import unittest
 from unittest.mock import patch
 
@@ -221,6 +223,26 @@ class BridgeTlsTests(unittest.TestCase):
         self.assertEqual((self.session.root/reply['id']).read_bytes(),raw)
         self.assertTrue(self.client.request('POST','/v1/bye')['stopped'])
         with self.assertRaises(core.Denied):self.client.state()
+
+    def test_stop_closes_a_stalled_real_tls_handshake_and_removes_session_identity(self):
+        wrapped = threading.Event()
+        wrap = self.server.tls.wrap_socket
+        def tracked(*args, **kwargs):
+            result = wrap(*args, **kwargs)
+            self.assertIs(kwargs.get('do_handshake_on_connect'), False)
+            wrapped.set()
+            return result
+        with patch.object(self.server.tls, 'wrap_socket', side_effect=tracked):
+            with socket.create_connection(('127.0.0.1', self.server.port), timeout=2) as raw:
+                self.assertTrue(wrapped.wait(2), 'Actual accepted socket entered the TLS worker')
+                started = time.monotonic()
+                self.server.close()
+                self.assertLess(time.monotonic() - started, 2, 'Stop must not wait for the peer to send a TLS hello')
+                self.assertFalse(self.server.active)
+                try: self.assertEqual(raw.recv(1), b'')
+                except ConnectionResetError: pass
+        self.assertFalse(self.server.identity.exists())
+        self.assertFalse(self.session.root.exists())
 
     def test_browser_origin_duplicate_headers_and_unknown_path_are_rejected(self):
         context=ssl.SSLContext(ssl.PROTOCOL_TLS_CLIENT);context.check_hostname=False;context.verify_mode=ssl.CERT_NONE

@@ -23,20 +23,26 @@ def clean(adb):
         adb('shell', 'rm', '-f', FOLDER+'/'+name, check=False)
 
 
+def wait_for(process, label, condition, timeout=60):
+    deadline = time.monotonic()+timeout
+    while time.monotonic()<deadline:
+        # The final marker can be written just before instrumentation exits.
+        # Read the real condition first; the harness still requires its actual OK result.
+        value = condition()
+        if value:
+            return value
+        if process.poll() is not None:
+            raise RuntimeError('Native instrumentation exited before '+label)
+        time.sleep(.15)
+    raise RuntimeError('Timed out: '+label)
+
+
 def exercise(adb, process):
     if adb('shell', 'getprop', 'ro.kernel.qemu').strip() != '1':
         raise RuntimeError('Device-link fixture refuses non-QEMU targets')
 
     def wait(label, condition, timeout=60):
-        deadline = time.monotonic()+timeout
-        while time.monotonic()<deadline:
-            if process.poll() is not None:
-                raise RuntimeError('Native instrumentation exited before '+label)
-            value = condition()
-            if value:
-                return value
-            time.sleep(.15)
-        raise RuntimeError('Timed out: '+label)
+        return wait_for(process, label, condition, timeout)
 
     server = None
     client = None

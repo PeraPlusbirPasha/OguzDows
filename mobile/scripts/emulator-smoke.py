@@ -69,6 +69,8 @@ def main():
 
     if adb('shell', 'getprop', 'ro.kernel.qemu').strip() != '1':
         raise SystemExit('REFUSED: this target is not a QEMU Android emulator.')
+    previews = []
+    failure_previews = []
     evidence = {'source_sha': subprocess.check_output(['git', 'rev-parse', 'HEAD'], cwd=ROOT, text=True).strip(),
                 'sdk': adb('shell', 'getprop', 'ro.build.version.sdk').strip(),
                 'abi': adb('shell', 'getprop', 'ro.product.cpu.abi').strip(),
@@ -181,16 +183,15 @@ def main():
                 annotation('notice', 'Mobile runner peer evidence', json.dumps(evidence['device_bridge'], separators=(',', ':')))
             output, _ = process.communicate(timeout=timeout)
             (OUT / f'{klass}-{name or "suite"}.txt').write_text(output)
+            diagnostic_sent = False
             for line in output.splitlines():
-                if 'DEVICE_UI_DIAGNOSTIC ' in line:
+                if 'DEVICE_UI_DIAGNOSTIC ' in line and not diagnostic_sent:
                     annotation('notice', 'Native UI diagnosis ' + klass, line.split('DEVICE_UI_DIAGNOSTIC ', 1)[1])
+                    diagnostic_sent = True
                 if 'DEVICE_UI_PREVIEW ' in line:
                     preview = re.fullmatch(r'([a-zA-Z0-9-]{1,80}) ([A-Za-z0-9+/=]{1,28000})', line.split('DEVICE_UI_PREVIEW ', 1)[1].strip())
                     if preview:
-                        label, encoded = preview.groups()
-                        pieces = [encoded[i:i + 3400] for i in range(0, len(encoded), 3400)]
-                        for index, piece in enumerate(pieces):
-                            annotation('notice', f'Native failed UI {label} {index+1:02}/{len(pieces):02}', piece)
+                        if not failure_previews: failure_previews.append(preview.groups())
             match = re.search(r'OK \((\d+) tests?\)', output)
             cases = int(match.group(1)) if match else 0
             expected = SELECTIONS[f'{klass}.{name or "suite"}']
@@ -202,7 +203,8 @@ def main():
             if not passed:
                 print(output[-16000:], flush=True)
                 concise = [line for line in output.splitlines()
-                           if not line.startswith(('\tat ', '    at ')) or 'at org.oguzdows.mobile.' in line]
+                           if 'DEVICE_UI_PREVIEW ' not in line and 'NATIVE_LAUNCHER_PREVIEW ' not in line
+                           and (not line.startswith(('\tat ', '    at ')) or 'at org.oguzdows.mobile.' in line)]
                 failures = [line for line in concise if 'AssertionError' in line or 'Exception:' in line]
                 if failures: record['failure'] = failures[0][-400:]
                 annotation('error', 'Emulator ' + record['name'], '\n'.join(concise)[-3000:])
@@ -210,11 +212,8 @@ def main():
                 # instrumentation result. Capture the real trace, not a blind retry/time increase.
                 labels, visible_ui = ui_diagnostic('failure-' + klass + '-' + (name or 'suite'))
                 record['visible_ui'] = visible_ui[:160]
-                annotation('notice', 'Emulator visible UI ' + record['name'], visible_ui)
                 tasks = adb('shell', 'dumpsys', 'activity', 'activities', check=False)
                 (OUT / f'{klass}-{name or "suite"}-activities.txt').write_text(tasks)
-                annotation('notice', 'Emulator activity focus ' + record['name'], '\n'.join(line.strip() for line in tasks.splitlines()
-                    if any(key in line for key in ('topResumedActivity', 'mResumedActivity', 'mFocusedApp', 'Hist #0', 'mLastPausedActivity')))[:2800])
                 events = adb('logcat', '-b', 'events', '-d', '-s', 'am_anr', check=False)
                 has_anr_dialog = (any('close app' in text.lower() for text in labels)
                                   and any(text.lower() == 'wait' for text in labels))
@@ -239,9 +238,7 @@ def main():
                     encoded = line.split('NATIVE_LAUNCHER_PREVIEW ', 1)[1].strip()
                     if not re.fullmatch(r'[A-Za-z0-9+/=]{1,28000}', encoded):
                         continue
-                    pieces = [encoded[i:i + 3400] for i in range(0, len(encoded), 3400)]
-                    for index, piece in enumerate(pieces):
-                        annotation('notice', f'Native launcher preview {index + 1:02}/{len(pieces):02}', piece)
+                    previews.append(encoded)
             if klass == 'BridgeDeviceTest':
                 for line in output.splitlines():
                     if 'BRIDGE_CAPTURE_EVIDENCE ' in line:
@@ -315,6 +312,18 @@ def main():
     (OUT / 'evidence.json').write_text(json.dumps(evidence, indent=2))
     print(json.dumps(evidence, indent=2))
     evidence_notice(evidence)
+    # Optional pixels come LAST, so the per-step checks notice limit cannot hide
+    # mandatory counts / independent hashes / actual capture evidence.
+    if evidence['passed'] and previews:
+        encoded = previews[-1]
+        pieces = [encoded[i:i + 3400] for i in range(0, len(encoded), 3400)]
+        for index, piece in enumerate(pieces):
+            annotation('notice', f'Native launcher preview {index + 1:02}/{len(pieces):02}', piece)
+    elif failure_previews:
+        label, encoded = failure_previews[0]
+        pieces = [encoded[i:i + 3400] for i in range(0, len(encoded), 3400)]
+        for index, piece in enumerate(pieces):
+            annotation('notice', f'Native failed UI {label} {index+1:02}/{len(pieces):02}', piece)
     return 0 if evidence['passed'] else 1
 
 

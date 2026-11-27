@@ -103,6 +103,14 @@ class AcceptanceRulesTests(unittest.TestCase):
         workflow = (ROOT / '.github/workflows/mobile-emulator.yml').read_text()
         self.assertLess(workflow.index('python3 mobile/scripts/acceptance.py'), workflow.index('mkdir -p test-results/mobile/package'))
 
+    def test_completed_interop_marker_is_checked_before_a_fast_process_exit(self):
+        import bridge_fixture
+        class Finished:
+            def poll(self): return 0
+        self.assertEqual(bridge_fixture.wait_for(Finished(), 'synthetic final marker', lambda: 'verified'), 'verified')
+        with self.assertRaisesRegex(RuntimeError, 'exited before'):
+            bridge_fixture.wait_for(Finished(), 'missing final marker', lambda: False)
+
     def test_full_success_and_failure_notices_keep_valid_bounded_json(self):
         spec = importlib.util.spec_from_file_location('emulator_smoke_notice_test', SCRIPTS / 'emulator-smoke.py')
         harness = importlib.util.module_from_spec(spec); spec.loader.exec_module(harness)
