@@ -112,7 +112,8 @@ public final class InstallReviewActivity extends Activity {
             if (result == RESULT_OK && packageName != null) {
                 try {
                     PackageInfo installed = getPackageManager().getPackageInfo(packageName, PackageManager.GET_SIGNING_CERTIFICATES);
-                    verified = installed.getLongVersionCode() == version && signer.equals(certificate(installed));
+                    verified = installed.getLongVersionCode() == version && signer != null
+                        && signer.matches("[a-f0-9]{64}") && signer.equals(certificate(installed));
                 } catch (Exception ignored) { }
             }
             final String text = verified
@@ -148,9 +149,9 @@ public final class InstallReviewActivity extends Activity {
             }
         }
         boolean architecture = abis.isEmpty() || abis.stream().anyMatch(abi -> Arrays.asList(Build.SUPPORTED_ABIS).contains(abi));
-        boolean compatible = architecture && info.applicationInfo.minSdkVersion <= Build.VERSION.SDK_INT
-            && (Build.VERSION.SDK_INT < 35 || info.applicationInfo.targetSdkVersion >= 24);
         String cert = certificate(info);
+        boolean compatible = architecture && info.applicationInfo.minSdkVersion <= Build.VERSION.SDK_INT
+            && (Build.VERSION.SDK_INT < 35 || info.applicationInfo.targetSdkVersion >= 24) && cert.matches("[a-f0-9]{64}");
         String[] permissions = info.requestedPermissions == null ? new String[0] : info.requestedPermissions;
         String details = "Paket: " + info.packageName + "\nSürüm: " + info.versionName + " (" + info.getLongVersionCode() + ")"
             + "\nMinimum/hedef API: " + info.applicationInfo.minSdkVersion + "/" + info.applicationInfo.targetSdkVersion
@@ -158,7 +159,7 @@ public final class InstallReviewActivity extends Activity {
             + "\nSHA-256: " + sha256 + "\nİlk imzacı özeti: " + cert
             + "\n\nBildirilen izinler (ilk 40):\n" + String.join("\n", Arrays.copyOf(permissions, Math.min(40, permissions.length)))
             + "\n\nİndeks/hash ve paket bilgisi zararlı yazılım taraması, GMS veya uygulamanın çalışacağı garantisi değildir. Android sistem yükleyicisi tam imza/politika/son kullanıcı onayını uygular."
-            + (compatible ? "" : "\n\nAPI/ABI/eski hedef API ön koşulu uyuşmuyor; yükleme düğmesi kapalı.");
+            + (compatible ? "" : "\n\nAPI/ABI/hedef API veya imzacı özeti ön koşulu uyuşmuyor; yükleme düğmesi kapalı.");
         runOnUiThread(() -> {
             busy = false; if (isDestroyed() || isFinishing()) return;
             packageName = info.packageName; version = info.getLongVersionCode(); signer = cert;

@@ -108,6 +108,8 @@ class NativeSourceContracts(unittest.TestCase):
                       'FLAG_GRANT_READ_URI_PERMISSION', 'Intent.EXTRA_RETURN_RESULT',
                       'installed.getLongVersionCode() == version', 'signer.equals(certificate(installed))'):
             self.assertIn(token, installer)
+        self.assertIn('cert.matches("[a-f0-9]{64}")', installer)
+        self.assertIn('signer.matches("[a-f0-9]{64}")', installer)
         self.assertNotIn('FLAG_GRANT_WRITE_URI_PERMISSION', installer)
         self.assertNotIn('file://', installer)
         self.assertIn('file.getParentFile()', installer)
@@ -171,6 +173,10 @@ class NativeSourceContracts(unittest.TestCase):
         transport = (ROOT / 'preview/src/native.ts').read_text()
         self.assertIn('location.origin === ORIGIN', transport)
         self.assertNotIn('localStorage', transport)
+        app = (ROOT / 'preview/src/App.tsx').read_text()
+        self.assertLess(app.index('window.addEventListener("oguz-native-intent", intent)'), app.index('nativeRequest("ui.ready")'))
+        self.assertIn('case "ui.ready": frontendReady = true;', self.home)
+        self.assertIn('intent == null || !frontendReady', self.home)
 
     def test_build_wrapper_is_pinned_and_emulator_tests_refuse_physical_traffic(self):
         wrapper = ROOT / 'android/gradle/wrapper/gradle-wrapper.jar'

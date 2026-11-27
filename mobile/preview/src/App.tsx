@@ -264,6 +264,8 @@ export default function App() {
       go(value.screen); // Incoming intents populate drafts only, never invoke call/SMS send.
     };
     window.addEventListener("oguz-native-intent", intent);
+    // Register before acknowledging readiness; a cold-start intent must only populate a draft, never disappear or send.
+    if (inNativeApp) void nativeRequest("ui.ready").catch(() => {});
     return () => window.removeEventListener("oguz-native-intent", intent);
   }, [go, update]);
   const pageProps = { prefs, update, go, toast };

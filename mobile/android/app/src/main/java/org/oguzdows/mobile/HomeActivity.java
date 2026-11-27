@@ -62,7 +62,7 @@ public final class HomeActivity extends Activity {
     WebView webView;
     private Reply pending;
     private ValueCallback<Uri[]> fileCallback;
-    private boolean receiverRegistered, observerRegistered;
+    private boolean receiverRegistered, observerRegistered, frontendReady;
     private final BroadcastReceiver stateReceiver = new BroadcastReceiver() {
         @Override public void onReceive(Context context, Intent intent) { signal(); }
     };
@@ -115,6 +115,10 @@ public final class HomeActivity extends Activity {
                 if (isLocal(request.getUrl())) return false;
                 if (request.isForMainFrame() && request.hasGesture()) confirmExternal(request.getUrl().toString());
                 return true;
+            }
+            @Override public void onPageStarted(WebView view, String url, android.graphics.Bitmap favicon) {
+                frontendReady = false;
+                super.onPageStarted(view, url, favicon);
             }
             @Override public void onPageFinished(WebView view, String url) {
                 if (isLocal(Uri.parse(url))) { deliverIntent(getIntent()); signal(); }
@@ -181,6 +185,7 @@ public final class HomeActivity extends Activity {
             reply = new Reply(id, proxy);
             JSONObject args = request.optJSONObject("args"); if (args == null) args = new JSONObject();
             switch (request.optString("action")) {
+                case "ui.ready": frontendReady = true; deliverIntent(getIntent()); reply.ok(true); break;
                 case "status": reply.ok(PlatformState.snapshot(this)); break;
                 case "role.request": requestRole(args.getString("role"), reply); break;
                 case "permissions.request": requestPermissionsFor(args.getString("scope"), reply); break;
@@ -343,7 +348,8 @@ public final class HomeActivity extends Activity {
         startActivity(intent);
     }
     private void deliverIntent(Intent intent) {
-        if (webView == null || intent == null) return;
+        // Do not consume a cold-start dial/message intent before React has registered its draft-only listener.
+        if (webView == null || intent == null || !frontendReady) return;
         String screen = intent.getStringExtra("screen");
         if (!java.util.Arrays.asList("home", "phone", "messages").contains(screen == null ? "" : screen)) screen = "";
         String number = "", body = "";

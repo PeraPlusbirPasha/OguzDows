@@ -55,7 +55,12 @@ public final class NativeDeviceTest {
         fail("Timed out: " + description);
     }
     private void home() throws Exception {
-        scenario = ActivityScenario.launch(new Intent(context, HomeActivity.class).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
+        launchHome(new Intent(context, HomeActivity.class));
+        postJs("location.hash='/home'");
+        waitFor("home route", 15000, () -> "true".equals(js("!!document.querySelector('.home-content')")));
+    }
+    private void launchHome(Intent intent) throws Exception {
+        scenario = ActivityScenario.launch(intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
         // A cold WebView can discard evaluateJavascript callbacks during its initial navigation.
         // Wait for a visible committed page before probing JS; never retry a paid bridge action.
         waitFor("visible bundled page committed", 60000, () -> {
@@ -65,8 +70,6 @@ public final class NativeDeviceTest {
         });
         waitFor("bundled rich UI + secure bridge", 30000,
             () -> "true".equals(js("!!window.OguzPlatform && !!document.querySelector('.phone-content')")));
-        postJs("location.hash='/home'");
-        waitFor("home route", 15000, () -> "true".equals(js("!!document.querySelector('.home-content')")));
     }
     private void postJs(String code) {
         scenario.onActivity(activity -> activity.webView.evaluateJavascript(code, null));
@@ -94,18 +97,29 @@ public final class NativeDeviceTest {
     }
     private JSONObject request(String action, JSONObject args) throws Exception { begin(action, args); return response(); }
     private static Pattern buttonText(String text) {
-        // Platform AlertDialog buttons may be uppercased by the system theme (including Turkish İ).
-        return Pattern.compile(Pattern.quote(text), Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE);
+        // Android uses ICU default case folding, not Turkish folding: dotless ı need not match uppercase I.
+        // Explicitly include all four variants; this is a UI selector, not a permission/consent bypass.
+        StringBuilder pattern = new StringBuilder();
+        for (char c : text.toCharArray()) pattern.append("iIıİ".indexOf(c) >= 0 ? "[iIıİ]" : Pattern.quote(String.valueOf(c)));
+        return Pattern.compile(pattern.toString(), Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE);
     }
     private void tap(String text) {
         UiObject2 object = device.wait(Until.findObject(By.text(buttonText(text))), 20000);
-        assertNotNull("Button not found: " + text, object); object.click();
+        if (object == null) {
+            java.util.List<String> labels = new java.util.ArrayList<>();
+            for (UiObject2 button : device.findObjects(By.clazz("android.widget.Button"))) labels.add(button.getText());
+            fail("Button not found: " + text + "; visible native buttons=" + labels);
+        }
+        object.click();
     }
     private JSONObject call() {
         AtomicReference<JSONObject> state = new AtomicReference<>();
         instrumentation.runOnMainSync(() -> { try { state.set(CallController.snapshot()); } catch (Exception error) { throw new RuntimeException(error); } });
         return state.get();
     }
+    private boolean callIs(int expected) { JSONObject c = call(); return c != null && c.optInt("state", -1) == expected; }
+    private boolean callEnded() { JSONObject c = call(); return c == null || c.optInt("state", -1) == Call.STATE_DISCONNECTED; }
+    private boolean callMuted(boolean expected) { JSONObject c = call(); return c != null && c.optBoolean("muted") == expected; }
     private void ready(String name) throws Exception {
         try (FileOutputStream out = new FileOutputStream(new File(context.getExternalFilesDir(null), name))) {
             out.write("ready".getBytes(java.nio.charset.StandardCharsets.UTF_8));
@@ -117,6 +131,7 @@ public final class NativeDeviceTest {
     }
 
     @Test public void bundledBridgeRolesValidationAndIsolation() throws Exception {
+        assertTrue("ICU selector handles dotless Turkish ı", buttonText("Aramayı başlat").matcher("ARAMAYI BAŞLAT").matches());
         home();
         JSONObject status = request("status", new JSONObject()).getJSONObject("result");
         assertEquals("android", status.getString("platform"));
@@ -143,6 +158,13 @@ public final class NativeDeviceTest {
         waitFor("native dial button, not a tel handoff", 15000, () -> "true".equals(js("!!document.querySelector('[aria-label=\"OğuzDows içinde ara\"]')")));
         assertEquals("false", js("!!document.querySelector('a[href^=\"tel:\"]')"));
         screenshot("native-phone");
+        scenario.close(); scenario = null;
+        launchHome(new Intent(context, HomeActivity.class).setAction(Intent.ACTION_DIAL)
+            .setData(android.net.Uri.parse("tel:5551234")));
+        waitFor("cold-start dial intent becomes a draft after frontend readiness", 20000,
+            () -> "true".equals(js("document.querySelector('[aria-label=\"Aranacak numara\"]')?.value === '5551234'")));
+        assertNull("an incoming dial intent never places a call", call());
+        screenshot("native-cold-dial-draft");
     }
     @Test public void paidActionsRequireFinalNativeConsent() throws Exception {
         home();
@@ -212,7 +234,7 @@ public final class NativeDeviceTest {
         });
         screenshot("native-call-outgoing");
         instrumentation.runOnMainSync(CallController::end);
-        waitFor("outgoing call ends via Telecom", 15000, () -> call() == null || call().getInt("state") == Call.STATE_DISCONNECTED);
+        waitFor("outgoing call ends via Telecom", 15000, this::callEnded);
         context.startActivity(new Intent(context, HomeActivity.class)
             .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_REORDER_TO_FRONT));
         JSONObject requested = response(); assertTrue(requested.toString(), requested.getBoolean("ok"));
@@ -220,17 +242,17 @@ public final class NativeDeviceTest {
     }
     @Test public void incomingCallCanBeAnsweredMutedAndEndedInOurUi() throws Exception {
         ready("incoming-ready");
-        waitFor("injected incoming modem call", 30000, () -> call() != null && call().getInt("state") == Call.STATE_RINGING);
+        waitFor("injected incoming modem call", 30000, () -> callIs(Call.STATE_RINGING));
         context.startActivity(new Intent(context, CallActivity.class).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
         tap("Yanıtla");
-        waitFor("Telecom ACTIVE after answering virtual radio", 20000, () -> call() != null && call().getInt("state") == Call.STATE_ACTIVE);
+        waitFor("Telecom ACTIVE after answering virtual radio", 20000, () -> callIs(Call.STATE_ACTIVE));
         screenshot("native-call-active");
         tap("Mikrofonu sustur");
-        waitFor("InCallService audio mute callback", 10000, () -> call() != null && call().getBoolean("muted"));
+        waitFor("InCallService audio mute callback", 10000, () -> callMuted(true));
         tap("Mikrofonu aç");
-        waitFor("InCallService audio unmute callback", 10000, () -> call() != null && !call().getBoolean("muted"));
+        waitFor("InCallService audio unmute callback", 10000, () -> callMuted(false));
         tap("Görüşmeyi bitir");
-        waitFor("real call removal/disconnection", 15000, () -> call() == null || call().getInt("state") == Call.STATE_DISCONNECTED);
+        waitFor("real call removal/disconnection", 15000, this::callEnded);
     }
     @Test public void localApkReviewCancelAndSystemInstall() throws Exception {
         home(); // Start review from a visible activity, not an API-35 background-activity-launch exception.
