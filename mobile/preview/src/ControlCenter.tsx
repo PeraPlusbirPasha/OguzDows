@@ -1,9 +1,21 @@
 import { useEffect, useRef, useState } from "react";
 import type { PageProps } from "./Screens";
 import { Dialog, Icon, Nazar, Notice } from "./ui";
+import { inNativeApp } from "./native";
+import { NativeControlCenter } from "./NativeControlCenter";
+
+export function ControlCenter(
+  props: PageProps & { onClose: () => void; onPower: () => void },
+) {
+  return inNativeApp ? (
+    <NativeControlCenter {...props} />
+  ) : (
+    <PreviewControlCenter {...props} />
+  );
+}
 
 /** A brief, user-triggered preview sound, never a system-volume or telephony API. */
-export function ControlCenter({
+function PreviewControlCenter({
   prefs,
   update,
   go,

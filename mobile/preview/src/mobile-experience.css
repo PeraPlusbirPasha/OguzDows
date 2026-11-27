@@ -1390,3 +1390,158 @@
   border-radius: 4px;
   background: #ffffffe6;
 }
+
+/* Native APK uses the same bundled shell without a simulated handset/desktop frame. */
+.native-host .lab {
+  padding: 0;
+  min-height: 100dvh;
+  height: 100dvh;
+  overflow: hidden;
+}
+.native-host .lab-header,
+.native-host .story-column,
+.native-host .companion-column,
+.native-host .lab-footer,
+.native-host .phone-top-label,
+.native-host .device-caption,
+.native-host .phone-frame::before,
+.native-host .phone-frame::after,
+.native-host .camera-hole,
+.native-host .power-actions {
+  display: none;
+}
+.native-host .design-stage {
+  display: block;
+  margin: 0;
+  width: 100%;
+  max-width: none;
+  height: 100dvh;
+}
+.native-host .device-column,
+.native-host .phone-frame,
+.native-host .phone-screen {
+  width: 100%;
+  height: 100%;
+}
+.native-host .phone-frame {
+  border: 0;
+  border-radius: 0;
+  padding: 0;
+  background: none;
+  box-shadow: none;
+}
+.native-host .phone-screen {
+  border-radius: 0;
+}
+.native-host .mobile-preview-label {
+  display: none;
+}
+.native-role-panel,
+.native-store-card {
+  padding: 16px;
+  margin-bottom: 18px;
+  background: var(--phone-soft);
+  border: 1px solid var(--phone-line);
+  border-radius: 20px;
+}
+.native-role-panel > p,
+.native-store-card > p {
+  font-size: 11px;
+  line-height: 1.75;
+  color: var(--phone-muted);
+  margin: 8px 0;
+}
+.native-role-panel .section-line {
+  margin: 0 0 8px;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.native-role-panel > .text-button {
+  margin-top: 12px;
+}
+.native-store-card > h3 {
+  margin: 9px 0;
+  font-size: 24px;
+}
+.native-action-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 10px;
+}
+.native-action-row > button {
+  flex: 1 1 120px;
+  min-width: 0;
+  padding: 10px 12px;
+  font-size: 10px;
+}
+.native-call-card {
+  display: flex;
+  align-items: center;
+  gap: 13px;
+  padding: 16px;
+  border-radius: 18px;
+  background: var(--phone-soft);
+  width: 100%;
+  margin-bottom: 12px;
+  text-align: left;
+}
+.native-call-card > span {
+  flex: 1;
+}
+.native-call-card strong,
+.native-call-card small {
+  display: block;
+}
+.native-call-card small {
+  font-size: 10px;
+  color: var(--phone-muted);
+  margin-top: 6px;
+}
+.native-communication .dial-display {
+  margin-top: 10px;
+}
+.native-communication .dial-pad {
+  margin-top: 10px;
+}
+.native-sms-history {
+  display: grid;
+  gap: 12px;
+}
+.native-message {
+  background: var(--phone-soft);
+  padding: 16px;
+  border-radius: 18px;
+  overflow-wrap: anywhere;
+}
+.native-message.incoming {
+  border-left: 3px solid var(--brand);
+}
+.native-message > div {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  align-items: center;
+}
+.native-message strong {
+  font-size: 12px;
+}
+.native-message time,
+.native-message small {
+  font-size: 9px;
+  line-height: 1.7;
+  color: var(--phone-muted);
+}
+.native-message > p {
+  font-size: 13px;
+  line-height: 1.8;
+  margin: 10px 0;
+  white-space: pre-wrap;
+}
+.native-message > button {
+  display: block;
+  margin-top: 10px;
+}
+.native-setting-tile {
+  min-width: 0;
+}

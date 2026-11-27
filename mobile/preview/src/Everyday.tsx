@@ -24,8 +24,10 @@ import {
   TOOLS,
 } from "./core.mjs";
 import { AppBadge, Dialog, Icon, Notice, ScreenTitle } from "./ui";
+import { inNativeApp } from "./native";
+import { NativeMessages, NativePhone } from "./NativeCommunications";
 
-type Props = PageProps & {
+export type Props = PageProps & {
   screen: Screen;
   number: string;
   onNumber: (value: string) => void;

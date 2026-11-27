@@ -19,6 +19,12 @@ import {
   sha256,
 } from "./core.mjs";
 import { AppBadge, Dialog, Icon, Notice, ScreenTitle, Toggle } from "./ui";
+import { inNativeApp } from "./native";
+import {
+  NativeAction,
+  NativeSettings,
+  NativeStoreActions,
+} from "./NativeActions";
 
 export type PageProps = {
   prefs: Preferences;
@@ -79,6 +85,20 @@ export function ApkInspector({
       e.target.value = "";
     }
   }
+  if (inNativeApp && !checksumOnly)
+    return (
+      <div className="apk-inspector">
+        <NativeAction action="apk.pick" className="primary-button">
+          <Icon name="Upload" size={22} /> Sistemden APK seç ve incele
+        </NativeAction>
+        <Notice icon="ShieldCheck">
+          Sistem belge seçicisiyle seçilen tek APK, özel kopyaya alınır.
+          Paket/sürüm, API/ABI, izinler, SHA-256 ve ilk imzacı özeti gösterilir;
+          sonra ayrı kaynak izni ve sistem yükleme onayı gerekir. En çok 256
+          MiB; split/APKS/XAPK ve sessiz kurulum yok.
+        </Notice>
+      </div>
+    );
   return (
     <div className="apk-inspector">
       <label className={`file-pick ${busy ? "disabled" : ""}`}>
@@ -138,6 +158,12 @@ export function Apps({ go }: PageProps) {
     <>
       <ScreenTitle title="Uygulamaların" onBack={() => go("home")} />
       <div className="page-body">
+        {inNativeApp && (
+          <NativeAction action="apps.open" className="primary-button">
+            <Icon name="Grid2X2" size={18} /> Cihazda yüklü uygulamalar · gerçek
+            simgeler
+          </NativeAction>
+        )}
         <div className="search-field">
           <Icon name="Search" />
           <input
@@ -225,6 +251,7 @@ export function Store(
         action={<span className="tiny-pill">SENİN SEÇİMİN</span>}
       />
       <div className="page-body">
+        <NativeStoreActions />
         <div className="segmented">
           <button
             className={tab === "discover" ? "active" : ""}
@@ -381,7 +408,15 @@ export function Store(
             >
               Resmî geliştiriciye git <Icon name="ExternalLink" size={17} />
             </a>
-            {selected.play && (
+            {selected.play && inNativeApp && (
+              <NativeAction
+                action="google.play"
+                args={{ package: selected.package }}
+              >
+                <Icon name="Play" size={16} /> Cihazdaki Play’de görüntüle
+              </NativeAction>
+            )}
+            {selected.play && !inNativeApp && (
               <a
                 className="secondary-button"
                 href={`https://play.google.com/store/apps/details?id=${selected.package}`}
@@ -406,6 +441,11 @@ export function Google({ go }: PageProps) {
     <>
       <ScreenTitle title="Google seçenekleri" onBack={() => go("home")} />
       <div className="page-body">
+        {inNativeApp && (
+          <NativeAction action="google.play" className="primary-button">
+            <Icon name="Play" size={18} /> Cihazdaki Google Play’i aç
+          </NativeAction>
+        )}
         <div className="google-hero">
           <span className="google-mark">
             G<span>o</span>
@@ -495,6 +535,7 @@ export function Settings({
     <>
       <ScreenTitle title="Sana göre" onBack={() => go("home")} />
       <div className="page-body">
+        <NativeSettings />
         <div className="settings-hero">
           <AppBadge icon="SlidersHorizontal" color="mint" />
           <h3>

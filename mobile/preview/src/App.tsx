@@ -28,6 +28,7 @@ import {
 import { Rifki } from "./Rifki";
 import { AppBadge, Dialog, Icon, Nazar, Notice } from "./ui";
 import { ControlCenter } from "./ControlCenter";
+import { inNativeApp, nativeRequest, useNativeStatus } from "./native";
 const Everyday = lazy(() => import("./Everyday"));
 
 const screens: Screen[] = [
@@ -70,6 +71,29 @@ function hashScreen(): Screen {
   return screens.includes(value) ? value : "home";
 }
 export default function App() {
+  const { status: nativeStatus } = useNativeStatus();
+  const [now, setNow] = useState(() => new Date());
+  const nativeTime = now.toLocaleTimeString("tr-TR", {
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+  useEffect(() => {
+    if (!inNativeApp) return;
+    let timer: ReturnType<typeof setInterval> | undefined;
+    const tick = () => {
+      clearInterval(timer);
+      if (!document.hidden) {
+        setNow(new Date());
+        timer = setInterval(() => setNow(new Date()), 30000);
+      }
+    };
+    tick();
+    document.addEventListener("visibilitychange", tick);
+    return () => {
+      clearInterval(timer);
+      document.removeEventListener("visibilitychange", tick);
+    };
+  }, []);
   const [loaded] = useState(readSaved);
   const [prefs, setPrefs] = useState<Preferences>(loaded.prefs);
   const [storageError, setStorageError] = useState(loaded.error);
@@ -214,6 +238,33 @@ export default function App() {
     else if (action === "previous-page")
       setHomePage((page) => (page - 1 + homePageCount) % homePageCount);
   }
+  useEffect(() => {
+    if (!inNativeApp) return;
+    void nativeRequest("device.theme", { value: prefs.theme }).catch(() => {});
+  }, [prefs.theme]);
+  useEffect(() => {
+    if (!inNativeApp) return;
+    void nativeRequest("device.brightness", { value: prefs.brightness }).catch(
+      () => {},
+    );
+  }, [prefs.brightness]);
+  useEffect(() => {
+    const intent = (event: Event) => {
+      const value = (
+        event as CustomEvent<{ screen: Screen; number?: string; body?: string }>
+      ).detail;
+      if (!value || !["home", "phone", "messages"].includes(value.screen))
+        return;
+      if (value.screen === "phone") setDial(value.number || "");
+      if (value.screen === "messages" && (value.number || value.body))
+        update({
+          messageDraft: { number: value.number || "", body: value.body || "" },
+        });
+      go(value.screen); // Incoming intents populate drafts only, never invoke call/SMS send.
+    };
+    window.addEventListener("oguz-native-intent", intent);
+    return () => window.removeEventListener("oguz-native-intent", intent);
+  }, [go, update]);
   const pageProps = { prefs, update, go, toast };
   const stages = [
     { id: "home", label: "Ana ekran" },
@@ -417,16 +468,20 @@ export default function App() {
                 }
               }}
             >
-              <h1 className="visually-hidden">OğuzDows Mobile önizlemesi</h1>
+              <h1 className="visually-hidden">
+                {inNativeApp ? "OğuzDows Mobile" : "OğuzDows Mobile önizlemesi"}
+              </h1>
               <div className="camera-hole" aria-hidden="true" />
-              <span className="mobile-preview-label">ÖNİZLEME</span>
+              <span className="mobile-preview-label">
+                {inNativeApp ? "YEREL TEST APK" : "ÖNİZLEME"}
+              </span>
               <div className="status-bar">
                 <button
                   aria-label="Denetim merkezini aç"
                   className="status-time"
                   onClick={() => setOverlay("quick")}
                 >
-                  09:41
+                  {inNativeApp ? nativeTime : "09:41"}
                   <Icon name={prefs.focus ? "Moon" : "Bell"} size={11} />
                 </button>
                 <div className="status-right">
@@ -436,10 +491,16 @@ export default function App() {
                     onClick={() => setOverlay("quick")}
                   >
                     <Icon
-                      name={prefs.airplane ? "Plane" : "SignalHigh"}
+                      name={
+                        inNativeApp
+                          ? "Smartphone"
+                          : prefs.airplane
+                            ? "Plane"
+                            : "SignalHigh"
+                      }
                       size={15}
                     />
-                    {prefs.wifi && !prefs.airplane && (
+                    {!inNativeApp && prefs.wifi && !prefs.airplane && (
                       <Icon name="Wifi" size={15} />
                     )}
                     <Icon name="ChevronDown" size={10} />
@@ -450,7 +511,9 @@ export default function App() {
                     onClick={() => setOverlay("power")}
                   >
                     <Nazar size={20} power />
-                    <span>86</span>
+                    <span>
+                      {inNativeApp ? (nativeStatus?.battery ?? "—") : 86}
+                    </span>
                   </button>
                 </div>
               </div>
@@ -471,25 +534,46 @@ export default function App() {
                     <div className="home-content">
                       <div className="home-greeting">
                         <span>MERHABA, GÜZEL BİR GÜN.</span>
-                        <button
-                          className="weather-pill"
-                          onClick={() =>
-                            toast(
-                              "22° / İstanbul, yalnız tasarım için örnek hava durumudur. Konum veya hava servisi bağlı değil.",
-                            )
-                          }
-                          aria-label="İstanbul 22 derece, örnek hava durumu"
-                        >
-                          <Icon name="Sun" size={16} />
-                          <span>22°</span>
-                        </button>
+                        {!inNativeApp && (
+                          <button
+                            className="weather-pill"
+                            onClick={() =>
+                              toast(
+                                "22° / İstanbul, yalnız tasarım için örnek hava durumudur. Konum veya hava servisi bağlı değil.",
+                              )
+                            }
+                            aria-label="İstanbul 22 derece, örnek hava durumu"
+                          >
+                            <Icon name="Sun" size={16} />
+                            <span>22°</span>
+                          </button>
+                        )}
                       </div>
                       <div className="home-clock">
                         <h2>
-                          09<span>:</span>41
+                          {inNativeApp ? (
+                            nativeTime
+                          ) : (
+                            <>
+                              09<span>:</span>41
+                            </>
+                          )}
                         </h2>
                         <p>
-                          Salı, 17 Kasım <span>İstanbul</span>
+                          {inNativeApp ? (
+                            <>
+                              {now.toLocaleDateString("tr-TR", {
+                                weekday: "long",
+                                day: "numeric",
+                                month: "long",
+                              })}
+                              <span>Yerel saat</span>
+                            </>
+                          ) : (
+                            <>
+                              Salı, 17 Kasım <span>İstanbul</span>
+                            </>
+                          )}
                         </p>
                       </div>
                       <button
@@ -688,7 +772,9 @@ export default function App() {
               <div
                 className="phone-dimmer"
                 aria-hidden="true"
-                style={{ opacity: (100 - prefs.brightness) / 120 }}
+                style={{
+                  opacity: inNativeApp ? 0 : (100 - prefs.brightness) / 120,
+                }}
               />
               {toastText && (
                 <div className="toast" role="status">
@@ -762,12 +848,16 @@ export default function App() {
                       <br />
                       Dünyası yeni.
                     </h3>
-                    <p>Etkileşimli tasarım önizlemesi · 0.1.0</p>
+                    <p>
+                      {inNativeApp
+                        ? "Yerel Telefon / SMS / Mağaza test APK’sı · 0.2.0"
+                        : "Etkileşimli tasarım önizlemesi · 0.1.0"}
+                    </p>
                   </div>
                   <Notice icon="Smartphone">
-                    Bu bir ROM, APK çalıştırıcısı, donanım emülatörü veya
-                    yüklenebilir işletim sistemi değildir. Gerçek cihaz desteği
-                    doğrulanmadı.
+                    {inNativeApp
+                      ? "Bu APK, paketlenmiş çevrimdışı arayüzü yerel Telefon/SMS ve imzalı katalog servislerine bağlar. Cihaz ROM’u/ISO’su değildir. Fiziksel SIM/operatör, GMS, MMS/RCS ve tüm uygulama uyumluluğu doğrulanmış değildir."
+                      : "Bu bir ROM, APK çalıştırıcısı, donanım emülatörü veya yüklenebilir işletim sistemi değildir. Gerçek cihaz desteği doğrulanmadı."}
                   </Notice>
                   <dl className="about-list">
                     <div>
@@ -788,11 +878,19 @@ export default function App() {
                     </div>
                     <div>
                       <dt>APK</dt>
-                      <dd>Özet/başlık inceleme; tarayıcıda kurulum yok</dd>
+                      <dd>
+                        {inNativeApp
+                          ? "Özel kopya incelemesi + onaylı sistem yükleyicisi"
+                          : "Özet/başlık inceleme; tarayıcıda kurulum yok"}
+                      </dd>
                     </div>
                     <div>
                       <dt>Kalıcı kayıt</dt>
-                      <dd>Bu tarayıcıda; şifreli değil</dd>
+                      <dd>
+                        {inNativeApp
+                          ? "Uygulama özel alanı / sistem SMS sağlayıcısı; şifreli kasa değil"
+                          : "Bu tarayıcıda; şifreli değil"}
+                      </dd>
                     </div>
                   </dl>
                   <p className="fine-print">
@@ -877,7 +975,7 @@ export default function App() {
                   <Nazar size={64} power />
                   {locked === "lock" ? (
                     <>
-                      <h2>09:41</h2>
+                      <h2>{inNativeApp ? nativeTime : "09:41"}</h2>
                       <p>Salı, 17 Kasım</p>
                       <span className="lock-hint">
                         <Icon name="LockKeyhole" size={16} /> Tasarım kilidi ·
