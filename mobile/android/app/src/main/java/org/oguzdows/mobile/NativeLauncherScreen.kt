@@ -109,7 +109,7 @@ fun NativeLauncherScreen(
                         Text("Ana ekran yap", color=Color.White, fontSize=12.sp)
                     } else Text("SENİN\nALANIN.", color=Color.White.copy(.75f), fontSize=10.sp, lineHeight=15.sp, letterSpacing=2.sp)
                 }
-                GlassSurface(Modifier.fillMaxWidth().height(49.dp).clickable { panel="apps" }.testTag("launcher-search-onOpen"), light=state.lightEffects) {
+                GlassSurface(Modifier.fillMaxWidth().height(49.dp).clickable { panel="apps" }.testTag("launcher-search-open"), light=state.lightEffects) {
                     Row(Modifier.fillMaxSize().padding(horizontal=16.dp), verticalAlignment=Alignment.CenterVertically) {
                         ShellGlyph("search", Modifier.size(21.dp)); Spacer(Modifier.width(10.dp))
                         Text("Bir uygulama, bir fikir…", color=Color(0xFF405C55), fontSize=13.sp, modifier=Modifier.weight(1f))
