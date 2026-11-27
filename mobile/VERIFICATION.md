@@ -2,21 +2,23 @@
 
 Dört düzey ayrıdır: **tarayıcı**, **SDK/Java/lint**, **sanal radyo/sağlayıcı/yükleyici emülatörü**, **gerçek SIM/cihaz/ROM**. Bir düzeyin başarısı diğerine aktarılmaz. Bu kayıt, başarısız kabul koşularını da saklar; hazırlanmış test kodu geçmiş test sayılmaz.
 
-## Son tam kontrol
+## Son yerel kontrol ve sınırı
 
 | Kontrol                | Gözlenen sonuç                | Sınır                                                                       |
 | ---------------------- | ----------------------------- | --------------------------------------------------------------------------- |
 | `npm run build`        | Başarılı                      | TypeScript + Vite 6.4.6, 1594 modül                                         |
 | `npm test`             | **31 geçti, 0 atlama**        | 13 temel mantık/kanıt + 8 günlük deneyim/varlık/durum + 10 API testi                    |
-| `npm run test:native`  | **13 geçti, 0 atlama**         | Yalnız manifest/XML/izin/köprü/rol/depoya güven/simge/kaynak sözleşmeleri                |
+| `npm run test:native`  | **15 geçti, 0 atlama**         | Yalnız manifest/XML/izin/köprü/rol/depoya güven/simge/kaynak sözleşmeleri                |
 | `npm run test:browser` | **31 senaryo geçti**          | 15 mevcut + 16 günlük deneyim; iki kapsayıcıyla Node raporu 33/33           |
 | `npm run format:check` | Başarılı                      | TSX/MJS/CSS/config/test kaynakları                                          |
 | `npm audit`            | **0 raporlanan açık**         | Bu lockfile ve sorgu anı; genel güvenlik sertifikası değil                  |
-| Başlangıç JS           | **99247 gzip bayt**           | Hedef ≤112640 bayt (110 KiB), geçildi                                       |
-| Günlük uygulamalar JS  | **12082 gzip bayt**            | Ayrı, dinamik yüklenen modül; yukarıdaki ilk paket değildir                 |
+| Başlangıç JS           | **99383 gzip bayt**           | Hedef ≤112640 bayt (110 KiB), geçildi                                       |
+| Günlük uygulamalar JS  | **12081 gzip bayt**            | Ayrı, dinamik yüklenen modül; yukarıdaki ilk paket değildir                 |
 | CSS                    | **16460 gzip bayt**           | İki stil kaynağının üretim dosyası                                          |
 | Mağaza simgeleri       | **24 / 24 yerel SVG**         | Tarayıcıda her birinin gerçek yüklenmesi, manifest SHA-256/lisans kontrolü  |
 | Önceki çalışma         | **633 dosyanın içeriği aynı** | Mobil işe başlamadan kaydedilen SHA-256 tabanı; PC/Pi yayını değiştirilmedi |
+
+Gzip ölçümü Node `zlib.gzipSync` ile varsayılan sıkıştırmada alındı. Son tarayıcı tekrarında **tam TAP raporu 33/33** tamamlandı (~121.9 s); araç çağrısının 120 s sınırı önce döndü, ardından tamamlanmış rapor ve bitmiş süreç ayrıca kontrol edildi. Bu orkestrasyon sınırı test atlaması değildir.
 
 Ortam: Node 22.22.3, npm 10.9.8, Python 3.11.2, sabitlenen Sparticuz Chromium 133 / Playwright Core. Chromium bir test koşucusudur, telefon emülatörü değildir. Tarayıcının web güvenliği/CORS denetimi kapatılmadı; CI için `--no-sandbox` gerekir. NSS destek kitaplıkları yalnız test önbelleğine açılır.
 
@@ -47,7 +49,70 @@ Masaüstü laboratuvarı/başlangıçta harici istek olmaması; 390px tam ekran 
 
 Axe sonuçları tüm temalarda, her OEM’de, gerçek ekran okuyucuda veya tam WCAG sertifikasyonu anlamına gelmez. Yeni panelde testte yakalanan düşük kontrast giderildi; metinleri yarı saydamlaştırmayan, transform odaklı panel animasyonu kullanıldı. Yeni durum alanları eski v1 kayıtlara veri silmeden varsayılan ekler; not/görevler korunur.
 
-## Tam native kabul: `023a89c`
+## Tam native launcher kabulü: `fb6cad5` · 0.3
+
+[Başarılı koşu **46065713858**](https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/46065713858) / [iş **140730403637**](https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/46065713858/job/140730403637), tam kaynak **`fb6cad5a3f56c5bf37e739388ded5ffce8e5ad13`**. SDK35 / Google APIs / x86_64 / Pixel6 QEMU, **4 GiB konuk RAM / 256 MiB heap**; toplam iş 7m09s. **11 instrumentation seçiminde 17/17 vaka**, boş/atlanmış kabul yok; **13/13 JVM testi**, lint **0 hata / 43 uyarı / 1 bilgi**. Eski 12-vaka kapsamı azaltılmadan 5 native launcher testi eklendi.
+
+- [SDK derleme kaydı](android/evidence/sdk-fb6cad5.json): 3 APK’nın boyut/hash’i, Java/Kotlin JVM toplamı ve lint sınıfları. CI’nin eski `java_unit_tests` alanı iki dilin toplamını içerir; SDK kaydındaki `emulator_passed: null` ayrı kapsamdır.
+- [Emülatör kaydı](android/evidence/emulator-fb6cad5.json): 11 seçimin tek tek sonucu, tam imaj fingerprint’i, canlı depo/inceleme ve native görsel kökeni.
+- [Paket kökeni](android/evidence/package-fb6cad5.json): kaynakla eşleşen artifact ID/digest’i, başarılı paket/imza adımı ve yerel indirme sınırı.
+
+| Korunan gerçek platform kabulü | Vaka | Yeni koşudaki sonuç |
+| --- | ---: | --- |
+| Köprü/roller/origin/alt çerçeve + soğuk DIAL taslağı | 1 | Geçti; gelen intent arama başlatmaz |
+| Ücretli çağrı ve SMS son native onayını iptal | 1 | Geçti; çağrı veya sağlayıcıya yeni SMS yok |
+| Gerçek medya sesi/pencere parlaklığı/native tema | 1 | Geçti |
+| Gelen ve giden sanal SMS | 2 | Gerçek sağlayıcı ve sent callback’i; teslim raporu uydurulmaz |
+| Gelen ve giden sanal çağrı | 2 | Telecom/InCallService/kendi görüşme UI’sı, yanıtla/sustur/aç/bitir |
+| Etkisiz APK inceleme/iptal/sistem kurulumu | 1 | Gerçek sistem onayı ve yüklü sürüm/imzacı |
+| İmzalı depo güvenliği | 3 | Bozuk/imzasız/yanlış pin, atomik seçim/rollback, izinsiz uç reddi |
+| Canlı F-Droid + Aegis inceleme/kurmadan iptal | 1 | **5.057 uygulama / 5.016 API-ABI uygun paket**, Aegis code82 / 6.869.856 bayt |
+| **Korunan taban** | **12** | **Tümü geçti** |
+
+| Yeni `LauncherDeviceTest` | Vaka | Gerçekten gözlenen |
+| --- | ---: | --- |
+| Native HOME ve envanter | 1 | Platform HOME çözümü `LauncherActivity`; Home’da WebView yok; önceki yükleyici testinin kurduğu fixture gerçek listede. Native Cihazım ve diske yazılan Koleksiyon seçimi |
+| Arama/başlatma/HOME | 1 | Kurulu fixture Türkçe adla bulunup gerçekten ön plana açılır, Home native launcher’a döner |
+| Kısayol/diske yazma/bozuk kayıt | 1 | Sabitle/öne taşı; yeni ViewModel aynı sırayı diskten okur; bozuk kayıt ezilmez ve açık sıfırlama gerekir |
+| Denetim/Rıfkı/Telefon geçişi | 1 | AudioManager değişir, yerel kedi ve onaylı tema önerisi çalışır; mikrofon izni yok. Telefonun hesaplanan gerçek koyu arka planı `rgb(23, 38, 43)`, Geri native HOME’a döner |
+| Gerçek widget | 1 | Gerçek sağlayıcı seçimi ve sistem bağlama, kaydedilmiş ID/RemoteViews içeriği; yeni host’ta geri gelme, ID silme ve diskten kaldırma |
+| **Native launcher** | **5** | **Tümü geçti; genel toplam 17** |
+
+Bu widget testi AndroidView’ın sağlayıcıya delege ettiği erişilebilirlik ağacındaki **gerçek “Widget hazır” RemoteViews metnini** okur; var olmayan Compose test etiketi uydurulmaz. Yapılandırmalı tüm sağlayıcılar, widget yeniden boyutlandırma, iş profili veya süreç öldürme matrisi bu tek fixture’dan çıkarılmaz.
+
+### 0.3 APK ve gerçek native görüntü
+
+[**Launcher APK/test/rapor paketini indir**](https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/46065713858/artifacts/15231331173) · [kurulum ve hash denetimi](INSTALL.md). Ana APK `OguzDows-Mobile-0.3.0-launcher-debug.apk`: **23.991.680 bayt**, CI SHA-256:
+
+```text
+622a59fd5686b09da687a6b6f7e72f24963341695b210a3addbf58c292eefb56
+```
+
+Paket ancak 17-vaka kapısından sonra hazırlandı; **`apksigner verify --verbose --print-certs` ve artifact yüklemesi geçti**. Artifact **16.692.242 bayt**, digest `sha256:060106f39032d29be2228579fd4362cac4f17a6205ad6babe35ba5857840228d`, saklama **14 gün**. Debug anahtarıdır; üretim mobil Release yoktur. Kendi indirmeni hash ile doğrula.
+
+![Gerçek native emülatör yakalaması — küçültülmüş](screenshots/launcher-native-emulator.jpg)
+
+`UiDevice` tarafından alınan gerçek native emülatör ekranının **234×520 JPEG kalite 45** kopyası, altı sıralı checks-bildirimi parçasından geri alınıp **görsel olarak incelendi**. SHA-256: `37147bdecd792b58e44b790ba93a0901264a2105b6b05f1ced93a7e5e9d2b36f`. İçerik yeniden çizilmedi veya AI görseli üretilmedi; tam çözünürlüklü HOME/Rıfkı/Telefon/widget PNG’leri artifact’ta kalır. Bu çalışma alanında **yalnız küçültülmüş native görüntü** incelendi; bütün tam PNG’lerin incelendiği iddia edilmez.
+
+**APK yerel indirme sınırı:** yeni artifact için `gh run download` denendi, izinli olmayan blob depolama yönlendirmesinde yine `EOF` döndü. Ana/test APK baytları burada yok; bağımsız yerel APK hash/imza kontrolü yapılamadı. Hash/boyut CI bildiriminden, ZIP digest’i GitHub API’den gelir. Git’e APK/SDK/anahtar eklenmedi ve indirme engelini aşmak için Release açılmadı.
+
+### 0.3 başarısız geçmişi ve dar emülatör hazırlığı
+
+| Koşu / kaynak | Gözlenen sonuç | Kanıt / paket |
+| --- | --- | --- |
+| [46057228221 / `d13b34e`](https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/46057228221) | **11/17**, yükleyici ANR’ı ve 5 launcher hatası | [SDK](android/evidence/sdk-d13b34e.json), [cihaz](android/evidence/emulator-d13b34e.json); paket yok |
+| [46058514509 / `8257892`](https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/46058514509) | **3/17**, sistem ANR pencereleri/odak zaman aşımı | [SDK](android/evidence/sdk-8257892.json), [cihaz](android/evidence/emulator-8257892.json); paket yok |
+| [46060372246 / `c174b6d`](https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/46060372246) | **Kısmi:** 4/5 launcher; sağlayıcı etiketi hatası, gerçek HWUI main-thread ANR izi | [SDK](android/evidence/sdk-c174b6d.json), [kısmi iz](android/evidence/launcher-c174b6d.json); tam sonuç uydurulmaz, paket yok |
+| [46061542455 / `2be89d7`](https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/46061542455) | 6/8 taban, 4/5 launcher gözlemi; ücretli onay/SMS ve widget test etiketi hatası | [SDK](android/evidence/sdk-2be89d7.json), [başarısız cihaz](android/evidence/emulator-2be89d7.json); paket yok |
+| [46062951301 / `ece0f3b`](https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/46062951301) | Sistem penceresi bütün UI’ları örttü; özet JSON bildirim sınırında kesildi | [SDK](android/evidence/sdk-ece0f3b.json), [özgün kesik bildirim ve hata kayıtları](android/evidence/emulator-ece0f3b-partial.json); eksik sonuca başarı yazılmaz |
+| [46065058564 / `5433564`](https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/46065058564) | **0 ürün testi**; APK kurulmadan **Pixel Launcher isn’t responding** yakalandı | [SDK](android/evidence/sdk-5433564.json), [stok boot kanıtı](android/evidence/emulator-5433564.json); paket yok |
+| [46065713858 / `fb6cad5`](https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/46065713858) | **17/17 + paket/imza/yükleme geçti** | Yukarıdaki kabul edilmiş 0.3 artifact |
+
+`c174b6d` HWUI `syncAndDrawFrame` beklemesi gerçek bir izdir; bütün sorunların başlatıcı kök nedenini tek başına kanıtlamaz. Başka koşuda ürün kurulmadan görülen stok Pixel Launcher ANR’ı ayrıca teşhis edildi. Sürücü yalnız **tanınmış stok paket + tam stok ANR başlığı** için, yalnız QEMU hazırlığında gerçek “Close app” düğmesinden kapatma ve stok paketi durdurmaya izin verir. Yapılırsa `stock_boot_recovery` kaydına yazılır. **Başarılı `fb6cad5` koşusunda bu istisna kullanılmadı.** OğuzDows/başka uygulama ANR’ı kapatılıp başarıya çevrilmez; ürün ANR’ında iz alınır ve eksik kabul paketlenmez.
+
+4 GiB AVD, SwiftShader/GL, kapalı Vulkan ve derleme JVM’inde Kotlin yalnız CI kaynak/renderer hazırlığıdır; fiziksel telefona optimizasyon olarak uygulanmaz. SIM durumu tam `READY`/`LOADED` olmalıdır, `NOT_READY` eşleşmesi kabul edilmez. Hata bildirimlerinin sınırı tam raporu bozmaz; uzun loglar artifact’ta, kompakt JSON bildiriminde sonuçlar korunur. Ücretli onay, rol uygunluğu, gerçek yükleyici testiyle kurulan fixture ve **17 vaka** düşürülmedi.
+
+## Tarihsel 0.2 kabul tabanı: `023a89c`
 
 [Başarılı koşu **46048445728**](https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/46048445728) / [iş **140673465222**](https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/46048445728/job/140673465222), tam kaynak **`023a89c9f22bdcd27eabecf8437b05addcab03e9`**. SDK35 / Google APIs / x86_64 / Pixel6 QEMU. **10 instrumentation seçiminde 12/12 gerçek test**, 0 boş/atlanmış kabul; **6/6 Java**, lint **0 hata / 37 uyarı**. SDK, cihaz ve paket kaydı birbirinden ayrıdır:
 
@@ -102,7 +167,7 @@ Kabul sürücüsü yalnız tek `emulator-*` ve `ro.kernel.qemu=1` hedefinde çal
 
 API testleri: kapalı varsayılan; HTTPS/sunucu-loopback uç kısıtı; gönderim başlığı/onayı ve rol/sayı/uzunluk doğrulaması; sunucuda sabit sistem promptu; model araçlarının olmaması; gövde/yanıt sınırı; anahtar/hata sızdırmama; IP hız sınırı; yabancı Origin reddi ve iki inference eşzamanlılık kapısı. Gerçek sağlayıcı, model kalitesi, veri saklama ve üretim oturum doğrulaması test edilmedi.
 
-13 kaynak sözleşmesi; açık manifest izinleri/rol bileşenleri, origin/ana çerçeve/CSP, ücretli işlem onayı ve doğruluk, APK özel kopyası/yükleyici, depo güven kökü/imza/hash/rollback, yardımcı mikrofonunun kapalı kalması, gerçekten bağlı native Telefon/Mesaj rotaları, emülatör güvenlik kilitleri ve 24 vektörün path/lisans/hash eşleşmesini denetler. Bunlar **statik kaynak sözleşmeleridir**, çalışan cihaz kanıtı değildir. Gerçek SDK sonucu ve yalnız geçen emülatör adımları üstte ayrıca belirtilir.
+15 kaynak sözleşmesi; açık manifest izinleri/rol bileşenleri, origin/ana çerçeve/CSP, ücretli işlem onayı ve doğruluk, APK özel kopyası/yükleyici, depo güven kökü/imza/hash/rollback, yardımcı mikrofonunun kapalı kalması, gerçekten bağlı native Telefon/Mesaj ve HOME dönüş rotaları, Compose HOME/gerçek inventory/widget/düzen sınırları, mevcut dört duvar kâğıdının byte/lisans kökeni, emülatör güvenlik kilitleri ve 24 vektörün path/lisans/hash eşleşmesini denetler. Bunlar **statik kaynak sözleşmeleridir**, çalışan cihaz kanıtı değildir. Gerçek SDK sonucu ve yalnız geçen emülatör adımları üstte ayrıca belirtilir.
 
 AOSP yardımcı metadata’sının zorunlu `recognitionService` alanı kaynak incelemesiyle eklenmişti; tanıma iskeleti mikrofon açmadan hata döndürür. Üç yardımcı servisi `BIND_VOICE_INTERACTION` imza izniyle kısıtlıdır. İncelenen AOSP 15 kaynakları:
 
@@ -119,4 +184,4 @@ AOSP yardımcı metadata’sının zorunlu `recognitionService` alanı kaynak in
 - Gerçek pil ömrü/RAM/FPS/termal ölçümü veya tüm masaüstü özelliklerinin native tamamlandığı iddiası.
 - Mevcut PC/Pi dosyaları, yayımlanmış imajlar veya PR/release işlemlerine müdahale.
 
-Kapsam: [özellik eşlemesi](feature-parity.json) · [kaynak/lisans atıfları](ASSETS.md) · [çalıştırma ve tekrar üretim](README.md). Ekran görüntüleri çalışan web önizlemesidir, fiziksel telefon fotoğrafı veya ROM testi değildir.
+Kapsam: [özellik eşlemesi](feature-parity.json) · [kaynak/lisans atıfları](ASSETS.md) · [çalıştırma ve tekrar üretim](README.md). Native JPEG çalışan QEMU’dan, web ekranları çalışan tarayıcıdan alınmıştır; fiziksel telefon fotoğrafı veya ROM testi değildir.

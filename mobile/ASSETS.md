@@ -54,4 +54,5 @@ Yerel Mağaza öncelikle cihazın gerçekten yüklü paket simgesini kullanır; 
 
 - **Manrope:** kendinden sunulan WOFF2 font, SIL Open Font License 1.1; npm paketi `@fontsource-variable/manrope@5.3.0`.
 - **Lucide:** yerel React vektör arayüz simgeleri, ISC; `lucide-react@0.468.0`.
-- Ekran görüntüleri çalışan web önizlemesinden alınır, yapay zekâyla üretilmiş telefon fotoğrafları veya gerçek ROM/cihaz test kanıtı değildir.
+- `screenshots/launcher-native-emulator.jpg`: gerçek API35/QEMU `UiDevice` ekran görüntüsünün emülatörde 234×520’ye küçültülmüş, JPEG kalite 45 ile sıkıştırılmış kopyası. Kaynak `fb6cad5` / Actions `46065713858`, `LauncherDeviceTest.test05`. Altı sıralı checks bildiriminin base64 parçaları birleştirilerek geri alındı ve görsel olarak incelendi; hash/köken [cihaz kanıtında](android/evidence/emulator-fb6cad5.json). Yeniden çizilmedi, içerik düzenlenmedi veya AI görseli üretilmedi; tam PNG’ler CI artifact’ında. Ekrandaki duvar kâğıdı/kedi koleksiyonunun ayrı AI kökeni yukarıdadır.
+- Diğer ekran görüntüleri çalışan web önizlemesinden alınır. Native veya web yakalamalar fiziksel telefon fotoğrafı ya da ROM/donanım kabulü değildir.

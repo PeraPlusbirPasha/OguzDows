@@ -1,0 +1,99 @@
+{
+  "source_sha": "2be89d78728d48d0ac3a599bd0c7903ae7310c88",
+  "sdk": "35",
+  "abi": "x86_64",
+  "image_fingerprint": "google/sdk_gphone64_x86_64/emu64xa:15/AE3A.240806.043/12960925:userdebug/dev-keys",
+  "emulator_only": true,
+  "physical_sim_tested": false,
+  "emergency_calls_tested": false,
+  "gms_certification_tested": false,
+  "mms_rcs_supported": false,
+  "tests": [
+    {
+      "name": "NativeDeviceTest.bundledBridgeRolesValidationAndIsolation",
+      "passed": true,
+      "test_cases": 1,
+      "seconds": 35.25
+    },
+    {
+      "name": "NativeDeviceTest.paidActionsRequireFinalNativeConsent",
+      "passed": false,
+      "test_cases": 0,
+      "seconds": 39.5,
+      "failure": "ağlantılar ve denetim merkezi, Nazar boncuğu güç menüsü, RIFKI YANINDA Bir fikrin mi var? Beraber bir şeyler yapalım. Rıfkı’ya sor Rıfkı, OğuzDows’un kedi rehberi, Tüm uygulamaları aç, Mağaza, Atölye, Haber, Koleksiyon, Dosyalar, Google, Cihazım, Ayarlar, Cihazında ara, Telefon seçenekleri, Mesajlaşma seçenekleri, Tarayıcıyı aç, Fotoğraf seç veya sistem kamerasını kullan, Ana ekran hareket çubuğu]"
+    },
+    {
+      "name": "NativeDeviceTest.systemVolumeBrightnessAndNativeThemeAreReal",
+      "passed": true,
+      "test_cases": 1,
+      "seconds": 16.81
+    },
+    {
+      "name": "NativeDeviceTest.incomingSmsUsesTheRealProviderAndRichInbox",
+      "passed": true,
+      "test_cases": 1,
+      "seconds": 15.2
+    },
+    {
+      "name": "NativeDeviceTest.outgoingSmsWaitsForActualSentCallback",
+      "passed": false,
+      "test_cases": 0,
+      "seconds": 23.77,
+      "failure": "ağlantılar ve denetim merkezi, Nazar boncuğu güç menüsü, RIFKI YANINDA Bir fikrin mi var? Beraber bir şeyler yapalım. Rıfkı’ya sor Rıfkı, OğuzDows’un kedi rehberi, Tüm uygulamaları aç, Mağaza, Atölye, Haber, Koleksiyon, Dosyalar, Google, Cihazım, Ayarlar, Cihazında ara, Telefon seçenekleri, Mesajlaşma seçenekleri, Tarayıcıyı aç, Fotoğraf seç veya sistem kamerasını kullan, Ana ekran hareket çubuğu]"
+    },
+    {
+      "name": "NativeDeviceTest.outgoingCallUsesTelecomAndOurInCallService",
+      "passed": true,
+      "test_cases": 1,
+      "seconds": 18.12
+    },
+    {
+      "name": "NativeDeviceTest.incomingCallCanBeAnsweredMutedAndEndedInOurUi",
+      "passed": true,
+      "test_cases": 1,
+      "seconds": 8.91
+    },
+    {
+      "name": "NativeDeviceTest.localApkReviewCancelAndSystemInstall",
+      "passed": true,
+      "test_cases": 1,
+      "seconds": 23.08
+    },
+    {
+      "name": "LauncherDeviceTest.suite",
+      "passed": false,
+      "test_cases": 0,
+      "seconds": 79.66,
+      "failure": "INSTRUMENTATION_STATUS: stack=java.lang.AssertionError: Native node not found: launcher-widget-2; current package=org.oguzdows.mobile"
+    },
+    {
+      "name": "RepositorySecurityTest.suite",
+      "passed": true,
+      "test_cases": 3,
+      "seconds": 1.11
+    },
+    {
+      "name": "LiveRepositoryTest.suite",
+      "passed": true,
+      "test_cases": 1,
+      "seconds": 18.32
+    }
+  ],
+  "live_repository": {
+    "apps": 5057,
+    "compatible": 5016,
+    "timestamp": 1795648445236,
+    "synced": 1795810602198,
+    "source": "https://f-droid.org/repo"
+  },
+  "live_apk_review": "APK_REVIEW com.beemdevelopment.aegis code=82 sha256=0eecec45de0da3ff1358004b51e2960d9178551643a6ed44f6496ea9ec999c19 bytes=6869856 installed=false",
+  "passed": false,
+  "raw_github_notice": "{\"source_sha\":\"2be89d78728d48d0ac3a599bd0c7903ae7310c88\",\"sdk\":\"35\",\"abi\":\"x86_64\",\"image_fingerprint\":\"google/sdk_gphone64_x86_64/emu64xa:15/AE3A.240806.043/12960925:userdebug/dev-keys\",\"emulator_only\":true,\"physical_sim_tested\":false,\"emergency_calls_tested\":false,\"gms_certification_tested\":false,\"mms_rcs_supported\":false,\"tests\":[{\"name\":\"NativeDeviceTest.bundledBridgeRolesValidationAndIsolation\",\"passed\":true,\"test_cases\":1,\"seconds\":35.25},{\"name\":\"NativeDeviceTest.paidActionsRequireFinalNativeConsent\",\"passed\":false,\"test_cases\":0,\"seconds\":39.5,\"failure\":\"a\\u011flant\\u0131lar ve denetim merkezi, Nazar boncu\\u011fu g\\ü\\ç men\\üs\\ü, RIFKI YANINDA Bir fikrin mi var? Beraber bir \\u015feyler yapal\\u0131m. R\\u0131fk\\u0131\\u2019ya sor R\\u0131fk\\u0131, O\\u011fuzDows\\u2019un kedi rehberi, T\\üm uygulamalar\\u0131 a\\ç, Ma\\u011faza, At\\ölye, Haber, Koleksiyon, Dosyalar, Google, Cihaz\\u0131m, Ayarlar, Cihaz\\u0131nda ara, Telefon se\\çenekleri, Mesajla\\u015fma se\\çenekleri, Taray\\u0131c\\u0131y\\u0131 a\\ç, Foto\\u011fraf se\\ç veya sistem kameras\\u0131n\\u0131 kullan, Ana ekran hareket \\çubu\\u011fu]\"},{\"name\":\"NativeDeviceTest.systemVolumeBrightnessAndNativeThemeAreReal\",\"passed\":true,\"test_cases\":1,\"seconds\":16.81},{\"name\":\"NativeDeviceTest.incomingSmsUsesTheRealProviderAndRichInbox\",\"passed\":true,\"test_cases\":1,\"seconds\":15.2},{\"name\":\"NativeDeviceTest.outgoingSmsWaitsForActualSentCallback\",\"passed\":false,\"test_cases\":0,\"seconds\":23.77,\"failure\":\"a\\u011flant\\u0131lar ve denetim merkezi, Nazar boncu\\u011fu g\\ü\\ç men\\üs\\ü, RIFKI YANINDA Bir fikrin mi var? Beraber bir \\u015feyler yapal\\u0131m. R\\u0131fk\\u0131\\u2019ya sor R\\u0131fk\\u0131, O\\u011fuzDows\\u2019un kedi rehberi, T\\üm uygulamalar\\u0131 a\\ç, Ma\\u011faza, At\\ölye, Haber, Koleksiyon, Dosyalar, Google, Cihaz\\u0131m, Ayarlar, Cihaz\\u0131nda ara, Telefon se\\çenekleri, Mesajla\\u015fma se\\çenekleri, Taray\\u0131c\\u0131y\\u0131 a\\ç, Foto\\u011fraf se\\ç veya sistem kameras\\u0131n\\u0131 kullan, Ana ekran hareket \\çubu\\u011fu]\"},{\"name\":\"NativeDeviceTest.outgoingCallUsesTelecomAndOurInCallService\",\"passed\":true,\"test_cases\":1,\"seconds\":18.12},{\"name\":\"NativeDeviceTest.incomingCallCanBeAnsweredMutedAndEndedInOurUi\",\"passed\":true,\"test_cases\":1,\"seconds\":8.91},{\"name\":\"NativeDeviceTest.localApkReviewCancelAndSystemInstall\",\"passed\":true,\"test_cases\":1,\"seconds\":23.08},{\"name\":\"LauncherDeviceTest.suite\",\"passed\":false,\"test_cases\":0,\"seconds\":79.66,\"failure\":\"INSTRUMENTATION_STATUS: stack=java.lang.AssertionError: Native node not found: launcher-widget-2; current package=org.oguzdows.mobile\"},{\"name\":\"RepositorySecurityTest.suite\",\"passed\":true,\"test_cases\":3,\"seconds\":1.11},{\"name\":\"LiveRepositoryTest.suite\",\"passed\":true,\"test_cases\":1,\"seconds\":18.32}],\"live_repository\":{\"apps\":5057,\"compatible\":5016,\"timestamp\":1795648445236,\"synced\":1795810602198,\"source\":\"https://f-droid.org/repo\"},\"live_apk_review\":\"APK_REVIEW com.beemdevelopment.aegis code=82 sha256=0eecec45de0da3ff1358004b51e2960d9178551643a6ed44f6496ea9ec999c19 bytes=6869856 installed=false\",\"passed\":false}",
+  "notice_transport_note": "Only backslashes immediately before literal non-ASCII characters were removed to recover JSON; original raw notice preserved.",
+  "github": {
+    "run_url": "https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/46061542455",
+    "job_id": 140716736280,
+    "job_url": "https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/46061542455/job/140716736280",
+    "scope": "Failed acceptance. Four of five native launcher methods passed, but the suite and distribution gate did not. No package."
+  }
+}

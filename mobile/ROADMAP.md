@@ -1,6 +1,6 @@
 # OğuzDows Mobile · canlı kabuk ve Rıfkı yol haritası
 
-> **Tasarım kararı / gelecek geliştirme planı.** Bu belge ses, mikrofon, bulut modeli veya yeni izinleri etkinleştirmez. Mevcut APK’nın çalışan ve henüz çalışmayan tarafları [doğrulama kaydında](VERIFICATION.md), mevcut uygulama mimarisi [DESIGN.md](DESIGN.md) içindedir.
+> **Yol haritası; ilk native kabuk dilimi uygulandı.** `0.3.0-launcher`, gerçek HOME/uygulama çekmecesi/kalıcı kısayollar/AppWidgetHost/yerel Rıfkı ile [17/17 emülatör kabulünü geçti](VERIFICATION.md). [APK’yı indir ve dene](INSTALL.md). Bu, bütün yol haritasının tamamlandığı anlamına gelmez: bulut, ses/wake-word, arayan profilleri, bildirimler ve fiziksel performans/ölçek/süreç ölümü kapıları açık. Bu belge mikrofon/model/izinleri etkinleştirmez; mevcut mimari [DESIGN.md](DESIGN.md) içindedir.
 
 **Ürün cümlesi:** Masaüstünün küçültülmüş ekranı değil; cebinde yaşayan OğuzDows. **Rıfkı evin kedisi; root kullanıcısı değil.** Lafını esirgemeyebilir, fakat gönderilmemiş mesaja “gönderdim”, istenmiş çağrıya “bağlandım” diyemez.
 
@@ -19,10 +19,10 @@ Bu aşamanın ürünü normal yetkili bir **Launcher + varsayılan yardımcı + 
 ### Eldeki temeli koru
 
 - `HomeActivity` içinde çevrimdışı paketlenmiş zengin UI, origin/ana çerçeve kısıtlı köprü var.
-- `CallController` / `OguzInCallService`, SMS sağlayıcısı/gerçek geri bildirim ve imzalı F-Droid/APK inceleme yolları var. API35 emülatöründe 12/12 kabul kanıtı mevcut.
+- `CallController` / `OguzInCallService`, SMS sağlayıcısı/gerçek geri bildirim ve imzalı F-Droid/APK inceleme yolları var. Önceki 12/12 taban korunarak 5 native launcher testi eklendi; API35/4GiB QEMU’da 17/17 kabul kanıtı mevcut.
 - `RifkiVoiceService`, `RifkiSessionService`, `RifkiRecognitionService` henüz **metin/kural tabanlı iskelet**; ses kaydı, wake-word ve native bulut sohbeti yok.
 - Mevcut web model köprüsü varsayılan kapalı bir geliştirme köprüsü; üretim kimlik doğrulamalı mobil servis değil.
-- Gerçek widget host’u, sistem rehberi profilleri ve bildirim dinleyicisi bu planın yeni işleridir; varmış gibi sunulmaz.
+- Gerçek widget host’u ilk dilimde uygulandı: platform bağlama, gerçek RemoteViews, yeni host’a dönüş ve kaldırma fixture’ı geçti. Tüm sağlayıcı/iş profili/ölçek/süreç ölümü matrisi açık; sistem rehberi profilleri ve bildirim dinleyicisi henüz uygulanmadı.
 
 **Karar:** Güvenlik/telefon/depo kodunu baştan yazma. Kotlin adaptörleriyle sar; ana kabuğu kademeli olarak Compose’a taşı. Web önizlemesini tasarım ve davranış referansı olarak koru; geçişte taşınmamış Atölye/Haber modülleri eski yerel köprü sınırını koruyan paketlenmiş UI’da kalabilir. WebView’in uzak içerik yasağı bu geçiş için kaldırılmaz.
 

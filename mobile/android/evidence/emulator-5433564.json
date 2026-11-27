@@ -1,0 +1,20 @@
+{
+  "source_sha": "5433564a139d38468eca073b22b4e2d62b2afe8d",
+  "sdk": "35",
+  "abi": "x86_64",
+  "image_fingerprint": "google/sdk_gphone64_x86_64/emu64xa:15/AE3A.240806.043/12960925:userdebug/dev-keys",
+  "emulator_only": true,
+  "physical_sim_tested": false,
+  "emergency_calls_tested": false,
+  "gms_certification_tested": false,
+  "mms_rcs_supported": false,
+  "tests": [],
+  "passed": false,
+  "infrastructure_boot_dialog": "Pixel Launcher isn't responding | Close app | Wait",
+  "github": {
+    "run_url": "https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/46065058564",
+    "job_id": 140728286209,
+    "job_url": "https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/46065058564/job/140728286209",
+    "scope": "Failed acceptance; no distribution package. A blocked or zero-test run is not a launcher acceptance."
+  }
+}

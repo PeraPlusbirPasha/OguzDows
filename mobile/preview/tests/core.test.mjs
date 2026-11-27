@@ -1,6 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import fs from "node:fs";
+import { createHash } from "node:crypto";
 import {
   calculate,
   contrast,
@@ -39,8 +40,9 @@ test("all sixteen desktop tools are represented and ten really interactive", () 
     ),
   );
   assert.match(sdk.source_sha, /^[a-f0-9]{40}$/);
+  // The legacy CI field aggregates both Java and Kotlin JVM reports.
   assert.deepEqual(sdk.java_unit_tests, {
-    tests: 6,
+    tests: 13,
     failures: 0,
     errors: 0,
     skipped: 0,
@@ -51,7 +53,7 @@ test("all sixteen desktop tools are represented and ten really interactive", () 
   assert.equal(parity.physical_device_tested, false);
   assert.equal(parity.live_generative_model_tested, false);
 });
-test("native emulator claims require matching observed SDK, full device gate and artifact evidence", () => {
+test("native launcher claims require matching SDK, all 17 cases, genuine preview and artifact evidence", () => {
   const read = (name) =>
     JSON.parse(fs.readFileSync(new URL(`../../${name}`, import.meta.url)));
   const parity = read("feature-parity.json");
@@ -68,15 +70,17 @@ test("native emulator claims require matching observed SDK, full device gate and
     emulator.tests.length,
     parity.android_acceptance.driver_selections_required,
   );
-  assert.equal(new Set(emulator.tests.map((t) => t.name)).size, 10);
+  assert.equal(new Set(emulator.tests.map((t) => t.name)).size, 11);
+  assert.equal(parity.android_acceptance.driver_selections_required, 11);
+  assert.equal(parity.android_acceptance.instrumentation_cases_required, 17);
   assert.ok(emulator.tests.every((t) => t.passed && t.test_cases > 0));
   assert.equal(
     emulator.tests.reduce((sum, t) => sum + t.test_cases, 0),
-    12,
+    17,
   );
   assert.equal(
     parity.android_acceptance.instrumentation_cases_observed_passed,
-    12,
+    17,
   );
   assert.equal(
     parity.android_acceptance.live_repository_acceptance_observed,
@@ -101,8 +105,55 @@ test("native emulator claims require matching observed SDK, full device gate and
     parity.android_acceptance.artifact_download_verified_locally,
     pkg.local_retrieval.independent_apk_hash_or_signature_verification,
   );
-  for (const failed of parity.native_evidence
-    .historical_failed_emulator_reports) {
+  const launcher = emulator.tests.find(
+    (t) => t.name === "LauncherDeviceTest.suite",
+  );
+  assert.equal(launcher.test_cases, 5);
+  assert.deepEqual(
+    emulator.tests
+      .filter((t) => t.name.startsWith("NativeDeviceTest."))
+      .map((t) => t.name)
+      .sort(),
+    [
+      "bundledBridgeRolesValidationAndIsolation",
+      "paidActionsRequireFinalNativeConsent",
+      "systemVolumeBrightnessAndNativeThemeAreReal",
+      "incomingSmsUsesTheRealProviderAndRichInbox",
+      "outgoingSmsWaitsForActualSentCallback",
+      "outgoingCallUsesTelecomAndOurInCallService",
+      "incomingCallCanBeAnsweredMutedAndEndedInOurUi",
+      "localApkReviewCancelAndSystemInstall",
+    ]
+      .map((name) => `NativeDeviceTest.${name}`)
+      .sort(),
+  ); // Launcher migration must not silently remove communications or installer coverage.
+  assert.equal(parity.native_launcher.emulator_verified, true);
+  assert.equal(parity.native_launcher.cloud_voice_wake_word_implemented, false);
+  assert.equal(parity.native_launcher.physical_ram_fps_power_measured, false);
+  const preview = fs.readFileSync(
+    new URL(`../../${parity.native_launcher.visual_preview}`, import.meta.url),
+  );
+  assert.equal(
+    createHash("sha256").update(preview).digest("hex"),
+    emulator.visual_preview.sha256,
+  );
+  assert.deepEqual([...preview.subarray(0, 3)], [0xff, 0xd8, 0xff]);
+  assert.equal(emulator.visual_preview.width, 234);
+  assert.equal(emulator.visual_preview.height, 520);
+  const baseline = parity.native_evidence.historical_accepted_0_2;
+  assert.equal(read(baseline.emulator_report).passed, true);
+  assert.equal(read(baseline.emulator_report).source_sha, baseline.source_sha);
+  assert.equal(
+    read(baseline.emulator_report).tests.reduce(
+      (sum, t) => sum + t.test_cases,
+      0,
+    ),
+    12,
+  );
+  for (const failed of [
+    ...parity.native_evidence.historical_failed_emulator_reports,
+    ...parity.native_evidence.historical_partial_failed_reports,
+  ]) {
     assert.equal(read(failed).passed, false); // A later success must not rewrite failed history.
   }
   assert.equal(emulator.physical_sim_tested, false);

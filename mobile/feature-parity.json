@@ -1,7 +1,7 @@
 {
-  "schema_version": 2,
+  "schema_version": 3,
   "product": "OğuzDows Mobile",
-  "phase": "native-apk-api35-emulator-accepted",
+  "phase": "native-launcher-api35-emulator-accepted",
   "rom_built": false,
   "native_apk_built": true,
   "physical_device_tested": false,
@@ -180,14 +180,14 @@
     {
       "id": "nazar-power",
       "preview": "interactive",
-      "mobile": "Nazar güç/pil kimliği. Web pil/saat örnek; APK sistemden okur. APK gerçek pil/ekran paneline gider, güvenlik kilidi/kapatma simülasyonu yapmaz; SystemUI/ROM güç katmanı ayrı.",
-      "native_android": "assembled-specific-runtime-unverified"
+      "mobile": "Native HOME’da nazar kimliği, gerçek pil/saat ve denetim/sistem ayarı yolu. Web pil/saat örnektir. Gerçek cihazı kilitli/kapanmış göstermez; SystemUI/ROM güç yetkisi ayrı.",
+      "native_android": "partial-native-home-emulator-verified"
     },
     {
       "id": "rifki",
       "preview": "partial",
-      "mobile": "Kedi kimliği korunur; dürüst yerel rehber + sunucuda açık onaylı opsiyonel üretken model köprüsü. Canlı model denenmedi.",
-      "native_android": "assembled-specific-runtime-unverified"
+      "mobile": "Native yerel kedi: saat/pil/şarj/çağrı bağlamı, sevme/baş eğme/sağ-sol yerleşim ve düğmeyle onaylı tipli UI eylemleri. Bulut/mikrofon/TTS/hotword bağlı değil; webde ayrı opsiyonel sunucu köprüsü canlı denenmedi.",
+      "native_android": "partial-native-launcher-emulator-verified"
     },
     {
       "id": "assistant-role",
@@ -210,14 +210,14 @@
     {
       "id": "appearance",
       "preview": "interactive",
-      "mobile": "Ortak açık/koyu, üç vurgu, kompakt/hafif/azaltılmış hareket. Native Mağaza/APK/listeler/Rıfkı tercihi okur; görüşme ekranı kendi gece paletindedir. Başka üreticinin uygulaması zorlanmaz.",
-      "native_android": "partial-emulator-theme-preference-verified"
+      "mobile": "Native hafif tint/cam yüzeyler, dört arka plan ve kendi ekranlarında ortak açık/koyu tercih. Launcher→Telefon gerçek koyu arka planı ve native HOME’a Geri test edildi. Webde ayrıca üç vurgu/kompakt/azaltılmış hareket. Başka üreticinin uygulaması zorlanmaz.",
+      "native_android": "partial-emulator-rendered-phone-and-native-theme-verified"
     },
     {
       "id": "culture-wallpapers",
       "preview": "partial",
-      "mobile": "Mevcut koleksiyondan dört optimize görsel; tüm 20 görsel ve 11 anlatım kaydı mobilde henüz taşınmadı.",
-      "native_android": "partial-bundled-ui"
+      "mobile": "Mevcut koleksiyondan dört byte-identical native duvar kâğıdı; gerçek seçim/disk kaydı kabulte sınandı. Tüm 20 görsel ve 11 anlatım kaydı mobilde henüz taşınmadı.",
+      "native_android": "partial-native-wallpaper-selection-emulator-verified"
     },
     {
       "id": "printscreen",
@@ -246,8 +246,8 @@
     {
       "id": "resource-monitor",
       "preview": "partial",
-      "mobile": "Hafif görsel profil; APK sistem pil/saat/medya sesi ve platform durumu. Tüm cihaz CPU/RAM/pil ömrü/FPS iyileşme iddiası yok.",
-      "native_android": "partial-emulator-volume-brightness-verified"
+      "mobile": "Native pil/saat/medya sesi, Cihazım sistem bellek anlık görüntüsü; yalnız sistem toplam/kullanılabilir bellek, appRAM/FPS/pil ömrü ölçümü değil. 4GiB emülatör kabulü fiziksel performans vaadi değildir.",
+      "native_android": "partial-native-snapshot-and-volume-emulator-verified"
     },
     {
       "id": "files",
@@ -297,8 +297,8 @@
     "catalog_entries": 24,
     "catalog_categories": 8,
     "catalog_icons": "24 local brand SVGs plus reproducible licensed Android VectorDrawables; real installed icons preferred, bounded generated monograms for unknown packages; no icon CDN.",
-    "search": "Turkish applications/aliases, contacts, notes (16384 chars), tasks, tools, catalog and simple arithmetic; no automatic web query",
-    "home_gestures": "Three real home pages, horizontal swipe or pagination; upward swipe opens drawer; top-edge downward swipe opens controls",
+    "search": "Native HOME: Turkish module/installed-app label/package filtering, accessible profiles; no automatic network search. Bundled/web global search separately covers contacts, notes (16384 chars), tasks, tools, catalog and arithmetic.",
+    "home_gestures": "Native: 2 shortcut pages + 1 widget page, horizontal swipe/pagination, search/dock opens drawer, header downward swipe opens controls. Web laboratory separately has 3 module pages and upward drawer swipe.",
     "phone": "Browser: safe tel handoff only. APK: explicit dialer role, CALL_PHONE, native charge/recipient consent -> Telecom/InCallService and in-package controls; actual callback state, never inferred connection. Physical SIM/emergency unverified.",
     "messages": "Browser: draft and safe sms handoff. APK: explicit default SMS role/grants/subscription and native consent -> SmsManager, durable multipart receipts and real provider history. queued/sent/delivery distinct; MMS/RCS unsupported.",
     "contacts": "60 manual local contacts, favorite/edit/confirmed delete; system contacts not read",
@@ -308,28 +308,44 @@
     "photos": "6 explicitly selected temporary images up to 8 MiB each, inspect/download/remove; not permanent library",
     "browser": "Explicit safe HTTPS/external search handoff, no embedded web engine",
     "control_center": "Top slide panel. Browser: actual preview audio/mute and UI dimmer, illustrative radios. APK: AudioManager media volume, own-window brightness, real radio/DND settings panels; no fake switch state.",
-    "native_system_delegation": "API35/QEMU acceptance observed for offline bundled UI and origin/main-frame-bound bridge, native Telecom/SmsManager, signed pinned F-Droid, explicit package review/system installer. Settings delegates for radios/defaults; no WRITE_SETTINGS/root/silent installation or physical SIM/GMS/ROM evidence."
+    "native_system_delegation": "API35/4GiB QEMU 17-case acceptance: native HOME/inventory/layout/widgets/shared Phone theme and Back, offline bundled module UI and origin/main-frame-bound bridge, Telecom/SmsManager, pinned signed F-Droid and explicit system install. Separate HOME/assistant/Phone/SMS roles; no physical SIM/GMS/ROM or measured hardware-performance claim."
   },
   "native_emulator_verified": true,
   "native_evidence": {
-    "source_sha": "023a89c9f22bdcd27eabecf8437b05addcab03e9",
-    "sdk_report": "android/evidence/sdk-023a89c.json",
-    "emulator_report": "android/evidence/emulator-023a89c.json",
-    "package_report": "android/evidence/package-023a89c.json",
+    "source_sha": "fb6cad5a3f56c5bf37e739388ded5ffce8e5ad13",
+    "sdk_report": "android/evidence/sdk-fb6cad5.json",
+    "emulator_report": "android/evidence/emulator-fb6cad5.json",
+    "package_report": "android/evidence/package-fb6cad5.json",
+    "historical_accepted_0_2": {
+      "source_sha": "023a89c9f22bdcd27eabecf8437b05addcab03e9",
+      "sdk_report": "android/evidence/sdk-023a89c.json",
+      "emulator_report": "android/evidence/emulator-023a89c.json",
+      "package_report": "android/evidence/package-023a89c.json",
+      "cases": 12,
+      "selections": 10
+    },
     "historical_failed_emulator_reports": [
       "android/evidence/emulator-384e905.json",
       "android/evidence/emulator-be00308.json",
-      "android/evidence/emulator-a2eafe4.json"
+      "android/evidence/emulator-a2eafe4.json",
+      "android/evidence/emulator-d13b34e.json",
+      "android/evidence/emulator-8257892.json",
+      "android/evidence/emulator-2be89d7.json",
+      "android/evidence/emulator-5433564.json"
     ],
-    "emulator_acceptance": "API35/x86_64 QEMU PASSED: 12/12 cases in 10 selections, no skipped/empty acceptance. Bundled bridge and cold-start draft, paid-action cancellation, system volume/brightness/theme, incoming/outgoing virtual SMS and calls, inert APK system install/cancel, repository security and live catalog/Aegis review/cancel. No physical SIM, emergency, GMS, all-app or ROM claim."
+    "historical_partial_failed_reports": [
+      "android/evidence/launcher-c174b6d.json",
+      "android/evidence/emulator-ece0f3b-partial.json"
+    ],
+    "emulator_acceptance": "API35/x86_64/4GiB QEMU PASSED: 17/17 cases in 11 selections, no skipped/empty acceptance. All previous 8 communications/bridge/installer + 3 repository security + 1 live catalog cases retained; 5 native launcher cases add actual HOME/inventory/launch, disk layout/corrupt-record protection, shared rendered Phone dark theme/native Back, local Rifki/real volume and AppWidgetHost binding/RemoteViews/new host/removal. No physical SIM, emergency, GMS, all-app, measured hardware performance or ROM claim."
   },
   "android_acceptance": {
     "compile_sdk": 35,
     "min_sdk": 29,
     "java_unit_tests_observed_passed": 6,
     "lint_errors_observed": 0,
-    "instrumentation_cases_required": 12,
-    "driver_selections_required": 10,
+    "instrumentation_cases_required": 17,
+    "driver_selections_required": 11,
     "api_29_to_34_tested": false,
     "physical_sim_tested": false,
     "emergency_calls_tested": false,
@@ -338,10 +354,32 @@
     "live_repository_acceptance_observed": true,
     "production_signed_release": false,
     "universal_phone_iso": false,
-    "lint_warnings_observed": 37,
-    "instrumentation_cases_observed_passed": 12,
-    "driver_selections_observed_passed": 10,
+    "lint_warnings_observed": 43,
+    "instrumentation_cases_observed_passed": 17,
+    "driver_selections_observed_passed": 11,
     "debug_package_prepared": true,
-    "artifact_download_verified_locally": false
+    "artifact_download_verified_locally": false,
+    "kotlin_unit_tests_observed_passed": 7,
+    "jvm_unit_tests_observed_passed": 13
+  },
+  "native_launcher": {
+    "version": "0.3.0-launcher",
+    "entry_point": "LauncherActivity: MAIN/HOME/LAUNCHER, native Kotlin + Jetpack Compose; not a WebView home.",
+    "emulator_verified": true,
+    "launcher_cases_observed_passed": 5,
+    "installed_apps": "LauncherApps/UserManager, accessible profile-qualified activities and badged icons; actual search/launch/details. At most 1000 entries, 3MiB icon LRU, background inventory and visible-lifecycle callbacks. No QUERY_ALL_PACKAGES.",
+    "layout": "12 default / 16 maximum pins across 2 shortcut pages, explicit add/remove/step-wise move, ordered private IO persistence and corruption write guard; 4 existing wallpapers. Not arbitrary drag placement.",
+    "widgets": "Third page: real AppWidgetHost, platform bind/configuration path and RemoteViews, max 2 fixed-size areas. Real fixture binding/content/new-host restoration/removal passed. All-provider/OEM/profile/process-death matrix remains open.",
+    "rifki": "Local typed deterministic reaction to time/battery/charging/call, pet/head-tilt and left/right placement, explicitly confirmed UI suggestions. No cloud inference, ASR/TTS, microphone, wake word or always-listening animation.",
+    "module_handoff": "Existing native Phone/SMS/Store and bundled daily modules retained. launcher.home and launcher-origin Back return to native HOME. Shared Phone dark pixels checked, not only a saved theme flag.",
+    "visual_preview": "screenshots/launcher-native-emulator.jpg",
+    "visual_scope": "Actual emulator UiDevice capture, reduced to 234x520 JPEG; inspected locally from ordered annotation chunks. Full PNGs in artifact. Not browser/AI/physical-device imagery.",
+    "ram_target_gib": [
+      4,
+      6
+    ],
+    "emulator_ram_gib": 4,
+    "physical_ram_fps_power_measured": false,
+    "cloud_voice_wake_word_implemented": false
   }
 }
