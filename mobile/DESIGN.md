@@ -1,5 +1,7 @@
 # OğuzDows Mobile · ürün, mimari ve kabul kapıları
 
+Bu belge mevcut APK/tarayıcı mimarisini anlatır. **Gelecek sürümün** Kotlin/Compose Aero kabuğu, bulut ağırlıklı Rıfkı, koşullu wake-word, sistem yardımcı yüzeyi ve arayan profilleri için [yeni yol haritası](ROADMAP.md) geçerlidir. Oradaki yeni yetenekler burada uygulanmış sayılmaz.
+
 ## 1. Ürün ve kapsam
 
 **OğuzDows Mobile — “Cebinde, senden bir dünya.”** Türkçe kimlik, nazar boncuğu güç simgesi, Rıfkı kedi rehberi, kültür koleksiyonu, Atölye, Mağaza ve Haber aynı dokunmatik deneyimde buluşur.

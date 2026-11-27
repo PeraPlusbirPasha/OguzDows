@@ -2,6 +2,8 @@
 
 **Cebinde, senden bir dünya.**
 
+**Sıradaki ürün planı:** [Canlı Aero kabuk + konuşan Rıfkı mimarisi ve MVP → v1.0 yol haritası](ROADMAP.md). Kullanıcının seçimi: bulut ağırlıklı AI, uyandırma kelimesi, kabuk + sistem yardımcı yüzeyi ve 4–6 GB RAM hedefi. Bu bir geliştirme planıdır; aşağıdaki APK’ya mikrofon/model/bildirim erişimi eklenmiş değildir.
+
 OğuzDows’un Türkçe kimliği, nazar boncuğu güç simgesi, Rıfkı’sı, kültür koleksiyonu ve araçlarını birleştiren **zengin mobil arayüz + yerel Telefon/SMS/Mağaza test APK’sı**. Tarayıcı önizlemesi ve telefondaki yerel servis yolu ayrı tutulur.
 
 > **Emülatör APK’sı hazır; telefon ROM’u/ISO’su değildir.** [`023a89c` koşusunda](https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/46048445728) **12/12 gerçek emülatör testi + 6 Java testi geçti**; lint 0 hata / 37 uyarı. Paket yalnız tam kabulden sonra hazırlandı. [**APK indirme, SHA-256 ve emülatöre kurulum**](INSTALL.md) · [Kanıt ve kalan kapılar](VERIFICATION.md). Fiziksel SIM/cihaz, GMS, MMS/RCS ve canlı üretken model doğrulanmış değildir. PC/Pi v1.2 dosyaları ve yayınları değiştirilmez.
