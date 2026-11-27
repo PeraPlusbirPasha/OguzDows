@@ -144,6 +144,7 @@ def configure(arch: str, output: Path) -> None:
     shutil.copy2(ROOT / 'scripts/pi-runtime-smoke.py', stage / '00-desktop/files/pi-runtime-smoke.py')
     shutil.copy2(ROOT / 'scripts/pi_contract.py', stage / '00-desktop/files/pi_contract.py')
     shutil.copy2(ROOT / 'scripts/pi_session_smoke.py', stage / '00-desktop/files/pi_session_smoke.py')
+    shutil.copy2(ROOT / 'scripts/pi-ci-cleanup.py', stage / '00-desktop/files/pi-ci-cleanup.py')
     # Sadece güvenli tarayıcı varsayılanları; sandbox/çoklu süreç izolasyonu kapatılmaz.
     policy_path = overlay / "usr/lib/firefox-esr/distribution/policies.json"
     policies = json.loads(policy_path.read_text())

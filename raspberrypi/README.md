@@ -153,6 +153,14 @@ Ortak kaynak native C/GTK Haber okuyucusu, 15 ayrı simge ve doğal boyutlu iske
 - Export öncesi ve son ham imajın **salt okunur loop** kontrolünde MBR/FAT/ext4, hizalama, model DTB/çekirdek/initramfs zinciri, çözülmüş PARTUUID, marka ve hesap güvenliği denetlenir. SSH anahtarları/machine-id, ortak kullanıcı ve parolasız sudo bulunması derlemeyi durdurur.
 - Bu kontroller **Pi'nin firmware'den gerçekten açıldığını, VC4/V3D donanım hızlandırmasını, Wi-Fi/Bluetooth/kamera/HAT işlevlerini veya performansı kanıtlamaz.** Bunlar fiziksel test ister.
 
+### Derleme test oturumunun güvenli kapanışı
+
+İlk 1.2 hazırlık denemesinde (`5a31de8`, [45977169487](https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/45977169487)) iki mimarinin hedef ARM / GTK / root olmayan Xfce kapıları geçti; ancak sonraki `stage-oguzdows` unmount işlemi `/run` ve `/dev` meşgul kaldığı için **iki Pi imajı da başarısız oldu ve yayımlanmadı**. Başarılı uygulama testi, tamamlanmış bir SD imajı sayılmaz.
+
+`02-run.sh` artık özel test oturumunun root GTK/D-Bus ve ayrışmış non-root Xfce çocuklarını **geçici çalışma dizinini silmeden ve mount'ları ayırmadan önce** bekler/sonlandırır. Yalnız hostta çalışan `scripts/pi-ci-cleanup.py`, tam chroot kökü **ve** rastgele özel `HOME` yolu **ve** test UID'si eşleşmesini ister; pidfd ile PID yeniden kullanımını önler. Önce SIGTERM, yalnız kalan sahipli süreçlere sınırlı SIGKILL uygular. Başka HOME/UID ile aynı chroot'ta kalan bir süreç başarıyı engeller; genel `pkill`, `killall`, lazy/force unmount veya bağlı rootfs silme yoktur. Temizlik tamamlanmazsa çalışma dizini/emülatör korunur ve asıl hata kodu gizlenmez. Bu yardımcı **üretilen sisteme kurulmaz**.
+
+Sahte `/proc` birim testlerine ek olarak ayrı zorunlu host CI adımı gerçek geçici chroot/root+non-root süreçleri ve Linux pidfd sinyallerini sınar; aynı `HOME` değerine sahip host sürecinin ve sahip olunmayan chroot sürecinin öldürülmediğini denetler. Bu yalnızca **derleme/test yaşam döngüsü regresyonudur**, fiziksel Pi açılış veya performans kanıtı değildir.
+
 `.github/workflows/raspberrypi.yml` PC ISO işlerinden ayrıdır. PR'da test, `main` güncellemesi veya elle çalıştırmada seçilen iki/tek imaj derlenir. Yeni workflow henüz varsayılan dala eklenmediyse GitHub doğrudan dispatch'i kaydetmez; mevcut `main.yml` girişinden **`target=raspberrypi`** seçilerek aynı daldaki Pi workflow'u çağrılır. Bu seçim PC ISO işlerini başlatmaz:
 
 ```sh

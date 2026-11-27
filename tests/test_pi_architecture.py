@@ -203,6 +203,9 @@ class PiAbiAndFeatureTests(unittest.TestCase):
                 for name in contract['asset_hashes']:
                     self.assertTrue((overlay / name).is_file(), name)
                 self.assertTrue((output / 'stage-oguzdows/00-desktop/files/pi-runtime-smoke.py').is_file())
+                self.assertEqual((output / 'stage-oguzdows/00-desktop/files/pi-ci-cleanup.py').read_bytes(),
+                                 (ROOT / 'scripts/pi-ci-cleanup.py').read_bytes())
+                self.assertFalse((overlay / 'usr/lib/oguzdows/pi-ci-cleanup.py').exists())
                 reader = (ROOT / 'scripts/pi_contract.py').read_bytes()
                 self.assertEqual((overlay / 'usr/lib/oguzdows/pi_contract.py').read_bytes(), reader)
                 self.assertEqual((output / 'stage-oguzdows/00-desktop/files/pi_contract.py').read_bytes(), reader)
@@ -358,7 +361,7 @@ class PiContractReaderTests(unittest.TestCase):
 
 
 class PiGuiLifecycleTests(unittest.TestCase):
-    def run_stage(self, root, smoke_status=0, unmount_fail=False, preexisting=False, create_report=True):
+    def run_stage(self, root, smoke_status=0, unmount_fail=False, preexisting=False, create_report=True, cleanup_status=0):
         tools = root / 'bin'
         tools.mkdir()
         work = root / 'build'
@@ -372,6 +375,18 @@ class PiGuiLifecycleTests(unittest.TestCase):
         write(stage, 'files/pi-runtime-smoke.py', '# yalnızca yaşam döngüsü test girdisi')
         write(stage, 'files/pi_session_smoke.py', '# yalnızca yaşam döngüsü test girdisi')
         write(stage, 'files/pi_contract.py', '# yalnızca yaşam döngüsü test girdisi')
+        # Simulated cleanup command only; real chroot/pidfd regression has its
+        # own privileged test, never silently substituted for ARM boot proof.
+        write(stage, 'files/pi-ci-cleanup.py', '''
+import json, os, sys
+from pathlib import Path
+runtime = Path(sys.argv[sys.argv.index('--runtime') + 1])
+Path(os.environ['CLEANUP_CAPTURE']).write_text(json.dumps({
+    'argv': sys.argv[1:], 'runtime_exists': runtime.is_dir(),
+    'emulator_exists': (Path(os.environ['ROOTFS_DIR']) / 'tmp/oguzdows-qemu-static').exists(),
+    'mounted': Path(os.environ['MOUNTED']).exists()}))
+sys.exit(int(os.environ['CLEANUP_STATUS']))
+''')
         write(tools, 'xauth', '#!/bin/sh\nexit 0\n').chmod(0o755)
         # /bin/sh, tıpkı gerçek xvfb-run gibi Bash işlevlerini aktarmaz.
         write(tools, 'xvfb-run', '''#!/bin/sh
@@ -419,6 +434,7 @@ exec bash "$1"
                'BASE_DIR': str(base), 'ROOTFS_DIR': str(target), 'ARCH': 'armhf',
                'MOUNTED': str(mounted), 'UNMOUNT_CAPTURE': str(root / 'umount.txt'),
                'SMOKE_STATUS': str(smoke_status), 'UNMOUNT_FAIL': '1' if unmount_fail else '0',
+               'CLEANUP_STATUS': str(cleanup_status), 'CLEANUP_CAPTURE': str(root / 'process-cleanup.json'),
                'CREATE_REPORT': '1' if create_report else '0'}
         result = subprocess.run(['bash', str(wrapper), str(ROOT / 'raspberrypi/stage/00-desktop/02-run.sh')],
                                 cwd=stage, env=env, text=True, capture_output=True, timeout=10)
@@ -431,11 +447,27 @@ exec bash "$1"
                 result, work, target = self.run_stage(root, smoke_status, unmount_fail)
                 self.assertEqual(result.returncode, expected, result.stderr)
                 self.assertEqual(json.loads((work / 'pi-runtime-report.json').read_text())['scope'], 'SIMULATED-lifecycle-only')
-                self.assertFalse(list((target / 'run').glob('oguzdows-ci.*')))
-                self.assertFalse((target / 'tmp/oguzdows-qemu-static').exists())
+                self.assertEqual(bool(list((target / 'run').glob('oguzdows-ci.*'))), unmount_fail)
+                self.assertEqual((target / 'tmp/oguzdows-qemu-static').exists(), unmount_fail)
                 self.assertTrue((target / 'run/user/1001/keep').exists())
+                captured = json.loads((root / 'process-cleanup.json').read_text())
+                self.assertTrue(captured['runtime_exists'] and captured['emulator_exists'] and captured['mounted'])
+                self.assertEqual(captured['argv'][0:2], ['--rootfs', str(target)])
                 self.assertEqual((root / 'umount.txt').read_text().strip(), str(target / 'tmp/.X11-unix'))
                 self.assertEqual((target / 'usr/share/oguzdows/pi-build-report.json').exists(), smoke_status == 0)
+
+    def test_process_cleanup_failure_preserves_runtime_and_original_exit_code(self):
+        for smoke_status, expected in ((0, 1), (47, 47)):
+            with self.subTest(smoke_status=smoke_status), tempfile.TemporaryDirectory() as temporary:
+                root = Path(temporary)
+                result, work, target = self.run_stage(root, smoke_status, cleanup_status=55)
+                self.assertEqual(result.returncode, expected, result.stderr)
+                self.assertTrue(list((target / 'run').glob('oguzdows-ci.*')))
+                self.assertTrue((target / 'tmp/oguzdows-qemu-static').exists())
+                self.assertTrue((target / 'run/user/1001/keep').exists())
+                self.assertIn('private runtime/emulator preserved', result.stderr)
+                self.assertTrue((work / 'pi-runtime-report.json').is_file())
+                self.assertTrue((root / 'process-cleanup.json').is_file())
 
     def test_preexisting_mount_is_not_unmounted_and_missing_failure_receipt_is_not_invented(self):
         for preexisting, expected in ((True, 1), (False, 47)):

@@ -78,6 +78,12 @@ jobs:
             python3 scripts/configure-pi.py --arch armhf --output /tmp/oguzdows-pi-armhf
           python3 scripts/ci-run.py --title 'Pi arm64 yapılandırma' -- \
             python3 scripts/configure-pi.py --arch arm64 --output /tmp/oguzdows-pi-arm64
+      - name: Özel Pi GUI chroot süreçlerini gerçek pidfd ile temizle (host, kart değil)
+        run: |
+          sudo env OGUZDOWS_REQUIRE_PI_CLEANUP_PROBE=1 \
+            python3 scripts/ci-run.py --title 'Pi private chroot and pidfd cleanup (host, not Pi boot)' -- \
+            python3 -W error::ResourceWarning -m unittest discover -s tests -p test_pi_ci_cleanup.py -v
+
       - name: Pi görünümünü gerçek GTK ile aç (host üzerinde, kart testi değil)
         env:
           GSETTINGS_BACKEND: memory

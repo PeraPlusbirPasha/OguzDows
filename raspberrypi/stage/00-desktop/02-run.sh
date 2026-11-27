@@ -22,19 +22,32 @@ if mountpoint -q "$socket"; then
 fi
 runtime=''
 cleanup() {
-    local status=$?
+    local status=$? safe=1
     trap - EXIT
-    if mountpoint -q "$socket"; then
-        umount "$socket" || { [ "$status" -ne 0 ] || status=1; }
-    fi
     if [ -n "$runtime" ]; then
         if [ -f "$runtime/report.json" ]; then
             install -m 0644 "$runtime/report.json" "${BASE_DIR}/../pi-runtime-report.json" || { [ "$status" -ne 0 ] || status=1; }
         fi
-        # Yalnızca bu teste ait mktemp dizini; rootfs /run dizini silinmez.
-        rm -rf -- "$runtime" || { [ "$status" -ne 0 ] || status=1; }
+        # Root GTK / D-Bus activations and detached non-root Xfce children can
+        # outlive dbus-run-session. Wait/kill only exact private HOME + chroot
+        # matches using pidfds, BEFORE deleting their runtime or unmounting.
+        python3 files/pi-ci-cleanup.py --rootfs "$ROOTFS_DIR" --runtime "$runtime" || {
+            safe=0
+            [ "$status" -ne 0 ] || status=1
+        }
     fi
-    rm -f "${ROOTFS_DIR}/tmp/oguzdows-qemu-static" || { [ "$status" -ne 0 ] || status=1; }
+    if mountpoint -q "$socket"; then
+        umount "$socket" || { safe=0; [ "$status" -ne 0 ] || status=1; }
+    fi
+    if [ "$safe" -eq 1 ]; then
+        # Only this test's mktemp directory; never delete the rootfs /run mount.
+        if [ -n "$runtime" ]; then
+            rm -rf -- "$runtime" || { [ "$status" -ne 0 ] || status=1; }
+        fi
+        rm -f "${ROOTFS_DIR}/tmp/oguzdows-qemu-static" || { [ "$status" -ne 0 ] || status=1; }
+    else
+        echo 'Pi GUI cleanup incomplete; private runtime/emulator preserved. Do not delete mounted rootfs.' >&2
+    fi
     exit "$status"
 }
 trap cleanup EXIT
