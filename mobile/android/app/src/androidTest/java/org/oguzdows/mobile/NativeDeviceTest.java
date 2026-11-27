@@ -75,7 +75,12 @@ public final class NativeDeviceTest {
                 return committed.get();
             });
         } catch (AssertionError failure) {
-            throw new AssertionError(failure.getMessage() + "; " + visibleState.get() + "; foreground=" + device.getCurrentPackageName(), failure);
+            java.util.List<String> visible = new java.util.ArrayList<>();
+            for (UiObject2 node : device.findObjects(By.clazz("android.widget.TextView"))) {
+                if (node.getText() != null && visible.size() < 12) visible.add(node.getText());
+            }
+            throw new AssertionError(failure.getMessage() + "; " + visibleState.get()
+                + "; foreground=" + device.getCurrentPackageName() + "; visible labels=" + visible, failure);
         }
         waitFor("bundled rich UI + secure bridge", 30000,
             () -> "true".equals(js("!!window.OguzPlatform && !!document.querySelector('.phone-content')")));

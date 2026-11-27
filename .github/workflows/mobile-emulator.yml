@@ -74,13 +74,13 @@ jobs:
           arch: x86_64
           profile: pixel_6
           cores: 2
-          ram-size: 2048M
+          ram-size: 4096M
           heap-size: 256M
           disk-size: 4096M
           disable-animations: true
           disable-spellchecker: true
-          # Software GL on this headless runner. The previous mixed Vulkan path stalled
-          # HWUI syncAndDrawFrame in an observed emulator ANR; this is not a phone setting.
+          # The product target is 4–6 GiB. Keep one consistent headless GL path after an
+          # observed HWUI frame-wait ANR; this is not a physical-device graphics/performance test.
           emulator-options: -no-window -gpu swiftshader_indirect -feature -Vulkan -no-snapshot -noaudio -no-boot-anim -camera-back none -camera-front none
           script: python3 mobile/scripts/ci-command.py -- python3 mobile/scripts/emulator-smoke.py
       - name: Yalnız tüm native testler geçince dağıtım paketini hazırla

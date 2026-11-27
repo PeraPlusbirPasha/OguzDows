@@ -11,6 +11,7 @@ import re
 import subprocess
 import sys
 import time
+import xml.etree.ElementTree as ET
 
 ROOT = Path(__file__).resolve().parents[2]
 OUT = ROOT / 'test-results/mobile/emulator'
@@ -21,6 +22,25 @@ COMPONENT = f'{PACKAGE}.test/androidx.test.runner.AndroidJUnitRunner'
 def annotation(level, title, text):
     detail = text.replace('%', '%25').replace('\r', '%0D').replace('\n', '%0A')[:3500]
     print(f'::{level} title={title}::{detail}', flush=True)
+
+
+def evidence_notice(evidence):
+    # Preserve the full report in evidence.json. Bound only verbose failure text in the
+    # checks summary so GitHub cannot truncate it into invalid JSON on a failed run.
+    summary = json.loads(json.dumps(evidence))
+    for item in summary.get('tests', []):
+        item.pop('visible_ui', None)
+        for key in ('failure', 'error'):
+            if key in item:
+                item[key] = item[key][:100]
+    detail = json.dumps(summary, ensure_ascii=False, separators=(',', ':'))
+    if len(detail.encode('utf-8')) > 3400:
+        for item in summary.get('tests', []):
+            item.pop('failure', None); item.pop('error', None)
+        detail = json.dumps(summary, ensure_ascii=False, separators=(',', ':'))
+    if len(detail.encode('utf-8')) > 3400:
+        raise RuntimeError('Emulator summary exceeded its bounded notice; no success inferred.')
+    annotation('notice', 'Mobile emulator evidence', detail)
 
 
 def main():
@@ -53,6 +73,27 @@ def main():
     adb('shell', 'settings', 'put', 'global', 'window_animation_scale', '0')
     adb('shell', 'settings', 'put', 'global', 'transition_animation_scale', '0')
     adb('shell', 'settings', 'put', 'global', 'animator_duration_scale', '0')
+    def ui_diagnostic(label):
+        path = '/sdcard/oguzdows-ui-diagnostic.xml'
+        adb('shell', 'uiautomator', 'dump', path, check=False, timeout=30)
+        raw = adb('shell', 'cat', path, check=False)
+        (OUT / f'{label}-ui.xml').write_text(raw)
+        try:
+            nodes = list(ET.fromstring(raw).iter('node'))
+        except ET.ParseError:
+            return [], raw[:500]
+        labels = [node.get('text', '') for node in nodes if node.get('text')]
+        return labels, ' | '.join(dict.fromkeys(labels))[:1200]
+
+    # A boot-time system ANR must not silently obscure and invalidate every app test.
+    # Do not dismiss any ANR (including our app's): an unhealthy boot is a failed run.
+    boot_labels, boot_ui = ui_diagnostic('boot')
+    if any('close app' in text.lower() for text in boot_labels) and any(text.lower() == 'wait' for text in boot_labels):
+        evidence.update(passed=False, infrastructure_boot_dialog=boot_ui)
+        (OUT / 'evidence.json').write_text(json.dumps(evidence, indent=2))
+        annotation('error', 'Emulator boot health', boot_ui)
+        evidence_notice(evidence)
+        return 1
     adb('uninstall', 'org.oguzdows.fixture', check=False)
     adb('install', '-r', '-t', str(ROOT / 'mobile/android/app/build/outputs/apk/debug/app-debug.apk'))
     adb('install', '-r', '-t', str(ROOT / 'mobile/android/app/build/outputs/apk/androidTest/debug/app-debug-androidTest.apk'))
@@ -121,16 +162,22 @@ def main():
                 annotation('error', 'Emulator ' + record['name'], '\n'.join(concise)[-3000:])
                 # A system ANR dialog can cover every later test without producing an ANR
                 # instrumentation result. Capture the real trace, not a blind retry/time increase.
+                labels, visible_ui = ui_diagnostic('failure-' + klass + '-' + (name or 'suite'))
+                record['visible_ui'] = visible_ui[:160]
                 events = adb('logcat', '-b', 'events', '-d', '-s', 'am_anr', check=False)
-                if PACKAGE in events:
+                has_anr_dialog = (any('close app' in text.lower() for text in labels)
+                                  and any(text.lower() == 'wait' for text in labels))
+                if PACKAGE in events or has_anr_dialog:
                     anr = adb('shell', 'dumpsys', 'activity', 'lastanr', check=False)
                     dropbox = adb('shell', 'dumpsys', 'dropbox', '--print', 'data_app_anr', check=False)
+                    dropbox += adb('shell', 'dumpsys', 'dropbox', '--print', 'system_app_anr', check=False)
+                    annotation('error', 'Emulator ANR dialog identity', visible_ui or events[:1200])
                     (OUT / f'{klass}-{name or "suite"}-anr.txt').write_text(events + '\n' + anr + '\n' + dropbox)
                     # Only a disposable emulator's app main-thread diagnostic is surfaced.
                     main_stack = re.search(r'"main"[^\n]*\n[\s\S]{0,2800}', dropbox)
                     annotation('error', 'Emulator main-thread ANR', main_stack.group() if main_stack else (events + '\n' + anr)[:2800])
                     evidence['passed'] = False
-                    annotation('notice', 'Mobile emulator evidence', json.dumps(evidence, ensure_ascii=False, separators=(',', ':')))
+                    evidence_notice(evidence)
                     raise SystemExit('App ANR: abort incomplete acceptance; no package. Inspect the recorded main-thread trace.')
             if klass == 'LauncherDeviceTest' and passed:
                 # Bounded visual diagnostic from a disposable emulator, not personal device data.
@@ -186,7 +233,7 @@ def main():
                           and sum(item['test_cases'] for item in evidence['tests']) == 17)
     (OUT / 'evidence.json').write_text(json.dumps(evidence, indent=2))
     print(json.dumps(evidence, indent=2))
-    annotation('notice', 'Mobile emulator evidence', json.dumps(evidence, ensure_ascii=False, separators=(',', ':')))
+    evidence_notice(evidence)
     return 0 if evidence['passed'] else 1
 
 
