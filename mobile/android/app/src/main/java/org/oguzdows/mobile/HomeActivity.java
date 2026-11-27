@@ -62,7 +62,7 @@ public final class HomeActivity extends Activity {
     WebView webView;
     private Reply pending;
     private ValueCallback<Uri[]> fileCallback;
-    private boolean receiverRegistered, observerRegistered, frontendReady;
+    private boolean receiverRegistered, observerRegistered, frontendReady, intentDelivered;
     private final BroadcastReceiver stateReceiver = new BroadcastReceiver() {
         @Override public void onReceive(Context context, Intent intent) { signal(); }
     };
@@ -72,6 +72,7 @@ public final class HomeActivity extends Activity {
 
     @Override public void onCreate(Bundle state) {
         NativeUi.theme(this); super.onCreate(state);
+        intentDelivered = state != null && state.getBoolean("draftIntentDelivered", false);
         FrameLayout root = new FrameLayout(this); root.setBackgroundColor(Color.parseColor("#17262B"));
         webView = new WebView(this); root.addView(webView, new FrameLayout.LayoutParams(-1, -1)); setContentView(root);
         ViewCompat.setOnApplyWindowInsetsListener(root, (v, insets) -> {
@@ -349,7 +350,7 @@ public final class HomeActivity extends Activity {
     }
     private void deliverIntent(Intent intent) {
         // Do not consume a cold-start dial/message intent before React has registered its draft-only listener.
-        if (webView == null || intent == null || !frontendReady) return;
+        if (webView == null || intent == null || !frontendReady || intentDelivered) return;
         String screen = intent.getStringExtra("screen");
         if (!java.util.Arrays.asList("home", "phone", "messages").contains(screen == null ? "" : screen)) screen = "";
         String number = "", body = "";
@@ -366,8 +367,9 @@ public final class HomeActivity extends Activity {
             try {
                 JSONObject payload = new JSONObject().put("screen", screen).put("number", number).put("body", body);
                 webView.evaluateJavascript("window.dispatchEvent(new CustomEvent('oguz-native-intent',{detail:" + payload + "}));", null);
-                // A reload must not re-apply external drafts or accidentally repeat an action.
-                intent.setAction(Intent.ACTION_MAIN); intent.setData(null); intent.removeExtra("screen"); intent.removeExtra("sms_body");
+                // Keep framework routing metadata immutable. Consuming a draft is separate state;
+                // mutating action/data also breaks AndroidX lifecycle tracking for cold-start intents.
+                intentDelivered = true;
             } catch (Exception ignored) { }
         }
     }
@@ -394,7 +396,12 @@ public final class HomeActivity extends Activity {
         if (observerRegistered) { getContentResolver().unregisterContentObserver(smsObserver); observerRegistered = false; }
         super.onStop();
     }
-    @Override protected void onNewIntent(Intent intent) { super.onNewIntent(intent); setIntent(intent); deliverIntent(intent); }
+    @Override protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent); setIntent(intent); intentDelivered = false; deliverIntent(intent);
+    }
+    @Override protected void onSaveInstanceState(Bundle state) {
+        state.putBoolean("draftIntentDelivered", intentDelivered); super.onSaveInstanceState(state);
+    }
     @Override protected void onActivityResult(int request, int result, Intent data) {
         super.onActivityResult(request, result, data);
         if (request == FILE_REQUEST) {

@@ -177,6 +177,9 @@ class NativeSourceContracts(unittest.TestCase):
         self.assertLess(app.index('window.addEventListener("oguz-native-intent", intent)'), app.index('nativeRequest("ui.ready")'))
         self.assertIn('case "ui.ready": frontendReady = true;', self.home)
         self.assertIn('intent == null || !frontendReady', self.home)
+        self.assertIn('intentDelivered = true', self.home)
+        self.assertIn('draftIntentDelivered', self.home)
+        self.assertNotIn('intent.setAction(Intent.ACTION_MAIN)', self.home)
 
     def test_build_wrapper_is_pinned_and_emulator_tests_refuse_physical_traffic(self):
         wrapper = ROOT / 'android/gradle/wrapper/gradle-wrapper.jar'
