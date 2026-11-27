@@ -1,6 +1,6 @@
-# Native materyal, Haber ve Mağaza · geliştirme kaynağı
+# Native materyal, Haber ve Mağaza
 
-Bu çalışma **GTK3/C + kısa ömürlü Python işçileri + Xfce/Picom** mimarisini korur. GNOME/Mutter ve Plasma/KWin kendi kabuklarını, widget/panel düzenlerini ve mevcut geri alma sözleşmesini korur. Web maketi, Electron, webview, yeni daemon veya arka planda otomatik indirme yoktur. Yayımlanmış v1.1 dosyaları değiştirilmez. Yeni geliştirme ISO’larının kesin kaynak ve test sonucu PR/Actions kaydından takip edilmelidir; eski ISO’ya bu değişiklikler mal edilmez.
+Bu çalışma **GTK3/C + kısa ömürlü Python işçileri + Xfce/Picom** mimarisini korur ve **[v1.2 ile yayımlandı](https://github.com/PeraPlusbirPasha/OguzDows/releases/tag/v1.2)**. Dört imajın ürün sürümü 1.2 / kaynağı **`dc92fe9e47d8cdc599094281780e274cc49d1470`**; [güncel indirme ve test sınırları](releases/v1.2.md). GNOME/Mutter ve Plasma/KWin kendi kabuklarını, widget/panel düzenlerini ve geri alma sözleşmesini korur. Web maketi, Electron, webview, yeni daemon veya otomatik indirme yoktur. Önceki v1.1 dosyaları değiştirilmez ve yeni işlevleri kendiliğinden edinmez. Aşağıdaki önceki geliştirme kanıtları güncel imaj kaynağı veya fiziksel GPU/performance testi yerine kullanılmaz.
 
 > **Güncel masaüstü düzeltmeleri:** [uygulama teması, çerçevesiz tepsi, PrintScreen, görselli Haber ve Mağaza](MASAUSTU-GORSEL-YENILEME.md). Önceki CI/imaj kanıtları yeni kaynak değişiklikleri için kanıt sayılmaz.
 

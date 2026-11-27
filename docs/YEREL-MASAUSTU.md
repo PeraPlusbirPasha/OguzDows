@@ -2,7 +2,9 @@
 
 [← Proje](../README.md) · [Bakım rehberi](MASAUSTU-VE-BAKIM.md) · [Makine okunur test kaydı](evidence/native-desktop-39e5f9a.json)
 
-> **Geliştirme kaynağıdır; yayımlanmış v1.1 imajlarının özelliği diye sunulmaz.** v1.1’in dört imajı, `29f7738` ürün kaynağı ve [yayın kanıtları](releases/v1.1.md) değişmedi. Aşağıdaki gerçek kabuk sonuçları `39e5f9a1d729e8d510526ba504f49ec268fe4b9c` içindir; yeni ISO/IMG, fiziksel cihaz veya Wayland doğrulaması değildir.
+> **Güncel yayın [v1.2](https://github.com/PeraPlusbirPasha/OguzDows/releases/tag/v1.2):** iki PC ISO ve iki Pi IMG.XZ, **`dc92fe9e47d8cdc599094281780e274cc49d1470`** kaynağından 1.2 iç ürün kimliğiyle yeniden derlendi. [Güncel kaynak / host-ABI / imaj ve bağımsız byte denetimi](releases/v1.2.md); fiziksel GPU/Pi performansı veya Wayland kanıtı değildir.
+
+> **Aşağıdaki `39e5f9a` geliştirme sonuçları tarihsel kayıttır, v1.2 imaj ölçümü değildir.** v1.1’in dört imajı, `29f7738` ürün kaynağı ve [yayın kanıtları](releases/v1.1.md) değişmedi. Aşağıdaki gerçek kabuk sonuçları `39e5f9a1d729e8d510526ba504f49ec268fe4b9c` içindir; yeni ISO/IMG, fiziksel cihaz veya Wayland doğrulaması değildir.
 
 ## Kullanım
 

@@ -1,6 +1,6 @@
 # Masaüstü görsel yenileme · uygulama teması, Başlat, PrintScreen, Mağaza ve Haber
 
-Bu belge **geliştirme dalındaki kaynak değişikliklerini** anlatır. Önceki v1.1, `00ec2b1` veya `775b0a7` imajları kendiliğinden güncellenmez. Son Thunar/çerçeve ve kaynak-bütçesi düzeltmeleri için yeni **amd64/i386 PC ISO** ve **armhf/arm64 Raspberry Pi IMG** derlemeleri istenir; indirme ve doğrulama sonuçları ilgili kaynak commit'i / CI çalışmasıyla raporlanır. PR birleştirme, etiket veya Release yayımlama bu işlemin parçası değildir. Önceki RAM/boot ölçümleri yeni değişikliklerin performans kanıtı değildir.
+Bu belge **[v1.2'de yayımlanan](https://github.com/PeraPlusbirPasha/OguzDows/releases/tag/v1.2)** ortak uygulama teması, PrintScreen, Thunar/pencere ve Mağaza/Haber onarımlarını anlatır. İki PC ISO ve iki Pi IMG.XZ **`dc92fe9e47d8cdc599094281780e274cc49d1470`** kaynağından iç ürün sürümü 1.2 ile yeniden derlendi. Eski v1.1 / `00ec2b1` / `775b0a7` imajları güncellenmiş sayılmaz. [Güncel kaynak, 16 CI işi, gerçek imaj/RAM ve bağımsız yayın denetimi](releases/v1.2.md). Aşağıdaki önceki geliştirme koşularının sayıları tarihsel kalır; fiziksel PC/Pi/GPU veya ölçülmüş ARM hızlanması değildir. PR birleştirilmedi.
 
 ## Açık/koyu tercihi gerçek uygulamalara gider
 

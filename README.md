@@ -10,7 +10,7 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/PeraPlusbirPasha/OguzDows/releases/tag/v1.1"><kbd>Yayın · v1.1</kbd></a>
+  <a href="https://github.com/PeraPlusbirPasha/OguzDows/releases/tag/v1.2"><kbd>Yayın · v1.2</kbd></a>
   &nbsp; <kbd>amd64 · i386 · Pi armhf · Pi arm64</kbd> &nbsp; <kbd>Xfce</kbd> &nbsp; <kbd>Türkçe</kbd>
 </p>
 
@@ -25,53 +25,34 @@
 
 ---
 
-## 1.1 · Aynı karakter, dört imaj
+## 1.2 · Modern arayüz, 23 yeni işlev, dört imaj
 
-**[OğuzDows 1.1 · Ay Yıldız](https://github.com/PeraPlusbirPasha/OguzDows/releases/tag/v1.1)**: PC için **amd64 / i386 ISO**, Raspberry Pi için **armhf / arm64 `.img.xz`**. Sol menülü canlı/kurulu karşılayıcı, bağımsız açık/koyu tema, XP esintili Başlat, **altı Xfce düzeni**, elementary esintili Mac iskelesi ve gerçekten ortalanan Windows 11 görev grubu; **yerel C/GTK mağaza ve Haber**, 15 ayrı ürün simgesi, 20 kültür görseli ve 11 çevrimdışı Rıfkı kaydı.
+**[OğuzDows 1.2 · Ay Yıldız](https://github.com/PeraPlusbirPasha/OguzDows/releases/tag/v1.2)**: **amd64 / i386 PC ISO** ve **Pi armhf / arm64 IMG.XZ** aynı **`dc92fe9`** kaynağından, iç ürün/kurucu sürümü **1.2** ile yeniden derlendi. Eski 1.1 dosyaları yeniden etiketlenmedi.
 
-İmajların ortak ürün kaynağı **`29f7738`**; başarılı [PC](https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/45170572813) / [Pi](https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/45170576727) çıktıları yeniden derlenmeden aktarılır. Her imajın özgün SHA-256 dosyası, birleşik liste, kaynak manifesti ve ham test kanıtı yayına dahildir. **[Sürüm notları ve ayrıntılı cihaz/RAM indirme rehberi →](docs/releases/v1.1.md)**
+**Atölye'de 16 yerel araç**; Mağaza istek listesi / ağsız sağlık / APT–Flatpak karşılaştırması; Haber saklama / okundu takibi / TXT; Başlat'ta sabit komut paleti: **23 gerçekten yeni işlev**. Ortak modern açık/koyu GTK/C-GTK arayüzleri, Thunar/pencere/PrintScreen onarımları ve **Flatpak / GNOME Yazılımlar için gerçek imzalı bileşen onarımı** birlikte gelir. Yeni daemon, indeksleyici veya webview yoktur; düşük kaynak/ARMv6 korumaları korunur. [Kullanım ve açık kaynak bütçeleri →](docs/ATOLYE-VE-MAGAZA-YENILEME.md)
 
-> **Pi portları deneyseldir. İlk nesil Zero/Zero W’de doğru armhf ile hesap ekranı sonrası siyah ekran bildirimi hâlâ açıktır.** ARM kullanıcı-QEMU/Xvfb testleri bu fiziksel hatanın giderildiğini, GPU veya Pi hızını kanıtlamaz. [Oturum teşhisi →](docs/PI-ZERO-OTURUM.md)
+[PC derleme/testi](https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/45984535667) ve [Pi derleme/testi](https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/45984521207) başarılı. Yayın aktarımı imajların gerçek SHA-256 / iç kaynak / 1.2 kimliklerini; [ayrı salt-okunur yeniden indirme denetimi](https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/45994504674) 17 dosyanın tamamını ve 21 ham JSON'u doğruladı. **[Sürüm notları, cihaz/RAM seçimi ve test sınırları →](docs/releases/v1.2.md)**
 
-Gerçek Plasma/GNOME ayrı, mimari/kaynak koşullu oturumlardır; Xfce tarzlarıyla karıştırılmaz. Efektler düşük RAM/ARMv6’da statik kalır; uygulamalar kaldırılmaz. ARM/telefon katmanları hazır telefon ROM’u değildir. **[Kapsam/test sınırları →](docs/ELEMENTARY-HABER.md)** · [Cihaz / EXE / APK sınırları →](docs/CIHAZLAR-VE-UYUMLULUK.md)
+> **Pi portları deneyseldir. İlk nesil Zero/Zero W'de doğru armhf ile hesap ekranı sonrası siyah ekran bildirimi hâlâ açıktır.** ARM kullanıcı-QEMU/Xvfb bu fiziksel hatanın giderildiğini veya Pi GPU/hızını kanıtlamaz. [Teşhis →](docs/PI-ZERO-OTURUM.md)
 
-## Geliştirme dalında · yerel Aero ve ortak masaüstü
-
-**Yeni: Atölye + 23 yeni işlev.** Görevler, notlar, metin rafı, klasör yer imleri,
-sınırlı dosya arama, geri alınabilir toplu adlandırma, SHA doğrulama, görsel
-hazırlama ve sekiz başka çevrimdışı araç; Mağaza istek listesi/teşhisi/kaynak
-karşılaştırması, Haber okuma listesi/okundu takibi/TXT çıktısı ve sabit komut
-paleti. Ortak açık/koyu, dar ekran uyumlu yerel GTK arayüzler; yeni daemon,
-webview veya indeksleyici yok. **Flatpak / GNOME Yazılımlar için gerçek imzalı
-bileşen demetleri ve onaylı onarım yolu** eklendi. 32 bit Flathub desteği vaat
-edilmez. **[23 işlevin tam listesi, kullanım, kaynak bütçeleri ve mimari/test
-sınırları →](docs/ATOLYE-VE-MAGAZA-YENILEME.md)**. Bunlar kaynak dalındadır;
-yayımlanmış v1.1 veya önceki `85dc974` imajlarına geriye dönük eklenmez.
-
-**Masaüstü görsel yenileme:** gerçek GTK/portal koyu-açık senkronu, küçük çerçevesiz tepsi, Windows esintili Başlat/basış tepkisi, PrintScreen, görselli Mağaza ve tek tıkla okunan resimli Haber. [Kullanım, güvenlik ve doğrulama sınırları →](docs/MASAUSTU-GORSEL-YENILEME.md). Bu kaynak değişikliği eski ISO dosyalarının içinde değildir.
-
-**Yeni native arayüz çalışması:** ortak ince kenarlı materyal/200ms kaynak kontrollü geçişler, Python 3.13 RSS düzeltmesi + açıkça etiketli çevrimdışı örnekler, editoryal mağaza ve plan/onaylı kaldırma. [Tam modüller, kullanım ve güvenlik sınırları →](docs/NATIVE-MATERYAL-HABER-MAGAZA.md). Yayımlanmış v1.1 indirmeleri bu geliştirme değişikliğini içermez.
-
-**Yayımlanmış v1.1 imajlarından ayrı yeni kaynak çalışması:** Xfce / GNOME / Plasma için ortak açık-koyu tema, vurgu ve duvar kâğıdı; açık tercihle gerçek blur / yerel yay ve Snap; kabukların kendi panel ve widget kimliğini koruyan **Masaüstü Merkezi**. Yerel C/GTK **Başlat** ve C/GTK/Cairo **canlı CPU / RAM / ağ grafikleri** eklendi; düşük kaynak koruması ve geri alma korunur.
-
-`39e5f9a` için [gerçek masaüstü CI’ı](https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/45426010752) **6/6 başarılıdır**: iki hedef tabanda C/GTK ve ayrı GNOME 43.9 / 48.7, Plasma/KWin 5 / 6 özel X11 kabukları. **Bu, yeni ISO/IMG yayını, fiziksel GPU / FPS veya Wayland kanıtı değildir.** Mevcut v1.1 indirmeleri ve imaj kaynağı `29f7738` değişmedi. **[Kullanım, geri alma ayrıntıları ve test sınırları →](docs/YEREL-MASAUSTU.md)**
+Altı hafif Xfce düzeni, kaynak kontrollü efektler, yerel Mağaza/Haber/Başlat/İzleyici, 20 kültür görseli ve 11 çevrimdışı Rıfkı kaydı korunur. Gerçek GNOME/Plasma ayrıca mimari/kaynak koşulludur; Xfce tarzları gerçek oturum diye sunulmaz. [Masaüstü Merkezi / geri alma](docs/YEREL-MASAUSTU.md) · [Native materyal](docs/NATIVE-MATERYAL-HABER-MAGAZA.md) · [Görsel onarımlar](docs/MASAUSTU-GORSEL-YENILEME.md) · [Cihaz / EXE / APK sınırları](docs/CIHAZLAR-VE-UYUMLULUK.md)
 
 <a id="indir"></a>
 
 ## Bir USB ile başla
 
-**Güncel yayın: [OğuzDows 1.1 · Ay Yıldız — PC + Raspberry Pi](https://github.com/PeraPlusbirPasha/OguzDows/releases/tag/v1.1)**
+**Güncel yayın: [OğuzDows 1.2 · Ay Yıldız — PC + Raspberry Pi](https://github.com/PeraPlusbirPasha/OguzDows/releases/tag/v1.2)**
 
 İndirmeler herkese açıktır; GitHub hesabı gerekmez. **Önce CPU mimarisi, sonra RAM seçilir.** `amd64` Intel ve AMD 64 bit PC’ler içindir; düşük RAM tek başına 32 bit imaj seçme gerekçesi değildir.
 
 | Cihazın | İmaj | RAM / önemli koşul | Bütünlük dosyası |
 | :--- | :--- | :--- | :--- |
-| **64 bit PC** · Intel/AMD · ASUS X553M dahil | **[amd64 ISO ↗](https://github.com/PeraPlusbirPasha/OguzDows/releases/download/v1.1/OguzDows-amd64.iso)** | Canlı/kurucu **1 GiB+**, günlük **2 GiB+**, modern web/ofis **4 GiB+ önerilir**; BIOS / 64 bit UEFI | [SHA-256](https://github.com/PeraPlusbirPasha/OguzDows/releases/download/v1.1/OguzDows-amd64.iso.sha256) |
-| **32 bit PC** · i686/PAE, tarayıcı için SSE2 | **[i386 ISO ↗](https://github.com/PeraPlusbirPasha/OguzDows/releases/download/v1.1/OguzDows-i386.iso)** | Canlı/kurucu **1 GiB+**, günlük **2 GiB+ önerilir**; yalnız BIOS | [SHA-256](https://github.com/PeraPlusbirPasha/OguzDows/releases/download/v1.1/OguzDows-i386.iso.sha256) |
-| **Pi Zero/1/2**, düşük RAM’li **Zero 2/3** | **[Pi armhf IMG.XZ ↗](https://github.com/PeraPlusbirPasha/OguzDows/releases/download/v1.1/OguzDows-rpi-armhf.img.xz)** | 512 MB deneysel **mini**, 1 GB **light**; NetSurf temel web. **Zero siyah ekran sorunu açık; Pi 5 için değil** | [SHA-256](https://github.com/PeraPlusbirPasha/OguzDows/releases/download/v1.1/OguzDows-rpi-armhf.img.xz.sha256) |
-| **Pi 4/400/5**; 64 bit uygulama isteyen **Zero 2/3 / Pi 2 rev 1.2** | **[Pi arm64 IMG.XZ ↗](https://github.com/PeraPlusbirPasha/OguzDows/releases/download/v1.1/OguzDows-rpi-arm64.img.xz)** | Günlük **2 GB+**, modern web/ofis **4 GB+ önerilir**. Eski Zero/Pi 1/erken Pi 2 için değil | [SHA-256](https://github.com/PeraPlusbirPasha/OguzDows/releases/download/v1.1/OguzDows-rpi-arm64.img.xz.sha256) |
+| **64 bit PC** · Intel/AMD · ASUS X553M dahil | **[amd64 ISO ↗](https://github.com/PeraPlusbirPasha/OguzDows/releases/download/v1.2/OguzDows-amd64.iso)** | Canlı/kurucu **1 GiB+**, günlük **2 GiB+**, modern web/ofis **4 GiB+ önerilir**; BIOS / 64 bit UEFI | [SHA-256](https://github.com/PeraPlusbirPasha/OguzDows/releases/download/v1.2/OguzDows-amd64.iso.sha256) |
+| **32 bit PC** · i686/PAE, tarayıcı için SSE2 | **[i386 ISO ↗](https://github.com/PeraPlusbirPasha/OguzDows/releases/download/v1.2/OguzDows-i386.iso)** | Canlı/kurucu **1 GiB+**, günlük **2 GiB+ önerilir**; yalnız BIOS | [SHA-256](https://github.com/PeraPlusbirPasha/OguzDows/releases/download/v1.2/OguzDows-i386.iso.sha256) |
+| **Pi Zero/1/2**, düşük RAM’li **Zero 2/3** | **[Pi armhf IMG.XZ ↗](https://github.com/PeraPlusbirPasha/OguzDows/releases/download/v1.2/OguzDows-rpi-armhf.img.xz)** | 512 MB deneysel **mini**, 1 GB **light**; NetSurf temel web. **Zero siyah ekran sorunu açık; Pi 5 için değil** | [SHA-256](https://github.com/PeraPlusbirPasha/OguzDows/releases/download/v1.2/OguzDows-rpi-armhf.img.xz.sha256) |
+| **Pi 4/400/5**; 64 bit uygulama isteyen **Zero 2/3 / Pi 2 rev 1.2** | **[Pi arm64 IMG.XZ ↗](https://github.com/PeraPlusbirPasha/OguzDows/releases/download/v1.2/OguzDows-rpi-arm64.img.xz)** | Günlük **2 GB+**, modern web/ofis **4 GB+ önerilir**. Eski Zero/Pi 1/erken Pi 2 için değil | [SHA-256](https://github.com/PeraPlusbirPasha/OguzDows/releases/download/v1.2/OguzDows-rpi-arm64.img.xz.sha256) |
 
-**Pi dosyaları PC ISO’su değildir; fiziksel kart doğrulaması yoktur.** Pi 1’in 256 MB modelleri günlük masaüstü için önerilmez. Telefonlara/diğer ARM kartlarına bu imajları yazmayın. [Tam model/revizyon ve kapasite tablosu →](docs/releases/v1.1.md)
+**Pi dosyaları PC ISO’su değildir; fiziksel kart doğrulaması yoktur.** Pi 1’in 256 MB modelleri günlük masaüstü için önerilmez. Telefonlara/diğer ARM kartlarına bu imajları yazmayın. [Tam model/revizyon ve kapasite tablosu →](docs/releases/v1.2.md)
 
 ### İndir → doğrula → dene
 
@@ -81,14 +62,14 @@ yayımlanmış v1.1 veya önceki `85dc974` imajlarına geriye dönük eklenmez.
    # Pi için, sıkıştırılmış dosya üzerinde:
    sha256sum -c OguzDows-rpi-armhf.img.xz.sha256
    ```
-   Sonuç `OK` olmalı. Dört imaj da varsa [SHA256SUMS](https://github.com/PeraPlusbirPasha/OguzDows/releases/download/v1.1/SHA256SUMS) ile hepsini denetle; yalnız birini indirdiysen ayrı checksum’u kullan. SHA-256 bir bütünlük denetimidir; ayrıca imzalı yayın iddiası yoktur.
+   Sonuç `OK` olmalı. Dört imaj da varsa [SHA256SUMS](https://github.com/PeraPlusbirPasha/OguzDows/releases/download/v1.2/SHA256SUMS) ile hepsini denetle; yalnız birini indirdiysen ayrı checksum’u kullan. SHA-256 bir bütünlük denetimidir; ayrıca imzalı yayın iddiası yoktur.
 2. **PC:** ISO’yu güvendiğin bir imaj aracıyla **4 GB+ USB’ye** yaz. USB’den aç, **OğuzDows’u dene** ile donanımı kontrol et; hazır olunca **OğuzDows’u kur**.
 3. **Pi:** `.img.xz` dosyasını Raspberry Pi Imager → **özel imaj** ile **16 GB+ SD/USB’ye** yaz; tercihen 32 GB A1/A2 kart kullan. **Imager kullanıcı/SSH özelleştirmelerini uygulama**; ilk açılışta portun kendi Türkçe kişisel hesap adımını tamamla. [Pi kurulum rehberi →](raspberrypi/README.md)
 
 > [!IMPORTANT]
 > **Önce yedek al; yazılan aygıtın içeriği silinir.** PC’de Secure Boot kapalı olmalıdır; 32 bit UEFI desteklenmez. Canlı PC hesabı `oguz` / `oguz`; parolasız yönetici yetkisi yalnız canlı ortam içindir. Kurulu PC’de kişisel hesap belirlenir ve canlı hesap temizlenir. **Pi’de ortak hesap/otomatik giriş/parolasız sudo yoktur; SSH varsayılan kapalıdır.** Yeni imaj mevcut kurulumu kendiliğinden yükseltmez.
 
-[Kaynak / dosya manifesti](https://github.com/PeraPlusbirPasha/OguzDows/releases/download/v1.1/release-manifest.json) · [Ham test raporları](https://github.com/PeraPlusbirPasha/OguzDows/releases/download/v1.1/test-evidence.tar.gz) · [Korunan önceki v1.0.0](https://github.com/PeraPlusbirPasha/OguzDows/releases/tag/v1.0.0)
+[Kaynak / dosya manifesti](https://github.com/PeraPlusbirPasha/OguzDows/releases/download/v1.2/release-manifest.json) · [Ham test raporları](https://github.com/PeraPlusbirPasha/OguzDows/releases/download/v1.2/test-evidence.tar.gz) · [Önceki v1.1](docs/releases/v1.1.md) · [v1.1 yayını](https://github.com/PeraPlusbirPasha/OguzDows/releases/tag/v1.1) · [Korunan önceki v1.0.0](https://github.com/PeraPlusbirPasha/OguzDows/releases/tag/v1.0.0)
 
 <a id="ozellikler"></a>
 
@@ -140,16 +121,16 @@ Bu altı önizleme, **20 kültür görselli** galeriden bir seçkidir. Her manza
 
 ## Hafiflik, yalnızca bir sıfat değil
 
-**Yayımlanmış v1.1** ISO içeriğinden hazırlanan özel test diskinde gerçek **tam Xfce oturumu** açıldı. Bu tablo `29f7738` imajlarının kendi sonucudur; v1.0.0 sayıları tekrar kullanılmaz.
+**Yayımlanmış v1.2**, `dc92fe9` ISO içeriğinden hazırlanan özel test diskinde gerçek **tam Xfce oturumu** ile ölçüldü; eski sürüm sayıları kullanılmaz.
 
 | İmaj · en yüksek kullanım (decimal MB) | 512 MiB VM | 1024 MiB VM | 2048 MiB VM |
 | :--- | ---: | ---: | ---: |
-| **amd64** | **271,5 MB** | **451,4 MB** | **472,9 MB** |
-| **i386** | **191,4 MB** | **390,3 MB** | **479,3 MB** |
+| **amd64** | **290.0 MB** | **474.8 MB** | **507.2 MB** |
+| **i386** | **191.9 MB** | **413.7 MB** | **471.5 MB** |
 
-**Koşullar:** ağsız QEMU/TCG · 2 sanal CPU · std VGA · 120 saniye yerleşme + 5 saniye aralıklı 6 örnek. Yöntem `MemTotal − MemAvailable`, decimal MB; RSS toplamı değildir. Rehber/Rıfkı/mağaza/Haber ve compositor kapalıdır. 512/1024 MiB’de OOM olmaması ve en az `max(32 MiB, MemTotal/10)` kullanılabilir pay kapısı da geçti.
+**Koşullar:** ağsız QEMU/TCG · 2 sanal CPU/std VGA · 120 saniye yerleşme + 5 saniye aralıklı 6 örnek. `MemTotal − MemAvailable`, RSS toplamı değil. Rehber/Rıfkı/Mağaza/Haber ve compositor kapalı; 512/1024 MiB'de OOM yokluğu ve `max(32 MiB, MemTotal/10)` kullanılabilir pay kapıları geçti.
 
-**512 MiB’de boşta Xfce’nin açılması, kurucu/tarayıcı/ofisin rahat çalışacağı anlamına gelmez.** Fiziksel PC, Pi ve gerçek KDE/GNOME bu RAM ölçümünün kapsamında değildir. [Güncel ölçüm/test sınırları →](docs/V1.1-TEST-KANITI.md) · [Değişmeyen v1.0.0 kanıtı →](docs/MASAUSTU-TEST-KANITI.md)
+**512 MiB'de boşta Xfce'nin açılması, kurucu/tarayıcı/ofisin rahat çalışacağı anlamına gelmez.** Fiziksel PC, Pi ve gerçek KDE/GNOME bu RAM ölçümünün kapsamında değildir. [1.2 ölçüm/test sınırları](docs/releases/v1.2.md) · [Tarihsel 1.1](docs/V1.1-TEST-KANITI.md) · [v1.0.0](docs/MASAUSTU-TEST-KANITI.md)
 
 ### Donanım için kısa rehber
 
@@ -167,9 +148,9 @@ Siyah ekranda **güvenli görüntü**, az bellekte **düşük bellek** açılı�
 
 - **Onay önce gelir.** Kurulum, ek sürücü, güncelleme ve isteğe bağlı depo işlemlerinde açık kullanıcı/yönetici onayı gerekir. Heybe/İmece dosyalarını otomatik göndermez.
 - **Pardus kanalı varsayılan kapalıdır.** Yalnızca uygun amd64/trixie tabanında, sabit anahtar ve güncel imza/mimari/tarih/pin denetimleriyle dar uygulama listesi değerlendirilir. Genel sistem deposu karıştırılmaz.
-- **KDE/GNOME tarzı ≠ gerçek KDE/GNOME.** 1.1’deki altı tarz Xfce görünümüdür. Gerçek masaüstleri amd64 / ARM64’te ayrıca, daha yüksek kaynak beklentisi ve onaylı paket planıyla sunulur; gerçek giriş oturumları henüz doğrulanmadı.
-- **Sınırlar saklanmaz.** Gerçek yetkili APT/Flatpak kurulum işlemleri, şifreli tam kurulum ve her fiziksel aygıt bu testlerle doğrulanmış sayılmaz. i386/eski ARM için Flathub kapsamı varsayılmaz.
-- **Rıfkı bilinçli olarak hafiftir.** Pencere takip eden ağır animasyonlar kaldırıldı. Konuşmalar yapay zekâ ile hazırlanmış yerel kayıtlardır; 1.1’de panel rehberleri yerel kayıtlara bağlıdır; değişken hata / haber metni otomatik seslendirilmez.
+- **KDE/GNOME tarzı ≠ gerçek KDE/GNOME.** Altı tarz Xfce görünümüdür. Gerçek masaüstleri amd64 / ARM64’te ayrıca, daha yüksek kaynak beklentisi ve onaylı paket planıyla sunulur; gerçek giriş oturumları henüz doğrulanmadı.
+- **Sınırlar saklanmaz.** İmzalı APT ile Flatpak/GNOME Software bileşen kurulumu ayrı CI kaplarında geçti; etkileşimli Polkit, Flathub uygulaması indirme/çalıştırma, şifreli tam kurulum ve fiziksel aygıt kapsamı ayrı kalır. i386/eski ARM için Flathub kapsamı varsayılmaz.
+- **Rıfkı bilinçli olarak hafiftir.** Pencere takip eden ağır animasyonlar kaldırıldı. Konuşmalar yapay zekâ ile hazırlanmış yerel kayıtlardır; panel rehberleri yerel kayıtlara bağlıdır; değişken hata / haber metni otomatik seslendirilmez.
 
 [Masaüstü ve bakım rehberi →](docs/MASAUSTU-VE-BAKIM.md)
 
@@ -177,7 +158,7 @@ Siyah ekranda **güvenli görüntü**, az bellekte **düşük bellek** açılı�
 
 Zero–5 ailesi için ayrı `armhf` / `arm64` SD/USB imajı akışı bulunur. PC ISO’su Pi’ye yazılmaz; Pi’de ilk açılışta kişisel hesap oluşturulur, ortak canlı parola veya parolasız sudo yoktur.
 
-**v1.1 yayını hem armhf hem arm64 dosyasını içerir; Pi portları deneyseldir.** ARM1176/Cortex-A53 kullanıcı-QEMU + host Xvfb’de root olmayan tam Xfce, native Haber ve armhf NetSurf yerel sayfası geçti. Fiziksel Pi açılışı/LightDM/PAM/GPU/performance doğrulaması değildir; **Zero hesap sonrası siyahlık bildirimi açıktır**. Resmî Pi OS/pi-gen kaynak/ABI/paket/varlık kapıları ve kaynak kilidi korunur; sonraki portlar için kanıtlar saklanır. [Mimari karşılaştırma ve portlama verisi →](docs/ARM-MIMARI-VE-PORTLAMA.md) · [Pi rehberi →](raspberrypi/README.md)
+**v1.2 yayını hem armhf hem arm64 dosyasını içerir; Pi portları deneyseldir.** ARM1176/Cortex-A53 kullanıcı-QEMU + host Xvfb’de root olmayan tam Xfce, native Haber ve armhf NetSurf yerel sayfası geçti. Fiziksel Pi açılışı/LightDM/PAM/GPU/performance doğrulaması değildir; **Zero hesap sonrası siyahlık bildirimi açıktır**. Resmî Pi OS/pi-gen kaynak/ABI/paket/varlık kapıları ve kaynak kilidi korunur; sonraki portlar için kanıtlar saklanır. [Mimari karşılaştırma ve portlama verisi →](docs/ARM-MIMARI-VE-PORTLAMA.md) · [Pi rehberi →](raspberrypi/README.md)
 
 ## Yeni bir sayfa, yeni bir ana sürüm
 
@@ -185,6 +166,8 @@ Zero–5 ailesi için ayrı `armhf` / `arm64` SD/USB imajı akışı bulunur. PC
 v1.0.0  ·  Ay Yıldız — yayımlandı
    ↓
 v1.1    ·  Ara güncelleme — PC + Pi yayımlandı
+   ↓
+v1.2    ·  23 yeni işlev / modern arayüz — PC + Pi yayımlandı
    ↓
 v2.0    ·  Bir sonraki ana yayın
    ↓
@@ -211,7 +194,8 @@ Tam ISO derlemesi root, ağ ve yeterli disk alanı gerektirir. Hazırlık adıml
 | :--- | :--- |
 | [Teknik rehber](docs/TEKNIK-REHBER.md) | Derleme, kurulum güvenliği, eski sürücüler, Rıfkı ve geliştirici testleri. |
 | [Masaüstü ve bakım](docs/MASAUSTU-VE-BAKIM.md) | Mağaza, güncelleyici, tarzlar, kültür araçları ve depo güveni. |
-| [1.1 test kanıtı](docs/V1.1-TEST-KANITI.md) | Dört imajın kaynak kimliği, PC düşük RAM/boot ve ARM kullanıcı alanı test sınırları. |
+| [1.2 sürüm ve test kanıtı](docs/releases/v1.2.md) | Dört güncel imaj, 23 işlev, kurulum onarımı, düşük RAM/ABI ve yayın byte denetimi. |
+| [Tarihsel 1.1 kanıtı](docs/V1.1-TEST-KANITI.md) | Önceki imajların değişmeyen kaynak, ölçüm ve test sınırları. |
 | [Kurulum karşılaştırması](docs/KURULUM-KARSILASTIRMA.md) | Kali/Linux Mint kaynak incelemesi ve kurulum kontrollerinin gerekçeleri. |
 | [Raspberry Pi](raspberrypi/README.md) | ARM hedefleri, ilk hesap, güvenlik ve fiziksel test sınırları. |
 

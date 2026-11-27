@@ -9,15 +9,13 @@
 - Yayın aracı hem yeni `v2.0` biçimini hem mevcut `v1.0.0` biçimini kabul eder. Bir etiket biçiminin kabul edilmesi o sürümün yayımlandığı anlamına gelmez.
 - Bu düzen bir yayın takvimi, otomatik yükseltme sistemi veya henüz tamamlanmamış özellik taahhüdü değildir. Yeni bir ISO mevcut kurulumları kendiliğinden değiştirmez.
 
-## 1.2 ara güncellemesi · hazırlık
+## 1.2 ara güncellemesi
 
-Kullanıcının açık isteğiyle **v1.2** ara yayını hazırlanır; bu, sonraki ana
-sürümlerin v2.0 / v3.0 adlandırmasını değiştirmez. Ürün / kurucu sürümü **1.2**
-yapılır ve **amd64, i386, Pi armhf, Pi arm64** bu ortak kaynaktan yeniden derlenir.
-İç kimliği 1.1 olan önceki imajlar yalnızca 1.2 adıyla yeniden yayımlanmaz.
-Eski v1.0.0 / v1.1 etiketleri, yayınları ve kanıt dosyaları korunur.
-Dört imajın kaynak / SHA-256 / mimari / test kanıtı ve taslak yeniden-indirme
-kontrolleri bitmeden v1.2 yayımlanmış sayılmaz.
+**[v1.2 · OğuzDows 1.2](https://github.com/PeraPlusbirPasha/OguzDows/releases/tag/v1.2) yayımlandı.** Dört imajın iç ürün sürümü **1.2**, kaynak commit'i ve etiket hedefi **`dc92fe9e47d8cdc599094281780e274cc49d1470`**. Kullanıcı isteğiyle amd64/i386 PC ve armhf/arm64 Pi bu ortak kaynaktan yeniden derlendi; eski 1.1 imajları yeniden adlandırılmadı. Atölye/23 yeni işlev ve Mağaza onarımı bu yeni dosyalardadır. [Sürüm notları / indirme / testler](releases/v1.2.md) · [Yayın kaydı](releases/v1.2-release.json).
+
+[PC](https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/45984535667) ve [Pi](https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/45984521207) başarıyla tamamlandı. [Yayın aktarımı](https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/45993701545) dört özgün checksum'u ve salt-okunur iç kaynak/sürüm kimliklerini, [ayrı denetim](https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/45994504674) 17 dosyanın tamamını yeniden indirip hash'ledi ve 21 JSON'u karşılaştırdı; denetim release'e yazmadı. Yayımlama açık kullanıcı isteğidir; PR birleştirilmedi.
+
+Bu yeni ara yayın ana sürümlerin v2.0 / v3.0 adlandırmasını değiştirmez. v1.0.0 / v1.1 etiketleri, yayın gövdeleri ve dosya kimlik/boyut/hash'leri ayrıca değişmemiş olarak doğrulandı. Pi fiziksel boot/GPU/RAM performansı ve Zero siyahlık sınırları görünür kalır.
 
 ## 1.1 ara güncellemesi
 

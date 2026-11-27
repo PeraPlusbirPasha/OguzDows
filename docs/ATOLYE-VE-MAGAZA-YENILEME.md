@@ -1,10 +1,6 @@
 # Atölye ve modern yerel arayüzler
 
-Bu belge **1.2 için hazırlanan ortak PC / Raspberry Pi kaynaklarını** anlatır.
-Yayımlanmış v1.1 / `29f7738` indirmeleri ve önceki `85dc974` PC/Pi derlemeleri
-bu araçları **içermez**. 1.2 ürün kimliğiyle dört imaj ayrıca derlenir ve yayın
-öncesi kaynak / checksum denetiminden geçer; bir PR testi tek başına yeni
-ISO/IMG, Release veya fiziksel cihaz testi değildir.
+Bu belge **[v1.2 ile yayımlanan](https://github.com/PeraPlusbirPasha/OguzDows/releases/tag/v1.2) ortak PC / Raspberry Pi araçlarını** anlatır. Dört yeni imajın ürün kimliği **1.2**, gerçek kaynağı **`dc92fe9e47d8cdc599094281780e274cc49d1470`**; [sürüm notları / mimari, RAM, kurulum ve test sınırları](releases/v1.2.md). Yayımlanmış v1.1 / `29f7738` ve önceki `85dc974` PC/Pi dosyaları bu araçları içermez ve kendiliğinden güncellenmez. Güncel imajlar ayrıca yeniden derlendi; [bağımsız yayın denetimi](https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/45994504674) 17 dosyanın gerçek byte hash'lerini doğruladı. PR / kullanıcı-QEMU / Xvfb tek başına fiziksel PC/Pi/GPU veya performans kanıtı değildir.
 
 ## Nereden açılır?
 

@@ -31,8 +31,10 @@ class References(HTMLParser):
 class ReadmeTests(unittest.TestCase):
     def test_local_markdown_html_images_and_explicit_navigation_anchors_resolve(self):
         for name in ('README.md', 'docs/TEKNIK-REHBER.md', 'docs/SURUM-POLITIKASI.md', 'docs/assets/README.md',
-                     'docs/releases/v1.1.md', 'raspberrypi/README.md', 'docs/ELEMENTARY-HABER.md',
-                     'docs/V1.1-TEST-KANITI.md', 'docs/V1.1-GELISTIRME.md', 'docs/YEREL-MASAUSTU.md'):
+                     'docs/releases/v1.1.md', 'docs/releases/v1.2.md', 'raspberrypi/README.md', 'docs/ELEMENTARY-HABER.md',
+                     'docs/V1.1-TEST-KANITI.md', 'docs/V1.1-GELISTIRME.md', 'docs/YEREL-MASAUSTU.md',
+                     'docs/ATOLYE-VE-MAGAZA-YENILEME.md', 'docs/MASAUSTU-GORSEL-YENILEME.md',
+                     'docs/NATIVE-MATERYAL-HABER-MAGAZA.md'):
             path = ROOT / name
             text = re.sub(r'```.*?```', '', path.read_text(), flags=re.DOTALL)
             html = References()
@@ -52,10 +54,10 @@ class ReadmeTests(unittest.TestCase):
                     self.assertTrue(destination.is_relative_to(ROOT))
                     self.assertTrue(destination.is_file(), destination)
 
-    def test_downloads_point_to_all_four_v11_images_and_preserve_v100_history(self):
+    def test_current_downloads_point_to_all_four_v12_images_and_preserve_v11_v100_history(self):
         text = (ROOT / 'README.md').read_text()
         links = re.findall(r'https://github\.com/PeraPlusbirPasha/OguzDows/releases/download/([^/]+)/([^\s)"<>]+)', text)
-        self.assertEqual(set(links), {('v1.1', name) for name in (
+        self.assertEqual(set(links), {('v1.2', name) for name in (
             'OguzDows-amd64.iso', 'OguzDows-amd64.iso.sha256',
             'OguzDows-i386.iso', 'OguzDows-i386.iso.sha256',
             'OguzDows-rpi-armhf.img.xz', 'OguzDows-rpi-armhf.img.xz.sha256',
@@ -63,10 +65,12 @@ class ReadmeTests(unittest.TestCase):
             'SHA256SUMS', 'release-manifest.json', 'test-evidence.tar.gz')})
         self.assertIn('releases/tag/v1.0.0', text)
         self.assertIn('docs/releases/v1.1.md', text)
+        self.assertIn('releases/tag/v1.1', text)
+        self.assertIn('docs/releases/v1.2.md', text)
         for warning in ('Zero/Zero W', 'siyah ekran', '1 GiB', '2 GiB', '4 GiB', '512 MB',
                         'fiziksel kart doğrulaması yoktur', '32 bit UEFI', 'Secure Boot', '16 GB'):
             self.assertIn(warning, text)
-        for tag in ('v1.0.0', 'v1.1', 'v2.0', 'v3.0'):
+        for tag in ('v1.0.0', 'v1.1', 'v1.2', 'v2.0', 'v3.0'):
             self.assertIn(tag, text)
             self.assertIn(tag, (ROOT / 'docs/SURUM-POLITIKASI.md').read_text())
         self.assertIn('yeniden adlandırılmaz', text)
