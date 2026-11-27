@@ -37,7 +37,7 @@ public final class PlatformState {
         RoleManager roles = context.getSystemService(RoleManager.class);
         JSONObject state = new JSONObject();
         state.put("platform", "android");
-        state.put("version", "0.2.0-emulator");
+        state.put("version", "0.3.0-launcher");
         state.put("sdk", Build.VERSION.SDK_INT);
         state.put("callingAvailable", pm.hasSystemFeature(PackageManager.FEATURE_TELEPHONY));
         state.put("smsAvailable", pm.hasSystemFeature(PackageManager.FEATURE_TELEPHONY));

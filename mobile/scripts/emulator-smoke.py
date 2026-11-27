@@ -54,7 +54,7 @@ def main():
     adb('uninstall', 'org.oguzdows.fixture', check=False)
     adb('install', '-r', '-t', str(ROOT / 'mobile/android/app/build/outputs/apk/debug/app-debug.apk'))
     adb('install', '-r', '-t', str(ROOT / 'mobile/android/app/build/outputs/apk/androidTest/debug/app-debug-androidTest.apk'))
-    for role in ('DIALER', 'SMS'):
+    for role in ('HOME', 'DIALER', 'SMS'):
         adb('shell', 'cmd', 'role', 'add-role-holder', '--user', '0', f'android.app.role.{role}', PACKAGE)
         holders = adb('shell', 'cmd', 'role', 'get-role-holders', '--user', '0', f'android.app.role.{role}')
         if PACKAGE not in holders:
@@ -96,7 +96,7 @@ def main():
             (OUT / f'{klass}-{name or "suite"}.txt').write_text(output)
             match = re.search(r'OK \((\d+) tests?\)', output)
             cases = int(match.group(1)) if match else 0
-            expected = 3 if klass == 'RepositorySecurityTest' else 1
+            expected = 5 if klass == 'LauncherDeviceTest' else 3 if klass == 'RepositorySecurityTest' else 1
             passed = process.returncode == 0 and cases == expected and 'FAILURES!!!' not in output and 'INSTRUMENTATION_FAILED' not in output
             record = {'name': f'{klass}.{name or "suite"}', 'passed': passed, 'test_cases': cases,
                       'seconds': round(time.monotonic() - started, 2)}
@@ -109,6 +109,18 @@ def main():
                 failures = [line for line in concise if 'AssertionError' in line or 'Exception:' in line]
                 if failures: record['failure'] = failures[0][-400:]
                 annotation('error', 'Emulator ' + record['name'], '\n'.join(concise)[-3000:])
+            if klass == 'LauncherDeviceTest' and passed:
+                # Bounded visual diagnostic from a disposable emulator, not personal device data.
+                # Chunk below the checks-message cap; full-resolution screenshots stay in the artifact.
+                for line in output.splitlines():
+                    if 'NATIVE_LAUNCHER_PREVIEW ' not in line:
+                        continue
+                    encoded = line.split('NATIVE_LAUNCHER_PREVIEW ', 1)[1].strip()
+                    if not re.fullmatch(r'[A-Za-z0-9+/=]{1,28000}', encoded):
+                        continue
+                    pieces = [encoded[i:i + 3400] for i in range(0, len(encoded), 3400)]
+                    for index, piece in enumerate(pieces):
+                        annotation('notice', f'Native launcher preview {index + 1:02}/{len(pieces):02}', piece)
             if klass == 'LiveRepositoryTest':
                 for line in output.splitlines():
                     if 'LIVE_REPO_EVIDENCE ' in line:
@@ -135,14 +147,15 @@ def main():
     run_test('outgoingCallUsesTelecomAndOurInCallService')
     run_test('incomingCallCanBeAnsweredMutedAndEndedInOurUi', fixture='incoming-call')
     run_test('localApkReviewCancelAndSystemInstall')
+    run_test('', klass='LauncherDeviceTest', timeout=300)
     run_test('', klass='RepositorySecurityTest')
     run_test('', klass='LiveRepositoryTest', timeout=480)
     adb('pull', f'/sdcard/Android/data/{PACKAGE}/files/evidence', str(OUT / 'screenshots'), check=False)
     # Dedicated emulator contains only fixture data, but keep the diagnostic narrowly scoped to app crashes.
     crash = adb('logcat', '-b', 'crash', '-d', '-t', '300', check=False)
     (OUT / 'crash-buffer.txt').write_text(crash)
-    evidence['passed'] = (all(item['passed'] for item in evidence['tests']) and len(evidence['tests']) == 10
-                          and sum(item['test_cases'] for item in evidence['tests']) == 12)
+    evidence['passed'] = (all(item['passed'] for item in evidence['tests']) and len(evidence['tests']) == 11
+                          and sum(item['test_cases'] for item in evidence['tests']) == 17)
     (OUT / 'evidence.json').write_text(json.dumps(evidence, indent=2))
     print(json.dumps(evidence, indent=2))
     annotation('notice', 'Mobile emulator evidence', json.dumps(evidence, separators=(',', ':')))

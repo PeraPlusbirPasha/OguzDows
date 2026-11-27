@@ -252,10 +252,44 @@ export default function App() {
   useEffect(() => {
     const intent = (event: Event) => {
       const value = (
-        event as CustomEvent<{ screen: Screen; number?: string; body?: string }>
+        event as CustomEvent<{
+          screen: Screen;
+          number?: string;
+          body?: string;
+          theme?: "light" | "dark";
+        }>
       ).detail;
-      if (!value || !["home", "phone", "messages"].includes(value.screen))
+      if (
+        !value ||
+        ![
+          "home",
+          "phone",
+          "messages",
+          "contacts",
+          "calendar",
+          "clock",
+          "media",
+          "browser",
+          "gallery",
+          "calculator",
+          "notes",
+          "tasks",
+          "workbench",
+          "news",
+          "culture",
+          "files",
+          "google",
+          "monitor",
+          "settings",
+          "rifki",
+          "store",
+          "apps",
+          "search",
+        ].includes(value.screen)
+      )
         return;
+      if (value.theme === "light" || value.theme === "dark")
+        update({ theme: value.theme });
       if (value.screen === "phone") setDial(value.number || "");
       if (value.screen === "messages" && (value.number || value.body))
         update({

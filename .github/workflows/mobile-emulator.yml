@@ -84,10 +84,10 @@ jobs:
       - name: Yalnız tüm native testler geçince dağıtım paketini hazırla
         run: |
           mkdir -p test-results/mobile/package
-          cp mobile/android/app/build/outputs/apk/debug/app-debug.apk test-results/mobile/package/OguzDows-Mobile-0.2.0-emulator-debug.apk
-          cp mobile/android/app/build/outputs/apk/androidTest/debug/app-debug-androidTest.apk test-results/mobile/package/OguzDows-Mobile-0.2.0-emulator-tests.apk
+          cp mobile/android/app/build/outputs/apk/debug/app-debug.apk test-results/mobile/package/OguzDows-Mobile-0.3.0-launcher-debug.apk
+          cp mobile/android/app/build/outputs/apk/androidTest/debug/app-debug-androidTest.apk test-results/mobile/package/OguzDows-Mobile-0.3.0-launcher-tests.apk
           cp mobile/android/fixture/build/outputs/apk/debug/fixture-debug.apk test-results/mobile/package/OguzDows-inert-install-fixture.apk
-          "$ANDROID_HOME/build-tools/35.0.0/apksigner" verify --verbose --print-certs test-results/mobile/package/OguzDows-Mobile-0.2.0-emulator-debug.apk > test-results/mobile/package/APK-SIGNATURE.txt
+          "$ANDROID_HOME/build-tools/35.0.0/apksigner" verify --verbose --print-certs test-results/mobile/package/OguzDows-Mobile-0.3.0-launcher-debug.apk > test-results/mobile/package/APK-SIGNATURE.txt
           cd test-results/mobile/package
           sha256sum *.apk > SHA256SUMS
           echo "SOURCE_SHA=$(git rev-parse HEAD)" > BUILD.txt

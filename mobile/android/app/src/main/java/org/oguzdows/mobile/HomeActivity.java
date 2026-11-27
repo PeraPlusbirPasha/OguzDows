@@ -352,7 +352,7 @@ public final class HomeActivity extends Activity {
         // Do not consume a cold-start dial/message intent before React has registered its draft-only listener.
         if (webView == null || intent == null || !frontendReady || intentDelivered) return;
         String screen = intent.getStringExtra("screen");
-        if (!java.util.Arrays.asList("home", "phone", "messages").contains(screen == null ? "" : screen)) screen = "";
+        if (!java.util.Arrays.asList("home", "phone", "messages", "contacts", "calendar", "clock", "media", "browser", "gallery", "calculator", "notes", "tasks", "workbench", "news", "culture", "files", "google", "monitor", "settings", "rifki", "store", "apps", "search").contains(screen == null ? "" : screen)) screen = "";
         String number = "", body = "";
         if (Intent.ACTION_DIAL.equals(intent.getAction()) || Intent.ACTION_VIEW.equals(intent.getAction()) || Intent.ACTION_SENDTO.equals(intent.getAction())) {
             Uri data = intent.getData();
@@ -366,6 +366,9 @@ public final class HomeActivity extends Activity {
         if (!screen.isEmpty()) {
             try {
                 JSONObject payload = new JSONObject().put("screen", screen).put("number", number).put("body", body);
+                String launcherTheme = intent.getStringExtra("launcherTheme");
+                if (intent.getBooleanExtra("fromLauncher", false) && ("dark".equals(launcherTheme) || "light".equals(launcherTheme)))
+                    payload.put("theme", launcherTheme);
                 webView.evaluateJavascript("window.dispatchEvent(new CustomEvent('oguz-native-intent',{detail:" + payload + "}));", null);
                 // Keep framework routing metadata immutable. Consuming a draft is separate state;
                 // mutating action/data also breaks AndroidX lifecycle tracking for cold-start intents.
@@ -426,7 +429,11 @@ public final class HomeActivity extends Activity {
             pending = null; signal(); // No call/SMS is retried after a permission decision.
         }
     }
-    private void back() { if (webView.canGoBack()) webView.goBack(); else webView.evaluateJavascript("location.hash='/home'", null); }
+    private void back() {
+        if (webView.canGoBack()) webView.goBack();
+        else if (getIntent().getBooleanExtra("fromLauncher", false)) finish();
+        else webView.evaluateJavascript("location.hash='/home'", null);
+    }
     @SuppressWarnings("deprecation") @Override public void onBackPressed() { back(); }
     @Override protected void onDestroy() {
         worker.shutdownNow();

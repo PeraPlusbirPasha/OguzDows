@@ -34,7 +34,11 @@ class NativeSourceContracts(unittest.TestCase):
         actions = {node.attrib[NS + 'name'] for node in home.iter('action')}
         categories = {node.attrib[NS + 'name'] for node in home.iter('category')}
         self.assertTrue({'android.intent.action.DIAL', 'android.intent.action.SENDTO'} <= actions)
-        self.assertTrue({'android.intent.category.HOME', 'android.intent.category.LAUNCHER'} <= categories)
+        launcher = self.manifest.find("application/activity[@" + NS + "name='.LauncherActivity']")
+        launcher_categories = {node.attrib[NS + 'name'] for node in launcher.iter('category')}
+        self.assertTrue({'android.intent.category.HOME', 'android.intent.category.LAUNCHER'} <= launcher_categories)
+        self.assertNotIn('android.intent.category.HOME', categories)
+        self.assertNotIn('android.intent.category.LAUNCHER', categories)
         services = {node.attrib[NS + 'name']: node for node in self.manifest.findall('application/service')}
         self.assertEqual(services['.OguzInCallService'].attrib[NS + 'permission'], 'android.permission.BIND_INCALL_SERVICE')
         self.assertEqual(services['.RespondViaMessageService'].attrib[NS + 'permission'], 'android.permission.SEND_RESPOND_VIA_MESSAGE')
@@ -215,6 +219,37 @@ class NativeSourceContracts(unittest.TestCase):
         self.assertIn('AppIcons.get', store)
         self.assertIn('(LinearLayout) recycled', store)
         self.assertIn('1536 * 1024', (JAVA / 'AppIcons.java').read_text())
+
+    def test_native_launcher_uses_real_inventory_widgets_private_layout_and_bounded_character(self):
+        activity = (JAVA / 'LauncherActivity.kt').read_text()
+        repository = (JAVA / 'LauncherRepository.kt').read_text()
+        widgets = (JAVA / 'LauncherWidgets.kt').read_text()
+        rules = (JAVA / 'LauncherRules.kt').read_text()
+        screen = (JAVA / 'NativeLauncherScreen.kt').read_text()
+        self.assertIn('setContent', activity)
+        self.assertNotIn('WebView', activity)
+        for token in ('LauncherApps', 'users.userProfiles', 'getActivityList(null, profile)', 'startMainActivity(entry.component, entry.user', '3 * 1024 * 1024', 'unregisterCallback'):
+            self.assertIn(token, repository)
+        for token in ('AppWidgetHost', 'bindAppWidgetIdIfAllowed', 'ACTION_APPWIDGET_BIND', 'ACTION_APPWIDGET_CONFIGURE', 'deleteAppWidgetId', 'stopListening'):
+            self.assertIn(token, widgets)
+        self.assertIn('StateFlow', (JAVA / 'LauncherViewModel.kt').read_text())
+        self.assertIn('MAX_PINS = 16', rules)
+        self.assertIn('HorizontalPager', screen)
+        self.assertIn('pageCount = { 3 }', screen)
+        for denied in ('TelecomManager', 'SmsManager', 'RECORD_AUDIO', 'https://'):
+            self.assertNotIn(denied, rules)
+        smoke = (ROOT / 'scripts/emulator-smoke.py').read_text()
+        self.assertIn("klass='LauncherDeviceTest'", smoke)
+        self.assertIn("len(evidence['tests']) == 11", smoke)
+        self.assertIn("sum(item['test_cases'] for item in evidence['tests']) == 17", smoke)
+
+    def test_native_shell_wallpapers_are_existing_bytes_with_provenance(self):
+        rows = json.loads((ROOT / 'android/shell-assets.json').read_text())
+        self.assertEqual(len(rows), 4)
+        for row in rows:
+            self.assertEqual((ROOT / row['source']).read_bytes(), (ROOT / row['native']).read_bytes())
+            self.assertEqual(hashlib.sha256((ROOT / row['native']).read_bytes()).hexdigest(), row['sha256'])
+            self.assertIn('artwork/README.md', row['provenance'])
 
     def test_resources_parse_and_api_contract_remains_explicit(self):
         for path in ANDROID.rglob('*.xml'):
