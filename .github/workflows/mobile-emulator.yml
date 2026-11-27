@@ -44,7 +44,7 @@ jobs:
           java-version: '21' # SDK tooling JVM; application source/bytecode target is Java 17.
       - uses: gradle/actions/setup-gradle@ed408507eac070d1f99cc633dbcf757c94c7933a # v4
         with:
-          cache-read-only: ${{ github.event_name == 'pull_request' }}
+          cache-read-only: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name != github.repository }}
       - name: Paketlenmiş arayüz · birim testleri · bağımlılık denetimi
         working-directory: mobile/preview
         run: |

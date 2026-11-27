@@ -31,7 +31,7 @@ public final class RepositorySecurityTest {
         File metadata = fixture("metadata.json"), good = fixture("signed-index.jar"), tampered = fixture("tampered-index.jar"), unsigned = fixture("unsigned-index.jar");
         File output = new File(context.getCacheDir(), "verified-test-index.json");
         try {
-            String pin = new JSONObject(Files.readString(metadata.toPath())).getString("certificateSha256");
+            String pin = new JSONObject(new String(Files.readAllBytes(metadata.toPath()), StandardCharsets.UTF_8)).getString("certificateSha256");
             assertNotEquals("test key never replaces production anchor", FdroidRepository.CERTIFICATE_SHA256, pin);
             FdroidRepository.verifyAndExtract(good, output, pin); assertTrue(output.length() > 0);
             for (File rejected : new File[]{tampered, unsigned}) {
