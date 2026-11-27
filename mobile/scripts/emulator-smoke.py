@@ -112,7 +112,7 @@ def main():
     # Boot-completed does not imply that the disposable modem/SIM has finished loading.
     # Wait for the actual virtual SIM, never manufacture a subscription or choose a real line.
     sim_deadline = time.monotonic() + 90
-    while not any(state in adb('shell', 'getprop', 'gsm.sim.state').upper() for state in ('LOADED', 'READY')):
+    while not {'LOADED', 'READY'}.intersection(adb('shell', 'getprop', 'gsm.sim.state').strip().upper().split(',')):
         if time.monotonic() >= sim_deadline:
             raise RuntimeError('The disposable emulator virtual SIM did not become ready')
         time.sleep(0.5)
