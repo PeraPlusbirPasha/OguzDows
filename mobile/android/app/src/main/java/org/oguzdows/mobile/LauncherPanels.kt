@@ -124,17 +124,7 @@ fun LauncherControls(state: LauncherUiState, model: LauncherViewModel, role:(Str
             Column(Modifier.weight(1f)) { Text("Hafif görünüm", fontWeight=FontWeight.Medium); Text("Daha sade yüzey ve karakter hareketi", fontSize=11.sp) }
             Switch(checked=state.lightEffects, onCheckedChange=model::lightEffects, modifier=Modifier.semantics{contentDescription="Hafif görünüm"})
         }
-        Text("DUVAR KÂĞIDI", fontSize=10.sp, letterSpacing=1.5.sp, color=MaterialTheme.colorScheme.primary, modifier=Modifier.padding(top=18.dp,bottom=10.dp))
-        Row(Modifier.fillMaxWidth(), horizontalArrangement=Arrangement.spacedBy(9.dp)) {
-            ShellWallpapers.forEachIndexed { i, drawable ->
-                Box(Modifier.weight(1f).height(84.dp).clip(RoundedCornerShape(12.dp)).clickable {model.wallpaper(i)}
-                    .semantics{contentDescription="Duvar kâğıdı: ${ShellWallpaperNames[i]}"}) {
-                    Image(painterResource(drawable), null, Modifier.fillMaxSize(), contentScale=ContentScale.Crop)
-                    if(state.wallpaper==i) Text("✓", color=Color.White, modifier=Modifier.align(Alignment.BottomEnd).padding(8.dp), fontWeight=FontWeight.Bold)
-                }
-            }
-        }
-        Text("${ShellWallpaperNames[state.wallpaper]} · yalnız OğuzDows arka planı", fontSize=11.sp, modifier=Modifier.padding(top=7.dp))
+        WallpaperChoices(state, model)
         Text("Medya sesi · %${(state.mediaVolume*100).toInt()}", modifier=Modifier.padding(top=20.dp))
         Slider(value=state.mediaVolume, onValueChange=model::volume, modifier=Modifier.fillMaxWidth().testTag("launcher-volume").semantics{contentDescription="Gerçek sistem medya sesi"})
         Text("Pencere parlaklığı · %${(ownBrightness*100).toInt()}")
@@ -156,6 +146,61 @@ fun LauncherControls(state: LauncherUiState, model: LauncherViewModel, role:(Str
         text={Text("Yalnız bu launcher’ın kısayolları varsayılana döner. Widget, SMS, kişi, uygulama ve roller silinmez.")},
         confirmButton={TextButton(onClick={model.resetPins();confirmReset=false}){Text("Düzeni sıfırla")}},
         dismissButton={TextButton(onClick={confirmReset=false}){Text("Vazgeç")}})
+}
+
+/** Same real wallpaper choice in the quick controls and the dedicated collection route. */
+@Composable
+private fun WallpaperChoices(state: LauncherUiState, model: LauncherViewModel) {
+        Text("DUVAR KÂĞIDI", fontSize=10.sp, letterSpacing=1.5.sp, color=MaterialTheme.colorScheme.primary, modifier=Modifier.padding(top=18.dp,bottom=10.dp))
+        Row(Modifier.fillMaxWidth(), horizontalArrangement=Arrangement.spacedBy(9.dp)) {
+            ShellWallpapers.forEachIndexed { i, drawable ->
+                Box(Modifier.weight(1f).height(84.dp).clip(RoundedCornerShape(12.dp)).clickable {model.wallpaper(i)}
+                    .semantics{contentDescription="Duvar kâğıdı: ${ShellWallpaperNames[i]}"}) {
+                    Image(painterResource(drawable), null, Modifier.fillMaxSize(), contentScale=ContentScale.Crop)
+                    if(state.wallpaper==i) Text("✓", color=Color.White, modifier=Modifier.align(Alignment.BottomEnd).padding(8.dp), fontWeight=FontWeight.Bold)
+                }
+            }
+        }
+        Text("${ShellWallpaperNames[state.wallpaper]} · yalnız OğuzDows arka planı", fontSize=11.sp, modifier=Modifier.padding(top=7.dp))
+}
+
+@Composable
+fun LauncherWallpaperPanel(state: LauncherUiState, model: LauncherViewModel) {
+    Column(Modifier.fillMaxWidth().verticalScroll(rememberScrollState()).padding(horizontal = 24.dp)
+        .testTag("launcher-wallpapers")) {
+        Text("Koleksiyon.", style = MaterialTheme.typography.headlineSmall)
+        Text("Cebinde, senden bir manzara.", modifier = Modifier.padding(top = 8.dp))
+        WallpaperChoices(state, model)
+        Text("Seçim gerçek native ana ekranına uygulanır ve telefonda saklanır. Sistem veya başka uygulamaların duvar kâğıdını değiştirmez.",
+            fontSize = 12.sp, lineHeight = 18.sp, modifier = Modifier.padding(vertical = 18.dp))
+    }
+}
+
+@Composable
+fun LauncherDevicePanel(state: LauncherUiState, system: (String) -> Unit) {
+    val context = LocalContext.current
+    val activityManager = remember { context.getSystemService(android.app.ActivityManager::class.java) }
+    var memory by remember { mutableStateOf(android.app.ActivityManager.MemoryInfo().also(activityManager::getMemoryInfo)) }
+    Column(Modifier.fillMaxWidth().heightIn(max = 600.dp).verticalScroll(rememberScrollState())
+        .padding(horizontal = 24.dp).testTag("launcher-device-panel")) {
+        Text("Cihazım.", style = MaterialTheme.typography.headlineSmall)
+        Text("Uydurma yüzdeler değil, sistemin söylediği.", fontSize = 12.sp, modifier = Modifier.padding(vertical = 12.dp))
+        Text("OğuzDows 0.3 · API ${android.os.Build.VERSION.SDK_INT}")
+        Text("${android.os.Build.MANUFACTURER} ${android.os.Build.MODEL}", fontSize = 14.sp)
+        HorizontalDivider(Modifier.padding(vertical = 16.dp))
+        Text(state.battery?.let { "Pil · %$it · ${if (state.charging) "şarjda" else "şarjda değil"}" } ?: "Pil durumu sistemden alınamadı")
+        val total = android.text.format.Formatter.formatShortFileSize(context, memory.totalMem)
+        val available = android.text.format.Formatter.formatShortFileSize(context, memory.availMem)
+        Text("Sistem belleği · $available kullanılabilir / $total toplam", modifier = Modifier.padding(top = 12.dp))
+        Text("Anlık sistem tahminidir; OğuzDows'un RAM tüketimi veya pil ömrü ölçümü değildir.", fontSize = 11.sp, lineHeight = 16.sp)
+        Text("Ana ekran · ${if (state.homeHeld) "OğuzDows seçili" else "ayrı sistem seçimi gerekiyor"}", modifier = Modifier.padding(top = 16.dp))
+        Text("Telefon · ${if (PlatformState.role(context, RoleManager.ROLE_DIALER)) "OğuzDows seçili" else "ayrı rol gerekiyor"}")
+        Text("SMS · ${if (PlatformState.role(context, RoleManager.ROLE_SMS)) "OğuzDows seçili" else "ayrı rol gerekiyor"}")
+        Text("${state.entries.size} başlatılabilir uygulama girişi · ${state.pins.size}/16 sabit kısayol · ${state.widgetIds.size}/2 widget",
+            fontSize = 12.sp, modifier = Modifier.padding(vertical = 16.dp))
+        OutlinedButton(onClick = { memory = android.app.ActivityManager.MemoryInfo().also(activityManager::getMemoryInfo) }, modifier = Modifier.fillMaxWidth()) { Text("Bellek anlık görüntüsünü yenile") }
+        FilledTonalButton(onClick = { system("battery") }, modifier = Modifier.fillMaxWidth()) { Text("Gerçek sistem pil ayarları") }
+    }
 }
 
 @Composable

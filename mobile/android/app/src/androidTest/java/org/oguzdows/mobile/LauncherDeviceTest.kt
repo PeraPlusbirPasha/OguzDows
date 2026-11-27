@@ -83,6 +83,15 @@ class LauncherDeviceTest {
         assertEquals("org.oguzdows.fixture",fixture.get().component.packageName)
         assertFalse("home is native, not a WebView",device.hasObject(By.clazz("android.webkit.WebView")))
         screenshot("launcher-native-home")
+        node("launcher-search-open").click(); node("launcher-search").text="cihazim"
+        desc("Modülü aç: Cihazım").click(); node("launcher-device-panel")
+        assertTrue(device.hasObject(By.textContains("Sistem belleği")))
+        device.pressHome(); node("launcher-root")
+        node("launcher-search-open").click(); node("launcher-search").text="koleksiyon"
+        desc("Modülü aç: Koleksiyon").click(); node("launcher-wallpapers")
+        desc("Duvar kâğıdı: Kapadokya ışığı").click()
+        waitFor("real persisted wallpaper choice") { LauncherStore(context).wallpaper()==1 }
+        device.pressHome(); node("launcher-root")
     }
     @Test fun test02SearchLaunchesInstalledActivityAndHomeReturns() {
         node("launcher-search-open").click();node("launcher-drawer")
@@ -102,9 +111,22 @@ class LauncherDeviceTest {
         waitFor("move changed order"){pins().indexOf(key)==11}
         val expected=pins()
         waitFor("disk persistence, not just view state"){LauncherStore(context).pins()==expected}
-        scenario.recreate();node("launcher-root")
+        device.pressHome(); node("launcher-root")
+        // A new ViewModel must read disk; configuration recreation alone retains a ViewModel.
+        scenario.close()
+        scenario = ActivityScenario.launch(Intent(context, LauncherActivity::class.java).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
+        node("launcher-root")
         assertEquals(expected,pins())
         assertEquals(expected,LauncherStore(context).pins())
+        val preferences=context.getSharedPreferences("launcher-layout-v1",0)
+        preferences.edit().putString("pins","{broken-layout").commit()
+        val corrupt=LauncherStore(context)
+        assertEquals(LauncherRules.defaultPins,corrupt.pins())
+        assertFalse(corrupt.writable)
+        assertFalse(corrupt.savePins(expected))
+        assertEquals("{broken-layout",preferences.getString("pins",null))
+        corrupt.reset()
+        assertEquals(LauncherRules.defaultPins,corrupt.pins())
     }
     @Test fun test04ControlsAndRifkiUseActualState() {
         val audio=context.getSystemService(AudioManager::class.java)
@@ -121,6 +143,10 @@ class LauncherDeviceTest {
             device.pressHome();node("launcher-rifki").click();node("launcher-rifki-panel")
             assertTrue(device.hasObject(By.textContains("Bulut bağlı değil")))
             node("rifki-input").text="gece modu"
+            val ime = AtomicReference(false)
+            scenario.onActivity { ime.set(androidx.core.view.ViewCompat.getRootWindowInsets(it.window.decorView)
+                ?.isVisible(androidx.core.view.WindowInsetsCompat.Type.ime()) == true) }
+            if (ime.get()) device.pressBack() // Never dismiss the sheet when no keyboard is shown.
             node("rifki-send").click()
             assertTrue(node("rifki-answer").text.contains("Gece mavisi"))
             node("rifki-suggestion").click()
@@ -144,6 +170,11 @@ class LauncherDeviceTest {
         node("launcher-widget-$id")
         assertTrue("provider RemoteViews rendered",device.wait(Until.hasObject(By.textContains("Widget hazır")),15000))
         screenshot("launcher-native-widget")
+        scenario.recreate()
+        desc("Widget alanı").click(); node("launcher-widget-space")
+        assertEquals(listOf(id),LauncherStore(context).widgetIds())
+        node("launcher-widget-$id")
+        assertTrue("RemoteViews restored with a new host",device.wait(Until.hasObject(By.textContains("Widget hazır")),15000))
         desc("Widget kaldır: $id").click()
         waitFor("widget removed from persisted layout"){LauncherStore(context).widgetIds().isEmpty()}
         scenario.onActivity{assertNull(it.widgets.manager.getAppWidgetInfo(id))}

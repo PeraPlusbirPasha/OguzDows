@@ -66,7 +66,8 @@ def main():
         adb('shell', 'pm', 'grant', PACKAGE, 'android.permission.' + permission)
     # This is equivalent to approving this source in a throwaway emulator, not a production bypass.
     adb('shell', 'appops', 'set', PACKAGE, 'REQUEST_INSTALL_PACKAGES', 'allow')
-    adb('shell', 'am', 'start', '-n', PACKAGE + '/.HomeActivity')
+    # ActivityScenario owns the first visible launch. Do not cold-launch a WebView only
+    # to have am instrument immediately tear that process down during focus delivery.
 
     def run_test(name, klass='NativeDeviceTest', fixture=None, timeout=180):
         started = time.monotonic()
@@ -109,13 +110,18 @@ def main():
                 failures = [line for line in concise if 'AssertionError' in line or 'Exception:' in line]
                 if failures: record['failure'] = failures[0][-400:]
                 annotation('error', 'Emulator ' + record['name'], '\n'.join(concise)[-3000:])
-                if 'keyDispatchingTimedOut' in output or 'Input dispatching timed out' in output:
+                # A system ANR dialog can cover every later test without producing an ANR
+                # instrumentation result. Capture the real trace, not a blind retry/time increase.
+                events = adb('logcat', '-b', 'events', '-d', '-s', 'am_anr', check=False)
+                if PACKAGE in events:
                     anr = adb('shell', 'dumpsys', 'activity', 'lastanr', check=False)
-                    (OUT / f'{klass}-{name or "suite"}-anr.txt').write_text(anr)
-                    # Only the disposable emulator's app main-thread diagnostic is surfaced.
-                    main_stack = re.search(r'"main"[^\n]*\n[\s\S]{0,2800}', anr)
-                    if main_stack:
-                        annotation('error', 'Emulator main-thread ANR', main_stack.group())
+                    dropbox = adb('shell', 'dumpsys', 'dropbox', '--print', 'data_app_anr', check=False)
+                    (OUT / f'{klass}-{name or "suite"}-anr.txt').write_text(events + '\n' + anr + '\n' + dropbox)
+                    # Only a disposable emulator's app main-thread diagnostic is surfaced.
+                    main_stack = re.search(r'"main"[^\n]*\n[\s\S]{0,2800}', dropbox)
+                    annotation('error', 'Emulator main-thread ANR', main_stack.group() if main_stack else (events + '\n' + anr)[:2800])
+                    evidence['passed'] = False
+                    raise SystemExit('App ANR: abort incomplete acceptance; no package. Inspect the recorded main-thread trace.')
             if klass == 'LauncherDeviceTest' and passed:
                 # Bounded visual diagnostic from a disposable emulator, not personal device data.
                 # Chunk below the checks-message cap; full-resolution screenshots stay in the artifact.

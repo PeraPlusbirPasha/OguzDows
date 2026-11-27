@@ -70,7 +70,9 @@ fun NativeLauncherScreen(
         fun onOpen(key: String) {
             when (LauncherRules.internalRoute(key)) {
                 "rifki" -> panel = "rifki"
-                "settings", "monitor", "culture" -> panel = "controls"
+                "settings" -> panel = "controls"
+                "monitor" -> panel = "device"
+                "culture" -> panel = "wallpapers"
                 null -> { panel = null; launch(key) }
                 else -> { panel = null; route(LauncherRules.internalRoute(key)!!) }
             }
@@ -146,7 +148,7 @@ fun NativeLauncherScreen(
                         horizontalArrangement=if(state.catRight) Arrangement.Start else Arrangement.End) {
                         @Composable fun cat() {
                             var travel by remember { mutableFloatStateOf(0f) }
-                            Image(painterResource(R.drawable.rifki), "Rıfkı, dokun konuş; sürükle yerini değiştir", Modifier.size(if(compact) 59.dp else 72.dp)
+                            Image(painterResource(R.drawable.rifki), "Rıfkı, dokun yaz; sürükle yerini değiştir", Modifier.size(if(compact) 59.dp else 72.dp)
                                 .pointerInput(Unit) { detectHorizontalDragGestures(onDragStart={travel=0f}, onDragEnd={ if(kotlin.math.abs(travel)>30) model.catSide(travel>0) }) { change, dx -> change.consume(); travel+=dx } })
                         }
                         if (!state.catRight) cat()
@@ -183,6 +185,8 @@ fun NativeLauncherScreen(
             when {
                 panel=="apps" -> LauncherDrawer(state, model, ::onOpen, {panel="edit:$it"}, report)
                 panel=="controls" -> LauncherControls(state, model, role, system, brightness, {panel=null;route("settings")}, report)
+                panel=="wallpapers" -> LauncherWallpaperPanel(state, model)
+                panel=="device" -> LauncherDevicePanel(state, system)
                 panel=="rifki" -> RifkiPanel(state) { suggestion ->
                     when(suggestion) {
                         ShellSuggestion.DARK -> model.dark(true)

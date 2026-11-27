@@ -63,11 +63,20 @@ public final class NativeDeviceTest {
         scenario = ActivityScenario.launch(intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
         // A cold WebView can discard evaluateJavascript callbacks during its initial navigation.
         // Wait for a visible committed page before probing JS; never retry a paid bridge action.
-        waitFor("visible bundled page committed", 60000, () -> {
-            AtomicReference<Boolean> committed = new AtomicReference<>(false);
-            scenario.onActivity(a -> committed.set(a.hasWindowFocus() && a.webView.getProgress() == 100 && a.webView.getHeight() > 0));
-            return committed.get();
-        });
+        AtomicReference<String> visibleState = new AtomicReference<>("");
+        try {
+            waitFor("visible bundled page committed", 60000, () -> {
+                AtomicReference<Boolean> committed = new AtomicReference<>(false);
+                scenario.onActivity(a -> {
+                    visibleState.set("progress=" + a.webView.getProgress() + " focus=" + a.hasWindowFocus()
+                        + " height=" + a.webView.getHeight() + " visibility=" + a.webView.getWindowVisibility() + " url=" + a.webView.getUrl());
+                    committed.set(a.hasWindowFocus() && a.webView.getProgress() == 100 && a.webView.getHeight() > 0);
+                });
+                return committed.get();
+            });
+        } catch (AssertionError failure) {
+            throw new AssertionError(failure.getMessage() + "; " + visibleState.get() + "; foreground=" + device.getCurrentPackageName(), failure);
+        }
         waitFor("bundled rich UI + secure bridge", 30000,
             () -> "true".equals(js("!!window.OguzPlatform && !!document.querySelector('.phone-content')")));
     }
