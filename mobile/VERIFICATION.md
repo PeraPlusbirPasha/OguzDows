@@ -1,20 +1,20 @@
 # Mobil deneyim · gerçek doğrulama kaydı
 
-Bu kayıt **tarayıcıdaki çalışan arayüz ve kaynak sözleşmeleri** içindir. Native SDK derlemesi, emülatör, fiziksel telefon, ROM, Google sertifikası veya gerçek üretken model kanıtı değildir.
+Dört düzey ayrıdır: **tarayıcı**, **SDK/Java/lint**, **sanal radyo/sağlayıcı/yükleyici emülatörü**, **gerçek SIM/cihaz/ROM**. Bir düzeyin başarısı diğerine aktarılmaz. Bu kayıt, başarısız kabul koşularını da saklar; hazırlanmış test kodu geçmiş test sayılmaz.
 
 ## Son tam kontrol
 
 | Kontrol                | Gözlenen sonuç                | Sınır                                                                       |
 | ---------------------- | ----------------------------- | --------------------------------------------------------------------------- |
-| `npm run build`        | Başarılı                      | TypeScript + Vite 6.4.6, 1588 modül                                         |
-| `npm test`             | **29 geçti, 0 atlama**        | 12 temel mantık + 7 günlük deneyim/varlık + 10 API testi                    |
-| `npm run test:native`  | **9 geçti, 0 atlama**         | Yalnız manifest/XML/izin/path/rol/intent/kaynak sözleşmeleri                |
+| `npm run build`        | Başarılı                      | TypeScript + Vite 6.4.6, 1594 modül                                         |
+| `npm test`             | **30 geçti, 0 atlama**        | 12 temel mantık + 8 günlük deneyim/varlık/durum + 10 API testi                    |
+| `npm run test:native`  | **13 geçti, 0 atlama**         | Yalnız manifest/XML/izin/köprü/rol/depoya güven/simge/kaynak sözleşmeleri                |
 | `npm run test:browser` | **31 senaryo geçti**          | 15 mevcut + 16 günlük deneyim; iki kapsayıcıyla Node raporu 33/33           |
 | `npm run format:check` | Başarılı                      | TSX/MJS/CSS/config/test kaynakları                                          |
 | `npm audit`            | **0 raporlanan açık**         | Bu lockfile ve sorgu anı; genel güvenlik sertifikası değil                  |
-| Başlangıç JS           | **95917 gzip bayt**           | Hedef ≤112640 bayt (110 KiB), geçildi                                       |
-| Günlük uygulamalar JS  | **9724 gzip bayt**            | Ayrı, dinamik yüklenen modül; yukarıdaki ilk paket değildir                 |
-| CSS                    | **16070 gzip bayt**           | İki stil kaynağının üretim dosyası                                          |
+| Başlangıç JS           | **99241 gzip bayt**           | Hedef ≤112640 bayt (110 KiB), geçildi                                       |
+| Günlük uygulamalar JS  | **12082 gzip bayt**            | Ayrı, dinamik yüklenen modül; yukarıdaki ilk paket değildir                 |
+| CSS                    | **16460 gzip bayt**           | İki stil kaynağının üretim dosyası                                          |
 | Mağaza simgeleri       | **24 / 24 yerel SVG**         | Tarayıcıda her birinin gerçek yüklenmesi, manifest SHA-256/lisans kontrolü  |
 | Önceki çalışma         | **633 dosyanın içeriği aynı** | Mobil işe başlamadan kaydedilen SHA-256 tabanı; PC/Pi yayını değiştirilmedi |
 
@@ -47,11 +47,28 @@ Masaüstü laboratuvarı/başlangıçta harici istek olmaması; 390px tam ekran 
 
 Axe sonuçları tüm temalarda, her OEM’de, gerçek ekran okuyucuda veya tam WCAG sertifikasyonu anlamına gelmez. Yeni panelde testte yakalanan düşük kontrast giderildi; metinleri yarı saydamlaştırmayan, transform odaklı panel animasyonu kullanıldı. Yeni durum alanları eski v1 kayıtlara veri silmeden varsayılan ekler; not/görevler korunur.
 
+## Native SDK ve ilk gerçek emülatör koşusu
+
+| Kanıt | Gözlenen sonuç | Anlamı |
+| --- | --- | --- |
+| [SDK koşusu `7e7dad7`](https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/46043838494) | Ana APK **6,992,378 bayt** + test APK’sı derlendi; **6/6 Java**, 0 atlama; lint **0 hata / 37 uyarı** | [API’den alınan SDK kaydı](android/evidence/sdk-7e7dad7.json); tek başına cihaz kabulü değil |
+| [İlk sanal radyo koşusu `384e905`](https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/46044480983) | **BAŞARISIZ: 5/12 test geçti**, 7 geçmedi | [Ham kısa emülatör kaydı](android/evidence/emulator-384e905.json); dağıtım paketi hazırlanmadı |
+| Sistem sesi/parlaklık/tema | 1 gerçek emülatör testi geçti | AudioManager ve pencere özellikleri; pil ömrü/ekran ışık şiddeti ölçümü değil |
+| Gelen sanal çağrı | 1 gerçek emülatör testi geçti | OğuzDows InCallService/UI’da yanıtla, mikrofon sustur/aç ve bitir; gerçek SIM/operatör değil |
+| Depo güvenliği | **3 gerçek Android testi geçti** | Ayrı test anahtarlı JAR, yanlış pin/bozuk/imzasız ret; SQLite sürüm seçimi/rollback; izinsiz uç reddi |
+| Kalan kabul | UI/JS hazır olma/ön plan ve sistem düğmesi seçici hataları düzeltme aşamasında | SMS gönderim/alım, giden çağrı, kurulum ve canlı inceleme bu başarısız koşuda geçti sayılmaz |
+
+İlk emülatör çalıştırıcı commit’i, kendi runtime bağımlılıklarını içermeyen upstream geliştirme revizyonuydu; aynı adım 0 saniyede durdu. Yayınlanmış, bağımlılıkları içeren **v2.34.0 / `1dcd0090116d15e7c562f8db72807de5e036a4ed`** pin’iyle gerçek API35 Google APIs / x86_64 Pixel6 emülatörü başladı. Bu imaj Play Store/GMS sertifikası veya fiziksel ürün desteği değildir.
+
+Kabul düzeneği 8 cihaz metodu + 3 depo güvenliği + 1 canlı depo testini, 10 instrumentation seçiminde **tam 12 test** olarak zorunlu tutar. Sıfır/eksik test başarı olamaz. Sürücü yalnız tek `emulator-*` ve `ro.kernel.qemu=1` hedefinde çalışır; rol uygunluğunu atlamadan Telefon/SMS rollerini seçer, yalnız sanal modem fixture’ları kullanır. Gerçek SIM/acil numara denenmez. Canlı test resmî pinned kataloğu ve Aegis APK’sını indirip inceler ve **kurmadan iptal eder**; ayrı etkisiz fixture APK, gerçek sistem yükleyicisi onayıyla kurulmalıdır. Bunlar test tasarımıdır; yalnız geçmiş adımlar yukarıda başarı olarak yazılır.
+
+İş akışı yalnız bütün yerel testler geçince APK/test/fixture paketini, `APK-SIGNATURE.txt`, `SHA256SUMS` ve `BUILD.txt` kaynak SHA’sını hazırlar. Mevcut rapor/ekran/log dosyaları hata halinde de Actions artifact’ına alınır (**14 gün**). `test-results/mobile/build.json` SDK’yı, `emulator/evidence.json` cihazı ayrı kaydeder; kısa bildirimler GitHub checks API’den de okunur. APK’lar/SDK/özel test anahtarları Git’e eklenmez. Kaynak, şema veya lint uyarıları azaltılmadan üretim güvenlik/performans onayı iddia edilmez.
+
 ## API ve native kaynak sınırı
 
 API testleri: kapalı varsayılan; HTTPS/sunucu-loopback uç kısıtı; gönderim başlığı/onayı ve rol/sayı/uzunluk doğrulaması; sunucuda sabit sistem promptu; model araçlarının olmaması; gövde/yanıt sınırı; anahtar/hata sızdırmama; IP hız sınırı; yabancı Origin reddi ve iki inference eşzamanlılık kapısı. Gerçek sağlayıcı, model kalitesi, veri saklama ve üretim oturum doğrulaması test edilmedi.
 
-Native kontratlara normal numara doğrulama, `ACTION_DIAL`, `ACTION_SENDTO` / `smsto:`, sistem ses/Wi-Fi paneli ve günlük uygulama intent’leri eklendi. Doğrudan `ACTION_CALL`, `SmsManager` veya sistem ayarına yazma yok; yalnız mevcut `REQUEST_INSTALL_PACKAGES` özel izni istenir. Bu kod **SDK ile derlenmedi**; doğru intent metninin varlığı OEM’de çalışma kanıtı değildir.
+13 kaynak sözleşmesi; açık manifest izinleri/rol bileşenleri, origin/ana çerçeve/CSP, ücretli işlem onayı ve doğruluk, APK özel kopyası/yükleyici, depo güven kökü/imza/hash/rollback, yardımcı mikrofonunun kapalı kalması, gerçekten bağlı native Telefon/Mesaj rotaları, emülatör güvenlik kilitleri ve 24 vektörün path/lisans/hash eşleşmesini denetler. Bunlar **statik kaynak sözleşmeleridir**, çalışan cihaz kanıtı değildir. Gerçek SDK sonucu ve yalnız geçen emülatör adımları üstte ayrıca belirtilir.
 
 AOSP yardımcı metadata’sının zorunlu `recognitionService` alanı kaynak incelemesiyle eklenmişti; tanıma iskeleti mikrofon açmadan hata döndürür. Üç yardımcı servisi `BIND_VOICE_INTERACTION` imza izniyle kısıtlıdır. İncelenen AOSP 15 kaynakları:
 
@@ -61,9 +78,9 @@ AOSP yardımcı metadata’sının zorunlu `recognitionService` alanı kaynak in
 
 ## Özellikle yapılmayanlar
 
-- SDK/Gradle derlemesi, native APK çalıştırma/kurma; AOSP/GSI/boot/vendor/ROM üretimi, unlock/flash/root.
+- Tam emülatör kabulü ve doğrulanmış dağıtım APK’sı henüz yok; ilk koşu başarısızdır. AOSP/GSI/boot/vendor/ROM üretimi, unlock/flash/root yapılmadı.
 - GMS/Play dağıtımı, lisans/sertifika, CTS/VTS, Play Integrity, banka veya DRM uygulaması testi.
-- Gerçek SIM/modem/arama/SMS/acil çağrı, sistem rehberi/bildirim/takvim erişimi, donanım kamera/radyo/GPU veya sistem ses kontrolü.
+- Fiziksel SIM/operatör/VoLTE/VoWiFi/acil çağrı, sistem rehberi/takvim erişimi, gerçek kamera/radyo/GPU/ses kalitesi veya pil ölçümü. Sanal gelen çağrı ve ses API testi fiziksel donanım kanıtı değildir.
 - Canlı üretken model, mikrofon, ASR/hotword veya ekran bağlamı okuma.
 - Gerçek pil ömrü/RAM/FPS/termal ölçümü veya tüm masaüstü özelliklerinin native tamamlandığı iddiası.
 - Mevcut PC/Pi dosyaları, yayımlanmış imajlar veya PR/release işlemlerine müdahale.

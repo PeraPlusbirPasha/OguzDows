@@ -1,9 +1,9 @@
 {
-  "schema_version": 1,
+  "schema_version": 2,
   "product": "OğuzDows Mobile",
-  "phase": "interactive-design-and-unbuilt-native-starter",
+  "phase": "native-apk-assembled-emulator-acceptance-pending",
   "rom_built": false,
-  "native_apk_built": false,
+  "native_apk_built": true,
   "physical_device_tested": false,
   "live_generative_model_tested": false,
   "desktop_images_modified": false,
@@ -126,7 +126,8 @@
       "desktop": "Başlangıç yöneticisi",
       "mobile": "Platformun uygulama/pil ayarlarına kullanıcı kontrollü geçiş",
       "preview": "native-required",
-      "limit": "Diğer uygulamaların BOOT_COMPLETED veya arka plan izinleri normal başlatıcıdan değiştirilemez."
+      "limit": "Diğer uygulamaların BOOT_COMPLETED veya arka plan izinleri normal başlatıcıdan değiştirilemez.",
+      "native_android": "partial-settings-delegation"
     }
   ],
   "other_seven_new_functions": [
@@ -140,13 +141,15 @@
       "id": "store-health",
       "desktop": "Çevrimdışı mağaza teşhisi",
       "preview": "native-required",
-      "mobile": "PackageInstaller/unknown-sources/API/ABI/Play katmanı teşhisi; masaüstü APT motorları taşınmaz."
+      "mobile": "Native rol/izin/kaynak izni, gerçek katalog/imza/hash/API/ABI ve yükleyici hata yolları; tüm OEM/GMS teşhisi değildir. APT/Flatpak motorları taşınmaz.",
+      "native_android": "partial-assembled-runtime-pending"
     },
     {
       "id": "source-compare",
       "desktop": "APT / Flatpak karşılaştırması",
       "preview": "partial",
-      "mobile": "Resmî geliştirici / Play kaynak bağlantıları; sürüm, indirme boyutu ve imza kökeni karşılaştırması henüz yok."
+      "mobile": "Web resmî geliştirici/Play bağlantıları. Native imzalı F-Droid boyut/sürüm/hash/API/ABI ve görünür yüklü sürüm karşılaştırması; Play metadata karşılaştırması veya tüm cihaz güncelleyicisi değil.",
+      "native_android": "partial-assembled-runtime-pending"
     },
     {
       "id": "reading-list",
@@ -177,104 +180,104 @@
     {
       "id": "nazar-power",
       "preview": "interactive",
-      "native_starter": "unbuilt-source",
-      "mobile": "Nazar boncuğu pil/güç kimliği; web örnek pil, native gerçek pil okuma. Gerçek kapatma/SystemUI yalnız ROM aşaması."
+      "mobile": "Nazar güç/pil kimliği. Web pil/saat örnek; APK sistemden okur. APK gerçek pil/ekran paneline gider, güvenlik kilidi/kapatma simülasyonu yapmaz; SystemUI/ROM güç katmanı ayrı.",
+      "native_android": "assembled-runtime-pending"
     },
     {
       "id": "rifki",
       "preview": "partial",
-      "native_starter": "unbuilt-source",
-      "mobile": "Kedi kimliği korunur; dürüst yerel rehber + sunucuda açık onaylı opsiyonel üretken model köprüsü. Canlı model denenmedi."
+      "mobile": "Kedi kimliği korunur; dürüst yerel rehber + sunucuda açık onaylı opsiyonel üretken model köprüsü. Canlı model denenmedi.",
+      "native_android": "assembled-runtime-pending"
     },
     {
       "id": "assistant-role",
       "preview": "native-required",
-      "native_starter": "unbuilt-source",
-      "mobile": "VoiceInteractionService/Session, RoleManager ile kullanıcı seçimi. Gizli hotword, mikrofon veya ekran bağlamı yok; cihazda sınanmadı."
+      "mobile": "VoiceInteractionService/Session, RoleManager ile kullanıcı seçimi. Gizli hotword, mikrofon veya ekran bağlamı yok; cihazda sınanmadı.",
+      "native_android": "assembled-runtime-pending"
     },
     {
       "id": "google",
       "preview": "external-link",
-      "native_starter": "unbuilt-source",
-      "mobile": "Google web kısayolları ve kurulu uygulamaları açma. GMS/Play lisans/sertifika koşullu; paketlenmedi."
+      "mobile": "Google web kısayolları ve kurulu uygulamaları açma. GMS/Play lisans/sertifika koşullu; paketlenmedi.",
+      "native_android": "assembled-runtime-pending"
     },
     {
       "id": "apk",
       "preview": "partial",
-      "native_starter": "unbuilt-source",
-      "mobile": "Web ZIP başlığı ve SHA-256, kurulum yok. Native özel kopya/paket/API/ABI/sertifika özeti + sistem yükleyicisine onaylı aktarım; henüz derlenmedi/sınanmadı."
+      "mobile": "Web 32 MiB başlık/hash, kurulum yok. Native 256 MiB özel kopya/paket/API/ABI/izin/ilk imzacı + kullanıcı onaylı sistem yükleyicisi; RESULT_OK ve yüklü sürüm/ilk imzacı eşleşmesi gerekir. SDK derlendi, çalışma kabulü ayrı.",
+      "native_android": "assembled-runtime-pending"
     },
     {
       "id": "appearance",
       "preview": "interactive",
-      "native_starter": "partial-unbuilt-source",
-      "mobile": "Açık/koyu, üç vurgu rengi, kompakt düzen, hafif/azaltılmış hareket; üçüncü taraf uygulama teması zorlanmaz."
+      "mobile": "Ortak açık/koyu, üç vurgu, kompakt/hafif/azaltılmış hareket. Native Mağaza/APK/listeler/Rıfkı tercihi okur; görüşme ekranı kendi gece paletindedir. Başka üreticinin uygulaması zorlanmaz.",
+      "native_android": "partial-assembled-runtime-pending"
     },
     {
       "id": "culture-wallpapers",
       "preview": "partial",
-      "native_starter": "planned",
-      "mobile": "Mevcut koleksiyondan dört optimize görsel; tüm 20 görsel ve 11 anlatım kaydı mobilde henüz taşınmadı."
+      "mobile": "Mevcut koleksiyondan dört optimize görsel; tüm 20 görsel ve 11 anlatım kaydı mobilde henüz taşınmadı.",
+      "native_android": "partial-bundled-ui"
     },
     {
       "id": "printscreen",
       "preview": "native-required",
-      "native_starter": "planned",
-      "mobile": "Sistem ekran görüntüsü tuş/erişilebilirlik yolu; ekranı izinsiz yakalama yok. MediaProjection varsa her oturum sistem onayı."
+      "mobile": "Sistem ekran görüntüsü tuş/erişilebilirlik yolu; ekranı izinsiz yakalama yok. MediaProjection varsa her oturum sistem onayı.",
+      "native_android": "planned"
     },
     {
       "id": "desktop-layouts",
       "preview": "partial",
-      "native_starter": "planned",
-      "mobile": "Altı masaüstü tarzının mobil düzen aileleri; web konfor/kompakt var. GNOME/Plasma/Xfce oturumları telefona kurulmaz."
+      "mobile": "Altı masaüstü tarzının mobil düzen aileleri; web konfor/kompakt var. GNOME/Plasma/Xfce oturumları telefona kurulmaz.",
+      "native_android": "planned"
     },
     {
       "id": "imece-heybe",
       "preview": "native-required",
-      "native_starter": "planned",
-      "mobile": "İmece/Heybe yerel yardım, dışa aktarım ve kullanıcı seçili yedek akışları. Bulut eşitlemesi/uygulama verisi yedekleme vaadi yok."
+      "mobile": "İmece/Heybe yerel yardım, dışa aktarım ve kullanıcı seçili yedek akışları. Bulut eşitlemesi/uygulama verisi yedekleme vaadi yok.",
+      "native_android": "planned"
     },
     {
       "id": "focus-tea",
       "preview": "partial",
-      "native_starter": "planned",
-      "mobile": "Çay molası/odak tasarımı. Web Odak anahtarı yalnız örnek; DND/hatırlatıcı yerel izinlerle uygulanacak."
+      "mobile": "Web Odak anahtarı arayüz örneği; APK gerçek DND ayarına gider. Tam çay molası/sistem hatırlatıcı servisi yok.",
+      "native_android": "partial-settings-delegation"
     },
     {
       "id": "resource-monitor",
       "preview": "partial",
-      "native_starter": "planned",
-      "mobile": "Kaynak yaklaşımı ve hafif görsel profil. Gerçek CPU/RAM/pil ömrü ölçümü veya iyileşme iddiası yok."
+      "mobile": "Hafif görsel profil; APK sistem pil/saat/medya sesi ve platform durumu. Tüm cihaz CPU/RAM/pil ömrü/FPS iyileşme iddiası yok.",
+      "native_android": "partial-assembled-runtime-pending"
     },
     {
       "id": "files",
       "preview": "partial",
-      "native_starter": "partial-unbuilt-source",
-      "mobile": "Yalnız seçilen belge; genel depolama izni yok. Web hash/fotoğraf seçimleri, native APK SAF akışı."
+      "mobile": "Yalnız seçilen belge; genel depolama izni yok. Web hash/fotoğraf seçimleri, native APK SAF akışı.",
+      "native_android": "partial-assembled-runtime-pending"
     },
     {
       "id": "updates-drivers",
       "preview": "native-required",
-      "native_starter": "planned",
-      "mobile": "Cihazın imzalı OTA/vendor güncelleme yolu. Debian depoları, DKMS, GRUB veya APT telefona taşınmaz."
+      "mobile": "Cihazın imzalı OTA/vendor güncelleme yolu. Debian depoları, DKMS, GRUB veya APT telefona taşınmaz.",
+      "native_android": "planned"
     },
     {
       "id": "window-snap",
       "preview": "native-required",
-      "native_starter": "planned",
-      "mobile": "Sistemin desteklediği bölünmüş ekran/büyük ekran; SystemUI ve cihaz politikası koşullu."
+      "mobile": "Sistemin desteklediği bölünmüş ekran/büyük ekran; SystemUI ve cihaz politikası koşullu.",
+      "native_android": "planned"
     },
     {
       "id": "exe-flatpak",
       "preview": "not-applicable",
-      "native_starter": "not-applicable",
-      "mobile": "EXE/Wine, Flatpak ve GNOME Software Android APK motoru değildir; destek varmış gibi gösterilmez."
+      "mobile": "EXE/Wine, Flatpak ve GNOME Software Android APK motoru değildir; destek varmış gibi gösterilmez.",
+      "native_android": "not-applicable"
     },
     {
       "id": "calamares-pi-images",
       "preview": "not-applicable",
-      "native_starter": "not-applicable",
-      "mobile": "PC ISO/Pi IMG telefon ROM'u değildir. Calamares, disk biçimleme ve mevcut yayınlara dokunulmaz."
+      "mobile": "PC ISO/Pi IMG telefon ROM'u değildir. Calamares, disk biçimleme ve mevcut yayınlara dokunulmaz.",
+      "native_android": "not-applicable"
     }
   ],
   "rom_acceptance_gates": [
@@ -293,18 +296,40 @@
     "local_app_entries": 20,
     "catalog_entries": 24,
     "catalog_categories": 8,
-    "catalog_icons": "24 locally served Simple Icons brand symbols; provenance/license/hash manifest under preview/public/assets/apps/",
+    "catalog_icons": "24 local brand SVGs plus reproducible licensed Android VectorDrawables; real installed icons preferred, bounded generated monograms for unknown packages; no icon CDN.",
     "search": "Turkish applications/aliases, contacts, notes (16384 chars), tasks, tools, catalog and simple arithmetic; no automatic web query",
     "home_gestures": "Three real home pages, horizontal swipe or pagination; upward swipe opens drawer; top-edge downward swipe opens controls",
-    "phone": "Full dial pad and manual entry, safe tel: handoff only; no modem, connected-call status or automatic dialing",
-    "messages": "Local recipient/body draft; safe sms: handoff; final send in system app, never marked sent here",
+    "phone": "Browser: safe tel handoff only. APK: explicit dialer role, CALL_PHONE, native charge/recipient consent -> Telecom/InCallService and in-package controls; actual callback state, never inferred connection. Physical SIM/emergency unverified.",
+    "messages": "Browser: draft and safe sms handoff. APK: explicit default SMS role/grants/subscription and native consent -> SmsManager, durable multipart receipts and real provider history. queued/sent/delivery distinct; MMS/RCS unsupported.",
     "contacts": "60 manual local contacts, favorite/edit/confirmed delete; system contacts not read",
     "calendar": "80 local date plans, month navigation; no system calendar, alarm or notification",
     "clock": "Timestamp-based persisted stopwatch and timer deadline; no background alarm guarantee",
     "media": "Explicit local audio up to 32 MiB; panel volume/mute drives real HTMLMediaElement; page-scoped playback, no upload",
     "photos": "6 explicitly selected temporary images up to 8 MiB each, inspect/download/remove; not permanent library",
     "browser": "Explicit safe HTTPS/external search handoff, no embedded web engine",
-    "control_center": "Top slide panel; actual preview media volume/mute and UI dimmer, synchronized theme and low-resource mode; radios/DND illustrative only",
-    "native_system_delegation": "Unbuilt source only: ACTION_DIAL, ACTION_SENDTO smsto, default daily app intents and Settings.Panel.ACTION_VOLUME/WIFI. No direct call/SMS/settings-write permission."
+    "control_center": "Top slide panel. Browser: actual preview audio/mute and UI dimmer, illustrative radios. APK: AudioManager media volume, own-window brightness, real radio/DND settings panels; no fake switch state.",
+    "native_system_delegation": "SDK-assembled offline bundled UI with origin/main-frame-bound bridge; native Telecom/SmsManager, signed pinned F-Droid, explicit package review/system installer. Settings delegates for radios/defaults; no WRITE_SETTINGS/root/silent installation."
+  },
+  "native_emulator_verified": false,
+  "native_evidence": {
+    "sdk_report": "android/evidence/sdk-7e7dad7.json",
+    "emulator_report": "android/evidence/emulator-384e905.json",
+    "emulator_acceptance": "First actual API35/x86_64 run FAILED: 5/12 cases passed (system volume/theme, incoming Telecom controls, repository signature/rollback/endpoint security). UI/foreground test corrections pending; no SMS, live repository review or full device acceptance claimed."
+  },
+  "android_acceptance": {
+    "compile_sdk": 35,
+    "min_sdk": 29,
+    "java_unit_tests_observed_passed": 6,
+    "lint_errors_observed": 0,
+    "instrumentation_cases_required": 12,
+    "driver_selections_required": 10,
+    "api_29_to_34_tested": false,
+    "physical_sim_tested": false,
+    "emergency_calls_tested": false,
+    "gms_certification_tested": false,
+    "mms_rcs_supported": false,
+    "live_repository_acceptance_observed": false,
+    "production_signed_release": false,
+    "universal_phone_iso": false
   }
 }

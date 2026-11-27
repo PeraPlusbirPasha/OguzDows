@@ -32,7 +32,23 @@ test("all sixteen desktop tools are represented and ten really interactive", () 
   );
   assert.equal(parity.other_seven_new_functions.length, 7);
   assert.equal(parity.rom_built, false);
-  assert.equal(parity.native_apk_built, false);
+  assert.equal(parity.native_apk_built, true);
+  const sdk = JSON.parse(
+    fs.readFileSync(
+      new URL(`../../${parity.native_evidence.sdk_report}`, import.meta.url),
+    ),
+  );
+  assert.match(sdk.source_sha, /^[a-f0-9]{40}$/);
+  assert.deepEqual(sdk.java_unit_tests, {
+    tests: 6,
+    failures: 0,
+    errors: 0,
+    skipped: 0,
+  });
+  assert.equal(sdk.lint.Error || 0, 0);
+  assert.equal(sdk.emulator_passed, null); // APK assembly is not proof of device acceptance.
+  assert.equal(typeof parity.native_emulator_verified, "boolean");
+  assert.equal(parity.physical_device_tested, false);
   assert.equal(parity.live_generative_model_tested, false);
 });
 test("preferences round-trip without conversations, model secrets or permissions", () => {

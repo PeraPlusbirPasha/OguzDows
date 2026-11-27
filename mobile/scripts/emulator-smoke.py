@@ -79,7 +79,7 @@ def main():
         process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True)
         try:
             if marker_path:
-                deadline = time.monotonic() + 40
+                deadline = time.monotonic() + 90
                 while time.monotonic() < deadline and process.poll() is None:
                     if adb('shell', f'if test -f {marker_path}; then echo ready; fi', check=False).strip() == 'ready':
                         break
@@ -104,7 +104,10 @@ def main():
             print(('PASS ' if passed else 'FAIL ') + record['name'], flush=True)
             if not passed:
                 print(output[-16000:], flush=True)
-                concise = [line for line in output.splitlines() if not line.startswith(('\tat ', '    at '))]
+                concise = [line for line in output.splitlines()
+                           if not line.startswith(('\tat ', '    at ')) or 'at org.oguzdows.mobile.' in line]
+                failures = [line for line in concise if 'AssertionError' in line or 'Exception:' in line]
+                if failures: record['failure'] = failures[0][-400:]
                 annotation('error', 'Emulator ' + record['name'], '\n'.join(concise)[-3000:])
             if klass == 'LiveRepositoryTest':
                 for line in output.splitlines():

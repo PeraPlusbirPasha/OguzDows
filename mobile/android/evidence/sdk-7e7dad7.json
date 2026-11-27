@@ -1,0 +1,50 @@
+{
+  "source_sha": "7e7dad76eb0acf6819bf3584bb187b0bec0c4165",
+  "assembled": [
+    {
+      "file": "app/build/outputs/apk/debug/app-debug.apk",
+      "bytes": 6992378,
+      "sha256": "9b2bdf6ad4802833c536e64b572e2cf27f153bee6ff4dcfc22ca3a58778c5f8e"
+    },
+    {
+      "file": "app/build/outputs/apk/androidTest/debug/app-debug-androidTest.apk",
+      "bytes": 1040873,
+      "sha256": "40e9d1687c378a21f8ab9e2322628b8e6b3535a0dfaf594bfbf597415c872b46"
+    },
+    {
+      "file": "fixture/build/outputs/apk/debug/fixture-debug.apk",
+      "bytes": 7501,
+      "sha256": "c7e9405831e859deb4efa60954103113795657d8221263b12c841fb006bca9d0"
+    }
+  ],
+  "java_unit_tests": {
+    "tests": 6,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "lint": {
+    "Warning": 37
+  },
+  "lint_warning_ids": {
+    "OldTargetApi": 1,
+    "RequiresFeature": 1,
+    "GradleDependency": 6,
+    "SetJavaScriptEnabled": 1,
+    "DataExtractionRules": 1,
+    "VectorPath": 12,
+    "UsableSpace": 2,
+    "IconLocation": 1,
+    "ClickableViewAccessibility": 2,
+    "SetTextI18n": 10
+  },
+  "emulator_passed": null,
+  "physical_sim_tested": false,
+  "gms_certification_tested": false,
+  "github": {
+    "run_url": "https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/46043838494",
+    "job_id": 140658011383,
+    "annotations_url": "https://api.github.com/repos/PeraPlusbirPasha/OguzDows/check-runs/140658011383/annotations",
+    "scope": "SDK assembly and Java/lint only. This run failed before emulator tests."
+  }
+}

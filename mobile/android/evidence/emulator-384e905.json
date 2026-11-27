@@ -1,0 +1,79 @@
+{
+  "source_sha": "384e9052f25261ef47e6436823521eb1b8867e20",
+  "sdk": "35",
+  "abi": "x86_64",
+  "image_fingerprint": "google/sdk_gphone64_x86_64/emu64xa:15/AE3A.240806.043/12960925:userdebug/dev-keys",
+  "emulator_only": true,
+  "physical_sim_tested": false,
+  "emergency_calls_tested": false,
+  "gms_certification_tested": false,
+  "mms_rcs_supported": false,
+  "tests": [
+    {
+      "name": "NativeDeviceTest.bundledBridgeRolesValidationAndIsolation",
+      "passed": false,
+      "test_cases": 0,
+      "seconds": 30.41
+    },
+    {
+      "name": "NativeDeviceTest.paidActionsRequireFinalNativeConsent",
+      "passed": false,
+      "test_cases": 0,
+      "seconds": 28.85
+    },
+    {
+      "name": "NativeDeviceTest.systemVolumeBrightnessAndNativeThemeAreReal",
+      "passed": true,
+      "test_cases": 1,
+      "seconds": 25.02
+    },
+    {
+      "name": "NativeDeviceTest.incomingSmsUsesTheRealProviderAndRichInbox",
+      "passed": false,
+      "test_cases": 0,
+      "error": "Instrumentation did not signal radio-fixture readiness"
+    },
+    {
+      "name": "NativeDeviceTest.outgoingSmsWaitsForActualSentCallback",
+      "passed": false,
+      "test_cases": 0,
+      "seconds": 23.56
+    },
+    {
+      "name": "NativeDeviceTest.outgoingCallUsesTelecomAndOurInCallService",
+      "passed": false,
+      "test_cases": 0,
+      "seconds": 16.79
+    },
+    {
+      "name": "NativeDeviceTest.incomingCallCanBeAnsweredMutedAndEndedInOurUi",
+      "passed": true,
+      "test_cases": 1,
+      "seconds": 13.24
+    },
+    {
+      "name": "NativeDeviceTest.localApkReviewCancelAndSystemInstall",
+      "passed": false,
+      "test_cases": 0,
+      "seconds": 34.21
+    },
+    {
+      "name": "RepositorySecurityTest.suite",
+      "passed": true,
+      "test_cases": 3,
+      "seconds": 1.17
+    },
+    {
+      "name": "LiveRepositoryTest.suite",
+      "passed": false,
+      "test_cases": 0,
+      "seconds": 34.17
+    }
+  ],
+  "passed": false,
+  "github": {
+    "run_url": "https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/46044480983",
+    "job_id": 140660175898,
+    "scope": "First actual emulator acceptance: FAILED, 5/12 cases passed. Not release acceptance."
+  }
+}

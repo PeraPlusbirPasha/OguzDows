@@ -2,20 +2,20 @@
 
 **Cebinde, senden bir dünya.**
 
-OğuzDows’un Türkçe kimliği, nazar boncuğu güç simgesi, Rıfkı’sı, kültür koleksiyonu ve yerel araçları için **etkileşimli mobil tasarım + ayrı, henüz derlenmemiş yerel başlatıcı/yardımcı iskeleti**.
+OğuzDows’un Türkçe kimliği, nazar boncuğu güç simgesi, Rıfkı’sı, kültür koleksiyonu ve araçlarını birleştiren **zengin mobil arayüz + yerel Telefon/SMS/Mağaza test APK’sı**. Tarayıcı önizlemesi ve telefondaki yerel servis yolu ayrı tutulur.
 
-> **Bu bir telefon ROM’u veya APK çalıştırıcısı değildir.** Bu aşamada cihaz imajı ve native APK üretilmedi; fiziksel telefon, GMS, gerçek APK kurulumu veya canlı üretken model testi yapılmadı. PC/Pi v1.2 dosyaları ve yayınları değiştirilmez.
+> **Bu bir telefon ROM’u/ISO’su değildir.** SDK 35 ile ana APK ve test APK’sı derlendi; 6 Java testi geçti, lint hatası yok. Bu tek başına emülatör/SIM/mağaza kabul testi değildir: güncel kanıt ve kalan kapılar [doğrulama kaydında](VERIFICATION.md). Fiziksel cihaz, GMS, MMS/RCS ve canlı üretken model doğrulanmış değildir. PC/Pi v1.2 dosyaları ve yayınları değiştirilmez.
 
 ![OğuzDows Mobile tasarım laboratuvarı](screenshots/home-desktop.webp)
 
 ## Deneyebildiklerin
 
 - **Ana ekran:** Boğaz duvar kâğıdı, pastel yerel simgeler, yatay kaydırılan **üç gerçek ana sayfa**, 20 uygulamalık çekmece, Türkçe arama, dokunma/basış geri bildirimi. Dar ekranda telefon çerçevesi kaybolur; arayüz ekranı doldurur.
-- **Nazar boncuğu güç menüsü:** tasarım kilidi, önizlemeyi kapatma/yeniden açma; gerçek cihaz kapatılmış gibi gösterilmez. Webde saat/pil/hava örnektir; native iskelet pil düzeyini sistemden okumak üzere yazılmıştır.
+- **Nazar boncuğu güç menüsü:** webde açıkça etiketli tasarım kilidi/önizleme kapatma; APK’da gerçek pil/ekran ayarı ve fiziksel güç/kilit yolu açıklaması. Cihaz kapatılmış veya güvenlik kilidi konmuş gibi gösterilmez. APK saat/pili sistemden okur; webdeki saat/pil/hava örnektir.
 - **Rıfkı:** mevcut kedi karakteri korunur. Yerel rehber sabit, onaylı arayüz eylemleri önerir; keyfî komut çalıştırmaz. İsteğe bağlı üretken model için sunucu köprüsü vardır; varsayılan kapalıdır ve canlı modelle denenmemiştir.
 - **Atölye:** 16 aracın tamamı görünür; **10 araç etkileşimlidir**, diğer 6’sı yerel entegrasyon gerektirdiğini açıkça gösterir. Görev/not/metin rafı, SHA-256, JSON, hesap, birimler, renk kontrastı, dünya saatleri ve Türkçe metin işlemleri. Masaüstüyle tam eşdeğerlik iddiası yok; [sınırlar](feature-parity.json).
-- **Mağaza:** aranabilir örnek katalog, kalıcı istek listesi, resmî geliştirici/Play bağlantıları. İndirme boyutu/sürümü uydurulmaz; kaynak sayfasını açmak “kuruldu” diye işaretlenmez.
-- **APK inceleme:** kullanıcının seçtiği en çok 32 MiB dosyanın ZIP başlangıcı ve gerçek SHA-256 özeti; dosya yüklenmez, arşiv açılmaz, APK kurulmaz. İmza veya zararlı yazılım doğrulaması değildir.
+- **Mağaza:** 24 kartlık seçki ve istek listesine ek olarak APK’da **canlı, imzası sabitlenmiş F-Droid kataloğu**; API/ABI filtresi, görünür yüklü sürüm karşılaştırması, gerçek boyut/sürüm/SHA-256, onaylı indirme ve sistem yükleyicisi. Canlı sonuçlar web seçkisiyle karıştırılmaz. Play ayrı kaynaktır; GNOME Software/Flatpak, APK veya GMS sağlamaz.
+- **APK inceleme:** webde en çok 32 MiB ZIP başlangıcı/SHA-256; kurulum yok. APK’da en çok **256 MiB özel kopya**, paket/API/ABI/izin/ilk imzacı incelemesi ve ayrı sistem onayıyla kurulum. İptal/başarısızlık kuruldu sayılmaz. Hash veya sertifika özeti malware taraması değildir.
 - **Google seçenekleri:** Google/Gmail/Haritalar/YouTube/Drive/Çeviri için açıkça etiketli dış web bağlantıları. Hesap/parola bu önizlemeye girilmez. GMS/Play Store ROM’a paketlenmez.
 - **Haber & okuma:** üç özgün, çevrimdışı örnek metin; okuma listesi, okundu filtresi, TXT indirme. Canlı haber sunuluyormuş gibi gösterilmez.
 - **Kişiselleştirme:** gerçek ortak açık/koyu tema, üç vurgu, dört kültür duvar kâğıdı, kompakt düzen, hafif/azaltılmış hareket. Sistem `prefers-reduced-motion` tercihi de izlenir.
@@ -24,14 +24,14 @@ OğuzDows’un Türkçe kimliği, nazar boncuğu güç simgesi, Rıfkı’sı, k
 ## Günlük mobil deneyim
 
 - **Arama gerçekten arar:** ana ekrandaki arama, uygulama adları/takma adları, kişiler, 16384 karakterlik not, görevler, Atölye araçları ve mağazada eşleşme bulur. Türkçe `I/İ/ı/i` desteklenir; basit hesap ifadesi de çözümlenir. Yazarken ağa sorgu gönderilmez.
-- **Telefon:** tam ekran tuş takımı, elle/yapıştırarak numara girişi, artı/sil/kopyala, kişi seçme ve `tel:` bağlantısı. Son arama cihazın kendi Telefon uygulamasında başlatılır; webde modem veya bağlı çağrı simülasyonu yoktur. Servis kodları aktarılmaz.
-- **Mesajlar ve Kişiler:** alıcı + kalıcı SMS taslağı, Türkçe gövdeyi güvenli kodlayan `sms:` geçişi. En çok 60 elle eklenen kişi; favori, düzenleme ve ikinci onayla silme. Sistem rehberi veya SMS geçmişi okunmaz, gönderilmiş balonu uydurulmaz.
-- **Denetim merkezi:** ekranın **üst kenarından aşağı kaydır** veya durum çubuğuna dokun. Ses artır/azalt, kaydırıcı, sessiz ve kısa “Sesi dene”; parlaklık bu arayüzü gerçekten karartır. Ses, Müzik’teki gerçek oynatıcıya uygulanır; genel sistem sesini değiştirmez. Panelin alt tutamacını yukarı kaydırarak, kapat düğmesiyle veya Escape ile kapat.
+- **Telefon:** tam ekran tuş takımı, elle/yapıştırarak numara, kişi seçimi. **APK’da OğuzDows içinde** varsayılan Telefon rolü + izin + yerel alıcı/ücret onayı → Telecom ve kendi görüşme ekranı. Yanıtla/reddet/bitir/mikrofon/hoparlör/beklet/DTMF, servis durumuna bağlıdır. Web yalnız güvenli `tel:` aktarımı yapar; bağlı görüşme taklidi yoktur. Acil çağrı ayrı sistem yoludur, testlerde denenmez.
+- **Mesajlar ve Kişiler:** APK’da açık SMS rolü/izin/hat ve ikinci gönderim onayı; sistem sağlayıcısından gelen/giden geçmişi ve gerçek parça geri bildirimleri. `queued`, gönderildi ve teslim raporu ayrı durumlardır. **MMS/RCS yoktur**; rol seçilmeden uyarılır. Web yalnız kalıcı taslak + güvenli `sms:` geçişidir. 60 elle oluşturulmuş kişi/favori/düzenle/onaylı sil; sistem rehberi okunmaz.
+- **Denetim merkezi:** **üstten aşağı kaydır** veya durum çubuğuna dokun. Webde ses gerçek önizleme oynatıcısını, parlaklık arayüz karartmasını etkiler. APK’da ses **gerçek sistem medya kanalı**, parlaklık uygulama penceresidir; radyo/DND ayrı sistem panellerine gider. Başka uygulamaların teması veya sistemin açık/kapalı durumu uydurulmaz. Hafif/azaltılmış hareket tercihleri korunur.
 - **Çeşitlilik:** Telefon, Mesajlar, Kişiler, Takvim, Saat, Müzik, Tarayıcı, Galeri, Hesap, Defter ve Günüm ile birlikte **20 uygulama girişi**. Takvimde en çok 80 yerel plan; Saat’te sayfalar arasında korunan kronometre/sayaç başlangıcı; Müzik’te 32 MiB’a kadar kendi ses dosyan; Galeri’de seçili 6 geçici fotoğrafı aç/indir/kaldır. Sistem alarmı/bildirim, kalıcı fotoğraf kitaplığı ve arka plan müzik servisi henüz yoktur.
 - **Mağaza:** **24 uygulama / 8 kategori**, arama, kategori filtreleri, yerel marka SVG’leri ve istek listesi. Firefox, Signal, VLC, Organic Maps, Telegram, WhatsApp, Spotify, Bitwarden, Proton Mail, Nextcloud, Joplin, Obsidian, DuckDuckGo, Brave, KDE Connect, Wikipedia, AntennaPod, Element X, Aegis, Thunderbird, F-Droid, NewPipe, OsmAnd, Collabora Office. Katalog açık kaynak ve diğer lisanslı uygulamaları karıştırır; hepsi açık kaynak denmez. F-Droid/NewPipe için Play bağlantısı uydurulmaz.
 - **Hareketler:** ana ekranda sola/sağa kaydır veya sayfa noktalarına dokun; aşağıdan yukarı çekerek çekmeceyi aç. Uygulama içi normal kaydırma/slider hareketi üst paneli yanlışlıkla açmaz. Yeni sayfa, simge ve panel geçişleri kısa; hafif profil ve sistem/uygulama azaltılmış hareket tercihi hepsini kapatır. Yalnız açıkça başlatılmış müzikte plak dönüşü vardır.
 
-Telefon/SMS bağlantıları uygun işleyicisi olmayan masaüstü tarayıcısında uygulama açmayabilir. Kaynak kodda native `ACTION_DIAL`, `ACTION_SENDTO` ve sistem ses/Wi-Fi paneline aktarım da bulunur; henüz SDK/cihaz doğrulaması değildir.
+Telefon/SMS web bağlantıları uygun işleyicisi olmayan masaüstü tarayıcısında uygulama açmayabilir; tarayıcıdan SIM erişimi yoktur. Yerel APK, çevrimdışı paketlenmiş aynı arayüzü origin/ana çerçeve kısıtlı platform adaptörüne bağlar. Ayrıntılar ve yalnız harcanabilir emülatörde tekrar üretim: [Android modülü](android/README.md).
 
 ## Ekranlar
 
@@ -86,20 +86,20 @@ Tarayıcı testleri için `npm run dev` ayrı terminalde çalışmalıdır. İst
 
 **Ücretli/uzak modeli herkese açık önizlemede açmadan önce** kullanıcı kimlik doğrulaması, proxy body/time limitleri, kullanıcı bazlı kota, TLS, kötüye kullanım kontrolü, sağlayıcı veri saklama sözleşmesi ve güvenlik incelemesi gerekir. Bu geliştirme köprüsünü doğrudan ücretli, anonim üretim servisi olarak kullanmayın. Bu oturumda gerçek inference çalıştırılmadı; köprü sözleşmeleri sahte upstream ile sınanır.
 
-## Yerel başlatıcı ve varsayılan yardımcı
+## Yerel APK ve varsayılan yardımcı
 
-[`android/`](android/README.md), webview sarmalayıcı değildir: platform görünümleriyle HOME rolü, gerçek yüklü uygulama sorgusu, özel kopya üzerinden APK inceleme/sistem yükleyicisine onaylı aktarım, yerel notlar ve nazar simgesi için ayrı kaynak iskeletidir. `VoiceInteractionService` / session ve açık `RoleManager` seçimi, **Rıfkı’yı kullanıcının varsayılan yardımcısı** yapacak başlangıç yolunu tanımlar; herhangi bir başka yardımcı zorla kaldırılmaz. Hotword/mikrofon ve ekran bağlamı okuma eklenmedi. Bu kaynak henüz SDK ile derlenmedi veya emülatörde denenmedi; görsel tasarımın tam native portu değildir.
+[`android/`](android/README.md), paketlenmiş zengin WebView arayüzünü AndroidX origin-bağlı mesaj köprüsüyle yerel platform servislerine bağlar. Görüşme, canlı Mağaza, yüklü uygulamalar ve APK inceleme/yükleme ekranları platform görünümleridir. HOME/Telefon/SMS/yardımcı rolleri kullanıcı seçimine bağlıdır; başka uygulamalar kaldırılmaz. Rıfkı’nın sistem yardımcı oturumu metin tabanlı, çevrimdışı rehberdir; mikrofon/hotword/ekran bağlamı ve native üretken model bağlı değildir. APK bir işletim sistemi imajının yerine sunulmaz.
 
 ## Veriler ve sıfırlama
 
 - Önizleme tercihleri/notlar/görevler/listeler, kişiler, SMS taslağı, takvim planları ve sayaç/kronometre başlangıcı: yalnız bu origin’in `localStorage` alanındaki `oguzdows.mobile.preview.v1`. **Şifreli değildir.** Paylaşılan tarayıcıda sır saklamayın.
 - Bozuk/sürümü tanınmayan kayıt sessizce ezilmez; yazma durur, uyarı çıkar. Depolama engellenirse çalışma bellekte sürer, kalıcı kayıt iddia edilmez.
-- Ayarlar → **Yalnız bu önizlemenin verilerini temizle** ikinci onay ister; diğer origin’lere, dosyalara, telefon veya masaüstü ayarlarına dokunmaz.
+- Ayarlar → **Yalnız bu önizlemenin verilerini temizle** ikinci onay ister. APK’da da yalnız arayüzün yerel kaydı silinir; sistem SMS geçmişi, rol/izinler ve depo/yükleyici verisi bu düğmeyle silinmez. Diğer origin/dosya/masaüstü ayarlarına dokunmaz.
 - APK/hash girdileri ve seçilen fotoğraf sunucuya gönderilmez. Sohbete bir dosyanın içeriğini kendiniz yazmanız ayrı bir açık gönderimdir.
 
 ## Gerçek cihaz sürümüne geçiş
 
-[Ürün/sistem tasarımı](DESIGN.md) · [23 özellik ve platform eşlemesi](feature-parity.json) · [Native iskelet](android/README.md) · [Test kapsamı](VERIFICATION.md)
+[Ürün/sistem tasarımı](DESIGN.md) · [23 özellik ve platform eşlemesi](feature-parity.json) · [Yerel APK ve tekrar üretim](android/README.md) · [Test kapsamı](VERIFICATION.md)
 
 İlk ROM için **tam marka/model, kod adı ve mevcut yazılım sürümü** gerekir. ARM64 olmak tek başına telefon desteği değildir. Bootloader politikası, kernel/vendor ağaçları, modem/kamera/GPU sürücüleri, AVB/şifreleme, imzalı OTA ve geri dönüş yolu incelenmeden imaj veya flash komutu verilmeyecek. Google paketlerinin lisans/sertifika kapıları ve gerçek donanım testleri ayrıca geçilmeli.
 

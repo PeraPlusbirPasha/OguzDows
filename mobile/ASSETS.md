@@ -40,7 +40,15 @@ Rıfkı, Boğaz, Kapadokya, Kaçkar, Tuz Gölü ve haber seçkisi mevcut depodak
 | osmand.svg      | OsmAnd              | [Köken](https://github.com/osmandapp/OsmAnd-misc/blob/9ec3bacebf580d0862ded5813a4aa934d0862302/logo/osmand/symbol_osmand.svg)                         | CC0-1.0      |
 | collabora.svg   | Collabora Online    | [Köken](https://www.collaboraonline.com/branding-guidelines)                                                                                          | CC0-1.0      |
 
-Telif lisansı, marka hakkı veya resmî ortaklık izni değildir. Marka sahipleri ilgili haklarını korur. OğuzDows bu uygulamaların üreticisi veya Google sertifikalı dağıtıcısı olarak sunulmaz. Katalog resmî geliştirici bağlantılarına yönlendirir; sürüm, fiyat, indirme boyutu ve kurulum başarısı uydurulmaz. F-Droid/NewPipe için Google Play kaynağı oluşturulmaz.
+Telif lisansı, marka hakkı veya resmî ortaklık izni değildir. Marka sahipleri ilgili haklarını korur. OğuzDows bu uygulamaların üreticisi veya Google sertifikalı dağıtıcısı olarak sunulmaz. Web seçkisi resmî geliştirici bağlantılarına yönlendirir; native F-Droid yolu ayrı imzalı katalogdan indirir. Sürüm, fiyat, indirme boyutu ve kurulum başarısı uydurulmaz. F-Droid/NewPipe için Google Play kaynağı oluşturulmaz.
+
+## Yerel Mağaza vektörleri
+
+Aynı 24 SVG, `python3 mobile/scripts/sync-native-icons.py` ile ağ veya yeni bağımlılık olmadan Android VectorDrawable XML’e uyarlanır. Sembol `pathData` değeri, renk, yuvarlatılmış zemin ve ölçek/konum korunur; kaynak SVG SHA-256’sı ve vektör SHA-256’sı [android/native-icons.json](android/native-icons.json) içinde kaydedilir. Kaynak sözleşmesi her yol/lisans/hash eşleşmesini denetler. Kaynaklar `android/app/src/main/res/drawable/catalog_*.xml` altındadır.
+
+**`catalog_fdroid.xml` de F-Droid artwork contributors / Simple Icons contributors atfıyla CC BY-SA 3.0’dır**; Android XML uyarlaması aynı lisansla sunulur. Diğer simgelerin manifestteki lisansları aynen korunur. Hakkında ekranında kaynak, değişiklik ve F-Droid lisansı açıklanır; APK içinde özgün SVG/lisans manifesti de bulunur.
+
+Yerel Mağaza öncelikle cihazın gerçekten yüklü paket simgesini kullanır; sonra bu yerel marka sembollerini, diğer paketler için ise harf/renk yer tutucusunu gösterir. Harf simgeleri resmî uygulama görseli veya yüklü uygulama kanıtı değildir. Harf önbelleği 1.5 MiB ile sınırlıdır; uzak simge servisi/CDN çağrılmaz.
 
 ## Diğerleri
 
