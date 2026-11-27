@@ -1,0 +1,310 @@
+{
+  "schema_version": 1,
+  "product": "OğuzDows Mobile",
+  "phase": "interactive-design-and-unbuilt-native-starter",
+  "rom_built": false,
+  "native_apk_built": false,
+  "physical_device_tested": false,
+  "live_generative_model_tested": false,
+  "desktop_images_modified": false,
+  "platform_identity_policy": "Product branding in daily UI; preserve Android/AOSP technical IDs, permission sheets, security warnings, licenses and legal attribution.",
+  "preview_statuses": [
+    "interactive",
+    "partial",
+    "external-link",
+    "native-required",
+    "not-applicable"
+  ],
+  "workbench": [
+    {
+      "id": "tasks",
+      "desktop": "Günüm",
+      "mobile": "Yerel görevler",
+      "preview": "partial",
+      "limit": "100 görev; ekle/tamamla/sil var, öncelik/son tarih/düzenleme yok."
+    },
+    {
+      "id": "notes",
+      "desktop": "Defter",
+      "mobile": "Yerel not ve TXT çıktısı",
+      "preview": "partial",
+      "limit": "Tek not, 16384 karakter; birleşik yerel aramada bulunur. Çoklu defter ve şifreleme yok."
+    },
+    {
+      "id": "snippets",
+      "desktop": "Metin rafı",
+      "mobile": "Açık düğmeyle pano kopyalama",
+      "preview": "interactive",
+      "limit": "40 parça, 300 karakter; pano izlenmez."
+    },
+    {
+      "id": "places",
+      "desktop": "Yerlerim",
+      "mobile": "SAF belge/klasör URI yer imleri",
+      "preview": "native-required",
+      "limit": "Genel depolama izni yerine açık belge seçimi; webde uygulanmadı."
+    },
+    {
+      "id": "find",
+      "desktop": "Dosya bul",
+      "mobile": "İzin verilen belge ağacında sınırlı arama",
+      "preview": "native-required",
+      "limit": "İndeksleyici yok; iptal ve süre/girdi sınırı gerekli."
+    },
+    {
+      "id": "rename",
+      "desktop": "Toplu adlandır",
+      "mobile": "SAF üzerinde önizleme/onay/çakışmasız adlandırma",
+      "preview": "native-required",
+      "limit": "Belge sağlayıcılarının atomik geri alma garantisi yok; uygun değilse reddet."
+    },
+    {
+      "id": "checksum",
+      "desktop": "Dosya doğrula",
+      "mobile": "Seçilen belgenin gerçek SHA-256 özeti",
+      "preview": "partial",
+      "limit": "Web 32 MiB, SHA-256; SHA-512/ilerleme/streaming henüz yok. İmza doğrulaması değil."
+    },
+    {
+      "id": "image",
+      "desktop": "Görsel hazırla",
+      "mobile": "Sistem fotoğraf seçicisi; boyutlandırma/dışa aktarma",
+      "preview": "native-required",
+      "limit": "Galeri kullanıcı seçili 6 fotoğrafı açar ve asıl baytları indirir; boyutlandırma, dönüştürme ve EXIF temizleme uygulanmadı."
+    },
+    {
+      "id": "diff",
+      "desktop": "Metin karşılaştır",
+      "mobile": "Sınırlı yerel diff",
+      "preview": "native-required",
+      "limit": "Web yalnız durum ekranını gösterir; işlev tamamlandı sayılmaz."
+    },
+    {
+      "id": "json",
+      "desktop": "JSON masası",
+      "mobile": "JSON ayrıştırma/biçimlendirme",
+      "preview": "partial",
+      "limit": "16384 karakter, 20 katman, 4000 düğüm; yinelenen anahtar denetimi yok."
+    },
+    {
+      "id": "calculator",
+      "desktop": "Hesap",
+      "mobile": "Kod çalıştırmayan ayrıştırıcı",
+      "preview": "partial",
+      "limit": "128 karakter/64 token/20 derinlik; kayan nokta, ondalık finans hassasiyeti/sqrt/üs yok."
+    },
+    {
+      "id": "units",
+      "desktop": "Birimler",
+      "mobile": "Uzunluk, Celsius/Fahrenheit, MiB/MB",
+      "preview": "partial",
+      "limit": "Dört dönüşüm; masaüstündeki tüm kategoriler henüz yok."
+    },
+    {
+      "id": "color",
+      "desktop": "Renk stüdyosu",
+      "mobile": "Renk seçici ve gerçek WCAG beyaz kontrastı",
+      "preview": "partial",
+      "limit": "Palet kaydetme/iki keyfi renk/CSS dışa aktarma yok."
+    },
+    {
+      "id": "clocks",
+      "desktop": "Dünya saatleri",
+      "mobile": "Gerçek Intl/tzdata ile dört şehir",
+      "preview": "interactive",
+      "limit": "Dakikalık yalnız görünür sayfa zamanlayıcısı; ağ/GPS yok."
+    },
+    {
+      "id": "text",
+      "desktop": "Metin işle",
+      "mobile": "Türkçe büyük/küçük ve satır temizleme",
+      "preview": "partial",
+      "limit": "16384 karakter; masaüstündeki tüm sayımlar/işlemler yok."
+    },
+    {
+      "id": "startup",
+      "desktop": "Başlangıç yöneticisi",
+      "mobile": "Platformun uygulama/pil ayarlarına kullanıcı kontrollü geçiş",
+      "preview": "native-required",
+      "limit": "Diğer uygulamaların BOOT_COMPLETED veya arka plan izinleri normal başlatıcıdan değiştirilemez."
+    }
+  ],
+  "other_seven_new_functions": [
+    {
+      "id": "wishlist",
+      "desktop": "Mağaza istek listesi",
+      "preview": "interactive",
+      "mobile": "Yerel kalıcı katalog listesi; kurulmuş gibi göstermez."
+    },
+    {
+      "id": "store-health",
+      "desktop": "Çevrimdışı mağaza teşhisi",
+      "preview": "native-required",
+      "mobile": "PackageInstaller/unknown-sources/API/ABI/Play katmanı teşhisi; masaüstü APT motorları taşınmaz."
+    },
+    {
+      "id": "source-compare",
+      "desktop": "APT / Flatpak karşılaştırması",
+      "preview": "partial",
+      "mobile": "Resmî geliştirici / Play kaynak bağlantıları; sürüm, indirme boyutu ve imza kökeni karşılaştırması henüz yok."
+    },
+    {
+      "id": "reading-list",
+      "desktop": "Çevrimdışı okuma listem",
+      "preview": "partial",
+      "mobile": "Üç özgün örnek metni sakla/çıkar; canlı RSS veya tüm makale arşivi değil."
+    },
+    {
+      "id": "read-history",
+      "desktop": "Okundu takibi",
+      "preview": "interactive",
+      "mobile": "Yerel okundu ve okunmamış filtreleri; 100 kayıt."
+    },
+    {
+      "id": "article-export",
+      "desktop": "Haberi TXT dışa aktar",
+      "preview": "interactive",
+      "mobile": "Açık düğmeyle seçilen özgün metni indirir; gerçek haber çekilmez."
+    },
+    {
+      "id": "command-palette",
+      "desktop": "Sabit komut paleti",
+      "preview": "partial",
+      "mobile": "Rıfkı yalnız sabit, açık düğmeyle onaylı arayüz eylemleri önerir; serbest kabuk yok."
+    }
+  ],
+  "identity_and_platform": [
+    {
+      "id": "nazar-power",
+      "preview": "interactive",
+      "native_starter": "unbuilt-source",
+      "mobile": "Nazar boncuğu pil/güç kimliği; web örnek pil, native gerçek pil okuma. Gerçek kapatma/SystemUI yalnız ROM aşaması."
+    },
+    {
+      "id": "rifki",
+      "preview": "partial",
+      "native_starter": "unbuilt-source",
+      "mobile": "Kedi kimliği korunur; dürüst yerel rehber + sunucuda açık onaylı opsiyonel üretken model köprüsü. Canlı model denenmedi."
+    },
+    {
+      "id": "assistant-role",
+      "preview": "native-required",
+      "native_starter": "unbuilt-source",
+      "mobile": "VoiceInteractionService/Session, RoleManager ile kullanıcı seçimi. Gizli hotword, mikrofon veya ekran bağlamı yok; cihazda sınanmadı."
+    },
+    {
+      "id": "google",
+      "preview": "external-link",
+      "native_starter": "unbuilt-source",
+      "mobile": "Google web kısayolları ve kurulu uygulamaları açma. GMS/Play lisans/sertifika koşullu; paketlenmedi."
+    },
+    {
+      "id": "apk",
+      "preview": "partial",
+      "native_starter": "unbuilt-source",
+      "mobile": "Web ZIP başlığı ve SHA-256, kurulum yok. Native özel kopya/paket/API/ABI/sertifika özeti + sistem yükleyicisine onaylı aktarım; henüz derlenmedi/sınanmadı."
+    },
+    {
+      "id": "appearance",
+      "preview": "interactive",
+      "native_starter": "partial-unbuilt-source",
+      "mobile": "Açık/koyu, üç vurgu rengi, kompakt düzen, hafif/azaltılmış hareket; üçüncü taraf uygulama teması zorlanmaz."
+    },
+    {
+      "id": "culture-wallpapers",
+      "preview": "partial",
+      "native_starter": "planned",
+      "mobile": "Mevcut koleksiyondan dört optimize görsel; tüm 20 görsel ve 11 anlatım kaydı mobilde henüz taşınmadı."
+    },
+    {
+      "id": "printscreen",
+      "preview": "native-required",
+      "native_starter": "planned",
+      "mobile": "Sistem ekran görüntüsü tuş/erişilebilirlik yolu; ekranı izinsiz yakalama yok. MediaProjection varsa her oturum sistem onayı."
+    },
+    {
+      "id": "desktop-layouts",
+      "preview": "partial",
+      "native_starter": "planned",
+      "mobile": "Altı masaüstü tarzının mobil düzen aileleri; web konfor/kompakt var. GNOME/Plasma/Xfce oturumları telefona kurulmaz."
+    },
+    {
+      "id": "imece-heybe",
+      "preview": "native-required",
+      "native_starter": "planned",
+      "mobile": "İmece/Heybe yerel yardım, dışa aktarım ve kullanıcı seçili yedek akışları. Bulut eşitlemesi/uygulama verisi yedekleme vaadi yok."
+    },
+    {
+      "id": "focus-tea",
+      "preview": "partial",
+      "native_starter": "planned",
+      "mobile": "Çay molası/odak tasarımı. Web Odak anahtarı yalnız örnek; DND/hatırlatıcı yerel izinlerle uygulanacak."
+    },
+    {
+      "id": "resource-monitor",
+      "preview": "partial",
+      "native_starter": "planned",
+      "mobile": "Kaynak yaklaşımı ve hafif görsel profil. Gerçek CPU/RAM/pil ömrü ölçümü veya iyileşme iddiası yok."
+    },
+    {
+      "id": "files",
+      "preview": "partial",
+      "native_starter": "partial-unbuilt-source",
+      "mobile": "Yalnız seçilen belge; genel depolama izni yok. Web hash/fotoğraf seçimleri, native APK SAF akışı."
+    },
+    {
+      "id": "updates-drivers",
+      "preview": "native-required",
+      "native_starter": "planned",
+      "mobile": "Cihazın imzalı OTA/vendor güncelleme yolu. Debian depoları, DKMS, GRUB veya APT telefona taşınmaz."
+    },
+    {
+      "id": "window-snap",
+      "preview": "native-required",
+      "native_starter": "planned",
+      "mobile": "Sistemin desteklediği bölünmüş ekran/büyük ekran; SystemUI ve cihaz politikası koşullu."
+    },
+    {
+      "id": "exe-flatpak",
+      "preview": "not-applicable",
+      "native_starter": "not-applicable",
+      "mobile": "EXE/Wine, Flatpak ve GNOME Software Android APK motoru değildir; destek varmış gibi gösterilmez."
+    },
+    {
+      "id": "calamares-pi-images",
+      "preview": "not-applicable",
+      "native_starter": "not-applicable",
+      "mobile": "PC ISO/Pi IMG telefon ROM'u değildir. Calamares, disk biçimleme ve mevcut yayınlara dokunulmaz."
+    }
+  ],
+  "rom_acceptance_gates": [
+    "Exact model/codename, SoC, supported ABI, Android/vendor branch and bootloader policy identified",
+    "Legally redistributable device/vendor/kernel trees and firmware licenses reviewed",
+    "User backup and verified stock recovery path; no automatic unlock/flash/relock",
+    "Verified Boot, SELinux enforcing, encryption and signed OTA/rollback policy",
+    "Boot/touch/display/GPU/camera/audio/modem/SIM/SMS/emergency/Wi-Fi/Bluetooth/GPS/NFC/biometrics tested on exact hardware",
+    "Suspend/resume/charging/thermal/battery/low-memory/accessibility and large-font tests measured",
+    "CTS/VTS and applicable CDD/GMS licensing/certification, no Integrity spoofing claims",
+    "Native APK build, emulator tests, installer cancellation/failure/signature/ABI/source gates and assistant role tested",
+    "Rifki provider/privacy/authentication/consent/data retention independently reviewed",
+    "Four desktop/Pi v1.2 files and release history remain independent and untouched"
+  ],
+  "daily_experience": {
+    "local_app_entries": 20,
+    "catalog_entries": 24,
+    "catalog_categories": 8,
+    "catalog_icons": "24 locally served Simple Icons brand symbols; provenance/license/hash manifest under preview/public/assets/apps/",
+    "search": "Turkish applications/aliases, contacts, notes (16384 chars), tasks, tools, catalog and simple arithmetic; no automatic web query",
+    "home_gestures": "Three real home pages, horizontal swipe or pagination; upward swipe opens drawer; top-edge downward swipe opens controls",
+    "phone": "Full dial pad and manual entry, safe tel: handoff only; no modem, connected-call status or automatic dialing",
+    "messages": "Local recipient/body draft; safe sms: handoff; final send in system app, never marked sent here",
+    "contacts": "60 manual local contacts, favorite/edit/confirmed delete; system contacts not read",
+    "calendar": "80 local date plans, month navigation; no system calendar, alarm or notification",
+    "clock": "Timestamp-based persisted stopwatch and timer deadline; no background alarm guarantee",
+    "media": "Explicit local audio up to 32 MiB; panel volume/mute drives real HTMLMediaElement; page-scoped playback, no upload",
+    "photos": "6 explicitly selected temporary images up to 8 MiB each, inspect/download/remove; not permanent library",
+    "browser": "Explicit safe HTTPS/external search handoff, no embedded web engine",
+    "control_center": "Top slide panel; actual preview media volume/mute and UI dimmer, synchronized theme and low-resource mode; radios/DND illustrative only",
+    "native_system_delegation": "Unbuilt source only: ACTION_DIAL, ACTION_SENDTO smsto, default daily app intents and Settings.Panel.ACTION_VOLUME/WIFI. No direct call/SMS/settings-write permission."
+  }
+}

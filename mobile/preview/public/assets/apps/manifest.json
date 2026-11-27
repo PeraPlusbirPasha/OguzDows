@@ -1,0 +1,290 @@
+[
+  {
+    "id": "firefox",
+    "title": "Firefox Browser",
+    "slug": "firefoxbrowser",
+    "source": "https://mozilla.design/firefox/logos-usage/",
+    "collection": "simple-icons@15.22.0",
+    "license": {
+      "type": "CC0-1.0"
+    },
+    "modification": "Unmodified symbol path; rounded background and presentation colors added.",
+    "sha256": "7b3fcc1b72cf32e48f858c9f939ff10040c92ea98ffafb13b7c973eb123fcadc"
+  },
+  {
+    "id": "signal",
+    "title": "Signal",
+    "slug": "signal",
+    "source": "https://signal.org/brand",
+    "collection": "simple-icons@15.22.0",
+    "license": {
+      "type": "CC0-1.0"
+    },
+    "modification": "Unmodified symbol path; rounded background and presentation colors added.",
+    "sha256": "fabfb8f6b5e1933a8891446a173ae926d5a602af2a5f6acade6ef08fe2527d52"
+  },
+  {
+    "id": "vlc",
+    "title": "VLC media player",
+    "slug": "vlcmediaplayer",
+    "source": "https://code.videolan.org/videolan/vlc/-/blob/1ce7f686ee17a028d2d79627ae69f22d905f2e23/extras/package/macosx/asset_sources/vlc_app_icon.svg",
+    "collection": "simple-icons@15.22.0",
+    "license": {
+      "type": "CC0-1.0"
+    },
+    "modification": "Unmodified symbol path; rounded background and presentation colors added.",
+    "sha256": "734496123b23a3c9de32f876a132480229fd3ae5b9737fbd31783207549ec034"
+  },
+  {
+    "id": "organicmaps",
+    "title": "Organic Maps",
+    "slug": "organicmaps",
+    "source": "https://organicmaps.app",
+    "collection": "simple-icons@15.22.0",
+    "license": {
+      "type": "CC0-1.0"
+    },
+    "modification": "Unmodified symbol path; rounded background and presentation colors added.",
+    "sha256": "025672db50b21c15735fd5854f395ca88e4ebcb6137c2bc6a9c3d39bb09ed0a3"
+  },
+  {
+    "id": "telegram",
+    "title": "Telegram",
+    "slug": "telegram",
+    "source": "https://telegram.org/tour/screenshots",
+    "collection": "simple-icons@15.22.0",
+    "license": {
+      "type": "CC0-1.0"
+    },
+    "modification": "Unmodified symbol path; rounded background and presentation colors added.",
+    "sha256": "92e8734b53857cf1c197b943d2edfd38b6c836acc3972a2d86c63b018fc51d50"
+  },
+  {
+    "id": "whatsapp",
+    "title": "WhatsApp",
+    "slug": "whatsapp",
+    "source": "https://about.meta.com/brand/resources/whatsapp/whatsapp-brand",
+    "collection": "simple-icons@15.22.0",
+    "license": {
+      "type": "CC0-1.0"
+    },
+    "modification": "Unmodified symbol path; rounded background and presentation colors added.",
+    "sha256": "6ad4cbff5618930805df1d3e118550f73826439a9b3584a2d18ecb8788749f4d"
+  },
+  {
+    "id": "spotify",
+    "title": "Spotify",
+    "slug": "spotify",
+    "source": "https://developer.spotify.com/documentation/general/design-and-branding/#using-our-logo",
+    "collection": "simple-icons@15.22.0",
+    "license": {
+      "type": "CC0-1.0"
+    },
+    "modification": "Unmodified symbol path; rounded background and presentation colors added.",
+    "sha256": "9ac663e964586d4d14f2ed906612f14fea38472408867b026db1698419d64cbd"
+  },
+  {
+    "id": "bitwarden",
+    "title": "Bitwarden",
+    "slug": "bitwarden",
+    "source": "https://bitwarden.com/brand",
+    "collection": "simple-icons@15.22.0",
+    "license": {
+      "type": "CC0-1.0"
+    },
+    "modification": "Unmodified symbol path; rounded background and presentation colors added.",
+    "sha256": "c30da401110d74163b8e95f89ef20e077329787801b6488d621894477689d454"
+  },
+  {
+    "id": "protonmail",
+    "title": "Proton Mail",
+    "slug": "protonmail",
+    "source": "https://proton.me/media/kit",
+    "collection": "simple-icons@15.22.0",
+    "license": {
+      "type": "CC0-1.0"
+    },
+    "modification": "Unmodified symbol path; rounded background and presentation colors added.",
+    "sha256": "b651796eae14080b3c1acc8c2f8e058ae3199b7ca50c6174dc85391fa57f6d5f"
+  },
+  {
+    "id": "nextcloud",
+    "title": "Nextcloud",
+    "slug": "nextcloud",
+    "source": "https://nextcloud.com/press/",
+    "collection": "simple-icons@15.22.0",
+    "license": {
+      "type": "CC0-1.0"
+    },
+    "modification": "Unmodified symbol path; rounded background and presentation colors added.",
+    "sha256": "fe40a93832288b32c71b429bd506623ba457cda2295bc0a1bf09abd203902646"
+  },
+  {
+    "id": "joplin",
+    "title": "Joplin",
+    "slug": "joplin",
+    "source": "https://github.com/laurent22/joplin/blob/45e35576bd8b1bb0ffe958309cc1ab3736cc266b/Assets/JoplinLetter.svg",
+    "collection": "simple-icons@15.22.0",
+    "license": {
+      "type": "CC0-1.0"
+    },
+    "modification": "Unmodified symbol path; rounded background and presentation colors added.",
+    "sha256": "a3416d2f2fc3a2e69d54a4d041bfde24c45e40bf169f91a973ff0f0990d66081"
+  },
+  {
+    "id": "obsidian",
+    "title": "Obsidian",
+    "slug": "obsidian",
+    "source": "https://obsidian.md",
+    "collection": "simple-icons@15.22.0",
+    "license": {
+      "type": "CC0-1.0"
+    },
+    "modification": "Unmodified symbol path; rounded background and presentation colors added.",
+    "sha256": "4cc50a837969fa86ad5730a8820e5d0a7eaec7c819a60957ad618e8aca848658"
+  },
+  {
+    "id": "duckduckgo",
+    "title": "DuckDuckGo",
+    "slug": "duckduckgo",
+    "source": "https://github.com/duckduckgo/duckduckgo-privacy-extension/blob/5c6ac8d6a07421adbfb97ee2ff855dd7655f8d71/shared/img/logo-small-grayscale.svg",
+    "collection": "simple-icons@15.22.0",
+    "license": {
+      "type": "CC0-1.0"
+    },
+    "modification": "Unmodified symbol path; rounded background and presentation colors added.",
+    "sha256": "500d7c5424db7e43441892b36858a427d51674e663e360b1909dea59bccfd5d7"
+  },
+  {
+    "id": "brave",
+    "title": "Brave",
+    "slug": "brave",
+    "source": "https://brave.com/brave-branding-assets",
+    "collection": "simple-icons@15.22.0",
+    "license": {
+      "type": "CC0-1.0"
+    },
+    "modification": "Unmodified symbol path; rounded background and presentation colors added.",
+    "sha256": "1f153a49f17b64ef4a28b71f699bbd65863853676caa1de6fd98c58d48ed6c91"
+  },
+  {
+    "id": "kdeconnect",
+    "title": "KDE",
+    "slug": "kde",
+    "source": "https://kde.org/stuff/clipart",
+    "collection": "simple-icons@15.22.0",
+    "license": {
+      "type": "CC0-1.0"
+    },
+    "modification": "Unmodified symbol path; rounded background and presentation colors added.",
+    "sha256": "aa87cce450c44e8b92ccf1a49da07b96488ef7894acbfb4ac7726e6c9c25bb48"
+  },
+  {
+    "id": "wikipedia",
+    "title": "Wikipedia",
+    "slug": "wikipedia",
+    "source": "https://commons.wikimedia.org/wiki/File:Wikipedia-logo-v2.svg",
+    "collection": "simple-icons@15.22.0",
+    "license": {
+      "type": "CC0-1.0"
+    },
+    "modification": "Unmodified symbol path; rounded background and presentation colors added.",
+    "sha256": "20d4016539afa25a146dd2c2e0e5cea592e2ceb6e3eea3d9f455fe1915603019"
+  },
+  {
+    "id": "antennapod",
+    "title": "AntennaPod",
+    "slug": "antennapod",
+    "source": "https://github.com/AntennaPod/Branding/blob/115dc180bb562eab4e5edc55eccfbdc11cd56873/Logo/logo-icon-white-out.svg",
+    "collection": "simple-icons@15.22.0",
+    "license": {
+      "type": "CC0-1.0"
+    },
+    "modification": "Unmodified symbol path; rounded background and presentation colors added.",
+    "sha256": "67d220e4577fe65cc1f27190867ae0b2a9c4b86a2e611fdc998f527e95aa387f"
+  },
+  {
+    "id": "element",
+    "title": "Element",
+    "slug": "element",
+    "source": "https://element.io",
+    "collection": "simple-icons@15.22.0",
+    "license": {
+      "type": "CC0-1.0"
+    },
+    "modification": "Unmodified symbol path; rounded background and presentation colors added.",
+    "sha256": "3ec9f3b2a113ba321d7ec70e70d00c2895627f04d0d5d02b207c9c3ae7b245c3"
+  },
+  {
+    "id": "aegis",
+    "title": "Aegis Authenticator",
+    "slug": "aegisauthenticator",
+    "source": "https://getaegis.app/aegis.svg",
+    "collection": "simple-icons@15.22.0",
+    "license": {
+      "type": "CC0-1.0"
+    },
+    "modification": "Unmodified symbol path; rounded background and presentation colors added.",
+    "sha256": "54b542c8e2c1bb3cb29d266b68103630d725ea0884e785cafcd9287fab7dce34"
+  },
+  {
+    "id": "thunderbird",
+    "title": "Thunderbird",
+    "slug": "thunderbird",
+    "source": "https://design.thunderbird.net/resources/logo",
+    "collection": "simple-icons@15.22.0",
+    "license": {
+      "type": "CC0-1.0"
+    },
+    "modification": "Unmodified symbol path; rounded background and presentation colors added.",
+    "sha256": "631c6321883f5b8b29783b959fa0c5a04a57c9c5fe08ab36eee1a5835e6347cd"
+  },
+  {
+    "id": "fdroid",
+    "title": "F-Droid",
+    "slug": "fdroid",
+    "source": "https://f-droid.org",
+    "collection": "simple-icons@15.22.0",
+    "license": {
+      "type": "CC-BY-SA-3.0"
+    },
+    "modification": "Unmodified symbol path; rounded background and presentation colors added.",
+    "sha256": "529b153e753565004e5cb5bddc13c14d056b30b37708ab7f3797adeecc682329"
+  },
+  {
+    "id": "newpipe",
+    "title": "NewPipe",
+    "slug": "newpipe",
+    "source": "https://github.com/TeamNewPipe/NewPipe/blob/f3858e70a3af90b0ad3c6731482924567ec807f9/.idea/icon.svg",
+    "collection": "simple-icons@15.22.0",
+    "license": {
+      "type": "CC0-1.0"
+    },
+    "modification": "Unmodified symbol path; rounded background and presentation colors added.",
+    "sha256": "dd72adf58c1f54bb0468c0ceeef0f961798fc0d845b1fb590fee2378d75ce258"
+  },
+  {
+    "id": "osmand",
+    "title": "OsmAnd",
+    "slug": "osmand",
+    "source": "https://github.com/osmandapp/OsmAnd-misc/blob/9ec3bacebf580d0862ded5813a4aa934d0862302/logo/osmand/symbol_osmand.svg",
+    "collection": "simple-icons@15.22.0",
+    "license": {
+      "type": "CC0-1.0"
+    },
+    "modification": "Unmodified symbol path; rounded background and presentation colors added.",
+    "sha256": "ea43a18ef6428963ef07a83cc8a505f9834a55c16eed6e631fb88174054023a9"
+  },
+  {
+    "id": "collabora",
+    "title": "Collabora Online",
+    "slug": "collaboraonline",
+    "source": "https://www.collaboraonline.com/branding-guidelines",
+    "collection": "simple-icons@15.22.0",
+    "license": {
+      "type": "CC0-1.0"
+    },
+    "modification": "Unmodified symbol path; rounded background and presentation colors added.",
+    "sha256": "9695e055801a776e08a4ecd3ed213ba58dda3d8f4f7c0116a32e6cc9197b4b14"
+  }
+]

@@ -1,0 +1,9 @@
+{
+  "repository": "https://f-droid.org/repo",
+  "certificate_sha256": "43238d512c1e5eb2d6569f4a3afbf5523418b82e0a3ed1552770abb9a9c9ccab",
+  "source": "https://github.com/f-droid/fdroidclient/blob/d2cf05bb7805cc2a8544ae76ba6a88cc3e788721/app/src/main/assets/default_repos.json",
+  "source_git_blob": "d981689d0e0d0b17e1377931e9f639c1224c9d38",
+  "fallback_mirror": "https://ftp.fau.de/fdroid/repo",
+  "anchor_change_policy": "No user-supplied/TOFU trust. Review upstream certificate rotation in source; never bypass a mismatch.",
+  "license_note": "Only the factual certificate hash/repository endpoints are used; no F-Droid client code is copied."
+}

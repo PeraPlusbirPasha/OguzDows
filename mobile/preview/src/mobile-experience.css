@@ -1,0 +1,1392 @@
+/* Everyday interactions. Motion is finite, transform/opacity-only, and fully optional. */
+.page-transition {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+  height: 100%;
+  width: 100%;
+  animation: page-arrive 0.23s cubic-bezier(0.2, 0.7, 0.3, 1) both;
+}
+.page-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  height: 100%;
+  color: var(--phone-muted);
+}
+.status-bar {
+  touch-action: none;
+  user-select: none;
+}
+.phone-dimmer {
+  position: absolute;
+  inset: 0;
+  background: #08141a;
+  pointer-events: none;
+  z-index: 12;
+  transition: opacity 0.12s linear;
+}
+.app-badge {
+  flex-shrink: 0;
+  overflow: hidden;
+}
+.app-badge.brand-artwork {
+  background: transparent;
+  border: 0;
+  box-shadow: none;
+}
+.app-badge.brand-artwork img {
+  height: 100%;
+  width: 100%;
+  object-fit: contain;
+}
+.home-apps .app-tile,
+.drawer-grid .app-tile {
+  animation: icon-arrive 0.28s cubic-bezier(0.2, 0.75, 0.3, 1) both;
+}
+.home-apps .app-tile:nth-child(2),
+.drawer-grid .app-tile:nth-child(3n + 2) {
+  animation-delay: 25ms;
+}
+.home-apps .app-tile:nth-child(3),
+.drawer-grid .app-tile:nth-child(3n) {
+  animation-delay: 50ms;
+}
+.home-apps .app-tile:nth-child(4) {
+  animation-delay: 75ms;
+}
+.home-apps .app-tile:nth-child(n + 5) {
+  animation-delay: 90ms;
+}
+.app-tile .app-badge {
+  transition:
+    transform 0.18s ease,
+    box-shadow 0.18s ease;
+}
+.app-tile:active .app-badge {
+  transform: scale(0.91);
+}
+@media (hover: hover) {
+  .app-tile:hover .app-badge {
+    transform: translateY(-3px);
+  }
+}
+.category-chips,
+.recipient-chips,
+.search-hints {
+  display: flex;
+  gap: 7px;
+  overflow-x: auto;
+  padding: 3px 1px 12px;
+  scrollbar-width: none;
+}
+.category-chips button,
+.recipient-chips button,
+.search-hints button {
+  border: 1px solid var(--phone-line);
+  background: var(--phone-card);
+  color: var(--phone-muted);
+  padding: 8px 12px;
+  border-radius: 20px;
+  white-space: nowrap;
+  font-size: 10px;
+  min-height: 36px;
+}
+.category-chips button.active {
+  background: var(--brand);
+  color: var(--phone-bg);
+  border-color: var(--brand);
+}
+.store-hero {
+  min-height: 180px;
+  background: linear-gradient(115deg, #e5ecdb, #edf1e4);
+}
+.store-hero h3 {
+  max-width: 205px;
+  position: relative;
+  z-index: 1;
+}
+.store-hero p {
+  position: relative;
+  z-index: 1;
+  color: #4c634e;
+  max-width: 185px;
+  line-height: 1.6;
+}
+.store-hero .eyebrow {
+  color: #49664e;
+  position: relative;
+  z-index: 1;
+}
+.store-hero-art {
+  position: absolute;
+  right: -12px;
+  top: 38px;
+  width: 100px;
+  display: grid;
+  grid-template-columns: 47px 47px;
+  gap: 10px;
+  transform: rotate(-13deg);
+}
+.store-hero-art .app-badge {
+  width: 47px;
+  height: 47px;
+  border-radius: 15px;
+}
+.store-hero-art .app-badge:nth-child(even) {
+  transform: translateY(24px);
+}
+.theme-dark .store-hero {
+  background: linear-gradient(115deg, #29443a, #273d36);
+  color: #e7efdb;
+}
+.theme-dark .store-hero p,
+.theme-dark .store-hero .eyebrow {
+  color: #c2d0b8;
+}
+.store-item {
+  gap: 9px;
+}
+.store-item .app-badge {
+  width: 45px;
+  height: 45px;
+}
+.store-item .icon-button {
+  min-width: 28px;
+  min-height: 42px;
+}
+.store-item .get-button {
+  min-height: 36px;
+}
+.store-item-title {
+  min-height: 45px;
+  justify-content: center;
+}
+.store-item-title > span {
+  max-width: 100%;
+}
+.sheet-top {
+  align-items: flex-start;
+}
+.sheet-top .sheet {
+  max-height: 96%;
+  padding-top: 16px;
+  padding-bottom: 0;
+  border-radius: 0 0 29px 29px;
+  box-shadow: 0 12px 35px #071e2730;
+  animation: control-arrive 0.28s cubic-bezier(0.16, 0.75, 0.22, 1) both;
+}
+.sheet-top .sheet-grip {
+  display: none;
+}
+.sheet-top .sheet > header {
+  padding-bottom: 8px;
+}
+.sheet-top .sheet > header > h2 {
+  font-size: 23px;
+  letter-spacing: -0.9px;
+}
+.sheet-top .sheet > header > .icon-button {
+  height: 34px;
+  width: 34px;
+}
+.sheet-top .sheet-body {
+  padding-bottom: 0;
+}
+.control-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 15px;
+}
+.control-heading .eyebrow {
+  font-size: 6px;
+  color: var(--brand);
+  letter-spacing: 1.5px;
+}
+.control-heading p {
+  font-size: 10px;
+  margin-top: 4px;
+  color: var(--phone-muted);
+}
+.control-heading > button {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: var(--phone-soft);
+}
+.control-tiles {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 7px;
+}
+.control-tiles > button {
+  padding: 12px 9px;
+  min-height: 97px;
+  border-radius: 16px;
+  gap: 3px;
+  animation: control-tile-arrive 0.24s ease both;
+}
+.control-tiles > button:nth-child(2n) {
+  animation-delay: 35ms;
+}
+.control-tiles > button:nth-child(3n) {
+  animation-delay: 65ms;
+}
+.control-tiles > button svg {
+  margin-bottom: 8px;
+}
+.control-tiles strong {
+  font-size: 10px;
+}
+.control-tiles span {
+  font-size: 7px;
+  line-height: 1.4;
+}
+.control-tiles > button.on {
+  color: #fff;
+}
+.theme-dark .control-tiles > button.on {
+  color: #17352d;
+}
+.control-slider-card {
+  margin: 14px 0 10px;
+  padding: 16px 13px 10px;
+  border: 1px solid var(--phone-line);
+  background: var(--phone-card);
+  border-radius: 19px;
+}
+.control-slider-title {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  font-size: 10px;
+  margin-bottom: 9px;
+}
+.control-slider-title > span {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.control-slider-title output {
+  font-variant-numeric: tabular-nums;
+  color: var(--brand);
+  font-weight: 750;
+}
+.control-slider-card > input {
+  margin: 0 0 18px;
+}
+.control-slider-card input[type="range"] {
+  width: 100%;
+  min-width: 0;
+  height: 25px;
+  cursor: pointer;
+  accent-color: var(--brand);
+  touch-action: pan-x;
+}
+.volume-controls {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.volume-controls > input {
+  flex: 1;
+}
+.volume-controls > button {
+  min-width: 30px;
+  height: 34px;
+  border-radius: 10px;
+  background: var(--phone-soft);
+}
+.control-audio-actions {
+  margin-top: 7px;
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+}
+.control-audio-actions > button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 8px;
+  min-height: 38px;
+  font-size: 9px;
+  border-radius: 12px;
+  color: var(--brand);
+}
+.control-settings {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 43px;
+  padding: 8px 4px;
+  font-size: 11px;
+  width: 100%;
+}
+.control-settings span {
+  flex: 1;
+  text-align: left;
+}
+.sheet-top .notice {
+  margin: 6px 0;
+  padding: 10px;
+}
+.sheet-top .notice p {
+  font-size: 8px;
+}
+.panel-dismiss {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  width: 100%;
+  min-height: 45px;
+  flex-shrink: 0;
+  touch-action: none;
+  color: var(--phone-muted);
+  padding: 8px;
+}
+.panel-dismiss > span {
+  display: block;
+  width: 39px;
+  height: 4px;
+  background: var(--phone-muted);
+  opacity: 0.35;
+  border-radius: 9px;
+}
+.panel-dismiss small {
+  font-size: 7px;
+}
+.daily-intro {
+  text-align: center;
+  margin: 7px 0 24px;
+}
+.daily-orbit {
+  display: grid;
+  place-items: center;
+  width: 73px;
+  height: 73px;
+  border-radius: 26px;
+  background: var(--phone-soft);
+  color: var(--brand);
+  margin: 0 auto 20px;
+  transform: rotate(-5deg);
+}
+.daily-orbit svg {
+  transform: rotate(5deg);
+}
+.daily-intro h3 {
+  font-size: 27px;
+  letter-spacing: -1.1px;
+  font-weight: 650;
+  line-height: 1.3;
+}
+.daily-intro p {
+  font-size: 11px;
+  color: var(--phone-muted);
+  margin-top: 10px;
+}
+.field-label {
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+  font-size: 11px;
+  font-weight: 650;
+  margin: 17px 0;
+}
+.field-label input,
+.field-label textarea {
+  border: 1px solid var(--phone-line);
+  border-radius: 14px;
+  width: 100%;
+  padding: 13px;
+  background: var(--phone-card);
+  color: var(--phone-ink);
+  outline: 0;
+  min-width: 0;
+}
+.field-label input:focus,
+.field-label textarea:focus {
+  border-color: var(--brand);
+}
+.message-draft {
+  min-height: 185px;
+  resize: vertical;
+  line-height: 1.8;
+  font-weight: 450;
+}
+.communication-page .section-line {
+  font-size: 8px;
+}
+.communication-page > .secondary-button {
+  margin-top: 10px;
+}
+.dial-display {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  text-align: center;
+  justify-content: center;
+  min-height: 109px;
+  margin: 12px 0 6px;
+}
+.dial-display > span {
+  font-size: 11px;
+  color: var(--phone-muted);
+}
+.phone-screen .dial-display input {
+  width: 100%;
+  min-width: 0;
+  background: none;
+  color: var(--phone-ink);
+  text-align: center;
+  border: 0;
+  font-size: 29px !important;
+  letter-spacing: -0.9px;
+  padding: 13px 28px 13px 0;
+}
+.dial-display input::placeholder {
+  font-size: 27px;
+  opacity: 0.45;
+}
+.dial-display > button {
+  position: absolute;
+  right: -4px;
+  bottom: 12px;
+  width: 35px;
+  height: 40px;
+}
+.real-dial-pad {
+  gap: 10px 24px;
+  max-width: 283px;
+  margin: 10px auto 22px;
+}
+.real-dial-pad > button {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: var(--phone-soft);
+  border: 1px solid var(--phone-line);
+  height: 65px;
+  width: 65px;
+  border-radius: 50%;
+  padding: 4px;
+  justify-self: center;
+  transition:
+    transform 0.12s ease,
+    background 0.15s ease;
+}
+.real-dial-pad > button strong {
+  font-size: 28px;
+  font-weight: 550;
+  line-height: 1.15;
+}
+.real-dial-pad > button small {
+  font-size: 7px;
+  letter-spacing: 1.6px;
+  color: var(--phone-muted);
+}
+.real-dial-pad > button:active {
+  background: var(--brand);
+  color: var(--phone-bg);
+  transform: scale(0.88);
+}
+.dial-actions {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 30px;
+}
+.dial-actions > .icon-button {
+  height: 48px;
+  width: 48px;
+  border-radius: 50%;
+  background: var(--phone-soft);
+  color: var(--brand);
+}
+.dial-call {
+  min-width: 106px;
+  height: 58px;
+  background: #34745b;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  border-radius: 32px;
+  font-weight: 700;
+  font-size: 14px;
+  box-shadow: 0 5px 12px #26684e1b;
+}
+.handoff-caption {
+  font-size: 9px;
+  text-align: center;
+  line-height: 1.7;
+  margin: 15px 6px 0;
+  color: var(--phone-muted);
+}
+.handoff-status {
+  font-size: 10px;
+  line-height: 1.8;
+  background: var(--phone-soft);
+  border: 1px solid var(--phone-line);
+  border-radius: 12px;
+  padding: 12px;
+  margin-top: 13px;
+}
+.copy-number {
+  display: flex;
+  justify-content: center;
+  margin: 9px auto;
+}
+.daily-empty {
+  padding: 32px 12px;
+  text-align: center;
+}
+.daily-empty > span {
+  display: grid;
+  place-items: center;
+  height: 65px;
+  width: 65px;
+  margin: 0 auto 18px;
+  border-radius: 24px;
+  background: var(--phone-soft);
+  color: var(--brand);
+}
+.daily-empty h3 {
+  font-size: 20px;
+  font-weight: 650;
+  letter-spacing: -0.7px;
+}
+.daily-empty p {
+  color: var(--phone-muted);
+  font-size: 11px;
+  line-height: 1.85;
+  max-width: 270px;
+  margin: 10px auto 18px;
+}
+.contact-avatar {
+  width: 43px;
+  height: 43px;
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  border-radius: 16px;
+  background: var(--phone-soft);
+  color: var(--brand);
+  font-size: 19px;
+  font-weight: 600;
+}
+.contact-quick-list > button {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  gap: 12px;
+  padding: 15px 0;
+  border-bottom: 1px solid var(--phone-line);
+  text-align: left;
+}
+.contact-quick-list > button > span:nth-child(2) {
+  flex: 1;
+  min-width: 0;
+}
+.contact-quick-list strong {
+  display: block;
+  font-size: 13px;
+}
+.contact-quick-list small {
+  display: block;
+  font-size: 10px;
+  margin-top: 3px;
+  color: var(--phone-muted);
+}
+.contacts-list {
+  margin-top: 19px;
+}
+.contact-card {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 19px 0;
+  border-bottom: 1px solid var(--phone-line);
+  animation: icon-arrive 0.2s ease both;
+}
+.contact-card > div:nth-child(2) {
+  min-width: 0;
+  flex: 1;
+}
+.contact-card h3 {
+  font-size: 14px;
+  overflow-wrap: anywhere;
+  line-height: 1.5;
+  font-weight: 700;
+}
+.contact-card p {
+  font-size: 10px;
+  margin: 3px 0 11px;
+  color: var(--phone-muted);
+}
+.contact-actions {
+  display: flex;
+  gap: 7px;
+  flex-wrap: wrap;
+}
+.contact-actions > button {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 9px;
+  color: var(--brand);
+  background: var(--phone-soft);
+  border-radius: 10px;
+  padding: 8px 9px;
+  min-height: 34px;
+}
+.contact-side {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+.contact-side .icon-button {
+  width: 30px;
+  height: 32px;
+}
+.contact-form {
+  padding: 0 0 15px;
+}
+.delete-confirm {
+  font-size: 11px;
+  color: var(--phone-muted);
+  line-height: 1.8;
+}
+.delete-confirm .secondary-button {
+  margin: 12px 0;
+}
+.calendar-month {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin: 8px 0 18px;
+  gap: 10px;
+}
+.calendar-month h3 {
+  font-size: 21px;
+  letter-spacing: -0.8px;
+  font-weight: 650;
+}
+.calendar-month > button {
+  height: 38px;
+  width: 38px;
+  border-radius: 50%;
+  background: var(--phone-soft);
+}
+.calendar-grid {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 7px 3px;
+  padding: 12px 6px;
+  border: 1px solid var(--phone-line);
+  background: var(--phone-card);
+  border-radius: 20px;
+}
+.calendar-weekday {
+  text-align: center;
+  font-size: 9px;
+  color: var(--phone-muted);
+  padding: 6px 0 12px;
+}
+.calendar-grid > button {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  height: 39px;
+  min-width: 0;
+  border-radius: 12px;
+  font-size: 12px;
+  position: relative;
+  font-variant-numeric: tabular-nums;
+}
+.calendar-grid > button.today {
+  box-shadow: inset 0 0 0 1px var(--brand);
+  color: var(--brand);
+}
+.calendar-grid > button.chosen {
+  color: var(--phone-bg);
+  background: var(--brand);
+}
+.calendar-grid > button i {
+  width: 3px;
+  height: 3px;
+  border-radius: 50%;
+  background: currentColor;
+  position: absolute;
+  bottom: 4px;
+}
+.calendar-today {
+  margin: 12px auto 22px;
+  display: block;
+}
+.agenda-list {
+  margin: 12px 0;
+}
+.agenda-list > article {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 13px 0;
+  border-bottom: 1px solid var(--phone-line);
+  animation: icon-arrive 0.2s ease both;
+}
+.agenda-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--brand);
+  flex-shrink: 0;
+}
+.agenda-list p {
+  flex: 1;
+  min-width: 0;
+  overflow-wrap: anywhere;
+  font-size: 12px;
+}
+.agenda-list button {
+  width: 32px;
+  height: 35px;
+}
+.clock-face {
+  height: 270px;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 13px;
+  margin: 13px 0 25px;
+}
+.clock-ring {
+  width: 240px;
+  height: 240px;
+  border-radius: 50%;
+  border: 1px solid var(--phone-line);
+  position: absolute;
+  box-shadow: inset 0 0 0 12px var(--phone-soft);
+}
+.clock-face > svg {
+  color: var(--brand);
+}
+.clock-face .eyebrow {
+  font-size: 7px;
+  color: var(--phone-muted);
+  letter-spacing: 1.7px;
+}
+.clock-digits {
+  font-size: 33px;
+  font-variant-numeric: tabular-nums;
+  font-weight: 500;
+  letter-spacing: -1.4px;
+  z-index: 1;
+}
+.clock-face.is-running .clock-ring {
+  border-color: var(--brand);
+}
+.clock-actions {
+  display: flex;
+  gap: 10px;
+}
+.clock-actions > button {
+  flex: 1;
+  min-width: 0;
+}
+.lap-button {
+  display: block;
+  margin: 15px auto;
+  min-height: 35px;
+}
+.lap-list > div {
+  display: flex;
+  justify-content: space-between;
+  font-size: 11px;
+  padding: 11px 4px;
+  border-bottom: 1px solid var(--phone-line);
+  font-variant-numeric: tabular-nums;
+}
+.lap-list strong {
+  font-weight: 650;
+}
+.timer-presets {
+  display: flex;
+  gap: 7px;
+  margin-bottom: 15px;
+}
+.timer-presets > button {
+  flex: 1;
+  border-radius: 13px;
+  background: var(--phone-soft);
+  padding: 11px 5px;
+  color: var(--brand);
+  font-size: 11px;
+}
+.media-page {
+  text-align: center;
+}
+.record-art {
+  position: relative;
+  height: 265px;
+  display: grid;
+  place-items: center;
+  margin: 0 0 10px;
+}
+.record-disc {
+  height: 220px;
+  width: 220px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: repeating-radial-gradient(
+    circle at center,
+    #263c38 0px,
+    #263c38 3px,
+    #354d45 4px,
+    #263c38 6px
+  );
+  box-shadow: 0 14px 25px #183a2912;
+}
+.record-disc > div {
+  display: grid;
+  place-items: center;
+  width: 98px;
+  height: 98px;
+  border-radius: 50%;
+  background: #edc9a2;
+  color: #785332;
+  border: 7px solid #d9b68e;
+}
+.record-spark {
+  position: absolute;
+  font-size: 49px;
+  color: #b88b60;
+  right: 11px;
+  top: 21px;
+  font-weight: 300;
+}
+.record-art.playing .record-disc {
+  animation: record-turn 18s linear infinite;
+}
+.media-page > h3 {
+  font-size: 23px;
+  letter-spacing: -0.8px;
+  overflow-wrap: anywhere;
+  font-weight: 650;
+}
+.media-page > p {
+  margin: 9px 0 24px;
+  font-size: 11px;
+  color: var(--phone-muted);
+}
+.media-page audio {
+  width: 100%;
+  margin: 1px 0 22px;
+  height: 45px;
+}
+.compact-pick {
+  padding: 20px 12px;
+  min-height: 125px;
+}
+.media-page .secondary-button {
+  margin-top: 14px;
+}
+.media-page .notice {
+  text-align: left;
+}
+.browser-form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.browser-form .search-field {
+  margin-bottom: 0;
+}
+.browser-target {
+  display: flex;
+  align-items: flex-start;
+  gap: 9px;
+  font-size: 10px;
+  color: var(--phone-muted);
+  padding: 14px 3px;
+}
+.browser-target > span {
+  overflow-wrap: anywhere;
+  min-width: 0;
+}
+.browser-shortcuts {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 9px;
+  margin: 22px 0;
+}
+.browser-shortcuts a {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--phone-card);
+  border: 1px solid var(--phone-line);
+  border-radius: 15px;
+  padding: 13px 9px;
+  font-size: 10px;
+  min-width: 0;
+}
+.browser-shortcuts .app-badge {
+  width: 31px;
+  height: 31px;
+  border-radius: 10px;
+}
+.browser-shortcuts .app-badge svg {
+  width: 18px;
+}
+.browser-shortcuts a > span:nth-child(2) {
+  flex: 1;
+}
+.gallery-pickers {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.gallery-pickers > label {
+  flex: 1;
+  min-width: 0;
+  padding: 10px;
+  cursor: pointer;
+  position: relative;
+  font-size: 10px;
+}
+.gallery-pickers > label:focus-within {
+  outline: 3px solid var(--brand);
+  outline-offset: 3px;
+}
+.photo-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+.photo-grid > button {
+  text-align: left;
+  padding: 0;
+  border-radius: 16px;
+  overflow: hidden;
+  border: 1px solid var(--phone-line);
+  background: var(--phone-card);
+  min-width: 0;
+}
+.photo-grid img {
+  height: 145px;
+  width: 100%;
+  object-fit: cover;
+}
+.photo-grid button > span {
+  display: block;
+  font-size: 9px;
+  padding: 10px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.culture-photos img {
+  height: 125px;
+}
+.gallery-page + .sheet-shade .secondary-button {
+  margin-top: 13px;
+}
+.search-app-grid {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 21px 7px;
+  margin: 20px 0 27px;
+}
+.search-app-grid .app-badge {
+  width: 49px;
+  height: 49px;
+  border-radius: 16px;
+}
+.search-app-grid .app-tile {
+  font-size: 9px;
+}
+.search-result {
+  min-height: 65px;
+  padding: 12px 0;
+}
+.search-result > span:nth-child(2) {
+  min-width: 0;
+  flex: 1;
+}
+.search-result strong {
+  overflow-wrap: anywhere;
+}
+.search-result small {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  overflow-wrap: anywhere;
+}
+.search-hints {
+  margin-top: -4px;
+}
+.search-hints > button {
+  font-size: 9px;
+  padding: 6px 11px;
+  min-height: 31px;
+  background: var(--phone-soft);
+}
+.universal-search > .secondary-button {
+  margin-top: 25px;
+}
+.local-search-note {
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 6px;
+  color: var(--phone-muted);
+  line-height: 1.8;
+  font-size: 8px;
+  margin: 24px 0 10px;
+}
+.search-calculation {
+  display: flex;
+  align-items: center;
+  gap: 13px;
+  border: 1px solid var(--phone-line);
+  padding: 17px;
+  margin: 10px 0;
+  border-radius: 17px;
+  background: var(--phone-card);
+  width: 100%;
+  text-align: left;
+}
+.search-calculation > span {
+  flex: 1;
+  font-size: 11px;
+}
+.search-calculation strong {
+  display: block;
+  font-size: 25px;
+  margin-top: 3px;
+}
+@keyframes page-arrive {
+  from {
+    opacity: 0.35;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+@keyframes icon-arrive {
+  from {
+    opacity: 0.25;
+    transform: translateY(7px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+@keyframes control-arrive {
+  from {
+    transform: translateY(-45px);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+@keyframes control-tile-arrive {
+  from {
+    transform: translateY(8px);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+@keyframes record-turn {
+  to {
+    transform: rotate(360deg);
+  }
+}
+@media (max-width: 760px) {
+  .sheet-top .sheet {
+    padding-top: calc(19px + env(safe-area-inset-top, 0px));
+  }
+  .sheet-top .sheet > header {
+    padding-left: 23px;
+    padding-right: 23px;
+  }
+  .sheet-top .sheet > header > h2 {
+    font-size: 26px;
+  }
+  .control-heading .eyebrow {
+    font-size: 7px;
+  }
+  .control-heading p {
+    font-size: 11px;
+  }
+  .control-tiles > button {
+    min-height: 104px;
+    padding: 13px 10px;
+  }
+  .control-tiles strong {
+    font-size: 11px;
+  }
+  .control-tiles span {
+    font-size: 8px;
+  }
+  .control-slider-title {
+    font-size: 12px;
+    margin-bottom: 10px;
+  }
+  .control-audio-actions > button {
+    font-size: 10px;
+    min-height: 42px;
+  }
+  .control-settings {
+    font-size: 12px;
+  }
+  .sheet-top .notice p {
+    font-size: 9px;
+  }
+  .panel-dismiss {
+    min-height: 50px;
+    padding-bottom: 10px;
+  }
+  .panel-dismiss small {
+    font-size: 8px;
+  }
+  .store-hero {
+    min-height: 185px;
+  }
+  .store-hero h3 {
+    font-size: 25px;
+    max-width: 220px;
+  }
+  .store-hero p {
+    font-size: 10px;
+  }
+  .store-hero .eyebrow {
+    font-size: 7px;
+    letter-spacing: 1px;
+  }
+  .store-hero-art {
+    right: -7px;
+    top: 39px;
+  }
+  .store-item {
+    gap: 9px;
+  }
+  .store-item .app-badge {
+    height: 48px;
+    width: 48px;
+  }
+  .store-item-title > span {
+    font-size: 9px;
+    max-width: 100%;
+  }
+  .store-item .icon-button {
+    min-width: 30px;
+  }
+  .store-item .get-button {
+    min-height: 39px;
+    padding-left: 9px;
+    padding-right: 9px;
+  }
+  .category-chips > button {
+    font-size: 11px;
+    min-height: 40px;
+  }
+  .field-label {
+    font-size: 12px;
+  }
+  .daily-intro h3 {
+    font-size: 29px;
+  }
+  .daily-intro p,
+  .daily-empty p {
+    font-size: 12px;
+  }
+  .real-dial-pad {
+    max-width: 292px;
+    gap: 13px 27px;
+  }
+  .real-dial-pad > button {
+    height: 69px;
+    width: 69px;
+  }
+  .real-dial-pad > button strong {
+    font-size: 30px;
+  }
+  .real-dial-pad > button small {
+    font-size: 8px;
+  }
+  .dial-display {
+    min-height: 117px;
+  }
+  .dial-display > span {
+    font-size: 12px;
+  }
+  .dial-call {
+    min-width: 117px;
+    height: 61px;
+  }
+  .handoff-caption {
+    font-size: 10px;
+  }
+  .contact-card h3 {
+    font-size: 15px;
+  }
+  .contact-card p {
+    font-size: 11px;
+  }
+  .contact-actions > button {
+    font-size: 10px;
+    min-height: 40px;
+  }
+  .contact-side .icon-button {
+    height: 36px;
+  }
+  .calendar-grid > button {
+    height: 41px;
+    font-size: 13px;
+  }
+  .calendar-month h3 {
+    font-size: 23px;
+  }
+  .clock-digits {
+    font-size: 36px;
+  }
+  .clock-face {
+    height: 290px;
+  }
+  .clock-ring {
+    width: 264px;
+    height: 264px;
+  }
+  .browser-shortcuts a {
+    padding: 15px 10px;
+    font-size: 11px;
+  }
+  .gallery-pickers > label {
+    font-size: 11px;
+  }
+  .search-app-grid .app-tile {
+    font-size: 10px;
+  }
+  .search-app-grid .app-badge {
+    height: 53px;
+    width: 53px;
+  }
+  .search-hints > button {
+    font-size: 10px;
+    min-height: 35px;
+  }
+  .local-search-note {
+    font-size: 9px;
+  }
+}
+@media (max-width: 360px) {
+  .control-tiles strong {
+    font-size: 10px;
+  }
+  .control-tiles span {
+    font-size: 7px;
+  }
+  .control-tiles > button {
+    min-height: 94px;
+    padding: 10px 8px;
+  }
+  .sheet-top .sheet-body {
+    padding-left: 17px;
+    padding-right: 17px;
+  }
+  .search-app-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+  .real-dial-pad {
+    gap: 10px 19px;
+  }
+  .real-dial-pad > button {
+    height: 62px;
+    width: 62px;
+  }
+  .dial-actions {
+    gap: 18px;
+  }
+  .store-hero-art {
+    opacity: 0.35;
+    right: -20px;
+  }
+  .store-item {
+    gap: 6px;
+  }
+  .store-item .app-badge {
+    height: 42px;
+    width: 42px;
+  }
+  .store-item-title strong {
+    font-size: 12px;
+  }
+  .calendar-month h3 {
+    font-size: 20px;
+  }
+  .calendar-grid {
+    padding-left: 3px;
+    padding-right: 3px;
+    gap: 6px 1px;
+  }
+  .clock-digits {
+    font-size: 31px;
+  }
+  .clock-ring {
+    height: 235px;
+    width: 235px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .page-transition,
+  .sheet-top .sheet,
+  .app-tile,
+  .control-tiles > button,
+  .record-disc {
+    animation: none !important;
+  }
+}
+.low-power *,
+.reduced-motion * {
+  animation: none !important;
+  transition: none !important;
+}
+
+.home-pagination > button {
+  min-width: 22px;
+  height: 24px;
+  display: grid;
+  place-items: center;
+  padding: 0;
+}
+.home-pagination > button > i {
+  width: 3px;
+  height: 3px;
+  border-radius: 50%;
+  background: #ffffff70;
+  transition: width 0.2s ease;
+}
+.home-pagination > button.active > i {
+  width: 11px;
+  border-radius: 4px;
+  background: #ffffffe6;
+}
