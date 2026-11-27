@@ -185,6 +185,28 @@ class NativeSourceContracts(unittest.TestCase):
         self.assertIn("'emergency_calls_tested': False", smoke)
         self.assertNotIn('--bypass-role-qualification', smoke)
 
+    def test_native_store_icons_preserve_symbol_paths_licenses_and_reproducible_hashes(self):
+        records = json.loads((ROOT / 'android/native-icons.json').read_text())
+        self.assertEqual(len(records), 24)
+        self.assertEqual(len({row['package'] for row in records}), 24)
+        original = {row['id']: row for row in json.loads((ROOT / 'preview/public/assets/apps/manifest.json').read_text())}
+        generated = (JAVA / 'CuratedIcons.java').read_text()
+        for row in records:
+            with self.subTest(icon=row['id']):
+                source = ROOT / row['source_svg']
+                vector = ANDROID / 'res/drawable' / ('catalog_' + row['id'] + '.xml')
+                self.assertEqual(hashlib.sha256(source.read_bytes()).hexdigest(), row['source_svg_sha256'])
+                self.assertEqual(hashlib.sha256(vector.read_bytes()).hexdigest(), row['vector_sha256'])
+                path = ET.parse(source).getroot().find('{http://www.w3.org/2000/svg}path').attrib['d']
+                self.assertEqual(ET.parse(vector).getroot().find('group/path').attrib[NS + 'pathData'], path)
+                self.assertEqual(row['license'], original[row['id']]['license'])
+                self.assertIn('case "' + row['package'] + '":', generated)
+        self.assertEqual(original['fdroid']['license']['type'], 'CC-BY-SA-3.0')
+        store = (JAVA / 'SourceStoreActivity.java').read_text()
+        self.assertIn('AppIcons.get', store)
+        self.assertIn('(LinearLayout) recycled', store)
+        self.assertIn('1536 * 1024', (JAVA / 'AppIcons.java').read_text())
+
     def test_resources_parse_and_api_contract_remains_explicit(self):
         for path in ANDROID.rglob('*.xml'):
             with self.subTest(path=path): ET.parse(path)

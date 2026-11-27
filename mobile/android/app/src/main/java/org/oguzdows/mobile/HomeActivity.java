@@ -291,10 +291,12 @@ public final class HomeActivity extends Activity {
             .setMessage(number + "\n\nCihazın telefon hattından arama isteği gönderilecek; operatör ücreti olabilir. Bağlantı durumu Telecom servisinden okunur.")
             .setPositiveButton("Aramayı başlat", (d, w) -> {
                 try {
-                    if (!PlatformState.role(this, RoleManager.ROLE_DIALER) || !PlatformState.granted(this, Manifest.permission.CALL_PHONE)) throw new SecurityException();
+                    if (!PlatformState.role(this, RoleManager.ROLE_DIALER)
+                        || checkSelfPermission(Manifest.permission.CALL_PHONE) != PackageManager.PERMISSION_GRANTED) throw new SecurityException();
                     telecom.placeCall(Uri.fromParts("tel", number, null), new Bundle());
                     reply.ok(new JSONObject().put("state", "requested").put("message", "Telecom’a arama isteği iletildi; henüz bağlantı doğrulanmadı."));
-                } catch (Exception error) { reply.error("Telecom arama isteğini kabul etmedi. İzin, hat ve şebeke durumunu kontrol et."); }
+                } catch (SecurityException error) { reply.error("Arama izni veya Telefon rolü değişti. Arama yeniden denenmedi."); }
+                catch (Exception error) { reply.error("Telecom arama isteğini kabul etmedi. İzin, hat ve şebeke durumunu kontrol et."); }
             }).setNegativeButton("Vazgeç", (d, w) -> reply.error("Arama iptal edildi."))
             .setOnCancelListener(d -> reply.error("Arama iptal edildi.")).show();
     }

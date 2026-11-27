@@ -29,6 +29,7 @@ import { Rifki } from "./Rifki";
 import { AppBadge, Dialog, Icon, Nazar, Notice } from "./ui";
 import { ControlCenter } from "./ControlCenter";
 import { inNativeApp, nativeRequest, useNativeStatus } from "./native";
+import { NativePower } from "./NativePower";
 const Everyday = lazy(() => import("./Everyday"));
 
 const screens: Screen[] = [
@@ -837,6 +838,7 @@ export default function App() {
                       <Icon name="ChevronRight" size={17} />
                     </button>
                   </div>
+                  <NativePower />
                 </Dialog>
               )}
               {overlay === "about" && (

@@ -18,6 +18,11 @@ PACKAGE = 'org.oguzdows.mobile'
 COMPONENT = f'{PACKAGE}.test/androidx.test.runner.AndroidJUnitRunner'
 
 
+def annotation(level, title, text):
+    detail = text.replace('%', '%25').replace('\r', '%0D').replace('\n', '%0A')[:3500]
+    print(f'::{level} title={title}::{detail}', flush=True)
+
+
 def main():
     OUT.mkdir(parents=True, exist_ok=True)
     serials = [line.split()[0] for line in subprocess.check_output(['adb', 'devices'], text=True).splitlines()[1:]
@@ -89,12 +94,18 @@ def main():
                     raise RuntimeError('Virtual modem injection failed: ' + output)
             output, _ = process.communicate(timeout=timeout)
             (OUT / f'{klass}-{name or "suite"}.txt').write_text(output)
-            passed = process.returncode == 0 and bool(re.search(r'OK \(\d+ tests?\)', output)) and 'FAILURES!!!' not in output and 'INSTRUMENTATION_FAILED' not in output
-            record = {'name': f'{klass}.{name or "suite"}', 'passed': passed, 'seconds': round(time.monotonic() - started, 2)}
+            match = re.search(r'OK \((\d+) tests?\)', output)
+            cases = int(match.group(1)) if match else 0
+            expected = 3 if klass == 'RepositorySecurityTest' else 1
+            passed = process.returncode == 0 and cases == expected and 'FAILURES!!!' not in output and 'INSTRUMENTATION_FAILED' not in output
+            record = {'name': f'{klass}.{name or "suite"}', 'passed': passed, 'test_cases': cases,
+                      'seconds': round(time.monotonic() - started, 2)}
             evidence['tests'].append(record)
             print(('PASS ' if passed else 'FAIL ') + record['name'], flush=True)
             if not passed:
                 print(output[-16000:], flush=True)
+                concise = [line for line in output.splitlines() if not line.startswith(('\tat ', '    at '))]
+                annotation('error', 'Emulator ' + record['name'], '\n'.join(concise)[-3000:])
             if klass == 'LiveRepositoryTest':
                 for line in output.splitlines():
                     if 'LIVE_REPO_EVIDENCE ' in line:
@@ -104,8 +115,9 @@ def main():
         except Exception as error:
             process.kill(); output, _ = process.communicate(timeout=15)
             (OUT / f'{klass}-{name or "suite"}.txt').write_text(output + '\n' + str(error))
-            evidence['tests'].append({'name': f'{klass}.{name or "suite"}', 'passed': False, 'error': str(error)})
+            evidence['tests'].append({'name': f'{klass}.{name or "suite"}', 'passed': False, 'test_cases': 0, 'error': str(error)})
             print(f'FAIL {klass}.{name}: {error}\n{output[-10000:]}', flush=True)
+            annotation('error', f'Emulator {klass}.{name or "suite"}', str(error) + '\n' + output[-2500:])
         finally:
             # Only known virtual fixture calls are cleared, and only after the emulator guard above.
             for number in ('5551234', '15555215554'):
@@ -126,9 +138,11 @@ def main():
     # Dedicated emulator contains only fixture data, but keep the diagnostic narrowly scoped to app crashes.
     crash = adb('logcat', '-b', 'crash', '-d', '-t', '300', check=False)
     (OUT / 'crash-buffer.txt').write_text(crash)
-    evidence['passed'] = all(item['passed'] for item in evidence['tests']) and len(evidence['tests']) == 10
+    evidence['passed'] = (all(item['passed'] for item in evidence['tests']) and len(evidence['tests']) == 10
+                          and sum(item['test_cases'] for item in evidence['tests']) == 12)
     (OUT / 'evidence.json').write_text(json.dumps(evidence, indent=2))
     print(json.dumps(evidence, indent=2))
+    annotation('notice', 'Mobile emulator evidence', json.dumps(evidence, separators=(',', ':')))
     return 0 if evidence['passed'] else 1
 
 

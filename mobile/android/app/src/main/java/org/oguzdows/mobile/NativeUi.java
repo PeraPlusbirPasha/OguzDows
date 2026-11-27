@@ -35,7 +35,10 @@ final class NativeUi {
     }
     Button button(String label, Runnable action) {
         Button b = new Button(activity); b.setText(label); b.setTextColor(ink); b.setAllCaps(false); b.setMinHeight(dp(52));
-        GradientDrawable shape = new GradientDrawable(); shape.setColor(surface); shape.setCornerRadius(dp(16)); b.setBackground(shape);
+        GradientDrawable shape = new GradientDrawable(); shape.setColor(surface); shape.setCornerRadius(dp(16));
+        b.setBackground(new android.graphics.drawable.RippleDrawable(
+            android.content.res.ColorStateList.valueOf(dark(activity) ? 0x30FFFFFF : 0x22256052), shape, null));
+        b.setStateListAnimator(null); b.setClipToOutline(true);
         LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(-1, -2); lp.setMargins(0, dp(5), 0, dp(5)); b.setLayoutParams(lp);
         b.setOnClickListener(v -> action.run()); return b;
     }

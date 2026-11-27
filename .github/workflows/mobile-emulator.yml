@@ -50,6 +50,7 @@ jobs:
         run: |
           npm ci
           npm test
+          npm run test:native
           npm run build
           npm run format:check
           npm audit --audit-level=moderate
@@ -60,6 +61,7 @@ jobs:
           python3 ../scripts/ci-command.py -- ./gradlew --no-daemon --max-workers=2 :fixture:assembleDebug
           python3 ../scripts/generate-test-fixtures.py
           python3 ../scripts/ci-command.py -- ./gradlew --no-daemon --max-workers=2 :app:assembleDebug :app:assembleDebugAndroidTest :app:testDebugUnitTest :app:lintDebug
+          python3 ../scripts/report-build.py
       - name: Emülatör hızlandırma ön koşulu
         run: |
           test -c /dev/kvm

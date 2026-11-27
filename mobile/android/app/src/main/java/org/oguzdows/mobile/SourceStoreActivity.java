@@ -129,7 +129,9 @@ public final class SourceStoreActivity extends Activity {
                     + "\nSHA-256: " + row.getString("hash") : "\nBu cihaz/sınırlar için uygun tek APK seçilemedi.")
                 + "\nYüklü sürüm kodu: " + (installed < 0 ? "görünür değil / yüklü değil" : installed)
                 + "\n\nKaynak: F-Droid. Play sürümleri farklı imzalanabilir; sistem imza uyuşmazlığını reddeder. İmza/hash, zararsızlık veya GMS uyumluluğu garantisi değildir. Sessiz kurulum yok.";
-            AlertDialog.Builder dialog = new AlertDialog.Builder(this).setTitle(row.getString("name")).setMessage(description).setNegativeButton("Geri", null);
+            AlertDialog.Builder dialog = new AlertDialog.Builder(this).setTitle(row.getString("name"))
+                .setIcon(AppIcons.get(this, row.getString("package"), row.getString("name")))
+                .setMessage(description).setNegativeButton("Geri", null);
             if (installable && !busy && (installed < 0 || row.getLong("code") >= installed)) dialog.setPositiveButton("APK indir ve incele", (d, w) -> download(row));
             dialog.show();
         } catch (Exception error) { fail("Paket ayrıntısı okunamadı."); }
@@ -165,17 +167,24 @@ public final class SourceStoreActivity extends Activity {
         public Object getItem(int p) { return items.get(p); }
         public long getItemId(int p) { return p; }
         public View getView(int p, View recycled, ViewGroup parent) {
-            JSONObject app = items.get(p); LinearLayout row = new LinearLayout(SourceStoreActivity.this); row.setGravity(Gravity.CENTER_VERTICAL);
-            row.setPadding(0, ui.dp(8), 0, ui.dp(8));
-            ImageView icon = new ImageView(SourceStoreActivity.this);
-            try { icon.setImageDrawable(getPackageManager().getApplicationIcon(app.getString("package"))); }
-            catch (Exception ignored) { icon.setImageResource(R.drawable.nazar); }
-            row.addView(icon, new LinearLayout.LayoutParams(ui.dp(40), ui.dp(40)));
+            LinearLayout row = (LinearLayout) recycled;
+            if (row == null) {
+                row = new LinearLayout(SourceStoreActivity.this); row.setGravity(Gravity.CENTER_VERTICAL);
+                row.setPadding(0, ui.dp(8), 0, ui.dp(8));
+                ImageView icon = new ImageView(SourceStoreActivity.this);
+                icon.setImportantForAccessibility(View.IMPORTANT_FOR_ACCESSIBILITY_NO);
+                row.addView(icon, new LinearLayout.LayoutParams(ui.dp(44), ui.dp(44)));
+                TextView label = ui.text("", 13, false); label.setPadding(ui.dp(12), 0, 0, 0);
+                row.addView(label, new LinearLayout.LayoutParams(0, -2, 1));
+            }
+            JSONObject app = items.get(p);
+            ((ImageView) row.getChildAt(0)).setImageDrawable(AppIcons.get(SourceStoreActivity.this,
+                app.optString("package"), app.optString("name")));
             long installed = app.optLong("installedCode", -1);
             String state = installed < 0 ? "" : !app.isNull("code") && app.optLong("code") > installed ? " · Güncelleme var" : " · Yüklü";
-            TextView label = ui.text(app.optString("name") + state + "\n" + app.optString("summary")
-                + "\n" + (app.isNull("version") ? "Uygun sürüm seçilemedi" : app.optString("version") + " · F-Droid"), 13, false);
-            label.setPadding(ui.dp(12), 0, 0, 0); row.addView(label, new LinearLayout.LayoutParams(0, -2, 1)); return row;
+            ((TextView) row.getChildAt(1)).setText(app.optString("name") + state + "\n" + app.optString("summary")
+                + "\n" + (app.isNull("version") ? "Uygun sürüm seçilemedi" : app.optString("version") + " · F-Droid"));
+            return row;
         }
     }
     private void fail(String message) {

@@ -2,6 +2,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import fs from "node:fs";
 import crypto from "node:crypto";
+import { smsState } from "../src/native-state.mjs";
 import {
   initialState,
   restoreState,
@@ -197,5 +198,20 @@ test("Rifki daily actions only propose fixed UI navigation, never calls or sends
     const reply = localReply(input);
     assert.equal(reply.action, action);
     assert.ok(reply.label);
+  }
+});
+
+test("native SMS rendering never confuses queued, sent and carrier delivery receipts", () => {
+  assert.equal(smsState(1, -1), "Alındı");
+  assert.match(smsState(3, -1), /gönderilmedi/);
+  assert.match(smsState(4, 32), /henüz doğrulanmadı/);
+  assert.match(smsState(6, 32), /henüz doğrulanmadı/);
+  assert.match(smsState(5, 64), /kısmi başarısızlık/);
+  assert.match(smsState(2, -1), /teslim doğrulanmadı/);
+  assert.match(smsState(2, 32), /teslim doğrulanmadı/);
+  assert.match(smsState(2, 0), /teslim raporu alındı/);
+  assert.match(smsState(2, 64), /teslim başarısız/);
+  for (const type of [0, -1, 999, undefined, "2"]) {
+    assert.equal(smsState(type, 0), "Bilinmeyen sistem durumu");
   }
 });
