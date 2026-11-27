@@ -376,8 +376,8 @@ public final class HomeActivity extends Activity {
     }
     @Override protected void onStart() {
         super.onStart();
-        if (Build.VERSION.SDK_INT >= 33) registerReceiver(stateReceiver, new IntentFilter(PlatformState.CHANGED), Context.RECEIVER_NOT_EXPORTED);
-        else registerReceiver(stateReceiver, new IntentFilter(PlatformState.CHANGED));
+        androidx.core.content.ContextCompat.registerReceiver(this, stateReceiver,
+            new IntentFilter(PlatformState.CHANGED), androidx.core.content.ContextCompat.RECEIVER_NOT_EXPORTED);
         receiverRegistered = true; observeSms();
     }
     @Override protected void onResume() { super.onResume(); signal(); }
