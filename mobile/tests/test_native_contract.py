@@ -37,6 +37,7 @@ class NativeSourceContracts(unittest.TestCase):
         launcher = self.manifest.find("application/activity[@" + NS + "name='.LauncherActivity']")
         launcher_categories = {node.attrib[NS + 'name'] for node in launcher.iter('category')}
         self.assertTrue({'android.intent.category.HOME', 'android.intent.category.LAUNCHER'} <= launcher_categories)
+        self.assertEqual(launcher.attrib[NS + 'taskAffinity'], 'org.oguzdows.mobile.home')
         self.assertNotIn('android.intent.category.HOME', categories)
         self.assertNotIn('android.intent.category.LAUNCHER', categories)
         services = {node.attrib[NS + 'name']: node for node in self.manifest.findall('application/service')}
@@ -183,6 +184,8 @@ class NativeSourceContracts(unittest.TestCase):
         self.assertIn('intent == null || !frontendReady', self.home)
         self.assertIn('intentDelivered = true', self.home)
         self.assertIn('draftIntentDelivered', self.home)
+        self.assertIn('/index.html?nativeTheme=', self.home)
+        self.assertIn('withNativeTheme', app)
         self.assertNotIn('intent.setAction(Intent.ACTION_MAIN)', self.home)
 
     def test_build_wrapper_is_pinned_and_emulator_tests_refuse_physical_traffic(self):

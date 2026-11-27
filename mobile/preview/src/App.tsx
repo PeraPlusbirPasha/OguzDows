@@ -55,14 +55,24 @@ const toolShortcuts: Partial<Record<Screen, string>> = {
   calculator: "calculator",
 };
 function readSaved() {
+  // APK-owned appassets URL only; web callers cannot opt into the native bridge.
+  const nativeTheme = inNativeApp
+    ? new URLSearchParams(location.search).get("nativeTheme")
+    : null;
+  const withNativeTheme = (prefs: Preferences): Preferences =>
+    nativeTheme === "dark" || nativeTheme === "light"
+      ? { ...prefs, theme: nativeTheme }
+      : prefs;
   try {
     return {
-      prefs: restoreState(localStorage.getItem(STORAGE_KEY)) as Preferences,
+      prefs: withNativeTheme(
+        restoreState(localStorage.getItem(STORAGE_KEY)) as Preferences,
+      ),
       error: "",
     };
   } catch (err) {
     return {
-      prefs: initialState() as Preferences,
+      prefs: withNativeTheme(initialState() as Preferences),
       error: (err as Error).message,
     };
   }

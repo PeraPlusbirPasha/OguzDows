@@ -19,6 +19,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
+import kotlinx.coroutines.withContext
 import java.time.LocalDateTime
 
 /** UI observes actual system snapshots. No polling while the launcher is stopped. */
@@ -74,9 +75,12 @@ class LauncherViewModel(application: Application) : AndroidViewModel(application
     private fun persistPins(next: List<String>) {
         if (!store.writable) return
         state.value = state.value.copy(pins = next)
-        viewModelScope.launch(Dispatchers.IO) {
+        // Acquire in main-dispatch order, then write off-main; rapid pin/move operations
+        // cannot race IO dispatcher scheduling and put an older layout back on disk.
+        viewModelScope.launch {
             writes.withLock {
-                if (!store.savePins(next)) handler.post { state.value = state.value.copy(warning = "Düzen kalıcı kaydedilemedi; bu oturumda açık.") }
+                if (!withContext(Dispatchers.IO) { store.savePins(next) })
+                    state.value = state.value.copy(warning = "Düzen kalıcı kaydedilemedi; bu oturumda açık.")
             }
         }
     }
@@ -88,7 +92,7 @@ class LauncherViewModel(application: Application) : AndroidViewModel(application
     }
     fun unpin(key: String) = persistPins(state.value.pins.filterNot { it == key })
     fun move(key: String, delta: Int) = persistPins(LauncherRules.move(state.value.pins, key, delta))
-    fun resetPins() { viewModelScope.launch(Dispatchers.IO) { writes.withLock { store.reset(); handler.post { state.value = state.value.copy(pins = LauncherRules.defaultPins, warning = null) } } } }
+    fun resetPins() { viewModelScope.launch { writes.withLock { withContext(Dispatchers.IO) { store.reset() }; state.value = state.value.copy(pins = LauncherRules.defaultPins, warning = null) } } }
     fun dark(value: Boolean) {
         context.getSharedPreferences("native-ui", Context.MODE_PRIVATE).edit().putBoolean("dark", value).apply()
         state.value = state.value.copy(dark = value); PlatformState.changed(context)

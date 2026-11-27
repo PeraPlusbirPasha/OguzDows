@@ -179,7 +179,7 @@ fun NativeLauncherScreen(
             }
         }
         if (panel != null) ModalBottomSheet(onDismissRequest={panel=null}, containerColor=MaterialTheme.colorScheme.surface,
-            modifier=Modifier.imePadding(), dragHandle={BottomSheetDefaults.DragHandle()}) {
+            modifier=Modifier.imePadding().semantics { testTagsAsResourceId = true }, dragHandle={BottomSheetDefaults.DragHandle()}) {
             when {
                 panel=="apps" -> LauncherDrawer(state, model, ::onOpen, {panel="edit:$it"}, report)
                 panel=="controls" -> LauncherControls(state, model, role, system, brightness, {panel=null;route("settings")}, report)

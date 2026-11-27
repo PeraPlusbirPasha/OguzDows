@@ -149,7 +149,9 @@ public final class HomeActivity extends Activity {
                     receive(message, proxy);
                 });
         }
-        webView.loadUrl(ORIGIN + "/index.html");
+        // Bootstrap the shared native theme before React's first device.theme effect. This also
+        // covers external DIAL/SENDTO launches, not just a launcher-provided screen intent.
+        webView.loadUrl(ORIGIN + "/index.html?nativeTheme=" + (NativeUi.dark(this) ? "dark" : "light"));
         if (Build.VERSION.SDK_INT >= 33) getOnBackInvokedDispatcher().registerOnBackInvokedCallback(
             android.window.OnBackInvokedDispatcher.PRIORITY_DEFAULT, this::back);
     }

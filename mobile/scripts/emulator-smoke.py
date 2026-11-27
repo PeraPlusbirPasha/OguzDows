@@ -54,7 +54,7 @@ def main():
     adb('uninstall', 'org.oguzdows.fixture', check=False)
     adb('install', '-r', '-t', str(ROOT / 'mobile/android/app/build/outputs/apk/debug/app-debug.apk'))
     adb('install', '-r', '-t', str(ROOT / 'mobile/android/app/build/outputs/apk/androidTest/debug/app-debug-androidTest.apk'))
-    for role in ('HOME', 'DIALER', 'SMS'):
+    for role in ('DIALER', 'SMS'):
         adb('shell', 'cmd', 'role', 'add-role-holder', '--user', '0', f'android.app.role.{role}', PACKAGE)
         holders = adb('shell', 'cmd', 'role', 'get-role-holders', '--user', '0', f'android.app.role.{role}')
         if PACKAGE not in holders:
@@ -109,6 +109,13 @@ def main():
                 failures = [line for line in concise if 'AssertionError' in line or 'Exception:' in line]
                 if failures: record['failure'] = failures[0][-400:]
                 annotation('error', 'Emulator ' + record['name'], '\n'.join(concise)[-3000:])
+                if 'keyDispatchingTimedOut' in output or 'Input dispatching timed out' in output:
+                    anr = adb('shell', 'dumpsys', 'activity', 'lastanr', check=False)
+                    (OUT / f'{klass}-{name or "suite"}-anr.txt').write_text(anr)
+                    # Only the disposable emulator's app main-thread diagnostic is surfaced.
+                    main_stack = re.search(r'"main"[^\n]*\n[\s\S]{0,2800}', anr)
+                    if main_stack:
+                        annotation('error', 'Emulator main-thread ANR', main_stack.group())
             if klass == 'LauncherDeviceTest' and passed:
                 # Bounded visual diagnostic from a disposable emulator, not personal device data.
                 # Chunk below the checks-message cap; full-resolution screenshots stay in the artifact.
@@ -147,6 +154,11 @@ def main():
     run_test('outgoingCallUsesTelecomAndOurInCallService')
     run_test('incomingCallCanBeAnsweredMutedAndEndedInOurUi', fixture='incoming-call')
     run_test('localApkReviewCancelAndSystemInstall')
+    # Keep the original communications/installer acceptance on its original task setup;
+    # native HOME is a separate role and task, qualified immediately before its own tests.
+    adb('shell', 'cmd', 'role', 'add-role-holder', '--user', '0', 'android.app.role.HOME', PACKAGE)
+    if PACKAGE not in adb('shell', 'cmd', 'role', 'get-role-holders', '--user', '0', 'android.app.role.HOME'):
+        raise RuntimeError('HOME: app did not qualify for the real platform role')
     run_test('', klass='LauncherDeviceTest', timeout=300)
     run_test('', klass='RepositorySecurityTest')
     run_test('', klass='LiveRepositoryTest', timeout=480)

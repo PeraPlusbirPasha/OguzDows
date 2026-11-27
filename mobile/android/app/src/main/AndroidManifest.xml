@@ -27,6 +27,7 @@
         android:allowBackup="false" android:usesCleartextTraffic="false"
         android:theme="@style/AppTheme" android:supportsRtl="true">
         <activity android:name=".LauncherActivity" android:exported="true" android:launchMode="singleTask"
+            android:taskAffinity="org.oguzdows.mobile.home"
             android:windowSoftInputMode="adjustResize">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
