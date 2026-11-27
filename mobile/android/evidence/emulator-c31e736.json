@@ -1,0 +1,132 @@
+{
+  "source_sha": "c31e7369f704a2a543cf2d964c8aa0b5f4c07be5",
+  "sdk": "35",
+  "abi": "x86_64",
+  "image_fingerprint": "google/sdk_gphone64_x86_64/emu64xa:15/AE3A.240806.043/12960925:userdebug/dev-keys",
+  "emulator_only": true,
+  "physical_sim_tested": false,
+  "emergency_calls_tested": false,
+  "gms_certification_tested": false,
+  "mms_rcs_supported": false,
+  "tests": [
+    {
+      "name": "NativeDeviceTest.bundledBridgeRolesValidationAndIsolation",
+      "passed": true,
+      "test_cases": 1,
+      "seconds": 17.59
+    },
+    {
+      "name": "NativeDeviceTest.paidActionsRequireFinalNativeConsent",
+      "passed": false,
+      "test_cases": 0,
+      "seconds": 29.46,
+      "failure": "ağlantılar ve denetim merkezi, Nazar boncuğu güç menüsü, RIFKI YANINDA Bir fikrin mi var? Beraber bi"
+    },
+    {
+      "name": "NativeDeviceTest.systemVolumeBrightnessAndNativeThemeAreReal",
+      "passed": true,
+      "test_cases": 1,
+      "seconds": 8.53
+    },
+    {
+      "name": "NativeDeviceTest.incomingSmsUsesTheRealProviderAndRichInbox",
+      "passed": true,
+      "test_cases": 1,
+      "seconds": 9.62
+    },
+    {
+      "name": "NativeDeviceTest.outgoingSmsWaitsForActualSentCallback",
+      "passed": false,
+      "test_cases": 0,
+      "seconds": 23.31,
+      "failure": "ağlantılar ve denetim merkezi, Nazar boncuğu güç menüsü, RIFKI YANINDA Bir fikrin mi var? Beraber bi"
+    },
+    {
+      "name": "NativeDeviceTest.outgoingCallUsesTelecomAndOurInCallService",
+      "passed": true,
+      "test_cases": 1,
+      "seconds": 12.45
+    },
+    {
+      "name": "NativeDeviceTest.incomingCallCanBeAnsweredMutedAndEndedInOurUi",
+      "passed": true,
+      "test_cases": 1,
+      "seconds": 7.81
+    },
+    {
+      "name": "NativeDeviceTest.localApkReviewCancelAndSystemInstall",
+      "passed": true,
+      "test_cases": 1,
+      "seconds": 15.64
+    },
+    {
+      "name": "LauncherDeviceTest.suite",
+      "passed": true,
+      "test_cases": 5,
+      "seconds": 67.46
+    },
+    {
+      "name": "ConnectedDeviceTest.suite",
+      "passed": false,
+      "test_cases": 0,
+      "seconds": 65.79,
+      "failure": "INSTRUMENTATION_STATUS: stack=java.lang.AssertionError: Missing native UI: Timed out: tracked real H"
+    },
+    {
+      "name": "BridgeDeviceTest.nativeTls",
+      "passed": true,
+      "test_cases": 1,
+      "seconds": 1.73
+    },
+    {
+      "name": "BridgeDeviceTest.pcArmInterop",
+      "passed": false,
+      "test_cases": 0,
+      "error": "Native instrumentation exited before native client TLS pair"
+    },
+    {
+      "name": "BridgeDeviceTest.systemProjection",
+      "passed": true,
+      "test_cases": 1,
+      "seconds": 16.75
+    },
+    {
+      "name": "RepositorySecurityTest.suite",
+      "passed": true,
+      "test_cases": 3,
+      "seconds": 0.53
+    },
+    {
+      "name": "LiveRepositoryTest.suite",
+      "passed": false,
+      "test_cases": 0,
+      "seconds": 0.42,
+      "failure": "INSTRUMENTATION_STATUS: stack=java.net.UnknownHostException: Unable to resolve host \"ftp.fau.de\": No"
+    }
+  ],
+  "display": {
+    "pixels": "720x1600",
+    "density": 280,
+    "gpu": "headless SwiftShader"
+  },
+  "screen_capture": {
+    "stop_tested": true,
+    "media_projection_consent": true,
+    "cancel_tested": true,
+    "foreground_service": true,
+    "frame_bytes": 12626,
+    "sha256": "0c90049f82c8af48e5f24e5f451ad82fa6f0d81e9dce15565b0a920b1015d4a4",
+    "fixture_only": true,
+    "remote_input": false
+  },
+  "product_anr_detected": false,
+  "product_crash_detected": false,
+  "passed": false,
+  "acceptance_failure": "Acceptance refused: failed / empty / skipped / wrong native case count: NativeDeviceTest.paidActionsRequireFinalNativeConsent",
+  "github": {
+    "run_url": "https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/46083306261",
+    "job_id": 140787043194,
+    "job_url": "https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/46083306261/job/140787043194",
+    "scope": "10/15 selections passed. Individual cases: Native 6/8, Launcher 5/5, Connected 3/4 (failed suite count remains 0), Bridge 2/3, RepositorySecurity 3/3, LiveRepository 0/1. Actual projection passed; two matching four-file interop receipts are absent. No product ANR/crash observed and no watchdog sample; historical intermittent ANR root cause remains unproved. No full acceptance/package. Failures: OS default SMS subscription was -1 (paid-action cancellation and outbound SMS blocked); ActivityScenario remained STOPPED while lifecycle monitor showed a resumed LauncherActivity; emulator-to-host 10.0.2.2 connection failed; live F-Droid fallback DNS failed. No physical success inferred."
+  }
+}

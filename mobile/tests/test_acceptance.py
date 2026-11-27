@@ -103,6 +103,25 @@ class AcceptanceRulesTests(unittest.TestCase):
         workflow = (ROOT / '.github/workflows/mobile-emulator.yml').read_text()
         self.assertLess(workflow.index('python3 mobile/scripts/acceptance.py'), workflow.index('mkdir -p test-results/mobile/package'))
 
+    def test_disposable_preflight_does_not_invent_a_sms_line_or_default_network(self):
+        from emulator_preflight import snapshot
+        network = 'Networks:\nActive default network: 100\nOther network details'
+        observed = snapshot('LOADED\n', '1\n', network)
+        self.assertTrue(observed['ready'])
+        self.assertEqual(observed['default_sms_subscription_setting'], 1)
+        self.assertEqual(observed['active_default_network'], 100)
+        for sim, sms, route in (('NOT_READY', '1', network), ('LOADED', '-1', network),
+                                ('LOADED', 'null', network), ('LOADED', '2147483648', network),
+                                ('LOADED', '1', 'Active default network: none'),
+                                ('LOADED', '1', 'NetworkRequest capabilities INTERNET')):
+            with self.subTest(sim=sim, sms=sms, network=route):
+                self.assertFalse(snapshot(sim, sms, route)['ready'])
+        harness = (SCRIPTS / 'emulator-smoke.py').read_text()
+        self.assertLess(harness.index("'ro.kernel.qemu'"), harness.index("'svc', 'wifi', 'enable'"))
+        self.assertIn("'settings', 'get', 'global', 'multi_sim_sms'", harness)
+        self.assertNotIn("'settings', 'put', 'global', 'multi_sim_sms'", harness)
+        self.assertNotIn('setDefaultSmsSub', harness)
+
     def test_anr_attribution_never_uses_the_first_stock_or_a_different_process_trace(self):
         from android_diagnostics import anr_threads
         package = 'org.oguzdows.mobile'

@@ -23,6 +23,12 @@ class ConnectedSourceContracts(unittest.TestCase):
         screen = (SRC/'NativeLauncherScreen.kt').read_text()
         for value in ('layout.columns', 'layout.rail', 'ConnectedTheme(', 'FullAeroPanel(', 'gestureThreshold', 'PointerEventPass.Final', 'change.position != change.previousPosition', 'enabled = workspaceScroll.maxValue > 0'):
             self.assertIn(value, screen)
+        device = (ROOT/'mobile/android/app/src/androidTest/java/org/oguzdows/mobile/ConnectedDeviceTest.kt').read_text()
+        for value in ('withResumedHome', 'home.isTaskRoot', 'Intent.CATEGORY_HOME', 'Stage.DESTROYED',
+                      'Stage.RESUMED', 'activity !== old', 'activity.taskId == previousTask.get()',
+                      'it.recreate()', 'monitor.removeLifecycleCallback(callback)', 'com.android.settings',
+                      'panel.height() > root.height() * .7f', 'drawer.height() > area.height() * .7f'):
+            self.assertIn(value, device)
 
     def test_contacts_use_system_provider_and_do_not_expose_a_web_write_action(self):
         system = (SRC/'SystemContacts.kt').read_text()

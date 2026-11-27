@@ -12,7 +12,7 @@ Dört düzey ayrıdır: **tarayıcı**, **SDK/Java/lint**, **sanal radyo/sağlay
 | ---------------------- | ----------------------------- | --------------------------------------------------------------------------- |
 | `npm run build`        | Başarılı                      | TypeScript + Vite 6.4.6, 1594 modül                                         |
 | `npm test`             | **31 geçti, 0 atlama**        | 13 temel mantık/kanıt + 8 günlük deneyim/varlık/durum + 10 API testi                    |
-| `npm run test:native`  | **30 geçti, 0 atlama**         | 20 kaynak sözleşmesi + 10 sentetik kabul/orkestrasyon/tanı; SDK veya cihaz testi değil                |
+| `npm run test:native`  | **31 geçti, 0 atlama**         | 20 kaynak sözleşmesi + 11 sentetik kabul/orkestrasyon/tanı/ön koşul; SDK veya cihaz testi değil                |
 | `npm run test:browser` | **31 senaryo geçti**          | 15 mevcut + 16 günlük deneyim; iki kapsayıcıyla Node raporu 33/33           |
 | `npm run format:check` | Başarılı                      | TSX/MJS/CSS/config/test kaynakları                                          |
 | `npm audit`            | **0 raporlanan açık**         | Bu lockfile ve sorgu anı; genel güvenlik sertifikası değil                  |

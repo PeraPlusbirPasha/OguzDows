@@ -14,6 +14,7 @@ import xml.etree.ElementTree as ET
 import bridge_fixture
 from acceptance import SELECTIONS, validate_emulator
 from android_diagnostics import anr_threads, main_stall
+from emulator_preflight import snapshot as preflight_snapshot
 
 ROOT = Path(__file__).resolve().parents[2]
 OUT = ROOT / 'test-results/mobile/emulator'
@@ -145,12 +146,27 @@ def main():
         adb('shell', 'pm', 'grant', PACKAGE, 'android.permission.' + permission)
     # This is equivalent to approving this source in a throwaway emulator, not a production bypass.
     adb('shell', 'appops', 'set', PACKAGE, 'REQUEST_INSTALL_PACKAGES', 'allow')
-    # Boot-completed does not imply that the disposable modem/SIM has finished loading.
-    # Wait for the actual virtual SIM, never manufacture a subscription or choose a real line.
+    # This guarded AVD fixture needs virtual Wi-Fi for real F-Droid and the runner
+    # peer. Do not treat a LOADED SIM property as an assigned SMS line/default route.
+    # No SMS/data subscription is selected or manufactured; the app must still use
+    # the OS-selected default and every paid action still needs final native consent.
+    adb('shell', 'svc', 'wifi', 'enable')
     sim_deadline = time.monotonic() + 90
-    while not {'LOADED', 'READY'}.intersection(adb('shell', 'getprop', 'gsm.sim.state').strip().upper().split(',')):
+    while True:
+        connectivity = adb('shell', 'dumpsys', 'connectivity')
+        preflight = preflight_snapshot(adb('shell', 'getprop', 'gsm.sim.state'),
+                                       adb('shell', 'settings', 'get', 'global', 'multi_sim_sms'), connectivity)
+        if preflight['ready']:
+            evidence['preflight'] = preflight
+            annotation('notice', 'Mobile emulator preflight', json.dumps(preflight, separators=(',', ':')))
+            break
         if time.monotonic() >= sim_deadline:
-            raise RuntimeError('The disposable emulator virtual SIM did not become ready')
+            evidence.update(passed=False, preflight=preflight, setup_failure='QEMU SIM / OS-selected SMS subscription / default network not ready; no device acceptance inferred.')
+            (OUT / 'preflight-connectivity.txt').write_text(connectivity)
+            (OUT / 'evidence.json').write_text(json.dumps(evidence, indent=2))
+            annotation('error', 'Mobile emulator preflight', json.dumps(preflight, separators=(',', ':')))
+            evidence_notice(evidence)
+            return 1
         time.sleep(0.5)
     # ActivityScenario owns the first visible launch. Do not cold-launch a WebView only
     # to have am instrument immediately tear that process down during focus delivery.

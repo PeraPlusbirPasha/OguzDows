@@ -12,6 +12,9 @@ import android.provider.ContactsContract
 import androidx.test.core.app.ActivityScenario
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
+import androidx.test.runner.lifecycle.ActivityLifecycleCallback
+import androidx.test.runner.lifecycle.ActivityLifecycleMonitorRegistry
+import androidx.test.runner.lifecycle.Stage
 import androidx.test.uiautomator.By
 import androidx.test.uiautomator.Direction
 import androidx.test.uiautomator.UiDevice
@@ -26,6 +29,7 @@ import org.junit.runners.MethodSorters
 import java.io.File
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
+import java.util.concurrent.atomic.AtomicBoolean
 import java.util.concurrent.atomic.AtomicReference
 import java.util.regex.Pattern
 
@@ -70,46 +74,88 @@ class ConnectedDeviceTest {
         }
         latch.await(2, TimeUnit.SECONDS); return out.get()
     }
+    /** Drive the HOME task selected by the OS, not startActivitySync's standard test task.
+     * A real Home key can select another instance; using the initial ActivityScenario after
+     * that tests a STOPPED instance even though the actual launcher is correctly RESUMED.
+     */
+    private fun withResumedHome(action: (LauncherActivity) -> Unit): Boolean {
+        var found = false
+        instrumentation.runOnMainSync {
+            val home = ActivityLifecycleMonitorRegistry.getInstance().getActivitiesInStage(Stage.RESUMED)
+                .filterIsInstance<LauncherActivity>().singleOrNull()
+            if (home != null) {
+                assertTrue("system HOME is the task root", home.isTaskRoot)
+                assertEquals(Intent.ACTION_MAIN, home.intent.action)
+                assertTrue("system HOME intent", home.intent.hasCategory(Intent.CATEGORY_HOME))
+                found = true; action(home)
+            }
+        }
+        return found
+    }
+    private fun recreateActualHome() {
+        val monitor = ActivityLifecycleMonitorRegistry.getInstance()
+        val previous = AtomicReference<LauncherActivity?>(null)
+        val previousTask = java.util.concurrent.atomic.AtomicInteger(-1)
+        val destroyed = AtomicBoolean(false); val replacementResumed = AtomicBoolean(false)
+        val callback = ActivityLifecycleCallback { activity, stage ->
+            val old = previous.get()
+            if (old != null) {
+                if (activity === old && stage == Stage.DESTROYED) destroyed.set(true)
+                if (activity is LauncherActivity && activity !== old && stage == Stage.RESUMED && activity.taskId == previousTask.get())
+                    replacementResumed.set(true)
+            }
+        }
+        instrumentation.runOnMainSync { monitor.addLifecycleCallback(callback) }
+        try {
+            assertTrue("recreate the currently resumed system HOME", withResumedHome {
+                previous.set(it); previousTask.set(it.taskId); it.recreate()
+            })
+            waitFor("old HOME destroyed and a distinct replacement resumed in the same task") {
+                destroyed.get() && replacementResumed.get()
+            }
+            assertTrue("replacement is still the real HOME", withResumedHome { assertTrue(it !== previous.get()) })
+        } finally {
+            instrumentation.runOnMainSync { monitor.removeLifecycleCallback(callback) }
+            previous.set(null)
+        }
+    }
     @Test fun test01FullscreenGesturesLayoutsPersistenceAndRealSettings() {
         val store = LauncherStore(context)
         val oldLayout = store.layout(); val oldWallpaper = store.wallpaper(); val oldFull = store.fullscreen()
         try {
             store.fullscreen(true); store.layout("oguzdows")
-            // Own the actual HOME task from the start. A plain explicit app launch
-            // can remain STOPPED while the system creates its distinct HOME task.
-            ActivityScenario.launch<LauncherActivity>(Intent(context, LauncherActivity::class.java)
-                .setAction(Intent.ACTION_MAIN).addCategory(Intent.CATEGORY_HOME).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)).use { scenario ->
-                val root = node("launcher-root").visibleBounds
-                node("launcher-controls") // The first-use system education may initially cover the header.
-                // Whole-workspace vertical movement, not the old 54 dp header-only hit area.
-                device.swipe(root.centerX(), (root.height() * .35f).toInt(), root.centerX(), (root.height() * .68f).toInt(), 24)
-                val panel = node("launcher-control-panel").visibleBounds
-                assertTrue("full-screen panel, not a 650dp phone bottom sheet", panel.height() > root.height() * .7f)
-                for (id in listOf("mac", "windows11", "gnome", "xfce", "kde", "oguzdows")) {
-                    scrollTo("layout-$id").click()
-                    waitFor("persisted $id") { LauncherStore(context).layout() == id }
-                }
-                scrollTo("layout-mac").click()
-                device.pressHome(); node("launcher-root")
-                assertTrue(node("launcher-layout-label").text.contains("macOS"))
-                waitFor("tracked real HOME remains resumed before recreation") { scenario.state == androidx.lifecycle.Lifecycle.State.RESUMED }
-                scenario.recreate(); node("launcher-root")
-                assertEquals("mac", LauncherStore(context).layout())
-                screenshot("connected-mac-layout")
-                scenario.onActivity { activity ->
-                    activity.model.wallpaper(1)
-                    assertEquals(ShellStyles.accent(1, NativeUi.dark(context)), NativeUi(activity).brand)
-                }
-                node("launcher-controls").click()
-                scrollTo("launcher-system-settings").click()
-                assertTrue("opens the phone's real Settings activity", device.wait(Until.hasObject(By.pkg("com.android.settings")), 15000))
-                device.pressBack(); node("launcher-root")
-                val area = node("launcher-root").visibleBounds
-                device.swipe(area.centerX(), (area.height() * .62f).toInt(), area.centerX(), (area.height() * .37f).toInt(), 24)
-                val drawer = node("launcher-drawer").visibleBounds
-                assertTrue("upward drawer occupies the display", drawer.height() > area.height() * .7f)
-                device.pressHome(); node("launcher-root")
+            device.pressHome(); node("launcher-root")
+            waitFor("actual system HOME resumed") { withResumedHome { } }
+            val root = node("launcher-root").visibleBounds
+            node("launcher-controls") // The first-use system education may initially cover the header.
+            // Whole-workspace vertical movement, not the old 54 dp header-only hit area.
+            device.swipe(root.centerX(), (root.height() * .35f).toInt(), root.centerX(), (root.height() * .68f).toInt(), 24)
+            val panel = node("launcher-control-panel").visibleBounds
+            assertTrue("full-screen panel, not a 650dp phone bottom sheet", panel.height() > root.height() * .7f)
+            for (id in listOf("mac", "windows11", "gnome", "xfce", "kde", "oguzdows")) {
+                scrollTo("layout-$id").click()
+                waitFor("persisted $id") { LauncherStore(context).layout() == id }
             }
+            scrollTo("layout-mac").click()
+            device.pressHome(); node("launcher-root")
+            assertTrue(node("launcher-layout-label").text.contains("macOS"))
+            recreateActualHome(); node("launcher-root")
+            assertEquals("mac", LauncherStore(context).layout())
+            assertTrue(node("launcher-layout-label").text.contains("macOS"))
+            screenshot("connected-mac-layout")
+            assertTrue(withResumedHome { activity ->
+                activity.model.wallpaper(1)
+                assertEquals(ShellStyles.accent(1, NativeUi.dark(context)), NativeUi(activity).brand)
+            })
+            node("launcher-controls").click()
+            scrollTo("launcher-system-settings").click()
+            assertTrue("opens the phone's real Settings activity", device.wait(Until.hasObject(By.pkg("com.android.settings")), 15000))
+            device.pressBack(); node("launcher-root")
+            val area = node("launcher-root").visibleBounds
+            device.swipe(area.centerX(), (area.height() * .62f).toInt(), area.centerX(), (area.height() * .37f).toInt(), 24)
+            val drawer = node("launcher-drawer").visibleBounds
+            assertTrue("upward drawer occupies the display", drawer.height() > area.height() * .7f)
+            device.pressHome(); node("launcher-root")
         } finally { store.layout(oldLayout); store.wallpaper(oldWallpaper); store.fullscreen(oldFull) }
     }
     @Test fun test02DeniedContactsHaveNoProviderAccessOrInventedRows() {

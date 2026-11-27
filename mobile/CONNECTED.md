@@ -172,6 +172,24 @@ başarı kanıtı yerine geçmez. Davet/sır dosyaları raporlara alınmaz.
   Aynı commit'in masaüstü, Pi, ISO ve taşınabilir araç kaynak CI'ları geçti;
   bu mobil ANR'ı veya yeni imaj dağıtımını kabul etmez. Yerel 727 Python vakası
   (718 başarılı / 9 ortam bağımlı atlama) ve 33 Chromium testi de tekrar geçti.
+- [`c31e736` / 46083306261](https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/46083306261):
+  **20 JVM geçti; 10/15 cihaz seçimi geçti, tam kabul başarısız.** Gerçek APK
+  inceleme/iptal/yükleme, 5 launcher, 3 rehber/kilit ve gerçek MediaProjection
+  (12.626 bayt JPEG) bu koşuda geçti. Ürün ANR/çökmesi veya gözlemci örneği yoktu;
+  önceki aralıklı ANR çözülmüş sayılmaz. [SDK](android/evidence/sdk-c31e736.json)
+  · [başarısız cihaz kaydı](android/evidence/emulator-c31e736.json).
+  İki SMS vakası sistemin varsayılan aboneliği `-1` olduğu için doğru biçimde
+  engellendi; Python sunucusuna `10.0.2.2` bağlantısı ve canlı deponun DNS'i de
+  başarısızdı. Bunların yerine sahte hat/ağ/indirme başarısı yazılmaz. Yeni QEMU
+  ön koşulu yalnız sanal Wi-Fi'yi açar; gerçek SIM durumu, OS'nin seçtiği SMS ayarı
+  ve varsayılan ağ görülmeden vakalara başlamaz, hat seçmez veya üretim izinlerini
+  değiştirmez. Bu hazırlık da henüz cihazda doğrulanmamıştır.
+  HOME tanısı aynı anda **RESUMED LauncherActivity** gösterirken ActivityScenario
+  kendi örneğini durmuş izliyordu. Yeni vaka gerçek HOME tuşuyla OS'nin seçtiği
+  örneği izler; task-root/HOME intent'ini ve `recreate()` sonrası eski örneğin
+  `DESTROYED`, aynı görevde **farklı** örneğin `RESUMED` olduğunu zorunlu tutar.
+  Altı düzen, kalıcılık, gerçek Ayarlar ve tam ekran iki hareket gereksinimi
+  korunur; hiçbir vaka kaldırılmaz. Yeni tam koşu geçmeden 0.4 paketi yoktur.
 - [`18034bb` masaüstü / 46076502634](https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/46076502634):
   Debian bookworm/trixie üzerinde **1024×768 ve 360×800: dört gerçek GTK köprü
   koşusu geçti**. Gerçek düğme/dosya/loopback TLS/GDK kareleri sınandı. Üretimin
@@ -187,7 +205,7 @@ başarı kanıtı yerine geçmez. Davet/sır dosyaları raporlara alınmaz.
   Mobil kaynak/sentetik kabul testleri ayrıca **30/30**, JS **31/31**, üretim derlemesi,
   biçim denetimi ve `npm audit` (0 açık) geçti; native cihaz kanıtı değildir.
 - Yerel tekrar: Python köprü **19/19** (takılı gerçek TLS el sıkışmasında anlık durdurma dahil); masaüstü birimleri **102/102**; Pi yapılandırma
-  ve doğrulama kuralları **35/35**; mobil kaynak/kabul kuralları **30/30** (10'u açıkça
+  ve doğrulama kuralları **35/35**; güncel mobil kaynak/kabul kuralları **31/31** (11'i açıkça
   sentetik rapor/orkestrasyon/tanı testi); JS mantık/API **31/31**, Chromium **33/33** (31 akış ve 2
   kapsayıcı). Bunlar derlenmiş APK'nın 24 cihaz vakası yerine kullanılamaz.
 
