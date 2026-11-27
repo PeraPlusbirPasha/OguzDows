@@ -43,7 +43,7 @@ class ConnectedDeviceTest {
     private fun waitFor(label: String, condition: () -> Boolean) {
         val end = SystemClock.elapsedRealtime() + 25000
         do { if (condition()) return; SystemClock.sleep(200) } while (SystemClock.elapsedRealtime() < end)
-        throw AssertionError("Timed out: $label; package=${device.currentPackageName}")
+        DeviceDiagnostics.missing(device, "Timed out: $label", image = false)
     }
     private fun node(tag: String): UiObject2 = DeviceDiagnostics.find(device, By.res(tag), 20000)
         ?: DeviceDiagnostics.missing(device, tag)
@@ -138,9 +138,19 @@ class ConnectedDeviceTest {
                 allow?.click()
                 waitFor("real read permission") { PlatformState.granted(context, Manifest.permission.READ_CONTACTS) }
                 text("+ Kişi").click()
-                val write = device.findObject(By.text("Yeni kişi için yazma izni ver")); write?.click()
-                device.wait(Until.findObject(By.text(Pattern.compile("allow|[iIıİ]z[iIıİ]n ver", Pattern.CASE_INSENSITIVE or Pattern.UNICODE_CASE))), 2000)?.click()
-                waitFor("explicit write scope") { PlatformState.granted(context, Manifest.permission.WRITE_CONTACTS) }
+                if (!PlatformState.granted(context, Manifest.permission.WRITE_CONTACTS)) {
+                    // Wait for the add form to compose; an optional immediate find used to
+                    // skip the real request entirely. The OS may grant a second permission
+                    // in the same group without another dialog, but the request is mandatory.
+                    text("Yeni kişi için yazma izni ver").click()
+                    waitFor("explicit write scope") {
+                        if (PlatformState.granted(context, Manifest.permission.WRITE_CONTACTS)) true
+                        else {
+                            device.findObject(By.res(Pattern.compile("com\\.(?:android|google\\.android)\\.permissioncontroller:id/permission_allow_button")))?.click()
+                            false
+                        }
+                    }
+                }
                 node("contact-name").text = originalName; node("contact-number").text = number
                 val ime = AtomicReference(false)
                 scenario.onActivity { ime.set(androidx.core.view.ViewCompat.getRootWindowInsets(it.window.decorView)

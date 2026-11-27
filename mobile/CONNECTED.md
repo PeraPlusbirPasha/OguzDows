@@ -1,8 +1,9 @@
 # OğuzDows 0.4 · Bağlı kabuk (geliştirme dalı)
 
 **Durum:** 0.4 geliştirme dalıdır, henüz kabul edilmiş mobil paket değildir.
-İlk native derleme/20 JVM testi geçti; genişletilmiş cihaz kabulü arayüz/TLS
-hataları buldu ve paketleme durdu. Düzeltmeler yeniden emülatörde sınanıyor.
+Native derleme/20 JVM testi ve iki yönlü gerçek TLS dosya aktarımı geçti;
+genişletilmiş cihaz kabulü hareket/izin/seçici hataları buldu ve paketleme durdu.
+Düzeltmeler yeniden emülatörde sınanıyor.
 Bu belge fiziksel cihaz/ARM kabulü anlamına gelmez. Önceden kabul edilmiş
 0.3 APK bağlantısı [INSTALL.md](INSTALL.md) içindedir.
 
@@ -118,12 +119,32 @@ başarı kanıtı yerine geçmez. Davet/sır dosyaları raporlara alınmaz.
   [Kısmi başarısız kayıt](android/evidence/emulator-2da79b2-partial.json); nihai özet
   checks bildirim kotasında görünmediği için toplam cihaz başarısı çıkarılmaz.
   Yeni sürücüde zorunlu makbuzlar görsel tanı parçalarından önce yazılır.
+- [`be65149` / 46078477795](https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/46078477795):
+  **20 JVM ve 5 native launcher vakası geçti**. İki ayrı uygulamanın dört gerçek
+  dosya/hash makbuzu artık birlikte alındı; native TLS ve Python–native iki yönlü
+  aktarım seçimi geçti. Ürün ANR/çökme saptanmadı. Bağlı kabukta hareket ve yazma
+  izni testi, MediaProjection son düğme seçicisi ve ardından canlı Mağaza yüzeyi
+  başarısızdı; **tam 0.4 kabulü/paket yok**.
+  [SDK](android/evidence/sdk-be65149.json) · [başarısız emülatör özeti](android/evidence/emulator-be65149.json).
+  Düzeltme, tıklamanın DOWN tüketimini sürükleme saymaz ve sığan ana ekran
+  ızgarasına gereksiz kaydırma yakalayıcısı koymaz. Rehber testi gerçek yazma izni
+  isteğini görünür düğmeden yapar. Paylaşım testi AOSP 15'in **Start** düğmesini
+  gerçek `com.android.systemui` seçicisinde bulur; tüm ekran seçimi ve son onay
+  atlanmaz. Hata temizliğinde yalnız tanınan paylaşım seçicisi iptal edilir.
 - [`18034bb` masaüstü / 46076502634](https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/46076502634):
   Debian bookworm/trixie üzerinde **1024×768 ve 360×800: dört gerçek GTK köprü
   koşusu geçti**. Gerçek düğme/dosya/loopback TLS/GDK kareleri sınandı. Üretimin
   bilinmeyen kilit durumunu reddetmesi ayrıca doğrulandı; ardından **yalnız özel
   Xvfb test sürecinde** açık-oturum/onay koşulu test verisiyle sağlandı. Gerçek
   logind/telefon/ARM/Wi-Fi kanıtı değildir. [Özgün CI makbuzları](../docs/evidence/bridge-gtk-18034bb.json).
+- [`be65149` masaüstü / 46078477704](https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/46078477704):
+  **6/6 iş ve dört GTK köprü koşusu geçti**; takılı TLS el sıkışmasında kapatma
+  düzeltmesini de içerir. [Yeni GTK makbuzları](../docs/evidence/bridge-gtk-be65149.json).
+  Önceki 2da79b2 koşusundaki GNOME/trixie DBus zaman aşımı bu koşuda görülmedi;
+  kök nedeninin giderildiği veya fiziksel performansın kabul edildiği iddia edilmez.
+- Yerel bütün depo testi: **727 vaka, 718 başarılı / 9 ortam bağımlı atlama**.
+  Mobil kaynak/sentetik kabul testleri ayrıca **29/29**, JS **31/31**, üretim derlemesi,
+  biçim denetimi ve `npm audit` (0 açık) geçti; native cihaz kanıtı değildir.
 - Yerel tekrar: Python köprü **19/19** (takılı gerçek TLS el sıkışmasında anlık durdurma dahil); masaüstü birimleri **102/102**; Pi yapılandırma
   ve doğrulama kuralları **35/35**; mobil kaynak/kabul kuralları **29/29** (9'u açıkça
   sentetik rapor/orkestrasyon testi); JS mantık/API **31/31**, Chromium **33/33** (31 akış ve 2

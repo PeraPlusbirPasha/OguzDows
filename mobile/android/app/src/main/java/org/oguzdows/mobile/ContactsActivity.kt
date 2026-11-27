@@ -147,8 +147,10 @@ class ContactsActivity : ComponentActivity() {
         }
         }
         if(confirm) AlertDialog(onDismissRequest={confirm=false},title={Text("Yeni kişiyi kaydet?")},text={Text("${name.trim()}\n${PlatformRules.number(number)}\n\nYalnız bu yeni yerel kayıt eklenir.")},
-            confirmButton={TextButton(onClick={confirm=false;busy=true;lifecycleScope.launch {
-                try {withContext(Dispatchers.IO){SystemContacts.insert(this@ContactsActivity,name,number)};name="";number="";add=false;refresh()}
+            confirmButton={TextButton(onClick={
+                val acceptedName=name; val acceptedNumber=number
+                confirm=false;busy=true;lifecycleScope.launch {
+                try {withContext(Dispatchers.IO){SystemContacts.insert(this@ContactsActivity,acceptedName,acceptedNumber)};name="";number="";add=false;refresh()}
                 catch (_:Exception){notice="Kayıt eklenemedi; izin/sağlayıcı değişmiş olabilir. Otomatik tekrar yapılmadı."}
                 finally{busy=false}
             }}){Text("Kaydet")}},dismissButton={TextButton(onClick={confirm=false}){Text("Vazgeç")}})

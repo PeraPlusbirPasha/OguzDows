@@ -90,7 +90,9 @@ fun NativeLauncherScreen(
                     do {
                         val event = awaitPointerEvent(PointerEventPass.Final)
                         val change = event.changes.firstOrNull { it.id == down.id } ?: break
-                        if(change.isConsumed) blocked = true
+                        // A shortcut consumes the DOWN for clicks; that is not a drag.
+                        // Yield only to real movement already used by a pager/scroll/widget.
+                        if(change.isConsumed && change.position != change.previousPosition) blocked = true
                         val dy = change.position.y - down.position.y
                         val dx = change.position.x - down.position.x
                         if(!blocked && kotlin.math.abs(dy)>gestureThreshold && kotlin.math.abs(dy)>kotlin.math.abs(dx)*1.5f) {
@@ -233,7 +235,10 @@ private fun ShortcutWorkspace(page: Int, state: LauncherUiState, model: Launcher
                 }
             }
         }
-        Column(Modifier.weight(1f).fillMaxHeight().verticalScroll(rememberScrollState())) {
+        val workspaceScroll = rememberScrollState()
+        // A fitting grid must not install a drag consumer that eats whole-workspace
+        // panel gestures. Short/large-font displays can still scroll clipped shortcuts.
+        Column(Modifier.weight(1f).fillMaxHeight().verticalScroll(workspaceScroll, enabled = workspaceScroll.maxValue > 0)) {
             val pins = state.pins.drop(page*8).take(8)
             Text(layout.label+" · "+(page+1),color=Color.White.copy(.85f),fontSize=10.sp,
                 modifier=Modifier.padding(bottom=4.dp).testTag("launcher-layout-label"))

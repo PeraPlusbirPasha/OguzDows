@@ -1,0 +1,128 @@
+{
+  "source_sha": "be65149b97ef5d90ad43769d6570ba2979483626",
+  "run_url": "https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/46078477704",
+  "scope": "Real GTK / real files / pinned loopback TLS / GDK pixels on private nonroot CI Xvfb displays. The production unknown-lock gate was tested to deny capture; a test-process-only unlock/consent fixture then allowed the disposable display. Not real PC-phone-ARM hardware or logind consent acceptance.",
+  "all_six_desktop_jobs_passed": true,
+  "results": [
+    {
+      "suite": "bookworm",
+      "job_id": 140771675635,
+      "job_url": "https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/46078477704/job/140771675635",
+      "evidence": {
+        "scope": "private nonroot GTK + loopback TLS + Xvfb pixels",
+        "real_gtk_buttons": true,
+        "no_network_on_open": true,
+        "peer_code_approval": true,
+        "selected_file_sha256": true,
+        "recipient_approved_upload": true,
+        "production_unknown_lock_denied": true,
+        "capture_gate_fixture_only": true,
+        "real_gdk_capture_and_tls_frame": true,
+        "frame_size": [
+          360,
+          800
+        ],
+        "frame_sha256": "76939a4757c205803add509d205a612f0a36421690c2f4b826f3aff0b378e24b",
+        "screen": [
+          360,
+          800
+        ],
+        "window": [
+          336,
+          760
+        ],
+        "physical_pc_phone_arm_or_wifi_tested": false
+      }
+    },
+    {
+      "suite": "bookworm",
+      "job_id": 140771675635,
+      "job_url": "https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/46078477704/job/140771675635",
+      "evidence": {
+        "scope": "private nonroot GTK + loopback TLS + Xvfb pixels",
+        "real_gtk_buttons": true,
+        "no_network_on_open": true,
+        "peer_code_approval": true,
+        "selected_file_sha256": true,
+        "recipient_approved_upload": true,
+        "production_unknown_lock_denied": true,
+        "capture_gate_fixture_only": true,
+        "real_gdk_capture_and_tls_frame": true,
+        "frame_size": [
+          1024,
+          768
+        ],
+        "frame_sha256": "b7e063489dc5e69d83957bb9fd97b3cf7d11f72954e744a5b6932be8cfaa87ae",
+        "screen": [
+          1024,
+          768
+        ],
+        "window": [
+          680,
+          744
+        ],
+        "physical_pc_phone_arm_or_wifi_tested": false
+      }
+    },
+    {
+      "suite": "trixie",
+      "job_id": 140771675797,
+      "job_url": "https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/46078477704/job/140771675797",
+      "evidence": {
+        "scope": "private nonroot GTK + loopback TLS + Xvfb pixels",
+        "real_gtk_buttons": true,
+        "no_network_on_open": true,
+        "peer_code_approval": true,
+        "selected_file_sha256": true,
+        "recipient_approved_upload": true,
+        "production_unknown_lock_denied": true,
+        "capture_gate_fixture_only": true,
+        "real_gdk_capture_and_tls_frame": true,
+        "frame_size": [
+          360,
+          800
+        ],
+        "frame_sha256": "f517421c456ba933588dd49d802c37dcf8fa515633feb16173d420c5ed9ed911",
+        "screen": [
+          360,
+          800
+        ],
+        "window": [
+          336,
+          760
+        ],
+        "physical_pc_phone_arm_or_wifi_tested": false
+      }
+    },
+    {
+      "suite": "trixie",
+      "job_id": 140771675797,
+      "job_url": "https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/46078477704/job/140771675797",
+      "evidence": {
+        "scope": "private nonroot GTK + loopback TLS + Xvfb pixels",
+        "real_gtk_buttons": true,
+        "no_network_on_open": true,
+        "peer_code_approval": true,
+        "selected_file_sha256": true,
+        "recipient_approved_upload": true,
+        "production_unknown_lock_denied": true,
+        "capture_gate_fixture_only": true,
+        "real_gdk_capture_and_tls_frame": true,
+        "frame_size": [
+          1024,
+          768
+        ],
+        "frame_sha256": "de934955614c50ffa0b31da00e31a20698cca0da2630863c63844641a1b17376",
+        "screen": [
+          1024,
+          768
+        ],
+        "window": [
+          680,
+          744
+        ],
+        "physical_pc_phone_arm_or_wifi_tested": false
+      }
+    }
+  ]
+}

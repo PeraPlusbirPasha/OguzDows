@@ -37,7 +37,7 @@ class BridgeDeviceTest {
     private fun waitFor(label: String, timeout: Long = 30000, condition: () -> Boolean) {
         val end = SystemClock.elapsedRealtime() + timeout
         do { if (condition()) return; SystemClock.sleep(150) } while (SystemClock.elapsedRealtime() < end)
-        throw AssertionError("Timed out: $label; package=${device.currentPackageName}")
+        DeviceDiagnostics.missing(device, "Timed out: $label", image = false)
     }
     private fun node(tag: String): UiObject2 = DeviceDiagnostics.find(device, By.res(tag), 20000)
         ?: DeviceDiagnostics.missing(device, tag, image = false)
@@ -151,21 +151,24 @@ class BridgeDeviceTest {
             text("Kod aynı · izin ver").click(); assertEquals("approved", c.pollPair())
             assertFalse(c.state().mirror); assertFalse(BridgeMirrorService.running)
             text("Ekranımı paylaş…").click(); text("Sistem ekran iznine geç").click()
-            val cancel = device.wait(Until.findObject(By.text(Pattern.compile("cancel|vazgeç", Pattern.CASE_INSENSITIVE or Pattern.UNICODE_CASE))), 15000)
-            assertNotNull("real system screen-capture consent, not a fake app switch", cancel); cancel!!.click()
+            val cancel = device.wait(Until.findObject(By.text(Pattern.compile("cancel|vazgeç", Pattern.CASE_INSENSITIVE or Pattern.UNICODE_CASE)).pkg("com.android.systemui")), 15000)
+                ?: DeviceDiagnostics.missing(device, "system-capture-cancel", image = false)
+            cancel.click()
             node("oguz-bridge"); assertFalse(BridgeMirrorService.running); assertFalse(c.state().mirror)
             text("Ekranımı paylaş…").click(); text("Sistem ekran iznine geç").click()
-            // API35 offers one-app or entire-screen capture. This test deliberately selects the latter,
-            // then displays the already genuinely installed no-permission fixture, never real user data.
-            val spinner = device.wait(Until.findObject(By.res("com.android.systemui:id/screen_share_mode_spinner")), 4000)
-                ?: device.findObject(By.clazz("android.widget.Spinner"))
-            if (spinner != null) {
-                spinner.click()
-                val entire = device.wait(Until.findObject(By.text(Pattern.compile("entire screen|full screen|tüm ekran", Pattern.CASE_INSENSITIVE or Pattern.UNICODE_CASE))), 5000)
-                assertNotNull("entire-screen option", entire); entire!!.click()
-            }
-            val start = device.wait(Until.findObject(By.text(Pattern.compile("start now|start sharing|share screen|şimdi başlat|paylaş", Pattern.CASE_INSENSITIVE or Pattern.UNICODE_CASE))), 10000)
-            assertNotNull("system final screen-sharing button", start); start!!.click()
+            // API35 offers one-app or entire-screen capture. Deliberately select the
+            // latter, then display the already installed no-permission fixture only.
+            val spinner = device.wait(Until.findObject(By.res("com.android.systemui:id/screen_share_mode_spinner").pkg("com.android.systemui")), 15000)
+                ?: DeviceDiagnostics.missing(device, "system-capture-mode", image = false)
+            spinner.click()
+            val entire = device.wait(Until.findObject(By.text(Pattern.compile("entire screen|full screen|tüm ekran", Pattern.CASE_INSENSITIVE or Pattern.UNICODE_CASE)).pkg("com.android.systemui")), 5000)
+                ?: DeviceDiagnostics.missing(device, "system-capture-entire-screen", image = false)
+            entire.click()
+            // AOSP 15 calls this button "Start", not "Start now". Its real positive
+            // button is clicked only in the identified SystemUI capture picker.
+            val start = device.wait(Until.findObject(By.res("android:id/button1").pkg("com.android.systemui")), 10000)
+                ?: DeviceDiagnostics.missing(device, "system-capture-start", image = false)
+            start.click()
             waitFor("real foreground MediaProjection started", 20000) { BridgeMirrorService.running && host.viewer != null }
             context.startActivity(requireNotNull(context.packageManager.getLaunchIntentForPackage("org.oguzdows.fixture")).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
             assertTrue(device.wait(Until.hasObject(By.pkg("org.oguzdows.fixture")), 15000))
@@ -190,6 +193,13 @@ class BridgeDeviceTest {
             instrumentation.sendStatus(0, Bundle().apply { putString("stream", "\nBRIDGE_CAPTURE_EVIDENCE " + JSONObject().put("stop_tested", true).put("media_projection_consent", true)
                 .put("cancel_tested", true).put("foreground_service", true).put("frame_bytes", bytes.size).put("sha256", BridgeRules.sha(bytes))
                 .put("fixture_only", true).put("remote_input", false).toString() + "\n") })
-        } finally { context.stopService(Intent(context, BridgeMirrorService::class.java)); client?.forget(); scenario.close(); reference.get()?.close() }
+        } finally {
+            // On failure, cancel ONLY our identified projection picker; never approve it
+            // during cleanup or leave it covering subsequent independent Store tests.
+            repeat(2) {
+                if (device.hasObject(By.res("com.android.systemui:id/screen_share_mode_spinner"))) device.pressBack()
+            }
+            context.stopService(Intent(context, BridgeMirrorService::class.java)); client?.forget(); scenario.close(); reference.get()?.close()
+        }
     }
 }

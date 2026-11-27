@@ -20,7 +20,9 @@ object SystemContacts {
         val out = ArrayList<SystemContact>()
         context.contentResolver.query(phone, projection, null, null,
             ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME_PRIMARY + " COLLATE LOCALIZED ASC")?.use { cursor ->
-            while (out.size < LIMIT && cursor.moveToNext()) {
+            var scanned = 0
+            while (scanned < LIMIT && cursor.moveToNext()) {
+                scanned++ // Invalid / duplicate numbers must not turn the 1000-row budget into an unbounded scan.
                 val number = PlatformRules.number(cursor.getString(2) ?: "")
                 if (number.isNotEmpty()) out.add(SystemContact(cursor.getLong(0), (cursor.getString(1) ?: number).take(120), number))
             }

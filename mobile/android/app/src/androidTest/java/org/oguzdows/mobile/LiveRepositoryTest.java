@@ -50,7 +50,9 @@ public final class LiveRepositoryTest {
         UiDevice device = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation());
         try (ActivityScenario<SourceStoreActivity> store = ActivityScenario.launch(
                 new Intent(context, SourceStoreActivity.class).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))) {
-            assertTrue("native live Store screen", device.wait(Until.hasObject(By.text("Mağaza · canlı kaynaklar")), 25000));
+            if (DeviceDiagnostics.INSTANCE.find(device, By.text("Mağaza · canlı kaynaklar"), 25000) == null) {
+                DeviceDiagnostics.INSTANCE.missing(device, "native-live-store", true);
+            }
             SystemClock.sleep(1500);
             File folder = new File(context.getExternalFilesDir(null), "evidence"); folder.mkdirs();
             assertTrue("live Store screenshot", device.takeScreenshot(new File(folder, "native-live-fdroid-store.png")));

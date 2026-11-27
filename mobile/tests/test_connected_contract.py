@@ -21,13 +21,14 @@ class ConnectedSourceContracts(unittest.TestCase):
         store = (SRC/'LauncherStore.kt').read_text()
         self.assertIn('putString("layout"', store)
         screen = (SRC/'NativeLauncherScreen.kt').read_text()
-        for value in ('layout.columns', 'layout.rail', 'ConnectedTheme(', 'FullAeroPanel(', 'gestureThreshold', 'PointerEventPass.Final'):
+        for value in ('layout.columns', 'layout.rail', 'ConnectedTheme(', 'FullAeroPanel(', 'gestureThreshold', 'PointerEventPass.Final', 'change.position != change.previousPosition', 'enabled = workspaceScroll.maxValue > 0'):
             self.assertIn(value, screen)
 
     def test_contacts_use_system_provider_and_do_not_expose_a_web_write_action(self):
         system = (SRC/'SystemContacts.kt').read_text()
-        for value in ('ContactsContract', 'READ_CONTACTS', 'WRITE_CONTACTS', 'applyBatch', 'withValueBackReference', 'LIMIT = 1000'):
+        for value in ('ContactsContract', 'READ_CONTACTS', 'WRITE_CONTACTS', 'applyBatch', 'withValueBackReference', 'LIMIT = 1000', 'while (scanned < LIMIT && cursor.moveToNext())'):
             self.assertIn(value, system)
+        self.assertLess(system.index('scanned++'), system.index('PlatformRules.number(cursor.getString(2)'))
         home = (SRC/'HomeActivity.java').read_text()
         self.assertIn('case "contacts.list":', home)
         self.assertIn('case "contacts.open":', home)
@@ -37,7 +38,7 @@ class ConnectedSourceContracts(unittest.TestCase):
         self.assertNotIn('prefs.contacts', native)
         self.assertNotIn('localStorage', (SRC/'SystemContacts.kt').read_text())
         contact = (SRC/'ContactsActivity.kt').read_text()
-        for value in ('RequestPermission()', 'ContentObserver', 'unregisterContentObserver', 'Yeni kişiyi kaydet?', 'confirm=false', 'ACTION_SENDTO', 'ACTION_DIAL'):
+        for value in ('RequestPermission()', 'ContentObserver', 'unregisterContentObserver', 'Yeni kişiyi kaydet?', 'confirm=false', 'ACTION_SENDTO', 'ACTION_DIAL', 'val acceptedName=name; val acceptedNumber=number', 'SystemContacts.insert(this@ContactsActivity,acceptedName,acceptedNumber)'):
             self.assertIn(value, contact)
 
     def test_lock_and_mirroring_are_not_privileged_security_replacements(self):

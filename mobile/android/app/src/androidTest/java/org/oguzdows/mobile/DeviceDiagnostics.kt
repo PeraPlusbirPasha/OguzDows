@@ -21,8 +21,9 @@ import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
 import java.io.File
 
-/** Failure-only diagnostics BEFORE ActivityScenario closes the actual failing window.
- * Never runs on a phone, captures a bridge invitation, or alters/dismisses a system dialog.
+/** Emulator-only lookup/first-use education and failure diagnostics BEFORE ActivityScenario cleanup.
+ * Never captures a bridge invitation. Only education() acknowledges the specifically identified
+ * immersive tutorial; no helper grants permission or dismisses other system dialogs.
  */
 object DeviceDiagnostics {
     /** Acknowledge ONLY the OS immersive education identified in the genuine CI capture.
