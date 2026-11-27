@@ -13,7 +13,7 @@ import xml.etree.ElementTree as ET
 
 import bridge_fixture
 from acceptance import SELECTIONS, validate_emulator
-from android_diagnostics import anr_threads
+from android_diagnostics import anr_threads, main_stall
 
 ROOT = Path(__file__).resolve().parents[2]
 OUT = ROOT / 'test-results/mobile/emulator'
@@ -32,6 +32,7 @@ def evidence_notice(evidence):
     summary = json.loads(json.dumps(evidence))
     for item in summary.get('tests', []):
         item.pop('visible_ui', None)
+        item.pop('main_thread_stall', None)  # Complete process-scoped sample has its own notice/artifact.
         for key in ('failure', 'error'):
             if key in item:
                 item[key] = item[key][:100]
@@ -184,6 +185,9 @@ def main():
                 annotation('notice', 'Mobile runner peer evidence', json.dumps(evidence['device_bridge'], separators=(',', ':')))
             output, _ = process.communicate(timeout=timeout)
             (OUT / f'{klass}-{name or "suite"}.txt').write_text(output)
+            observed_stall = main_stall(output, PACKAGE)
+            if observed_stall:
+                annotation('notice', 'Mobile observed main-thread stall (not an ANR waiver)', json.dumps(observed_stall, separators=(',', ':')))
             diagnostic_sent = False
             for line in output.splitlines():
                 if 'DEVICE_UI_DIAGNOSTIC ' in line and not diagnostic_sent:
@@ -199,6 +203,8 @@ def main():
             passed = process.returncode == 0 and cases == expected and 'FAILURES!!!' not in output and 'INSTRUMENTATION_FAILED' not in output
             record = {'name': f'{klass}.{name or "suite"}', 'passed': passed, 'test_cases': cases,
                       'seconds': round(time.monotonic() - started, 2)}
+            if observed_stall:
+                record['main_thread_stall'] = observed_stall
             evidence['tests'].append(record)
             print(('PASS ' if passed else 'FAIL ') + record['name'], flush=True)
             if not passed:

@@ -1,5 +1,31 @@
-"""Narrow emulator DropBox attribution, not an ANR waiver or a device-health assertion."""
+"""Narrow emulator trace attribution, not an ANR waiver or a device-health assertion."""
+import json
 import re
+
+
+def main_stall(output, package):
+    """Bounded pre-ANR sample from the test-only in-process observer, if available.
+
+    A delayed heartbeat is a diagnostic, not itself an ANR or a passing health check.
+    The Android timeout and whole-run acceptance rules remain authoritative.
+    """
+    for line in output.splitlines():
+        _, marker, raw = line.partition('NATIVE_MAIN_STALL ')
+        if not marker or len(raw) > 6000:
+            continue
+        try:
+            sample = json.loads(raw)
+        except (ValueError, TypeError):
+            continue
+        if not isinstance(sample, dict) or sample.get('process') != package:
+            continue
+        if (type(sample.get('pid')) is not int or sample['pid'] <= 0
+                or type(sample.get('main_delay_ms')) is not int or sample['main_delay_ms'] < 2000
+                or not isinstance(sample.get('main'), str) or not 1 <= len(sample['main']) <= 2800
+                or not isinstance(sample.get('phase'), str) or not 1 <= len(sample['phase']) <= 160):
+            continue
+        return {key: sample[key] for key in ('process', 'pid', 'phase', 'main_delay_ms', 'main')}
+    return {}
 
 
 def anr_threads(raw, package):

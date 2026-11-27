@@ -206,6 +206,14 @@ class NativeSourceContracts(unittest.TestCase):
         self.assertIn("'physical_sim_tested': False", smoke)
         self.assertIn("'emergency_calls_tested': False", smoke)
         self.assertNotIn('--bypass-role-qualification', smoke)
+        diagnostics = (ROOT / 'android/app/src/androidTest/java/org/oguzdows/mobile/UiStallWatch.java').read_text()
+        test = (ROOT / 'android/app/src/androidTest/java/org/oguzdows/mobile/NativeDeviceTest.java').read_text()
+        self.assertFalse((JAVA / 'UiStallWatch.java').exists(), 'Observer must never ship in the app')
+        self.assertIn('Build.HARDWARE.contains("ranchu")', diagnostics)
+        self.assertIn('Looper.getMainLooper().getThread().getStackTrace()', diagnostics)
+        self.assertIn('main.removeCallbacks(pulse)', diagnostics)
+        self.assertIn('try (UiStallWatch stalls', test)
+        self.assertIn("observed_stall = main_stall(output, PACKAGE)", smoke)
 
     def test_native_store_icons_preserve_symbol_paths_licenses_and_reproducible_hashes(self):
         records = json.loads((ROOT / 'android/native-icons.json').read_text())

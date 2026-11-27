@@ -283,22 +283,29 @@ public final class NativeDeviceTest {
         try (InputStream in = instrumentation.getContext().getAssets().open("generated/fixture.apk"); FileOutputStream out = new FileOutputStream(file)) {
             byte[] buffer = new byte[16384]; int n; while ((n = in.read(buffer)) != -1) out.write(buffer, 0, n);
         }
-        Intent review = new Intent(context, InstallReviewActivity.class).putExtra("privateApk", file.getAbsolutePath()).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        scenario.onActivity(a -> a.startActivity(review));
-        assertTrue("private APK review ready", device.wait(Until.hasObject(By.text(buttonText("Sistem yükleyicisine geç"))), 25000));
-        screenshot("native-apk-review"); tap("Vazgeç");
-        try { context.getPackageManager().getPackageInfo("org.oguzdows.fixture", 0); fail("review cancellation must not install"); }
-        catch (PackageManager.NameNotFoundException expected) { }
-        device.pressBack(); // Close the first review Activity after cancelling its dialog.
-        scenario.onActivity(a -> a.startActivity(review)); tap("Sistem yükleyicisine geç");
-        UiObject2 install = device.wait(Until.findObject(By.text(Pattern.compile("(?i)install|yükle"))), 20000);
-        assertNotNull("real system installer final consent", install); screenshot("system-installer-consent"); install.click();
-        waitFor("inert fixture actually installed by OS", 30000, () -> {
-            try { return context.getPackageManager().getPackageInfo("org.oguzdows.fixture", 0).getLongVersionCode() == 1; }
-            catch (PackageManager.NameNotFoundException missing) { return false; }
-        });
-        waitFor("verified installer return + installed signer/version", 15000,
-            () -> context.getSharedPreferences("installer-state", Context.MODE_PRIVATE).getBoolean("verified", false));
-        screenshot("native-install-verified");
+        try (UiStallWatch stalls = new UiStallWatch(instrumentation)) {
+            Intent review = new Intent(context, InstallReviewActivity.class).putExtra("privateApk", file.getAbsolutePath()).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            stalls.phase("HomeActivity -> InstallReviewActivity, first review");
+            scenario.onActivity(a -> a.startActivity(review));
+            assertTrue("private APK review ready", device.wait(Until.hasObject(By.text(buttonText("Sistem yükleyicisine geç"))), 25000));
+            screenshot("native-apk-review"); tap("Vazgeç");
+            try { context.getPackageManager().getPackageInfo("org.oguzdows.fixture", 0); fail("review cancellation must not install"); }
+            catch (PackageManager.NameNotFoundException expected) { }
+            stalls.phase("return from cancelled review to HomeActivity");
+            device.pressBack(); // Close the first review Activity after cancelling its dialog.
+            stalls.phase("HomeActivity -> InstallReviewActivity, second review");
+            scenario.onActivity(a -> a.startActivity(review)); tap("Sistem yükleyicisine geç");
+            stalls.phase("InstallReviewActivity -> system installer, final consent");
+            UiObject2 install = device.wait(Until.findObject(By.text(Pattern.compile("(?i)install|yükle"))), 20000);
+            assertNotNull("real system installer final consent", install); screenshot("system-installer-consent"); install.click();
+            waitFor("inert fixture actually installed by OS", 30000, () -> {
+                try { return context.getPackageManager().getPackageInfo("org.oguzdows.fixture", 0).getLongVersionCode() == 1; }
+                catch (PackageManager.NameNotFoundException missing) { return false; }
+            });
+            stalls.phase("verify system installer return, installed signer and version");
+            waitFor("verified installer return + installed signer/version", 15000,
+                () -> context.getSharedPreferences("installer-state", Context.MODE_PRIVATE).getBoolean("verified", false));
+            screenshot("native-install-verified");
+        }
     }
 }

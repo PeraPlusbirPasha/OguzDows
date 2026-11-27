@@ -158,6 +158,20 @@ başarı kanıtı yerine geçmez. Davet/sır dosyaları raporlara alınmaz.
   zorunludur. Yeni gerçek Ayarlar/yukarı çekmece adımları henüz tamamlanmadığı için
   **24-vaka kabulü/paket yok**. [SDK](android/evidence/sdk-266e623.json)
   · [cihaz ve bağımsız dosya/ekran makbuzları](android/evidence/emulator-266e623.json).
+- [`05e9dd5` / 46082163871](https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/46082163871):
+  **20 JVM ve ilk 7 cihaz seçimi geçti; APK incelemeye ilk geçişte HomeActivity
+  odak kaybı ANR'ı (5002 ms) tekrar oluştu**, kabul durdu. HOME intent düzeltmesini
+  sınayan launcher/bağlı kabuk ve sonraki köprü/depo vakalarına ulaşılmadı;
+  bunlara bu koşudan başarı yazılmaz. [SDK](android/evidence/sdk-05e9dd5.json)
+  · [tamamlanmamış cihaz kaydı](android/evidence/emulator-05e9dd5.json).
+  DropBox'ta tam ürün `Cmd line` izi yoktu; başka sürecin yığını kullanılmadı.
+  Yeni **yalnız androidTest içindeki, yalnız QEMU'da çalışan** gözlemci, APK
+  inceleme geçişlerinde 2 saniye durmuş ana döngünün PID/aşama/Java yığınını
+  kaydeder. Zaman aşımını değiştirmez, yeniden deneme veya pencere kapatma yapmaz;
+  Java örneği native render yığını veya kök neden kanıtı diye sunulmaz.
+  Aynı commit'in masaüstü, Pi, ISO ve taşınabilir araç kaynak CI'ları geçti;
+  bu mobil ANR'ı veya yeni imaj dağıtımını kabul etmez. Yerel 727 Python vakası
+  (718 başarılı / 9 ortam bağımlı atlama) ve 33 Chromium testi de tekrar geçti.
 - [`18034bb` masaüstü / 46076502634](https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/46076502634):
   Debian bookworm/trixie üzerinde **1024×768 ve 360×800: dört gerçek GTK köprü
   koşusu geçti**. Gerçek düğme/dosya/loopback TLS/GDK kareleri sınandı. Üretimin

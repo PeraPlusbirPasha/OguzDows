@@ -125,6 +125,15 @@ class AcceptanceRulesTests(unittest.TestCase):
         self.assertEqual(anr_threads(record(package + '.lookalike', 9, 'not_ours'), package), {})
         # A different ANR owner cannot borrow an app snapshot from its full-system dump.
         self.assertEqual(anr_threads(stock + newest.split('Process: ' + package + '\n', 1)[1], package), {})
+        # The pre-ANR Java sample is not a borrowed DropBox/native stack.
+        from android_diagnostics import main_stall
+        sample = dict(process=package, pid=8, phase='first review', main_delay_ms=2200, main='at synthetic_main')
+        prefix = 'INSTRUMENTATION_STATUS: stream=\nNATIVE_MAIN_STALL '
+        self.assertEqual(main_stall(prefix + json.dumps(sample), package), sample)
+        self.assertEqual(main_stall(prefix + '{incomplete', package), {})
+        for change in (dict(process=package + '.lookalike'), dict(pid=True), dict(pid=0),
+                       dict(main_delay_ms=1000), dict(main='x' * 2801), dict(phase=None)):
+            self.assertEqual(main_stall(prefix + json.dumps(dict(sample, **change)), package), {})
 
     def test_completed_interop_marker_is_checked_before_a_fast_process_exit(self):
         import bridge_fixture
@@ -139,6 +148,7 @@ class AcceptanceRulesTests(unittest.TestCase):
         harness = importlib.util.module_from_spec(spec); spec.loader.exec_module(harness)
         report, _ = synthetic_device()
         report['image_fingerprint'] = 'google/sdk_gphone64_x86_64/emu64xa:15/AE3A.240806.043/12960925:userdebug/dev-keys'
+        report['tests'][0]['main_thread_stall'] = {'main': 'bounded synthetic stack ' * 100}
         for failed in (False, True):
             if failed:
                 for item in report['tests']: item.update(passed=False, error='An intentionally long synthetic error ' * 15, visible_ui='fixture' * 100)
@@ -149,6 +159,7 @@ class AcceptanceRulesTests(unittest.TestCase):
             self.assertEqual(len(decoded['tests']), 15)
             self.assertLessEqual(len(detail.encode()), 3500)
         self.assertEqual(len(report['device_bridge']['file_sha256']), 4, 'Summary cannot mutate the complete receipt')
+        self.assertIn('main_thread_stall', report['tests'][0], 'Complete diagnostic remains in the artifact')
 
 
 if __name__ == '__main__':
