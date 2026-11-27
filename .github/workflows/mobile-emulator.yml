@@ -79,7 +79,9 @@ jobs:
           disk-size: 4096M
           disable-animations: true
           disable-spellchecker: true
-          emulator-options: -no-window -gpu swiftshader_indirect -no-snapshot -noaudio -no-boot-anim -camera-back none -camera-front none
+          # Software GL on this headless runner. The previous mixed Vulkan path stalled
+          # HWUI syncAndDrawFrame in an observed emulator ANR; this is not a phone setting.
+          emulator-options: -no-window -gpu swiftshader_indirect -feature -Vulkan -no-snapshot -noaudio -no-boot-anim -camera-back none -camera-front none
           script: python3 mobile/scripts/ci-command.py -- python3 mobile/scripts/emulator-smoke.py
       - name: Yalnız tüm native testler geçince dağıtım paketini hazırla
         run: |

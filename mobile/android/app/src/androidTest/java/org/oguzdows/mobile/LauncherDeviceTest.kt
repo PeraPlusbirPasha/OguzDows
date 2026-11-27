@@ -156,9 +156,17 @@ class LauncherDeviceTest {
         } finally {audio.setStreamVolume(AudioManager.STREAM_MUSIC,before,0)}
     }
     @Test fun test05RealWidgetBindingRenderingAndRemoval() {
+        val providerLabel = AtomicReference<String>()
+        scenario.onActivity {
+            val providers = it.widgets.providers()
+            val fixture = providers.find { provider -> provider.provider.packageName == "org.oguzdows.fixture" }
+            assertNotNull("Actual platform providers: " + providers.joinToString { provider -> provider.provider.flattenToShortString() }, fixture)
+            providerLabel.set(fixture!!.loadLabel(context.packageManager))
+        }
         desc("Widget alanı").click();node("launcher-widget-space")
         node("launcher-add-widget").click();node("launcher-widget-picker")
-        desc("Widget seç: OğuzDows test widget").click()
+        node("launcher-widget-search").text="org.oguzdows.fixture"
+        desc("Widget seç: ${providerLabel.get()}").click()
         // HOME may already be authorized; otherwise exercise the actual system bind consent.
         val allow=device.wait(Until.findObject(By.text(Pattern.compile("allow|create|[iIıİ]z[iIıİ]n ver|oluştur",Pattern.CASE_INSENSITIVE or Pattern.UNICODE_CASE))),3000)
         allow?.click()

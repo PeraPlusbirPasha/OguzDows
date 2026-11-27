@@ -47,6 +47,8 @@ def main():
                 'image_fingerprint': adb('shell', 'getprop', 'ro.build.fingerprint').strip(),
                 'emulator_only': True, 'physical_sim_tested': False, 'emergency_calls_tested': False,
                 'gms_certification_tested': False, 'mms_rcs_supported': False, 'tests': []}
+    # Headless SwiftShader diagnostics selected GL explicitly after a real render-thread ANR.
+    adb('shell', 'setprop', 'debug.hwui.renderer', 'skiagl')
     adb('shell', 'input', 'keyevent', '82')
     adb('shell', 'settings', 'put', 'global', 'window_animation_scale', '0')
     adb('shell', 'settings', 'put', 'global', 'transition_animation_scale', '0')
@@ -121,6 +123,7 @@ def main():
                     main_stack = re.search(r'"main"[^\n]*\n[\s\S]{0,2800}', dropbox)
                     annotation('error', 'Emulator main-thread ANR', main_stack.group() if main_stack else (events + '\n' + anr)[:2800])
                     evidence['passed'] = False
+                    annotation('notice', 'Mobile emulator evidence', json.dumps(evidence, separators=(',', ':')))
                     raise SystemExit('App ANR: abort incomplete acceptance; no package. Inspect the recorded main-thread trace.')
             if klass == 'LauncherDeviceTest' and passed:
                 # Bounded visual diagnostic from a disposable emulator, not personal device data.

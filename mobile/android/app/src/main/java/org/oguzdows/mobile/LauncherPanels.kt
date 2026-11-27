@@ -37,6 +37,9 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.compose.LocalLifecycleOwner
+import androidx.lifecycle.repeatOnLifecycle
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -112,7 +115,12 @@ fun LauncherControls(state: LauncherUiState, model: LauncherViewModel, role:(Str
     val context = LocalContext.current
     var ownBrightness by rememberSaveable { mutableFloatStateOf((context as? Activity)?.window?.attributes?.screenBrightness?.takeIf{it>=0} ?: 1f) }
     var confirmReset by remember { mutableStateOf(false) }
-    LaunchedEffect(Unit) { while(true) { model.refreshSystem(); delay(1000) } }
+    val lifecycleOwner = LocalLifecycleOwner.current
+    LaunchedEffect(lifecycleOwner) {
+        lifecycleOwner.lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
+            while (true) { model.refreshSystem(); delay(1000) }
+        }
+    }
     Column(Modifier.fillMaxWidth().heightIn(max=650.dp).verticalScroll(rememberScrollState()).padding(horizontal=24.dp).testTag("launcher-control-panel")) {
         Text("Biraz sana göre.", style=MaterialTheme.typography.headlineSmall, fontWeight=FontWeight.SemiBold)
         Text("OğuzDows 0.3 · yerel kabuk", fontSize=12.sp, color=MaterialTheme.colorScheme.onSurfaceVariant)
@@ -290,14 +298,20 @@ fun WidgetWorkspace(state:LauncherUiState, widgets:LauncherWidgets, pick:()->Uni
 fun WidgetPicker(widgets:LauncherWidgets, select:(AppWidgetProviderInfo)->Unit) {
     val context=LocalContext.current
     var providers by remember { mutableStateOf<List<AppWidgetProviderInfo>?>(null) }
+    var query by rememberSaveable { mutableStateOf("") }
     LaunchedEffect(Unit) { providers = withContext(Dispatchers.IO) { widgets.providers() } }
+    val normalized = LauncherRules.normalize(query).trim()
+    val matching = providers?.filter { normalized.isEmpty() || LauncherRules.normalize(
+        it.loadLabel(context.packageManager) + " " + it.provider.packageName).contains(normalized) }
     Column(Modifier.fillMaxWidth().fillMaxHeight(.8f).padding(horizontal=24.dp).testTag("launcher-widget-picker")) {
         Text("Kendi pencereni seç.",style=MaterialTheme.typography.headlineSmall)
         Text("Yalnız cihazındaki widget sağlayıcıları. Uygun olduğunda sistem izin ve ayar ekranını açar.",fontSize=12.sp,modifier=Modifier.padding(vertical=12.dp))
-        LazyColumn {
+        OutlinedTextField(value = query, onValueChange = { query = it.take(120) }, singleLine = true,
+            label = { Text("Widget ara") }, modifier = Modifier.fillMaxWidth().testTag("launcher-widget-search"))
+        LazyColumn(Modifier.weight(1f).testTag("launcher-widget-list"), contentPadding = PaddingValues(vertical = 12.dp)) {
             if(providers==null) item{Text("Sistem widget’ları okunuyor…")}
-            else if(providers!!.isEmpty()) item{Text("Bu profilde erişilebilir widget bulunamadı.")}
-            else items(providers!!,key={it.provider.flattenToString()}) {provider->
+            else if(matching.isNullOrEmpty()) item{Text("Bu aramada erişilebilir widget bulunamadı.")}
+            else items(matching,key={it.provider.flattenToString()}) {provider->
                 ListItem(headlineContent={Text(provider.loadLabel(context.packageManager))},supportingContent={Text(provider.provider.packageName,fontSize=10.sp)},
                     modifier=Modifier.clickable{select(provider)}.semantics{contentDescription="Widget seç: ${provider.loadLabel(context.packageManager)}"})
             }
