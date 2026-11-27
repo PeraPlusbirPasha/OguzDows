@@ -67,7 +67,7 @@ fun NativeLauncherScreen(
                 }
             }
         }
-        fun open(key: String) {
+        fun onOpen(key: String) {
             when (LauncherRules.internalRoute(key)) {
                 "rifki" -> panel = "rifki"
                 "settings", "monitor", "culture" -> panel = "controls"
@@ -109,7 +109,7 @@ fun NativeLauncherScreen(
                         Text("Ana ekran yap", color=Color.White, fontSize=12.sp)
                     } else Text("SENİN\nALANIN.", color=Color.White.copy(.75f), fontSize=10.sp, lineHeight=15.sp, letterSpacing=2.sp)
                 }
-                GlassSurface(Modifier.fillMaxWidth().height(49.dp).clickable { panel="apps" }.testTag("launcher-search-open"), light=state.lightEffects) {
+                GlassSurface(Modifier.fillMaxWidth().height(49.dp).clickable { panel="apps" }.testTag("launcher-search-onOpen"), light=state.lightEffects) {
                     Row(Modifier.fillMaxSize().padding(horizontal=16.dp), verticalAlignment=Alignment.CenterVertically) {
                         ShellGlyph("search", Modifier.size(21.dp)); Spacer(Modifier.width(10.dp))
                         Text("Bir uygulama, bir fikir…", color=Color(0xFF405C55), fontSize=13.sp, modifier=Modifier.weight(1f))
@@ -126,7 +126,7 @@ fun NativeLauncherScreen(
                                 if (key == null) Box(Modifier.weight(1f).height(94.dp).clip(RoundedCornerShape(14.dp))
                                     .clickable { panel="apps" }.semantics { contentDescription="Kısayol ekle" }, contentAlignment=Alignment.Center) {
                                     ShellGlyph("plus", tint=Color.White.copy(.45f))
-                                } else HomeShortcut(key, state, model.repository, ::open, { panel="edit:$it" }, Modifier.weight(1f))
+                                } else HomeShortcut(key, state, model.repository, ::onOpen, { panel="edit:$it" }, Modifier.weight(1f))
                             }
                         }
                         if (page == 1) Text("Uygulamalarda + ile sabitle · kısayola basılı tutarak düzenle", color=Color.White.copy(.8f),
@@ -166,7 +166,7 @@ fun NativeLauncherScreen(
                         val dock = listOf("phone" to "Telefon", "messages" to "Mesajlar", "apps" to "Uygulamalar", "store" to "Mağaza", "settings" to "Ayarlar")
                         dock.forEach { (id, label) ->
                             Column(Modifier.weight(1f).fillMaxHeight().clip(RoundedCornerShape(14.dp)).clickable {
-                                if(id=="apps") panel="apps" else open("internal:$id")
+                                if(id=="apps") panel="apps" else onOpen("internal:$id")
                             }.semantics { contentDescription=if(id=="apps") "Uygulama çekmecesi" else "Dock: $label" },
                                 horizontalAlignment=Alignment.CenterHorizontally, verticalArrangement=Arrangement.Center) {
                                 ShellGlyph(when(id){"settings"->"controls";"messages"->"message";else->id}, Modifier.size(24.dp), Color(0xFFE5F0E9))
@@ -181,7 +181,7 @@ fun NativeLauncherScreen(
         if (panel != null) ModalBottomSheet(onDismissRequest={panel=null}, containerColor=MaterialTheme.colorScheme.surface,
             modifier=Modifier.imePadding(), dragHandle={BottomSheetDefaults.DragHandle()}) {
             when {
-                panel=="apps" -> LauncherDrawer(state, model, ::open, {panel="edit:$it"}, report)
+                panel=="apps" -> LauncherDrawer(state, model, ::onOpen, {panel="edit:$it"}, report)
                 panel=="controls" -> LauncherControls(state, model, role, system, brightness, {panel=null;route("settings")}, report)
                 panel=="rifki" -> RifkiPanel(state) { suggestion ->
                     when(suggestion) {
@@ -189,10 +189,10 @@ fun NativeLauncherScreen(
                         ShellSuggestion.LIGHT -> model.dark(false)
                         ShellSuggestion.CONTROLS -> panel="controls"
                         ShellSuggestion.APPS -> panel="apps"
-                        ShellSuggestion.PHONE -> open("internal:phone")
-                        ShellSuggestion.MESSAGES -> open("internal:messages")
-                        ShellSuggestion.STORE -> open("internal:store")
-                        ShellSuggestion.TOOLS -> open("internal:workbench")
+                        ShellSuggestion.PHONE -> onOpen("internal:phone")
+                        ShellSuggestion.MESSAGES -> onOpen("internal:messages")
+                        ShellSuggestion.STORE -> onOpen("internal:store")
+                        ShellSuggestion.TOOLS -> onOpen("internal:workbench")
                     }
                 }
                 panel=="widgets" -> WidgetPicker(widgets) { provider -> panel=null; widgets.add(provider) }

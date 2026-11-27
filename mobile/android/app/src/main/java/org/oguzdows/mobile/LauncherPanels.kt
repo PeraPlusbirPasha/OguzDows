@@ -44,7 +44,7 @@ import kotlinx.coroutines.withContext
 
 @OptIn(androidx.compose.foundation.ExperimentalFoundationApi::class)
 @Composable
-fun LauncherDrawer(state: LauncherUiState, model: LauncherViewModel, open: (String)->Unit,
+fun LauncherDrawer(state: LauncherUiState, model: LauncherViewModel, onOpen: (String)->Unit,
                    edit: (String)->Unit, report:(String)->Unit) {
     var query by rememberSaveable { mutableStateOf("") }
     var filter by rememberSaveable { mutableIntStateOf(0) }
@@ -69,7 +69,7 @@ fun LauncherDrawer(state: LauncherUiState, model: LauncherViewModel, open: (Stri
                 items(builtins.chunked(4), key={"internal-row-"+it.first().id}) { row ->
                     Row(Modifier.fillMaxWidth().padding(bottom=8.dp)) {
                         row.forEach { d ->
-                            Column(Modifier.weight(1f).clip(RoundedCornerShape(12.dp)).combinedClickable(onClick={open("internal:${d.id}")},onLongClick={edit("internal:${d.id}")})
+                            Column(Modifier.weight(1f).clip(RoundedCornerShape(12.dp)).combinedClickable(onClick={onOpen("internal:${d.id}")},onLongClick={edit("internal:${d.id}")})
                                 .padding(vertical=9.dp).semantics {contentDescription="Modülü aç: ${d.label}"}, horizontalAlignment=Alignment.CenterHorizontally) {
                                 DestinationIcon(d, 46); Spacer(Modifier.height(6.dp))
                                 Text(d.label, fontSize=11.sp, maxLines=1, overflow=TextOverflow.Ellipsis)
@@ -82,7 +82,7 @@ fun LauncherDrawer(state: LauncherUiState, model: LauncherViewModel, open: (Stri
             if (filter!=1 && installed.isNotEmpty()) {
                 item { Text("CİHAZINDAKİ UYGULAMALAR", fontSize=10.sp, letterSpacing=1.5.sp, fontWeight=FontWeight.Bold, color=MaterialTheme.colorScheme.primary, modifier=Modifier.padding(vertical=12.dp)) }
                 items(installed, key={it.key}) { entry ->
-                    Row(Modifier.fillMaxWidth().clip(RoundedCornerShape(12.dp)).combinedClickable(onClick={open(entry.key)}, onLongClick={edit(entry.key)})
+                    Row(Modifier.fillMaxWidth().clip(RoundedCornerShape(12.dp)).combinedClickable(onClick={onOpen(entry.key)}, onLongClick={edit(entry.key)})
                         .padding(vertical=6.dp).semantics {contentDescription="Uygulamayı aç: ${entry.label}"}, verticalAlignment=Alignment.CenterVertically) {
                         InstalledIcon(entry, model.repository, 42); Spacer(Modifier.width(12.dp))
                         Column(Modifier.weight(1f)) {
@@ -244,7 +244,8 @@ fun WidgetWorkspace(state:LauncherUiState, widgets:LauncherWidgets, pick:()->Uni
 @Composable
 fun WidgetPicker(widgets:LauncherWidgets, select:(AppWidgetProviderInfo)->Unit) {
     val context=LocalContext.current
-    val providers by produceState<List<AppWidgetProviderInfo>?>(null) {value=withContext(Dispatchers.IO){widgets.providers()}}
+    var providers by remember { mutableStateOf<List<AppWidgetProviderInfo>?>(null) }
+    LaunchedEffect(Unit) { providers = withContext(Dispatchers.IO) { widgets.providers() } }
     Column(Modifier.fillMaxWidth().fillMaxHeight(.8f).padding(horizontal=24.dp).testTag("launcher-widget-picker")) {
         Text("Kendi pencereni seç.",style=MaterialTheme.typography.headlineSmall)
         Text("Yalnız cihazındaki widget sağlayıcıları. Uygun olduğunda sistem izin ve ayar ekranını açar.",fontSize=12.sp,modifier=Modifier.padding(vertical=12.dp))

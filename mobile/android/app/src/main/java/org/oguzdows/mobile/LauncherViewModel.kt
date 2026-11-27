@@ -76,7 +76,7 @@ class LauncherViewModel(application: Application) : AndroidViewModel(application
         state.value = state.value.copy(pins = next)
         viewModelScope.launch(Dispatchers.IO) {
             writes.withLock {
-                if (!store.savePins(next)) state.value = state.value.copy(warning = "Düzen kalıcı kaydedilemedi; bu oturumda açık.")
+                if (!store.savePins(next)) handler.post { state.value = state.value.copy(warning = "Düzen kalıcı kaydedilemedi; bu oturumda açık.") }
             }
         }
     }
@@ -88,7 +88,7 @@ class LauncherViewModel(application: Application) : AndroidViewModel(application
     }
     fun unpin(key: String) = persistPins(state.value.pins.filterNot { it == key })
     fun move(key: String, delta: Int) = persistPins(LauncherRules.move(state.value.pins, key, delta))
-    fun resetPins() { viewModelScope.launch(Dispatchers.IO) { writes.withLock { store.reset(); state.value = state.value.copy(pins = LauncherRules.defaultPins, warning = null) } } }
+    fun resetPins() { viewModelScope.launch(Dispatchers.IO) { writes.withLock { store.reset(); handler.post { state.value = state.value.copy(pins = LauncherRules.defaultPins, warning = null) } } } }
     fun dark(value: Boolean) {
         context.getSharedPreferences("native-ui", Context.MODE_PRIVATE).edit().putBoolean("dark", value).apply()
         state.value = state.value.copy(dark = value); PlatformState.changed(context)

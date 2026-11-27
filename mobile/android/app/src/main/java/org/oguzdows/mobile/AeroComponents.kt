@@ -88,8 +88,9 @@ fun DestinationIcon(destination: ShellDestination, size: Int = 52) {
 
 @Composable
 fun InstalledIcon(entry: LauncherEntry, repository: LauncherRepository, size: Int = 48) {
-    val bitmap by produceState<android.graphics.Bitmap?>(null, entry.key, entry.info) {
-        value = withContext(Dispatchers.IO) { repository.icon(entry) }
+    var bitmap by remember(entry.key, entry.info) { mutableStateOf<android.graphics.Bitmap?>(null) }
+    LaunchedEffect(entry.key, entry.info) {
+        bitmap = withContext(Dispatchers.IO) { repository.icon(entry) }
     }
     if (bitmap != null) Image(bitmap!!.asImageBitmap(), null, Modifier.size(size.dp))
     else Box(Modifier.size(size.dp).clip(RoundedCornerShape(14.dp)).background(Color(0xFFDDE9E3)), contentAlignment = Alignment.Center) {
@@ -100,11 +101,11 @@ fun InstalledIcon(entry: LauncherEntry, repository: LauncherRepository, size: In
 @OptIn(androidx.compose.foundation.ExperimentalFoundationApi::class)
 @Composable
 fun HomeShortcut(key: String, state: LauncherUiState, repository: LauncherRepository,
-                 open: (String) -> Unit, edit: (String) -> Unit, modifier: Modifier = Modifier) {
+                 onOpen: (String) -> Unit, edit: (String) -> Unit, modifier: Modifier = Modifier) {
     val destination = LauncherRules.internalRoute(key)?.let { id -> LauncherRules.destinations.find { it.id == id } }
     val entry = state.entries.find { it.key == key }
     val label = destination?.label ?: entry?.label ?: if (state.loading) "Yükleniyor" else "Kullanılamıyor"
-    Column(modifier.clip(RoundedCornerShape(14.dp)).combinedClickable(onClick = { open(key) }, onLongClick = { edit(key) })
+    Column(modifier.clip(RoundedCornerShape(14.dp)).combinedClickable(onClick = { onOpen(key) }, onLongClick = { edit(key) })
         .padding(vertical = 8.dp).semantics { contentDescription = "Kısayol: $label" }, horizontalAlignment = Alignment.CenterHorizontally) {
         when { destination != null -> DestinationIcon(destination)
             entry != null -> InstalledIcon(entry, repository, 52)
