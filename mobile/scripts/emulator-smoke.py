@@ -85,19 +85,37 @@ def main():
         labels = [node.get('text', '') for node in nodes if node.get('text')]
         return labels, ' | '.join(dict.fromkeys(labels))[:1200]
 
-    # A boot-time system ANR must not silently obscure and invalidate every app test.
-    # Do not dismiss any ANR (including our app's): an unhealthy boot is a failed run.
+    # The old API35 Google image was observed showing "Pixel Launcher isn't responding"
+    # BEFORE the target APK was installed (run 46065058564). Only this identified stock
+    # launcher failure may be closed during disposable-AVD setup, never a product ANR.
     boot_labels, boot_ui = ui_diagnostic('boot')
     if any('close app' in text.lower() for text in boot_labels) and any(text.lower() == 'wait' for text in boot_labels):
-        evidence.update(passed=False, infrastructure_boot_dialog=boot_ui)
-        (OUT / 'evidence.json').write_text(json.dumps(evidence, indent=2))
-        annotation('error', 'Emulator boot health', boot_ui)
-        evidence_notice(evidence)
-        return 1
+        stock_pixel_anr = any("pixel launcher isn't responding" in text.lower() for text in boot_labels)
+        stock_package = 'com.google.android.apps.nexuslauncher'
+        stock_installed = adb('shell', 'pm', 'path', stock_package, check=False).startswith('package:')
+        if stock_pixel_anr and stock_installed:
+            nodes = ET.fromstring((OUT / 'boot-ui.xml').read_text()).iter('node')
+            close = next((node for node in nodes if node.get('text', '').lower() == 'close app'), None)
+            bounds = re.fullmatch(r'\[(\d+),(\d+)\]\[(\d+),(\d+)\]', close.get('bounds', '') if close is not None else '')
+            if bounds is None:
+                raise RuntimeError('Identified stock Pixel boot ANR, but its real close button is not accessible')
+            left, top, right, bottom = map(int, bounds.groups())
+            adb('shell', 'input', 'tap', str((left + right) // 2), str((top + bottom) // 2))
+            adb('shell', 'am', 'force-stop', stock_package)
+            evidence['stock_boot_recovery'] = {'package': stock_package, 'dialog': boot_ui,
+                'action': 'Close identified stock Pixel Launcher boot ANR and stop it before installing/selecting the target HOME.',
+                'product_anr_waived': False}
+            annotation('notice', 'Stock Pixel boot recovery, not a product pass', boot_ui)
+        else:
+            evidence.update(passed=False, infrastructure_boot_dialog=boot_ui)
+            (OUT / 'evidence.json').write_text(json.dumps(evidence, indent=2))
+            annotation('error', 'Emulator boot health', boot_ui)
+            evidence_notice(evidence)
+            return 1
     adb('uninstall', 'org.oguzdows.fixture', check=False)
     adb('install', '-r', '-t', str(ROOT / 'mobile/android/app/build/outputs/apk/debug/app-debug.apk'))
     adb('install', '-r', '-t', str(ROOT / 'mobile/android/app/build/outputs/apk/androidTest/debug/app-debug-androidTest.apk'))
-    for role in ('DIALER', 'SMS'):
+    for role in ('HOME', 'DIALER', 'SMS'):
         adb('shell', 'cmd', 'role', 'add-role-holder', '--user', '0', f'android.app.role.{role}', PACKAGE)
         holders = adb('shell', 'cmd', 'role', 'get-role-holders', '--user', '0', f'android.app.role.{role}')
         if PACKAGE not in holders:
@@ -217,9 +235,8 @@ def main():
     run_test('outgoingCallUsesTelecomAndOurInCallService')
     run_test('incomingCallCanBeAnsweredMutedAndEndedInOurUi', fixture='incoming-call')
     run_test('localApkReviewCancelAndSystemInstall')
-    # Keep the original communications/installer acceptance on its original task setup;
-    # native HOME is a separate role and task, qualified immediately before its own tests.
-    adb('shell', 'cmd', 'role', 'add-role-holder', '--user', '0', 'android.app.role.HOME', PACKAGE)
+    # Assert HOME is still genuinely held after communications/installer acceptance.
+    # Selecting it at setup also prevents the broken stock Pixel launcher from returning.
     if PACKAGE not in adb('shell', 'cmd', 'role', 'get-role-holders', '--user', '0', 'android.app.role.HOME'):
         raise RuntimeError('HOME: app did not qualify for the real platform role')
     run_test('', klass='LauncherDeviceTest', timeout=300)
