@@ -2,7 +2,7 @@
 
 **Sürüm: `0.2.0-emulator` · normal, kullanıcı yetkili test APK’sı.** Zengin OğuzDows arayüzü APK içinde çevrimdışı paketlenir; Telefon/SMS, cihaz ayarları ve paket yükleme işlemleri dar bir yerel adaptöre bağlanır. Bu bir web sitesinden SIM’e uzaktan erişim değildir.
 
-**Gözlenen SDK sonucu:** [7e7dad7 koşusunda](https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/46043838494) ana APK ve test APK’sı derlendi; **6 Java testi geçti, lint hatası 0** (37 uyarı). Bu koşu, emülatör çalıştırıcı adımında durdu; **başarılı emülatör/operatör testi olarak kullanılmaz.** Güncel çalışma ve kanıt ayrımı [doğrulama kaydında](../VERIFICATION.md) tutulur. Dağıtım paketi yalnız bütün yerel kabul testleri geçerse hazırlanır.
+**Gözlenen kabul:** [`023a89c` koşusunda](https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/46048445728) **12/12 gerçek emülatör testi ve 6/6 Java testi geçti**; lint **0 hata / 37 uyarı**. Paketleme, `apksigner verify` ve artifact yüklemesi başarılıdır. [**APK’yı indir ve emülatöre kur**](../INSTALL.md) · [SDK kaydı](evidence/sdk-023a89c.json) · [Sanal radyo/kurulum kaydı](evidence/emulator-023a89c.json) · [Paket kökeni ve indirme sınırı](evidence/package-023a89c.json). İlk başarısız koşular silinmeden [doğrulama kaydında](../VERIFICATION.md) saklanır. Bu başarı, fiziksel operatör veya GMS testi değildir.
 
 > APK, ROM/OTA/GSI/ISO değildir. Bootloader açma, flash veya root gerekmez. Fiziksel SIM/operatör, acil arama, MMS/RCS, GMS/Play Integrity/bankacılık/DRM ve her uygulamanın uyumluluğu doğrulanmış değildir. Günlük fiziksel telefonunda varsayılan Telefon/SMS uygulamanı bu deneysel paketle değiştirme.
 

@@ -4,7 +4,9 @@
 
 OğuzDows’un Türkçe kimliği, nazar boncuğu güç simgesi, Rıfkı’sı, kültür koleksiyonu ve araçlarını birleştiren **zengin mobil arayüz + yerel Telefon/SMS/Mağaza test APK’sı**. Tarayıcı önizlemesi ve telefondaki yerel servis yolu ayrı tutulur.
 
-> **Bu bir telefon ROM’u/ISO’su değildir.** SDK 35 ile ana APK ve test APK’sı derlendi; 6 Java testi geçti, lint hatası yok. Bu tek başına emülatör/SIM/mağaza kabul testi değildir: güncel kanıt ve kalan kapılar [doğrulama kaydında](VERIFICATION.md). Fiziksel cihaz, GMS, MMS/RCS ve canlı üretken model doğrulanmış değildir. PC/Pi v1.2 dosyaları ve yayınları değiştirilmez.
+> **Emülatör APK’sı hazır; telefon ROM’u/ISO’su değildir.** [`023a89c` koşusunda](https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/46048445728) **12/12 gerçek emülatör testi + 6 Java testi geçti**; lint 0 hata / 37 uyarı. Paket yalnız tam kabulden sonra hazırlandı. [**APK indirme, SHA-256 ve emülatöre kurulum**](INSTALL.md) · [Kanıt ve kalan kapılar](VERIFICATION.md). Fiziksel SIM/cihaz, GMS, MMS/RCS ve canlı üretken model doğrulanmış değildir. PC/Pi v1.2 dosyaları ve yayınları değiştirilmez.
+
+Ana APK **6.993.130 bayt**, debug imzalıdır. [Actions paketi](https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/46048445728/artifacts/15222979423) 14 gün saklanır; kalıcı mobil Release değildir. Sandbox artifact depolama alanından indiremediği için burada yerel APK kopyası/bağımsız hash doğrulaması yoktur; CI kanıtı ve kendi indirmeni doğrulama adımları [kurulum kılavuzunda](INSTALL.md).
 
 ![OğuzDows Mobile tasarım laboratuvarı](screenshots/home-desktop.webp)
 

@@ -1,0 +1,88 @@
+{
+  "source_sha": "023a89c9f22bdcd27eabecf8437b05addcab03e9",
+  "sdk": "35",
+  "abi": "x86_64",
+  "image_fingerprint": "google/sdk_gphone64_x86_64/emu64xa:15/AE3A.240806.043/12960925:userdebug/dev-keys",
+  "emulator_only": true,
+  "physical_sim_tested": false,
+  "emergency_calls_tested": false,
+  "gms_certification_tested": false,
+  "mms_rcs_supported": false,
+  "tests": [
+    {
+      "name": "NativeDeviceTest.bundledBridgeRolesValidationAndIsolation",
+      "passed": true,
+      "test_cases": 1,
+      "seconds": 40.34
+    },
+    {
+      "name": "NativeDeviceTest.paidActionsRequireFinalNativeConsent",
+      "passed": true,
+      "test_cases": 1,
+      "seconds": 26.28
+    },
+    {
+      "name": "NativeDeviceTest.systemVolumeBrightnessAndNativeThemeAreReal",
+      "passed": true,
+      "test_cases": 1,
+      "seconds": 23.42
+    },
+    {
+      "name": "NativeDeviceTest.incomingSmsUsesTheRealProviderAndRichInbox",
+      "passed": true,
+      "test_cases": 1,
+      "seconds": 22.4
+    },
+    {
+      "name": "NativeDeviceTest.outgoingSmsWaitsForActualSentCallback",
+      "passed": true,
+      "test_cases": 1,
+      "seconds": 14.14
+    },
+    {
+      "name": "NativeDeviceTest.outgoingCallUsesTelecomAndOurInCallService",
+      "passed": true,
+      "test_cases": 1,
+      "seconds": 20.51
+    },
+    {
+      "name": "NativeDeviceTest.incomingCallCanBeAnsweredMutedAndEndedInOurUi",
+      "passed": true,
+      "test_cases": 1,
+      "seconds": 12.11
+    },
+    {
+      "name": "NativeDeviceTest.localApkReviewCancelAndSystemInstall",
+      "passed": true,
+      "test_cases": 1,
+      "seconds": 24.78
+    },
+    {
+      "name": "RepositorySecurityTest.suite",
+      "passed": true,
+      "test_cases": 3,
+      "seconds": 0.59
+    },
+    {
+      "name": "LiveRepositoryTest.suite",
+      "passed": true,
+      "test_cases": 1,
+      "seconds": 18.29
+    }
+  ],
+  "live_repository": {
+    "apps": 5057,
+    "compatible": 5016,
+    "timestamp": 1795648445236,
+    "synced": 1795803860160,
+    "source": "https://f-droid.org/repo"
+  },
+  "live_apk_review": "APK_REVIEW com.beemdevelopment.aegis code=82 sha256=0eecec45de0da3ff1358004b51e2960d9178551643a6ed44f6496ea9ec999c19 bytes=6869856 installed=false",
+  "passed": true,
+  "github": {
+    "run_url": "https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/46048445728",
+    "job_id": 140673465222,
+    "job_url": "https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/46048445728/job/140673465222",
+    "scope": "API35/x86_64 QEMU acceptance PASSED: 12/12 actual cases in 10 selections. Not physical SIM, emergency, GMS or ROM evidence."
+  }
+}

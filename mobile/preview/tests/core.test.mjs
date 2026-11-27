@@ -51,6 +51,66 @@ test("all sixteen desktop tools are represented and ten really interactive", () 
   assert.equal(parity.physical_device_tested, false);
   assert.equal(parity.live_generative_model_tested, false);
 });
+test("native emulator claims require matching observed SDK, full device gate and artifact evidence", () => {
+  const read = (name) =>
+    JSON.parse(fs.readFileSync(new URL(`../../${name}`, import.meta.url)));
+  const parity = read("feature-parity.json");
+  const sdk = read(parity.native_evidence.sdk_report);
+  const emulator = read(parity.native_evidence.emulator_report);
+  const pkg = read(parity.native_evidence.package_report);
+  assert.equal(parity.native_emulator_verified, emulator.passed);
+  assert.equal(emulator.passed, true);
+  assert.equal(emulator.emulator_only, true);
+  assert.equal(emulator.source_sha, sdk.source_sha);
+  assert.equal(emulator.source_sha, pkg.source_sha);
+  assert.equal(emulator.source_sha, parity.native_evidence.source_sha);
+  assert.equal(
+    emulator.tests.length,
+    parity.android_acceptance.driver_selections_required,
+  );
+  assert.equal(new Set(emulator.tests.map((t) => t.name)).size, 10);
+  assert.ok(emulator.tests.every((t) => t.passed && t.test_cases > 0));
+  assert.equal(
+    emulator.tests.reduce((sum, t) => sum + t.test_cases, 0),
+    12,
+  );
+  assert.equal(
+    parity.android_acceptance.instrumentation_cases_observed_passed,
+    12,
+  );
+  assert.equal(
+    parity.android_acceptance.live_repository_acceptance_observed,
+    true,
+  );
+  assert.ok(emulator.live_repository.apps > 0);
+  assert.ok(
+    emulator.live_repository.compatible > 0 &&
+      emulator.live_repository.compatible <= emulator.live_repository.apps,
+  );
+  assert.match(emulator.live_apk_review, /installed=false$/);
+  assert.equal(pkg.github.workflow_conclusion, "success");
+  assert.equal(pkg.github.package_and_apksigner_step_conclusion, "success");
+  assert.equal(pkg.ci_apksigner_verify_passed, true);
+  assert.deepEqual(
+    pkg.files.map((f) => [f.bytes, f.sha256]),
+    sdk.assembled.map((f) => [f.bytes, f.sha256]),
+  );
+  assert.equal(pkg.artifact.retention_days, 14);
+  assert.match(pkg.artifact.digest, /^sha256:[a-f0-9]{64}$/);
+  assert.equal(
+    parity.android_acceptance.artifact_download_verified_locally,
+    pkg.local_retrieval.independent_apk_hash_or_signature_verification,
+  );
+  for (const failed of parity.native_evidence
+    .historical_failed_emulator_reports) {
+    assert.equal(read(failed).passed, false); // A later success must not rewrite failed history.
+  }
+  assert.equal(emulator.physical_sim_tested, false);
+  assert.equal(emulator.emergency_calls_tested, false);
+  assert.equal(emulator.gms_certification_tested, false);
+  assert.equal(pkg.rom_built, false);
+  assert.equal(pkg.production_signing, false);
+});
 test("preferences round-trip without conversations, model secrets or permissions", () => {
   const p = initialState();
   p.notes = "Çay, ışık, İstanbul";

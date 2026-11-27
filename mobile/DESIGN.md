@@ -98,6 +98,8 @@ Yerel işçiler sınırlıdır. Katalog ≤48 MiB JAR / ≤256 MiB JSON, ≥384 
 
 Kaynak sözleşmesi, SDK derlemesi, emülatör sanal radyo/kurulum testi ve gerçek SIM/cihaz kanıtı ayrı tutulur. CI harcanabilir QEMU emülatörü dışında fixture araması/SMS çalıştırmaz; gerçek rol uygunluğunu atlamaz. 8 cihaz + 3 depo güvenliği + 1 canlı kaynak testi geçmeden dağıtım paketi hazırlanmaz. Canlı Aegis APK incelemesi **kurmadan iptal**, ayrı etkisiz fixture ise sistem onayıyla gerçek kurulumdur. Bunlar GMS/operatör onayı değildir.
 
+**Gözlenen emülatör kilometre taşı:** [`023a89c` / koşu 46048445728](https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/46048445728) tam **12/12** kabulü ve paket kapısını geçti. Soğuk başlangıçtaki intent, React taslak dinleyicisi hazır olduğunu bildirdikten sonra yalnız bir kez teslim edilir; framework action/data bilgisi değiştirilmeden tüketim durumu ayrıca tutulur. 5/12, 10/12 ve 11/12 kalan önceki başarısız koşular [kanıt kaydında](VERIFICATION.md) korunur. [İndirme/kurulum](INSTALL.md); bu çalışma alanına artifact indirmesi ağ sınırı nedeniyle tamamlanmadığından yerel APK hash/imza doğrulaması iddia edilmez.
+
 Son telefon imajı için:
 
 1. Tam marka/model/kod adı, SoC/ABI, mevcut yazılım/vendor dalı ve bootloader politikası.

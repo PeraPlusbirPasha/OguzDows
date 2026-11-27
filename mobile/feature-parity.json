@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
   "product": "OğuzDows Mobile",
-  "phase": "native-apk-assembled-emulator-acceptance-pending",
+  "phase": "native-apk-api35-emulator-accepted",
   "rom_built": false,
   "native_apk_built": true,
   "physical_device_tested": false,
@@ -142,14 +142,14 @@
       "desktop": "Çevrimdışı mağaza teşhisi",
       "preview": "native-required",
       "mobile": "Native rol/izin/kaynak izni, gerçek katalog/imza/hash/API/ABI ve yükleyici hata yolları; tüm OEM/GMS teşhisi değildir. APT/Flatpak motorları taşınmaz.",
-      "native_android": "partial-assembled-runtime-pending"
+      "native_android": "partial-emulator-verified"
     },
     {
       "id": "source-compare",
       "desktop": "APT / Flatpak karşılaştırması",
       "preview": "partial",
       "mobile": "Web resmî geliştirici/Play bağlantıları. Native imzalı F-Droid boyut/sürüm/hash/API/ABI ve görünür yüklü sürüm karşılaştırması; Play metadata karşılaştırması veya tüm cihaz güncelleyicisi değil.",
-      "native_android": "partial-assembled-runtime-pending"
+      "native_android": "partial-live-catalog-review-verified"
     },
     {
       "id": "reading-list",
@@ -181,37 +181,37 @@
       "id": "nazar-power",
       "preview": "interactive",
       "mobile": "Nazar güç/pil kimliği. Web pil/saat örnek; APK sistemden okur. APK gerçek pil/ekran paneline gider, güvenlik kilidi/kapatma simülasyonu yapmaz; SystemUI/ROM güç katmanı ayrı.",
-      "native_android": "assembled-runtime-pending"
+      "native_android": "assembled-specific-runtime-unverified"
     },
     {
       "id": "rifki",
       "preview": "partial",
       "mobile": "Kedi kimliği korunur; dürüst yerel rehber + sunucuda açık onaylı opsiyonel üretken model köprüsü. Canlı model denenmedi.",
-      "native_android": "assembled-runtime-pending"
+      "native_android": "assembled-specific-runtime-unverified"
     },
     {
       "id": "assistant-role",
       "preview": "native-required",
       "mobile": "VoiceInteractionService/Session, RoleManager ile kullanıcı seçimi. Gizli hotword, mikrofon veya ekran bağlamı yok; cihazda sınanmadı.",
-      "native_android": "assembled-runtime-pending"
+      "native_android": "assembled-specific-runtime-unverified"
     },
     {
       "id": "google",
       "preview": "external-link",
       "mobile": "Google web kısayolları ve kurulu uygulamaları açma. GMS/Play lisans/sertifika koşullu; paketlenmedi.",
-      "native_android": "assembled-runtime-pending"
+      "native_android": "assembled-specific-runtime-unverified"
     },
     {
       "id": "apk",
       "preview": "partial",
-      "mobile": "Web 32 MiB başlık/hash, kurulum yok. Native 256 MiB özel kopya/paket/API/ABI/izin/ilk imzacı + kullanıcı onaylı sistem yükleyicisi; RESULT_OK ve yüklü sürüm/ilk imzacı eşleşmesi gerekir. SDK derlendi, çalışma kabulü ayrı.",
-      "native_android": "assembled-runtime-pending"
+      "mobile": "Web 32 MiB başlık/hash, kurulum yok. Native 256 MiB özel kopya/paket/API/ABI/izin/ilk imzacı + ayrı sistem yükleyicisi; RESULT_OK ve yüklü sürüm/ilk imzacı eşleşmesi gerekir. API35 emülatörde etkisiz APK kurulumu/iptali ve canlı Aegis inceleme/iptali geçti; fiziksel cihaz/split/güncelleme zinciri doğrulanmadı.",
+      "native_android": "emulator-fixture-install-and-live-review-verified"
     },
     {
       "id": "appearance",
       "preview": "interactive",
       "mobile": "Ortak açık/koyu, üç vurgu, kompakt/hafif/azaltılmış hareket. Native Mağaza/APK/listeler/Rıfkı tercihi okur; görüşme ekranı kendi gece paletindedir. Başka üreticinin uygulaması zorlanmaz.",
-      "native_android": "partial-assembled-runtime-pending"
+      "native_android": "partial-emulator-theme-preference-verified"
     },
     {
       "id": "culture-wallpapers",
@@ -247,13 +247,13 @@
       "id": "resource-monitor",
       "preview": "partial",
       "mobile": "Hafif görsel profil; APK sistem pil/saat/medya sesi ve platform durumu. Tüm cihaz CPU/RAM/pil ömrü/FPS iyileşme iddiası yok.",
-      "native_android": "partial-assembled-runtime-pending"
+      "native_android": "partial-emulator-volume-brightness-verified"
     },
     {
       "id": "files",
       "preview": "partial",
       "mobile": "Yalnız seçilen belge; genel depolama izni yok. Web hash/fotoğraf seçimleri, native APK SAF akışı.",
-      "native_android": "partial-assembled-runtime-pending"
+      "native_android": "partial-emulator-apk-review-verified"
     },
     {
       "id": "updates-drivers",
@@ -308,13 +308,20 @@
     "photos": "6 explicitly selected temporary images up to 8 MiB each, inspect/download/remove; not permanent library",
     "browser": "Explicit safe HTTPS/external search handoff, no embedded web engine",
     "control_center": "Top slide panel. Browser: actual preview audio/mute and UI dimmer, illustrative radios. APK: AudioManager media volume, own-window brightness, real radio/DND settings panels; no fake switch state.",
-    "native_system_delegation": "SDK-assembled offline bundled UI with origin/main-frame-bound bridge; native Telecom/SmsManager, signed pinned F-Droid, explicit package review/system installer. Settings delegates for radios/defaults; no WRITE_SETTINGS/root/silent installation."
+    "native_system_delegation": "API35/QEMU acceptance observed for offline bundled UI and origin/main-frame-bound bridge, native Telecom/SmsManager, signed pinned F-Droid, explicit package review/system installer. Settings delegates for radios/defaults; no WRITE_SETTINGS/root/silent installation or physical SIM/GMS/ROM evidence."
   },
-  "native_emulator_verified": false,
+  "native_emulator_verified": true,
   "native_evidence": {
-    "sdk_report": "android/evidence/sdk-7e7dad7.json",
-    "emulator_report": "android/evidence/emulator-384e905.json",
-    "emulator_acceptance": "First actual API35/x86_64 run FAILED: 5/12 cases passed (system volume/theme, incoming Telecom controls, repository signature/rollback/endpoint security). UI/foreground test corrections pending; no SMS, live repository review or full device acceptance claimed."
+    "source_sha": "023a89c9f22bdcd27eabecf8437b05addcab03e9",
+    "sdk_report": "android/evidence/sdk-023a89c.json",
+    "emulator_report": "android/evidence/emulator-023a89c.json",
+    "package_report": "android/evidence/package-023a89c.json",
+    "historical_failed_emulator_reports": [
+      "android/evidence/emulator-384e905.json",
+      "android/evidence/emulator-be00308.json",
+      "android/evidence/emulator-a2eafe4.json"
+    ],
+    "emulator_acceptance": "API35/x86_64 QEMU PASSED: 12/12 cases in 10 selections, no skipped/empty acceptance. Bundled bridge and cold-start draft, paid-action cancellation, system volume/brightness/theme, incoming/outgoing virtual SMS and calls, inert APK system install/cancel, repository security and live catalog/Aegis review/cancel. No physical SIM, emergency, GMS, all-app or ROM claim."
   },
   "android_acceptance": {
     "compile_sdk": 35,
@@ -328,8 +335,13 @@
     "emergency_calls_tested": false,
     "gms_certification_tested": false,
     "mms_rcs_supported": false,
-    "live_repository_acceptance_observed": false,
+    "live_repository_acceptance_observed": true,
     "production_signed_release": false,
-    "universal_phone_iso": false
+    "universal_phone_iso": false,
+    "lint_warnings_observed": 37,
+    "instrumentation_cases_observed_passed": 12,
+    "driver_selections_observed_passed": 10,
+    "debug_package_prepared": true,
+    "artifact_download_verified_locally": false
   }
 }

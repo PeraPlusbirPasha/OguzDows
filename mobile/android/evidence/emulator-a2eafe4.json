@@ -1,0 +1,89 @@
+{
+  "source_sha": "a2eafe4bbe4534604b124cface6d9c3810e4085d",
+  "sdk": "35",
+  "abi": "x86_64",
+  "image_fingerprint": "google/sdk_gphone64_x86_64/emu64xa:15/AE3A.240806.043/12960925:userdebug/dev-keys",
+  "emulator_only": true,
+  "physical_sim_tested": false,
+  "emergency_calls_tested": false,
+  "gms_certification_tested": false,
+  "mms_rcs_supported": false,
+  "tests": [
+    {
+      "name": "NativeDeviceTest.bundledBridgeRolesValidationAndIsolation",
+      "passed": false,
+      "test_cases": 0,
+      "seconds": 73.71,
+      "failure": "INSTRUMENTATION_STATUS: stack=java.lang.AssertionError: Activity never becomes requested state \"[DESTROYED]\" (last lifecycle transition = \"RESUMED\")"
+    },
+    {
+      "name": "NativeDeviceTest.paidActionsRequireFinalNativeConsent",
+      "passed": true,
+      "test_cases": 1,
+      "seconds": 11.64
+    },
+    {
+      "name": "NativeDeviceTest.systemVolumeBrightnessAndNativeThemeAreReal",
+      "passed": true,
+      "test_cases": 1,
+      "seconds": 9.9
+    },
+    {
+      "name": "NativeDeviceTest.incomingSmsUsesTheRealProviderAndRichInbox",
+      "passed": true,
+      "test_cases": 1,
+      "seconds": 10.18
+    },
+    {
+      "name": "NativeDeviceTest.outgoingSmsWaitsForActualSentCallback",
+      "passed": true,
+      "test_cases": 1,
+      "seconds": 9.8
+    },
+    {
+      "name": "NativeDeviceTest.outgoingCallUsesTelecomAndOurInCallService",
+      "passed": true,
+      "test_cases": 1,
+      "seconds": 14.54
+    },
+    {
+      "name": "NativeDeviceTest.incomingCallCanBeAnsweredMutedAndEndedInOurUi",
+      "passed": true,
+      "test_cases": 1,
+      "seconds": 8.12
+    },
+    {
+      "name": "NativeDeviceTest.localApkReviewCancelAndSystemInstall",
+      "passed": true,
+      "test_cases": 1,
+      "seconds": 18.54
+    },
+    {
+      "name": "RepositorySecurityTest.suite",
+      "passed": true,
+      "test_cases": 3,
+      "seconds": 1.27
+    },
+    {
+      "name": "LiveRepositoryTest.suite",
+      "passed": true,
+      "test_cases": 1,
+      "seconds": 14.72
+    }
+  ],
+  "live_repository": {
+    "apps": 5057,
+    "compatible": 5016,
+    "timestamp": 1795648445236,
+    "synced": 1795803364930,
+    "source": "https://f-droid.org/repo"
+  },
+  "live_apk_review": "APK_REVIEW com.beemdevelopment.aegis code=82 sha256=0eecec45de0da3ff1358004b51e2960d9178551643a6ed44f6496ea9ec999c19 bytes=6869856 installed=false",
+  "passed": false,
+  "github": {
+    "run_url": "https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/46047473237",
+    "job_id": 140670222881,
+    "job_url": "https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/46047473237/job/140670222881",
+    "scope": "Historical FAILED acceptance: 11/12 cases passed; distribution package withheld."
+  }
+}
