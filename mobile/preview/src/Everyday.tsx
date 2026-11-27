@@ -40,9 +40,17 @@ export type Props = PageProps & {
 export default function Everyday(props: Props) {
   switch (props.screen) {
     case "phone":
-      return <PhonePage {...props} />;
+      return inNativeApp ? (
+        <NativePhone {...props} />
+      ) : (
+        <PhonePage {...props} />
+      );
     case "messages":
-      return <Messages {...props} />;
+      return inNativeApp ? (
+        <NativeMessages {...props} />
+      ) : (
+        <Messages {...props} />
+      );
     case "contacts":
       return <Contacts {...props} />;
     case "calendar":

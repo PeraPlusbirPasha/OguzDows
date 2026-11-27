@@ -4,4 +4,4 @@ dependencyResolutionManagement {
     repositories { google(); mavenCentral() }
 }
 rootProject.name = "OguzDowsMobile"
-include(":app")
+include(":app", ":fixture")

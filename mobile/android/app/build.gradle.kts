@@ -18,6 +18,7 @@ android {
     testOptions { animationsDisabled = true }
     lint { abortOnError = true }
     sourceSets.getByName("main").assets.srcDir(layout.buildDirectory.dir("generated/bundled-ui"))
+    sourceSets.getByName("androidTest").assets.srcDir(layout.buildDirectory.dir("generated/test-assets"))
 }
 
 val bundleUi by tasks.registering(Sync::class) {

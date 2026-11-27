@@ -84,7 +84,8 @@ public final class SmsController {
             .setAction(delivered ? "org.oguzdows.mobile.SMS_DELIVERED" : "org.oguzdows.mobile.SMS_SENT")
             .setData(Uri.parse("oguz-receipt://" + id + "/" + part + "/" + (delivered ? "delivered" : "sent")))
             .putExtra("id", id).putExtra("part", part).putExtra("delivery", delivered);
-        return PendingIntent.getBroadcast(context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT | (delivered ? PendingIntent.FLAG_MUTABLE : PendingIntent.FLAG_IMMUTABLE));
+        int mutability = delivered ? (android.os.Build.VERSION.SDK_INT >= 31 ? PendingIntent.FLAG_MUTABLE : 0) : PendingIntent.FLAG_IMMUTABLE;
+        return PendingIntent.getBroadcast(context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT | mutability);
     }
     public static JSONArray messages(Context context) throws Exception {
         if (!PlatformState.role(context, RoleManager.ROLE_SMS) || !PlatformState.granted(context, Manifest.permission.READ_SMS))

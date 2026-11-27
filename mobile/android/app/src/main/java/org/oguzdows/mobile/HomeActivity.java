@@ -98,7 +98,15 @@ public final class HomeActivity extends Activity {
                     if ("/api/rifki/status".equals(url.getPath()))
                         return response("application/json", "{\"enabled\":false,\"tools\":false,\"message\":\"Yerel rehber; model bağlı değil.\"}", 200);
                     WebResourceResponse result = assets.shouldInterceptRequest(url);
-                    if (result != null) return result;
+                    if (result != null) {
+                        if ("text/html".equals(result.getMimeType())) {
+                            java.util.Map<String, String> headers = new java.util.HashMap<>();
+                            if (result.getResponseHeaders() != null) headers.putAll(result.getResponseHeaders());
+                            headers.put("Content-Security-Policy", "default-src 'none'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' blob: data:; font-src 'self'; media-src 'self' blob: data:; connect-src 'self'; frame-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'");
+                            headers.put("X-Content-Type-Options", "nosniff"); result.setResponseHeaders(headers);
+                        }
+                        return result;
+                    }
                     return response("text/plain", "Not found", 404);
                 }
                 return response("text/plain", "Bundled UI has no network access", 403);
@@ -163,6 +171,7 @@ public final class HomeActivity extends Activity {
         }
     }
     private void receive(WebMessageCompat message, JavaScriptReplyProxy proxy) {
+        if (message.getType() != WebMessageCompat.TYPE_STRING) return;
         String raw = message.getData();
         if (raw == null || raw.length() > 16384) return;
         Reply reply = null;
@@ -265,7 +274,14 @@ public final class HomeActivity extends Activity {
         if (emergency) {
             new AlertDialog.Builder(this).setTitle("Acil arama · sistem yolu")
                 .setMessage("Acil arama, cihazın ön yüklü sistem acil arayıcısında yapılmalıdır. Bu deneysel arayüzden acil çağrı başlatılmaz; emülatörde acil numara test edilmez.")
-                .setPositiveButton("Sistem acil arayıcısını aç", (d, w) -> { startActivity(telecom.createLaunchEmergencyDialerIntent(number)); reply.error("Sistem acil arayıcısı açıldı; burada arama yapılmadı."); })
+                .setPositiveButton("Sistem acil arayıcısını aç", (d, w) -> {
+                    try {
+                        String systemDialer = telecom.getSystemDialerPackage();
+                        if (systemDialer == null || getPackageName().equals(systemDialer)) throw new ActivityNotFoundException();
+                        startActivity(new Intent(Intent.ACTION_DIAL, Uri.fromParts("tel", number, null)).setPackage(systemDialer));
+                        reply.error("Ön yüklü sistem arayıcısı açıldı; burada arama yapılmadı.");
+                    } catch (RuntimeException error) { reply.error("Ön yüklü arayıcı açılamadı. Cihazın fiziksel acil arama yolunu kullan."); }
+                })
                 .setNegativeButton("Vazgeç", (d, w) -> reply.error("Arama yapılmadı.")).show(); return;
         }
         if (!PlatformState.role(this, RoleManager.ROLE_DIALER) || !PlatformState.granted(this, Manifest.permission.CALL_PHONE)) {
@@ -327,11 +343,11 @@ public final class HomeActivity extends Activity {
     private void deliverIntent(Intent intent) {
         if (webView == null || intent == null) return;
         String screen = intent.getStringExtra("screen");
-        if (!Set.of("home", "phone", "messages").contains(screen == null ? "" : screen)) screen = "";
+        if (!java.util.Arrays.asList("home", "phone", "messages").contains(screen == null ? "" : screen)) screen = "";
         String number = "", body = "";
         if (Intent.ACTION_DIAL.equals(intent.getAction()) || Intent.ACTION_VIEW.equals(intent.getAction()) || Intent.ACTION_SENDTO.equals(intent.getAction())) {
             Uri data = intent.getData();
-            if (data != null && data.getScheme() != null && Set.of("tel", "sms", "smsto", "mms", "mmsto").contains(data.getScheme())) {
+            if (data != null && data.getScheme() != null && java.util.Arrays.asList("tel", "sms", "smsto", "mms", "mmsto").contains(data.getScheme())) {
                 number = PlatformRules.number(data.getSchemeSpecificPart().split("[?;]", 2)[0]);
                 screen = "tel".equals(data.getScheme()) ? "phone" : "messages";
                 String extra = intent.getStringExtra("sms_body");

@@ -1,7 +1,5 @@
 #!/usr/bin/env python3
 """Run a bounded one-shot build command; emit useful GHA annotations on failure (no secrets)."""
-import os
-from pathlib import Path
 import subprocess
 import sys
 
@@ -24,7 +22,8 @@ def main():
         code = 124
     print(output, end='')
     if code:
-        detail = '\n'.join(output.splitlines()[-170:])[-24000:]
+        meaningful = [line for line in output.splitlines() if not line.startswith(('\tat ', '\t... ', '    at '))]
+        detail = '\n'.join(meaningful[-180:])[-24000:]
         detail = detail.replace('%', '%25').replace('\r', '%0D').replace('\n', '%0A')
         print(f'::error title=Mobile build or emulator command failed::{detail}')
     return code

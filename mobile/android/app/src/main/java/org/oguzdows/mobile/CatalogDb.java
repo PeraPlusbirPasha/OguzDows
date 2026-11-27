@@ -26,7 +26,8 @@ public final class CatalogDb extends SQLiteOpenHelper {
     public static synchronized CatalogDb get(Context context) {
         if (instance == null) instance = new CatalogDb(context.getApplicationContext()); return instance;
     }
-    private CatalogDb(Context context) { super(context, "fdroid-catalog.db", null, 1); }
+    private CatalogDb(Context context) { this(context, "fdroid-catalog.db"); }
+    CatalogDb(Context context, String databaseName) { super(context, databaseName, null, 1); }
     @Override public void onCreate(SQLiteDatabase db) {
         db.execSQL("CREATE TABLE apps (package TEXT PRIMARY KEY, name TEXT NOT NULL, summary TEXT NOT NULL, license TEXT NOT NULL, anti TEXT NOT NULL)");
         db.execSQL("CREATE TABLE versions (package TEXT PRIMARY KEY, version TEXT NOT NULL, code INTEGER NOT NULL, apk TEXT NOT NULL, hash TEXT NOT NULL, size INTEGER NOT NULL, min_sdk INTEGER NOT NULL, target_sdk INTEGER NOT NULL, abis TEXT NOT NULL)");

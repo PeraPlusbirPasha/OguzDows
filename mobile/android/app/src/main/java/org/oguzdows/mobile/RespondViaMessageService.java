@@ -8,7 +8,7 @@ import android.os.IBinder;
 public final class RespondViaMessageService extends Service {
     @Override public IBinder onBind(Intent intent) { return null; }
     @Override public int onStartCommand(Intent intent, int flags, int startId) {
-        if (intent != null && Intent.ACTION_RESPOND_VIA_MESSAGE.equals(intent.getAction())) {
+        if (intent != null && android.telephony.TelephonyManager.ACTION_RESPOND_VIA_MESSAGE.equals(intent.getAction())) {
             String number = intent.getData() == null ? "" : PlatformRules.number(intent.getData().getSchemeSpecificPart());
             String body = intent.getStringExtra(Intent.EXTRA_TEXT);
             if (!number.isEmpty() && PlatformRules.smsBody(body)) {
