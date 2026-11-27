@@ -88,6 +88,7 @@ jobs:
           script: python3 mobile/scripts/ci-command.py -- python3 mobile/scripts/emulator-smoke.py
       - name: Yalnız tüm native testler geçince dağıtım paketini hazırla
         run: |
+          python3 mobile/scripts/acceptance.py
           mkdir -p test-results/mobile/package
           cp mobile/android/app/build/outputs/apk/debug/app-debug.apk test-results/mobile/package/OguzDows-Mobile-0.4.0-connected-debug.apk
           cp mobile/android/app/build/outputs/apk/androidTest/debug/app-debug-androidTest.apk test-results/mobile/package/OguzDows-Mobile-0.4.0-connected-tests.apk

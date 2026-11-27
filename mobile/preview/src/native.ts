@@ -36,6 +36,7 @@ export type NativeStatus = {
   phonePermission: boolean;
   contactsPermission: boolean;
   themeAccent: "sea" | "copper" | "plum";
+  themeColor: string;
   smsPermission: boolean;
   notificationPermission: boolean;
   notificationsEnabled: boolean;

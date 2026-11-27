@@ -5,15 +5,14 @@ Never runs against a physical serial or ro.kernel.qemu != 1. No real carrier/SIM
 Run inside android-emulator-runner after building both APKs and generating test assets.
 """
 import json
-import os
 from pathlib import Path
 import re
 import subprocess
-import sys
 import time
 import xml.etree.ElementTree as ET
 
 import bridge_fixture
+from acceptance import SELECTIONS, validate_emulator
 
 ROOT = Path(__file__).resolve().parents[2]
 OUT = ROOT / 'test-results/mobile/emulator'
@@ -35,10 +34,17 @@ def evidence_notice(evidence):
         for key in ('failure', 'error'):
             if key in item:
                 item[key] = item[key][:100]
+    # Independent hashes have separate notices and remain in evidence.json.
+    for key in ('device_bridge', 'native_device_bridge'):
+        summary.get(key, {}).pop('file_sha256', None)
     detail = json.dumps(summary, ensure_ascii=False, separators=(',', ':'))
     if len(detail.encode('utf-8')) > 3400:
         for item in summary.get('tests', []):
             item.pop('failure', None); item.pop('error', None)
+        detail = json.dumps(summary, ensure_ascii=False, separators=(',', ':'))
+    if len(detail.encode('utf-8')) > 3400:
+        for item in summary.get('tests', []): item.pop('seconds', None)
+        summary.pop('image_fingerprint', None)
         detail = json.dumps(summary, ensure_ascii=False, separators=(',', ':'))
     if len(detail.encode('utf-8')) > 3400:
         raise RuntimeError('Emulator summary exceeded its bounded notice; no success inferred.')
@@ -172,11 +178,22 @@ def main():
                     raise RuntimeError('Virtual modem injection failed: ' + output)
             if fixture == 'device-bridge':
                 evidence['device_bridge'] = bridge_fixture.exercise(adb, process)
+                annotation('notice', 'Mobile runner peer evidence', json.dumps(evidence['device_bridge'], separators=(',', ':')))
             output, _ = process.communicate(timeout=timeout)
             (OUT / f'{klass}-{name or "suite"}.txt').write_text(output)
+            for line in output.splitlines():
+                if 'DEVICE_UI_DIAGNOSTIC ' in line:
+                    annotation('notice', 'Native UI diagnosis ' + klass, line.split('DEVICE_UI_DIAGNOSTIC ', 1)[1])
+                if 'DEVICE_UI_PREVIEW ' in line:
+                    preview = re.fullmatch(r'([a-zA-Z0-9-]{1,80}) ([A-Za-z0-9+/=]{1,28000})', line.split('DEVICE_UI_PREVIEW ', 1)[1].strip())
+                    if preview:
+                        label, encoded = preview.groups()
+                        pieces = [encoded[i:i + 3400] for i in range(0, len(encoded), 3400)]
+                        for index, piece in enumerate(pieces):
+                            annotation('notice', f'Native failed UI {label} {index+1:02}/{len(pieces):02}', piece)
             match = re.search(r'OK \((\d+) tests?\)', output)
             cases = int(match.group(1)) if match else 0
-            expected = {'LauncherDeviceTest': 5, 'RepositorySecurityTest': 3, 'ConnectedDeviceTest': 4}.get(klass, 1)
+            expected = SELECTIONS[f'{klass}.{name or "suite"}']
             passed = process.returncode == 0 and cases == expected and 'FAILURES!!!' not in output and 'INSTRUMENTATION_FAILED' not in output
             record = {'name': f'{klass}.{name or "suite"}', 'passed': passed, 'test_cases': cases,
                       'seconds': round(time.monotonic() - started, 2)}
@@ -193,6 +210,11 @@ def main():
                 # instrumentation result. Capture the real trace, not a blind retry/time increase.
                 labels, visible_ui = ui_diagnostic('failure-' + klass + '-' + (name or 'suite'))
                 record['visible_ui'] = visible_ui[:160]
+                annotation('notice', 'Emulator visible UI ' + record['name'], visible_ui)
+                tasks = adb('shell', 'dumpsys', 'activity', 'activities', check=False)
+                (OUT / f'{klass}-{name or "suite"}-activities.txt').write_text(tasks)
+                annotation('notice', 'Emulator activity focus ' + record['name'], '\n'.join(line.strip() for line in tasks.splitlines()
+                    if any(key in line for key in ('topResumedActivity', 'mResumedActivity', 'mFocusedApp', 'Hist #0', 'mLastPausedActivity')))[:2800])
                 events = adb('logcat', '-b', 'events', '-d', '-s', 'am_anr', check=False)
                 has_anr_dialog = (any('close app' in text.lower() for text in labels)
                                   and any(text.lower() == 'wait' for text in labels))
@@ -224,8 +246,10 @@ def main():
                 for line in output.splitlines():
                     if 'BRIDGE_CAPTURE_EVIDENCE ' in line:
                         evidence['screen_capture'] = json.loads(line.split('BRIDGE_CAPTURE_EVIDENCE ', 1)[1])
+                        annotation('notice', 'Mobile real capture evidence', json.dumps(evidence['screen_capture'], separators=(',', ':')))
                     if 'BRIDGE_INTEROP_EVIDENCE ' in line:
                         evidence['native_device_bridge'] = json.loads(line.split('BRIDGE_INTEROP_EVIDENCE ', 1)[1])
+                        annotation('notice', 'Mobile native peer evidence', json.dumps(evidence['native_device_bridge'], separators=(',', ':')))
             if klass == 'LiveRepositoryTest':
                 for line in output.splitlines():
                     if 'LIVE_REPO_EVIDENCE ' in line:
@@ -273,8 +297,21 @@ def main():
     # Dedicated emulator contains only fixture data, but keep the diagnostic narrowly scoped to app crashes.
     crash = adb('logcat', '-b', 'crash', '-d', '-t', '300', check=False)
     (OUT / 'crash-buffer.txt').write_text(crash)
-    evidence['passed'] = (all(item['passed'] for item in evidence['tests']) and len(evidence['tests']) == 15
-                          and sum(item['test_cases'] for item in evidence['tests']) == 24)
+    events = adb('logcat', '-b', 'events', '-d', '-s', 'am_anr', check=False)
+    (OUT / 'anr-events.txt').write_text(events)
+    evidence['product_anr_detected'] = re.search(r'(?<![\w.])' + re.escape(PACKAGE) + r'(?=[,\s\]])', events) is not None
+    evidence['product_crash_detected'] = re.search(r'Process: ' + re.escape(PACKAGE) + r'(?=[,\s])', crash) is not None
+    if evidence['product_crash_detected']:
+        annotation('error', 'Mobile product crash', crash[-3000:])
+    frame_file = OUT / 'connected-real-mediaprojection.jpg'
+    adb('pull', f'/sdcard/Android/data/{PACKAGE}/files/evidence/connected-real-mediaprojection.jpg', str(frame_file), check=False)
+    evidence['passed'] = False
+    try:
+        validate_emulator(evidence, evidence['source_sha'], frame_file.read_bytes() if frame_file.is_file() else None)
+        evidence['passed'] = True
+    except ValueError as error:
+        evidence['acceptance_failure'] = str(error)
+        annotation('error', 'Mobile complete acceptance refused', str(error))
     (OUT / 'evidence.json').write_text(json.dumps(evidence, indent=2))
     print(json.dumps(evidence, indent=2))
     evidence_notice(evidence)

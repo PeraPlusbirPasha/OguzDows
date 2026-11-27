@@ -63,9 +63,9 @@ class LauncherDeviceTest {
         throw AssertionError("Timed out: $label")
     }
     private fun node(tag:String):UiObject2 = device.wait(Until.findObject(By.res(tag)),25000)
-        ?:throw AssertionError("Native node not found: $tag; current package=${device.currentPackageName}")
+        ?:DeviceDiagnostics.missing(device, tag)
     private fun desc(label:String):UiObject2 = device.wait(Until.findObject(By.desc(label)),25000)
-        ?:throw AssertionError("Native action not found: $label; package=${device.currentPackageName}")
+        ?:DeviceDiagnostics.missing(device, label)
     private fun pins():List<String> {
         val out=AtomicReference<List<String>>()
         scenario.onActivity{out.set(it.model.ui.value.pins)}

@@ -184,7 +184,8 @@ def application():
             def ready(server):
                 self.server = server; self.local.show_all()
                 self.tell('TLS masası açık. Yerel ağ IP’sini seç, iki dakikalık daveti özel kanaldan aktar.')
-            self.work(lambda: core.Server(self.session).start(), ready)
+            session = self.session
+            self.work(lambda: core.Server(session).start(), ready)
 
         def show_invite(self):
             try:
@@ -239,7 +240,8 @@ def application():
         def stage(self, paths):
             if not 1 <= len(paths) <= core.MAX_ITEMS:
                 self.tell('En çok sekiz dosya seç.'); return
-            self.work(lambda: [self.session.offer(path) for path in paths],
+            session = self.session
+            self.work(lambda: [session.offer(path) for path in paths],
                       lambda ids: self.tell(f'{len(ids)} dosya özel kopyaya alındı. ' + ('Masada onaylı cihazlara sunuluyor; indirmeyi karşı cihaz seçer.' if self.server else 'Göndermek için kartı cihaza sürükle veya Gönderim öner düğmesini kullan.')))
 
         def propose(self, ident):

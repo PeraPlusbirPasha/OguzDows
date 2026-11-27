@@ -81,7 +81,6 @@ fun NativeLauncherScreen(
         }
         LaunchedEffect(homeSignal) { if (homeSignal > 0) { panel = null; pager.scrollToPage(0) } }
         BackHandler { if (panel != null) panel = null else scope.launch { pager.animateScrollToPage(0) } }
-        val layout = ShellStyles.layout(state.layout)
         val gestureThreshold = with(LocalDensity.current) { 64.dp.toPx() }
         BoxWithConstraints(Modifier.fillMaxSize().testTag("launcher-root").semantics { testTagsAsResourceId = true }
             .pointerInput(gestureThreshold) {
@@ -140,27 +139,7 @@ fun NativeLauncherScreen(
                 }
                 if (state.warning != null) Text(state.warning, color=Color.White, fontSize=11.sp, maxLines=2, modifier=Modifier.padding(top=6.dp))
                 HorizontalPager(pager, Modifier.fillMaxWidth().weight(1f).testTag("launcher-pages"), verticalAlignment=Alignment.Top) { page ->
-                    if (page < 2) Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(top=12.dp)) {
-                        val pagePins = state.pins.drop(page * 8).take(8)
-                        Text(layout.label + " · " + (page + 1), color=Color.White.copy(.85f),fontSize=10.sp,modifier=Modifier.padding(bottom=4.dp).testTag("launcher-layout-label"))
-                        if(layout.rail) Row(Modifier.fillMaxWidth(),horizontalArrangement=Arrangement.spacedBy(8.dp)) {
-                            listOf("files" to "Köprü", "contacts" to "Rehber", "store" to "Mağaza").forEach { (id,label)->
-                                TextButton(onClick={onOpen("internal:$id")}){Text(label,color=Color.White)}
-                            }
-                        }
-                        for (row in 0 until ((8 + layout.columns - 1) / layout.columns)) Row(Modifier.fillMaxWidth(), horizontalArrangement=Arrangement.spacedBy(5.dp)) {
-                            for (column in 0 until layout.columns) {
-                                val key = pagePins.getOrNull(row * layout.columns + column)
-                                if(row * layout.columns + column >= 8) Spacer(Modifier.weight(1f))
-                                else if (key == null) Box(Modifier.weight(1f).height(94.dp).clip(RoundedCornerShape(14.dp))
-                                    .clickable { panel="apps" }.semantics { contentDescription="Kısayol ekle" }, contentAlignment=Alignment.Center) {
-                                    ShellGlyph("plus", tint=Color.White.copy(.45f))
-                                } else HomeShortcut(key, state, model.repository, ::onOpen, { panel="edit:$it" }, Modifier.weight(1f))
-                            }
-                        }
-                        if (page == 1) Text("Uygulamalarda + ile sabitle · kısayola basılı tutarak düzenle", color=Color.White.copy(.8f),
-                            fontSize=10.sp, lineHeight=15.sp, modifier=Modifier.padding(horizontal=6.dp, vertical=10.dp))
-                    } else WidgetWorkspace(state, widgets, {panel="widgets"})
+                    if (page < 2) ShortcutWorkspace(page, state, model, ::onOpen, { panel="edit:$it" }, {panel="apps"}) else WidgetWorkspace(state, widgets, {panel="widgets"})
                 }
                 Row(Modifier.fillMaxWidth().height(34.dp), horizontalArrangement=Arrangement.Center, verticalAlignment=Alignment.CenterVertically) {
                     for (i in 0..2) Box(Modifier.width(48.dp).fillMaxHeight().clickable { scope.launch { pager.animateScrollToPage(i) } }
@@ -215,8 +194,6 @@ fun NativeLauncherScreen(
         if (panel != null && panel!="controls" && panel!="apps") ModalBottomSheet(onDismissRequest={panel=null}, containerColor=MaterialTheme.colorScheme.surface,
             modifier=Modifier.imePadding().semantics { testTagsAsResourceId = true }, dragHandle={BottomSheetDefaults.DragHandle()}) {
             when {
-                panel=="apps" -> LauncherDrawer(state, model, ::onOpen, {panel="edit:$it"}, report)
-                panel=="controls" -> LauncherControls(state, model, role, system, brightness, {panel=null;route("settings")}, report)
                 panel=="wallpapers" -> LauncherWallpaperPanel(state, model)
                 panel=="device" -> LauncherDevicePanel(state, system)
                 panel=="rifki" -> RifkiPanel(state) { suggestion ->
@@ -235,6 +212,44 @@ fun NativeLauncherScreen(
                 panel!!.startsWith("edit:") -> ShortcutEditor(panel!!.removePrefix("edit:"), state, model, {panel=null}, report)
             }
             Spacer(Modifier.height(24.dp))
+        }
+    }
+}
+
+
+@Composable
+private fun ShortcutWorkspace(page: Int, state: LauncherUiState, model: LauncherViewModel,
+                              open: (String)->Unit, edit: (String)->Unit, add: ()->Unit) {
+    val layout = ShellStyles.layout(state.layout)
+    Row(Modifier.fillMaxSize().padding(top=12.dp)) {
+        if(layout.rail) GlassSurface(Modifier.width(54.dp).fillMaxHeight().padding(end=5.dp), dark=true) {
+            Column(Modifier.fillMaxWidth().padding(vertical=10.dp), horizontalAlignment=Alignment.CenterHorizontally,
+                verticalArrangement=Arrangement.spacedBy(12.dp)) {
+                listOf("files" to "Dosya", "contacts" to "Rehber", "store" to "Mağaza").forEach { (id,label)->
+                    Column(Modifier.fillMaxWidth().clickable{open("internal:$id")}.padding(vertical=6.dp),horizontalAlignment=Alignment.CenterHorizontally) {
+                        ShellGlyph(if(id=="contacts") "phone" else id,Modifier.size(23.dp),Color.White)
+                        Text(label,color=Color.White,fontSize=8.sp)
+                    }
+                }
+            }
+        }
+        Column(Modifier.weight(1f).fillMaxHeight().verticalScroll(rememberScrollState())) {
+            val pins = state.pins.drop(page*8).take(8)
+            Text(layout.label+" · "+(page+1),color=Color.White.copy(.85f),fontSize=10.sp,
+                modifier=Modifier.padding(bottom=4.dp).testTag("launcher-layout-label"))
+            for(row in 0 until ((8+layout.columns-1)/layout.columns)) Row(Modifier.fillMaxWidth(),horizontalArrangement=Arrangement.spacedBy(5.dp)) {
+                for(column in 0 until layout.columns) {
+                    val index=row*layout.columns+column
+                    val key=pins.getOrNull(index)
+                    if(index>=8) Spacer(Modifier.weight(1f))
+                    else if(key==null) Box(Modifier.weight(1f).height(94.dp).clip(RoundedCornerShape(14.dp)).clickable(onClick=add)
+                        .semantics{contentDescription="Kısayol ekle"},contentAlignment=Alignment.Center) {
+                        ShellGlyph("plus",tint=Color.White.copy(.45f))
+                    } else HomeShortcut(key,state,model.repository,open,edit,Modifier.weight(1f))
+                }
+            }
+            if(page==1) Text("Uygulamalarda + ile sabitle · kısayola basılı tutarak düzenle",color=Color.White.copy(.8f),fontSize=10.sp,
+                lineHeight=15.sp,modifier=Modifier.padding(horizontal=6.dp,vertical=10.dp))
         }
     }
 }

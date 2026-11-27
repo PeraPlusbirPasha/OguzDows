@@ -21,6 +21,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.testTagsAsResourceId
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -32,6 +34,7 @@ import java.util.Locale
 /** An explicit companion surface ABOVE the real keyguard, never an authentication replacement. */
 class LockActivity : ComponentActivity() {
     private var message by mutableStateOf("")
+    @OptIn(androidx.compose.ui.ExperimentalComposeUiApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         NativeUi.theme(this); super.onCreate(savedInstanceState)
         setShowWhenLocked(true)
@@ -42,7 +45,7 @@ class LockActivity : ComponentActivity() {
             LaunchedEffect(Unit) {while(true){now=LocalDateTime.now();delay(1000)}}
             ConnectedTheme(NativeUi.dark(this),store.wallpaper(),store.glass(),store.lightEffects()) {
                 BackHandler { finish() } // System keyguard remains underneath; no trapping or fake PIN.
-                Box(Modifier.fillMaxSize().testTag("oguz-lock-surface")) {
+                Box(Modifier.fillMaxSize().testTag("oguz-lock-surface").semantics { testTagsAsResourceId = true }) {
                     Image(painterResource(ShellWallpapers[store.wallpaper()]),null,Modifier.fillMaxSize(),contentScale=ContentScale.Crop)
                     Box(Modifier.fillMaxSize().background(Brush.verticalGradient(listOf(Color(0x44203235),Color(0xED14282F)))))
                     Column(Modifier.fillMaxSize().systemBarsPadding().padding(26.dp),horizontalAlignment=Alignment.CenterHorizontally) {

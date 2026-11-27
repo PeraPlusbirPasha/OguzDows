@@ -351,6 +351,11 @@ export default function App() {
   return (
     <main
       className={`lab theme-${prefs.theme} accent-${prefs.accent} ${prefs.lowPower ? "low-power" : ""} ${prefs.reducedMotion ? "reduced-motion" : ""}`}
+      style={
+        inNativeApp && /^#[0-9a-f]{6}$/i.test(nativeStatus?.themeColor || "")
+          ? ({ "--brand": nativeStatus!.themeColor } as CSSProperties)
+          : undefined
+      }
     >
       <header className="lab-header">
         <a

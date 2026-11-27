@@ -7,6 +7,8 @@ from pathlib import Path
 import tempfile
 import time
 
+from acceptance import INTEROP_PAYLOADS
+
 ROOT = Path(__file__).resolve().parents[2]
 _SPEC = importlib.util.spec_from_file_location('oguz_bridge_ci_peer', ROOT/'system/usr/lib/oguzdows/bridge_core.py')
 core = importlib.util.module_from_spec(_SPEC)
@@ -55,9 +57,9 @@ def exercise(adb, process):
                 raise RuntimeError('Wrong native file selection')
             target = folder/'native-download'
             client.receive(state['files'][0],target)
-            if target.read_bytes()!=b'native-host to desktop-client fixture\n':
+            if target.read_bytes()!=INTEROP_PAYLOADS['native-to-desktop.txt']:
                 raise RuntimeError('Native-host download bytes differ')
-            incoming = b'desktop-client to native-host fixture\n'
+            incoming = INTEROP_PAYLOADS['desktop-upload.txt']
             upload = folder/'desktop-upload.txt';upload.write_bytes(incoming)
             request = client.request('POST','/v1/inbox',dict(name=upload.name,bytes=len(incoming),sha256=core.digest(incoming)))
             wait('native recipient file approval', lambda: client.request('GET','/v1/inbox/'+request['id'])['status']=='approved')
@@ -65,7 +67,7 @@ def exercise(adb, process):
                 raise RuntimeError('Native upload hash not confirmed')
             session = core.Session('CI PC ARM server')
             server = core.Server(session).start()
-            published = folder/'desktop-to-native.txt';published.write_bytes(b'desktop-host to native-client fixture\n')
+            published = folder/'desktop-to-native.txt';published.write_bytes(INTEROP_PAYLOADS['desktop-to-native.txt'])
             session.offer(published)
             config = folder/'invitation-private.txt'
             config.write_text(core.invitation('10.0.2.2',server.port,server.pin,session.secret))
@@ -87,12 +89,16 @@ def exercise(adb, process):
                     return dict(item)
             item = wait('Python independently verified native upload',uploaded)
             raw = (session.root/ident).read_bytes()
-            if item['name']!='native-upload.txt' or raw!=b'native-client to desktop-host fixture\n' or item['sha256']!=core.digest(raw):
+            if item['name']!='native-upload.txt' or raw!=INTEROP_PAYLOADS['native-upload.txt'] or item['sha256']!=core.digest(raw):
                 raise RuntimeError('Native-client upload bytes/hash differ')
             adb('shell','touch',FOLDER+'/bridge-pc-verified')
             wait('native final protocol assertions',lambda: adb('shell','cat',FOLDER+'/bridge-interop-complete',check=False).strip()=='bidirectional TLS and SHA256 verified')
             return {'protocol':1,'native_host_python_client':True,'python_host_native_client':True,
                     'files_verified':4,'pinned_tls':True,'sha256_verified':True,
+                    'file_sha256':{'native-to-desktop.txt':core.digest(target.read_bytes()),
+                                   'desktop-upload.txt':core.digest(upload.read_bytes()),
+                                   'desktop-to-native.txt':core.digest(published.read_bytes()),
+                                   'native-upload.txt':core.digest(raw)},
                     'transport':'QEMU virtual Ethernet + adb forward','physical_devices':False}
     finally:
         if server is not None:server.close()

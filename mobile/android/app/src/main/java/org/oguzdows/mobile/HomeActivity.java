@@ -246,7 +246,7 @@ public final class HomeActivity extends Activity {
                     String theme = args.getString("value");
                     if (!"dark".equals(theme) && !"light".equals(theme)) throw new IllegalArgumentException();
                     getSharedPreferences("native-ui", MODE_PRIVATE).edit().putBoolean("dark", "dark".equals(theme)).apply();
-                    NativeUi.theme(this); reply.ok(theme); break;
+                    NativeUi.theme(this); PlatformState.changed(this); reply.ok(theme); break;
                 }
                 case "device.brightness": {
                     int value = args.getInt("value"); if (value < 25 || value > 100) throw new IllegalArgumentException();

@@ -13,6 +13,11 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.lazy.LazyColumn
@@ -86,7 +91,11 @@ class ContactsActivity : ComponentActivity() {
         var name by rememberSaveable { mutableStateOf("") }
         var number by rememberSaveable { mutableStateOf("") }
         var confirm by remember { mutableStateOf(false) }
-        Surface(Modifier.fillMaxSize().testTag("system-contacts").semantics { testTagsAsResourceId = true }) {
+        val appearance = LocalAero.current
+        Box(Modifier.fillMaxSize()) {
+            Image(painterResource(ShellWallpapers[LauncherStore(this).wallpaper()]), null, Modifier.fillMaxSize(), contentScale=ContentScale.Crop)
+            Box(Modifier.fillMaxSize().background(if(appearance.dark) Color(0xDC10262F) else Color(0xE8F1F6F2)))
+            Surface(Modifier.fillMaxSize().testTag("system-contacts").semantics { testTagsAsResourceId = true }, color=Color.Transparent) {
             Column(Modifier.fillMaxSize().systemBarsPadding().imePadding().padding(20.dp)) {
                 Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
                     TextButton(onClick = { finish() }) { Text("Geri") }
@@ -120,6 +129,7 @@ class ContactsActivity : ComponentActivity() {
                     LazyColumn(Modifier.weight(1f)) {
                         items(rows.filter{LauncherRules.normalize(it.name+" "+it.number).contains(q)},key={"${it.id}:${it.number}"}) { contact ->
                             ListItem(
+                                colors=ListItemDefaults.colors(containerColor=MaterialTheme.colorScheme.surface.copy(alpha=if(appearance.glass && !appearance.light) .65f else 1f)),
                                 headlineContent={Text(contact.name)},
                                 supportingContent={Text(contact.number)},
                                 trailingContent={
@@ -134,6 +144,7 @@ class ContactsActivity : ComponentActivity() {
                 }
                 TextButton(onClick={ startActivity(Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS,Uri.parse("package:$packageName"))) }) {Text("İzinleri yönet / geri al")}
             }
+        }
         }
         if(confirm) AlertDialog(onDismissRequest={confirm=false},title={Text("Yeni kişiyi kaydet?")},text={Text("${name.trim()}\n${PlatformRules.number(number)}\n\nYalnız bu yeni yerel kayıt eklenir.")},
             confirmButton={TextButton(onClick={confirm=false;busy=true;lifecycleScope.launch {

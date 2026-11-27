@@ -9,6 +9,7 @@ import java.net.InetSocketAddress
 import java.net.SocketTimeoutException
 import java.security.KeyPairGenerator
 import java.security.KeyStore
+import java.security.spec.ECGenParameterSpec
 import java.math.BigInteger
 import java.util.Date
 import java.util.concurrent.Executors
@@ -28,6 +29,8 @@ class BridgeServer(@Suppress("UNUSED_PARAMETER") context: Context, private val h
     private val active = mutableSetOf<SSLSocket>()
     private var listener: SSLServerSocket? = null
     @Volatile private var closed = false
+    @Volatile internal var lastTlsFailure: String? = null
+        private set
     var pin: String = ""
         private set
     val port: Int get() = listener?.localPort ?: 0
@@ -35,11 +38,13 @@ class BridgeServer(@Suppress("UNUSED_PARAMETER") context: Context, private val h
     fun start() {
         check(listener == null && !closed)
         try {
-            val generator = KeyPairGenerator.getInstance(KeyProperties.KEY_ALGORITHM_RSA, "AndroidKeyStore")
+            val generator = KeyPairGenerator.getInstance(KeyProperties.KEY_ALGORITHM_EC, "AndroidKeyStore")
             generator.initialize(KeyGenParameterSpec.Builder(alias, KeyProperties.PURPOSE_SIGN or KeyProperties.PURPOSE_VERIFY)
-                .setKeySize(2048)
-                .setDigests(KeyProperties.DIGEST_SHA256, KeyProperties.DIGEST_SHA512)
-                .setSignaturePaddings(KeyProperties.SIGNATURE_PADDING_RSA_PKCS1, KeyProperties.SIGNATURE_PADDING_RSA_PSS)
+                .setAlgorithmParameterSpec(ECGenParameterSpec("secp256r1"))
+                // Conscrypt signs an already computed TLS digest with NONEwithECDSA.
+                // DIGEST_NONE is required for an AndroidKeyStore TLS key (AOSP KeyGenParameterSpec).
+                // This grants only this ephemeral signing key, never decryption/device credentials.
+                .setDigests(KeyProperties.DIGEST_NONE, KeyProperties.DIGEST_SHA256)
                 .setCertificateSubject(X500Principal("CN=OguzDows local session"))
                 .setCertificateSerialNumber(BigInteger(128, java.security.SecureRandom()).abs().add(BigInteger.ONE))
                 .setCertificateNotBefore(Date(System.currentTimeMillis() - 60000))
@@ -50,8 +55,8 @@ class BridgeServer(@Suppress("UNUSED_PARAMETER") context: Context, private val h
             val manager = object : X509KeyManager {
                 override fun getClientAliases(keyType: String?, issuers: Array<out java.security.Principal>?) = null
                 override fun chooseClientAlias(keyType: Array<out String>?, issuers: Array<out java.security.Principal>?, socket: java.net.Socket?) = null
-                override fun getServerAliases(keyType: String?, issuers: Array<out java.security.Principal>?) = if(keyType == "RSA") arrayOf(alias) else null
-                override fun chooseServerAlias(keyType: String?, issuers: Array<out java.security.Principal>?, socket: java.net.Socket?) = if(keyType == "RSA") alias else null
+                override fun getServerAliases(keyType: String?, issuers: Array<out java.security.Principal>?) = if(keyType == "EC") arrayOf(alias) else null
+                override fun chooseServerAlias(keyType: String?, issuers: Array<out java.security.Principal>?, socket: java.net.Socket?) = if(keyType == "EC") alias else null
                 override fun getCertificateChain(requested: String?) = if(requested == alias) arrayOf(keys.getCertificate(alias) as java.security.cert.X509Certificate) else null
                 override fun getPrivateKey(requested: String?) = if(requested == alias) keys.getKey(alias, null) as java.security.PrivateKey else null
             }
@@ -100,7 +105,13 @@ class BridgeServer(@Suppress("UNUSED_PARAMETER") context: Context, private val h
     private fun handle(socket: SSLSocket) {
         try {
             socket.soTimeout = 15000
-            socket.startHandshake()
+            try { socket.startHandshake(); lastTlsFailure = null }
+            catch (error: Exception) {
+                // Only pre-HTTP provider diagnostics; never headers, invitation, bearer or file paths.
+                lastTlsFailure = generateSequence(error as Throwable?) { it.cause }.take(4)
+                    .joinToString(" <- ") { it.javaClass.simpleName + ": " + (it.message ?: "").take(180) }
+                throw error
+            }
             val input = BufferedInputStream(socket.inputStream, 65536)
             val request = line(input)
             val match = Regex("(GET|POST|PUT) (/v1/[A-Za-z0-9/-]+) HTTP/1\\.[01]").matchEntire(request) ?: throw BridgeDenied(400)

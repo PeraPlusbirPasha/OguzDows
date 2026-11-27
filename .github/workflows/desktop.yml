@@ -44,7 +44,7 @@ jobs:
             python3 python3-gi python3-gi-cairo python3-pil python3-yaml python3-pyflakes python3-cairo \
             gir1.2-gtk-3.0 libglib2.0-bin gsettings-desktop-schemas gnome-shell-common \
             breeze xauth xvfb dbus-x11 fonts-dejavu-core librsvg2-common adwaita-icon-theme \
-            shared-mime-info desktop-file-utils shellcheck nodejs \
+            shared-mime-info desktop-file-utils shellcheck nodejs openssl iproute2 \
             xfconf xfwm4 picom mesa-utils libgl1-mesa-dri x11-xserver-utils
           case '${{ matrix.suite }}' in
             bookworm) apt-get install -y --no-install-recommends libkf5config-bin ;;
@@ -62,7 +62,8 @@ jobs:
           python3 -m pyflakes system/usr/lib/oguzdows/desktop_*.py \
             system/usr/lib/oguzdows/aero.py tests/test_desktop_*.py tests/smoke-desktop.py tests/smoke-aero.py \
             scripts/install-desktop-assets.py system/usr/lib/oguzdows/workbench*.py \
-            tests/test_workbench.py tests/test_store_bootstrap.py tests/smoke-workbench.py
+            tests/test_workbench.py tests/test_store_bootstrap.py tests/smoke-workbench.py \
+            system/usr/lib/oguzdows/bridge*.py tests/test_bridge.py tests/smoke-bridge.py
           python3 scripts/ci-run.py --title 'Yerel masaüstü birim testleri' -- \
             python3 -W error::ResourceWarning -m unittest discover -s tests -p 'test_desktop_*.py' -v
           shellcheck scripts/build-desktop.sh scripts/test-native-files.sh scripts/smoke-portable.sh system/usr/lib/oguzdows/session.sh
@@ -109,6 +110,13 @@ jobs:
               --appearance "$appearance" --output "test-results/desktop-$screen" || result=1
           done
           exit "$result"
+      - name: OğuzKöprü · gerçek GTK / dosya onayı / TLS / özel Xvfb kareleri
+        run: |
+          for screen in 1024x768 360x800; do
+            python3 scripts/ci-run.py --title "OğuzKöprü GTK $screen · ${{ matrix.suite }}" -- \
+              xvfb-run -a -s "-screen 0 ${screen}x24 -nolisten tcp" \
+              python3 tests/smoke-bridge.py --output "test-results/desktop-bridge-$screen"
+          done
       - name: Gerçek Picom parser / GLX shader / ARGB arkaplan blur (yazılım GPU'su)
         if: ${{ !cancelled() }}
         run: |

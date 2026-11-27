@@ -11,16 +11,25 @@ from pathlib import Path
 import subprocess
 import xml.etree.ElementTree as ET
 
+from acceptance import validate_build
+
 ROOT = Path(__file__).resolve().parents[2]
 
 
 def main():
     tests = Counter()
+    classes = {}
     reports = list((ROOT / 'mobile/android/app/build/test-results/testDebugUnitTest').glob('TEST-*.xml'))
     if not reports:
         raise RuntimeError('No actual Java unit test XML report; assembly alone is insufficient.')
     for report in reports:
         node = ET.parse(report).getroot()
+        name = node.get('name')
+        if name in classes:
+            raise RuntimeError('Duplicate JVM suite report')
+        classes[name] = int(node.get('tests', '0'))
+        if len(node.findall('testcase')) != classes[name] or node.findall('.//failure') or node.findall('.//error') or node.findall('.//skipped'):
+            raise RuntimeError('JVM test XML contains empty/failed/skipped cases')
         tests.update({key: int(node.get(key, '0')) for key in ('tests', 'failures', 'errors', 'skipped')})
     if tests['tests'] < 1 or any(tests[key] for key in ('failures', 'errors', 'skipped')):
         raise RuntimeError('Java test reports have failures, skips or no tests.')
@@ -40,10 +49,11 @@ def main():
         artifacts.append({'file': path, 'bytes': file.stat().st_size, 'sha256': digest.hexdigest()})
     evidence = {
         'source_sha': subprocess.check_output(['git', 'rev-parse', 'HEAD'], cwd=ROOT, text=True).strip(),
-        'assembled': artifacts, 'java_unit_tests': dict(tests), 'lint': dict(issues),
+        'assembled': artifacts, 'java_unit_tests': dict(tests), 'java_test_classes': classes, 'lint': dict(issues),
         'lint_warning_ids': dict(Counter(issue.get('id') for issue in lint.findall('issue') if issue.get('severity') == 'Warning')),
         'emulator_passed': None, 'physical_sim_tested': False, 'gms_certification_tested': False,
     }
+    validate_build(evidence, evidence['source_sha'])
     output = ROOT / 'test-results/mobile/build.json'
     output.parent.mkdir(parents=True, exist_ok=True)
     output.write_text(json.dumps(evidence, ensure_ascii=False, indent=2) + '\n')

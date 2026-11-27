@@ -41,6 +41,8 @@ public final class PlatformState {
         state.put("sdk", Build.VERSION.SDK_INT);
         state.put("contactsPermission", granted(context, Manifest.permission.READ_CONTACTS));
         state.put("themeAccent", ShellStyles.webAccent(new LauncherStore(context).wallpaper()));
+        state.put("themeColor", String.format(java.util.Locale.ROOT, "#%06X",
+            ShellStyles.accent(new LauncherStore(context).wallpaper(), NativeUi.dark(context)) & 0x00FFFFFF));
         state.put("callingAvailable", pm.hasSystemFeature(PackageManager.FEATURE_TELEPHONY));
         state.put("smsAvailable", pm.hasSystemFeature(PackageManager.FEATURE_TELEPHONY));
         state.put("dialerRoleAvailable", roles != null && roles.isRoleAvailable(RoleManager.ROLE_DIALER));

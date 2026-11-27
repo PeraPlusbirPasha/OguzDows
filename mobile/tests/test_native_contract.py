@@ -246,8 +246,11 @@ class NativeSourceContracts(unittest.TestCase):
             self.assertNotIn(denied, rules)
         smoke = (ROOT / 'scripts/emulator-smoke.py').read_text()
         self.assertIn("klass='LauncherDeviceTest'", smoke)
-        self.assertIn("len(evidence['tests']) == 15", smoke)
-        self.assertIn("sum(item['test_cases'] for item in evidence['tests']) == 24", smoke)
+        self.assertIn('from acceptance import SELECTIONS, validate_emulator', smoke)
+        self.assertIn("validate_emulator(evidence, evidence['source_sha']", smoke)
+        gate = (ROOT / 'scripts/acceptance.py').read_text()
+        self.assertIn("len(tests) == len(SELECTIONS)", gate)
+        self.assertIn("item['test_cases'] == SELECTIONS[item['name']]", gate)
 
     def test_native_shell_wallpapers_are_existing_bytes_with_provenance(self):
         rows = json.loads((ROOT / 'android/shell-assets.json').read_text())

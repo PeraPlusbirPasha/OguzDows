@@ -165,6 +165,8 @@ class BridgeSessionTests(unittest.TestCase):
             link = Path(tmp)/'link'; link.symlink_to(chosen)
             with self.assertRaises(OSError): self.session.offer(link)
             with self.assertRaises((ValueError, OSError)): self.session.offer(Path(tmp))
+            fifo = Path(tmp)/'fifo'; core.os.mkfifo(fifo)
+            with self.assertRaises(ValueError): self.session.offer(fifo)
 
     def test_file_count_budget_and_unknown_remote_actions_are_bounded(self):
         key, token = self.paired()

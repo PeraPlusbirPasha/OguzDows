@@ -46,9 +46,9 @@ class ConnectedDeviceTest {
         throw AssertionError("Timed out: $label; package=${device.currentPackageName}")
     }
     private fun node(tag: String): UiObject2 = device.wait(Until.findObject(By.res(tag)), 20000)
-        ?: throw AssertionError("Missing native tag: $tag; package=${device.currentPackageName}")
+        ?: DeviceDiagnostics.missing(device, tag)
     private fun text(value: String): UiObject2 = device.wait(Until.findObject(By.text(value)), 15000)
-        ?: throw AssertionError("Missing native text: $value; package=${device.currentPackageName}")
+        ?: DeviceDiagnostics.missing(device, value)
     private fun scrollTo(tag: String, scrollTag: String = "launcher-control-panel"): UiObject2 {
         repeat(10) {
             val visible = device.findObject(By.res(tag))

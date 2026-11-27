@@ -40,16 +40,19 @@ class BridgeDeviceTest {
         throw AssertionError("Timed out: $label; package=${device.currentPackageName}")
     }
     private fun node(tag: String): UiObject2 = device.wait(Until.findObject(By.res(tag)), 20000)
-        ?: throw AssertionError("Missing native node $tag")
+        ?: DeviceDiagnostics.missing(device, tag, image = false)
     private fun text(value: String): UiObject2 {
         repeat(8) {
             device.findObject(By.text(value))?.let { return it }
             device.findObject(By.res("bridge-scroll"))?.scroll(Direction.DOWN, .45f)
             SystemClock.sleep(150)
         }
-        return device.wait(Until.findObject(By.text(value)), 10000) ?: throw AssertionError("Missing text $value")
+        return device.wait(Until.findObject(By.text(value)), 10000) ?: DeviceDiagnostics.missing(device, value, image = false)
     }
     private fun invite(host: BridgeHost) = BridgeInvitation("127.0.0.1", host.server.port, host.server.pin, host.secret)
+    private fun pairNative(client: BridgeClient, host: BridgeHost, name: String): JSONObject = try {
+        client.pair(name)
+    } catch (error: Exception) { throw AssertionError("Pinned native TLS failed: ${host.server.lastTlsFailure}", error) }
     @Test fun nativeTls() {
         val host = BridgeHost(context, "Native TLS fixture").start()
         val out = File(context.cacheDir, "bridge-test-${BridgeRules.token(16)}")
@@ -59,7 +62,7 @@ class BridgeDeviceTest {
             try { wrong.pair("must not arrive"); fail("wrong pin") } catch (_: Exception) { } finally { wrong.forget() }
             assertTrue("no name/secret was sent on an unpinned channel", host.snapshot().first.isEmpty())
             val c = BridgeClient(invite(host)); client = c
-            val pair = c.pair("same-device inert client")
+            val pair = pairNative(c, host, "same-device inert client")
             assertEquals("pending", c.pollPair())
             try { c.state(); fail("unapproved") } catch (_: BridgeDenied) { }
             assertEquals(pair.getString("code"), host.snapshot().first.single().code)
@@ -118,7 +121,15 @@ class BridgeDeviceTest {
             } finally { local.delete() }
             c.disconnect()
             complete.writeText("bidirectional TLS and SHA256 verified")
-            instrumentation.sendStatus(0, Bundle().apply { putString("stream", "\nBRIDGE_INTEROP_EVIDENCE {\"protocol\":1,\"native_host_python_client\":true,\"python_host_native_client\":true,\"sha256_verified\":true,\"physical_devices\":false}\n") })
+            val hashes = JSONObject()
+                .put("native-to-desktop.txt", host.offered().single().sha256)
+                .put("desktop-upload.txt", BridgeRules.sha(host.received(incoming.id).second.readBytes()))
+                .put("desktop-to-native.txt", BridgeRules.sha(received.readBytes()))
+                .put("native-upload.txt", BridgeRules.sha(raw))
+            instrumentation.sendStatus(0, Bundle().apply { putString("stream", "\nBRIDGE_INTEROP_EVIDENCE " + JSONObject()
+                .put("protocol", 1).put("native_host_python_client", true).put("python_host_native_client", true)
+                .put("pinned_tls", true).put("sha256_verified", true).put("files_verified", 4).put("file_sha256", hashes)
+                .put("physical_devices", false).toString() + "\n") })
         } finally { client?.forget(); host.close(); nativeInvitation.delete(); desktopInvitation.delete(); received.delete() }
     }
     @Test fun systemProjection() {
@@ -130,7 +141,7 @@ class BridgeDeviceTest {
             waitFor("native session started without capture permission") { scenario.onActivity { reference.set(it.model.host) }; reference.get() != null }
             val host = requireNotNull(reference.get())
             val c = BridgeClient(invite(host)); client = c
-            c.pair("CI mirror receiver")
+            pairNative(c, host, "CI mirror receiver")
             text("Kod aynı · izin ver").click(); assertEquals("approved", c.pollPair())
             assertFalse(c.state().mirror); assertFalse(BridgeMirrorService.running)
             text("Ekranımı paylaş…").click(); text("Sistem ekran iznine geç").click()
@@ -168,11 +179,11 @@ class BridgeDeviceTest {
             val bytes = requireNotNull(captured)
             val evidence = File(context.getExternalFilesDir(null), "evidence").apply { mkdirs() }
             File(evidence, "connected-real-mediaprojection.jpg").writeBytes(bytes)
-            instrumentation.sendStatus(0, Bundle().apply { putString("stream", "\nBRIDGE_CAPTURE_EVIDENCE " + JSONObject().put("media_projection_consent", true)
-                .put("cancel_tested", true).put("foreground_service", true).put("frame_bytes", bytes.size).put("sha256", BridgeRules.sha(bytes))
-                .put("fixture_only", true).put("remote_input", false).toString() + "\n") })
             context.stopService(Intent(context, BridgeMirrorService::class.java))
             waitFor("notification/service stop tears down sharing") { !BridgeMirrorService.running && host.viewer == null }
+            instrumentation.sendStatus(0, Bundle().apply { putString("stream", "\nBRIDGE_CAPTURE_EVIDENCE " + JSONObject().put("stop_tested", true).put("media_projection_consent", true)
+                .put("cancel_tested", true).put("foreground_service", true).put("frame_bytes", bytes.size).put("sha256", BridgeRules.sha(bytes))
+                .put("fixture_only", true).put("remote_input", false).toString() + "\n") })
         } finally { context.stopService(Intent(context, BridgeMirrorService::class.java)); client?.forget(); scenario.close(); reference.get()?.close() }
     }
 }

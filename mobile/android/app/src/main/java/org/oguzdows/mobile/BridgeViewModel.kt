@@ -104,6 +104,7 @@ class BridgeViewModel(application: Application) : AndroidViewModel(application) 
     }
     fun stage(uris: List<Uri>, completed: () -> Unit = {}) {
         if (busy) { completed(); return }
+        val generation = epoch
         work {
             try {
                 val free = BridgeRules.MAX_ITEMS - staged.size
@@ -133,6 +134,7 @@ class BridgeViewModel(application: Application) : AndroidViewModel(application) 
                         created
                     } catch (error: Exception) { created.forEach { File(root, it.id).delete() }; throw error }
                 }
+                if (generation != epoch) { withContext(Dispatchers.IO) { fresh.forEach { File(root, it.id).delete() } }; return@work }
                 staged = staged + fresh; message = "${fresh.size} seçilmiş dosya hazırlandı. Henüz bir cihaza gönderilmedi."
             } finally { completed() }
         }
@@ -182,8 +184,10 @@ class BridgeViewModel(application: Application) : AndroidViewModel(application) 
         val h = host; val c = client
         host = null; client = null; connected = false; remote = null; pairCode = ""; invitation = ""
         pairs = emptyList(); peers = emptyList(); incoming = emptyList(); uploads = emptyMap()
+        val privateFiles = root.listFiles()?.toList() ?: emptyList()
+        staged = emptyList(); downloaded = emptyMap(); pendingExport = null
         if (BridgeRuntime.host === h) BridgeRuntime.host = null
-        viewModelScope.launch(Dispatchers.IO) { h?.close(); try { c?.disconnect() } catch (_:Exception) { c?.forget() } }
+        viewModelScope.launch(Dispatchers.IO) { h?.close(); privateFiles.forEach { it.delete() }; try { c?.disconnect() } catch (_:Exception) { c?.forget() } }
         message = "Oturum kapalı. Eşleşme anahtarları yalnız bellekteydi; yeni bağlantı için yeni davet gerekir."
     }
     override fun onCleared() {

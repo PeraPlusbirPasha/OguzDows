@@ -189,7 +189,7 @@ class Session:
     def offer(self, source):
         source = Path(source)
         name = safe_name(source.name)
-        fd = os.open(source, os.O_RDONLY | getattr(os, 'O_NOFOLLOW', 0))
+        fd = os.open(source, os.O_RDONLY | getattr(os, 'O_NOFOLLOW', 0) | os.O_NONBLOCK)
         ident = secrets.token_hex(16)
         try:
             st = os.fstat(fd)
@@ -375,9 +375,11 @@ class Server:
                 break
             if not self.slots.acquire(False):
                 connection.close();continue
+            with self.lock: self.active.add(connection)
             try:
                 self.pool.submit(self._handle,connection)
             except RuntimeError:
+                with self.lock: self.active.discard(connection)
                 connection.close(); self.slots.release()
 
     def _handle(self,connection):
@@ -421,7 +423,9 @@ class Server:
             except OSError:pass
         except (OSError,ssl.SSLError):pass
         finally:
-            if stream is not None: stream.close()
+            if stream is not None:
+                try: stream.close()
+                except OSError: pass
             with self.lock:self.active.discard(connection);self.active.discard(sock)
             sock.close();self.slots.release()
 
