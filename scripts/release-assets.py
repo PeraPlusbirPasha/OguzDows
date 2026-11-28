@@ -407,10 +407,37 @@ def verify_mobile_files(paths, revision, tag):
             'production_signing': False, 'rom': False, 'physical_devices_tested': False}
 
 
+def mobile_capture(directory, device_report):
+    """Use the harness's accepted sibling frame, never the first filename match.
+
+    emulator-smoke.py pulls the complete diagnostic directory to screenshots/
+    and separately pulls the canonical frame next to evidence.json. Depending
+    on adb's destination-directory layout the diagnostic copy has one of two
+    fixed paths. Every present copy must be regular, bounded and byte-identical;
+    an unexpected location, missing canonical frame or divergent copy fails.
+    """
+    name = MOBILE_EVIDENCE['frame'][0]
+    frame = regular(device_report.parent / name)
+    if frame.stat().st_size > 512 * 1024:
+        raise ValueError('Gerçek yakalama kare sınırını aşıyor.')
+    allowed = {frame, device_report.parent / 'screenshots' / name,
+               device_report.parent / 'screenshots/evidence' / name}
+    digest = sha256(frame)
+    candidates = list(directory.rglob(name))
+    if frame not in candidates:
+        raise ValueError('Kabul raporunun yanındaki özgün ekran karesi gerekli.')
+    for path in candidates:
+        if (path not in allowed or not path.resolve().is_relative_to(directory.resolve())
+                or regular(path).stat().st_size != frame.stat().st_size or sha256(path) != digest):
+            raise ValueError('Ekran kanıtının tanısal kopyası belirsiz veya özgün kareyle farklı.')
+    return frame
+
+
 def prepare_mobile(inputs, output, revision, tag, checksums, evidence):
     directory = inputs / 'mobile'
     product = mobile_product(tag)
-    paths = {key: single(directory, original) for key, (original, _) in MOBILE_EVIDENCE.items()}
+    paths = {key: single(directory, original) for key, (original, _) in MOBILE_EVIDENCE.items() if key != 'frame'}
+    paths['frame'] = mobile_capture(directory, paths['device'])
     for name in (product['mobile_apk'], product['mobile_tests_apk'], 'OguzDows-inert-install-fixture.apk'):
         paths[name] = single(directory, name)
     paths.update(signature=single(directory, 'APK-SIGNATURE.txt'), build_text=single(directory, 'BUILD.txt'),

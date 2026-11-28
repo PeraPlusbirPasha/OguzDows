@@ -19,8 +19,8 @@
   "flathub_application_download_tested": false,
   "origin": "Read-only GitHub run/job/check annotations; no synthetic report promoted into runtime proof",
   "local_tests": {
-    "ran": 738,
-    "passed": 729,
+    "ran": 739,
+    "passed": 730,
     "skipped": 9,
     "resource_warning_fatal": true,
     "mobile_source_contracts": 34,
@@ -30,11 +30,14 @@
     "npm_audit_vulnerabilities": 0,
     "source_revision": "5a44de0dde676d901a32be40d631d481e213439d",
     "freshly_rerun_for_source": true,
-    "scope": "Local source/packaging/browser regressions with documentation-only working-tree changes; not native APK or image acceptance",
-    "root_seconds": 32.743,
+    "scope": "Local source/packaging/browser regressions; postbuild changes limited to documentation/tests/release tooling, never native APK or image acceptance",
+    "root_seconds": 33.229,
     "npm_audit_scope": "all production and development dependencies",
     "documentation_entry_link_regression_updated_for_2_0": true,
-    "native_or_image_acceptance_relaxed": false
+    "native_or_image_acceptance_relaxed": false,
+    "release_packaging_tests": 45,
+    "capture_mirror_regression": "Required canonical evidence.json sibling; only two fixed diagnostic layouts allowed, all regular bounded copies SHA-256 identical; missing/divergent/unexpected/symlink rejected",
+    "root_test_log_sha256": "7660261885d83a543da4bfb8e0c02d4b9b4c492d79b1dd011e2b16a2e53ef214"
   },
   "runs": {
     "pc": {

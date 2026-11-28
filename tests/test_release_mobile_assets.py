@@ -126,6 +126,26 @@ class MobileReleaseAssetsTests(unittest.TestCase):
             (directory / 'connected-real-mediaprojection.jpg').unlink()
             with self.assertRaises(ValueError): self.prepare(root)
 
+    def test_actual_harness_capture_mirrors_must_match_the_required_canonical_sibling(self):
+        name = release.MOBILE_EVIDENCE['frame'][0]
+        for layout in ('screenshots', 'screenshots/evidence'):
+            with self.subTest(layout=layout), tempfile.TemporaryDirectory() as tmp:
+                root = Path(tmp); directory = self.fixture(root); (root / 'output').mkdir()
+                mirror = directory / layout / name; mirror.parent.mkdir(parents=True)
+                mirror.write_bytes((directory / name).read_bytes())
+                _, _, evidence = self.prepare(root)
+                self.assertEqual(evidence['mobile-connected-real-mediaprojection.jpg'], directory / name)
+        for change in ('divergent', 'unexpected-even-if-identical', 'missing-canonical', 'symlink'):
+            with self.subTest(change=change), tempfile.TemporaryDirectory() as tmp:
+                root = Path(tmp); directory = self.fixture(root); (root / 'output').mkdir()
+                frame = directory / name
+                mirror = directory / ('other' if change == 'unexpected-even-if-identical' else 'screenshots') / name
+                mirror.parent.mkdir(parents=True)
+                if change == 'symlink': mirror.symlink_to(frame)
+                else: mirror.write_bytes(b'different' if change == 'divergent' else frame.read_bytes())
+                if change == 'missing-canonical': frame.unlink()
+                with self.assertRaises(ValueError): self.prepare(root)
+
     def test_apk_data_readers_check_real_version_and_signer_without_installing(self):
         data = "package: name='org.oguzdows.mobile' versionCode='20' versionName='2.0.0-akinci' platformBuildVersionName='15'\n"
         signature = 'Signer #1 certificate SHA-256 digest: ' + 'c' * 64 + '\n'
