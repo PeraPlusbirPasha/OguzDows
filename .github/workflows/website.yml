@@ -62,7 +62,7 @@ jobs:
       - name: Küçük test bağımlılığı (site derlemesi Python stdlib)
         run: |
           sudo apt-get update
-          sudo apt-get install -y --no-install-recommends python3-pil
+          sudo apt-get install -y --no-install-recommends python3-pil python3-yaml
       - name: Tekrarlanabilir statik çıktı / gerçek yayın linkleri / SEO kontratları
         run: |
           python3 website/build.py --check
@@ -88,3 +88,32 @@ jobs:
           path: .cache/website/
           retention-days: 7
           if-no-files-found: ignore
+
+  pages-source:
+    name: Onaylı main / docs Pages kaynağını eşleştir
+    needs: check
+    # Never grant Pages settings access to a pull request or an unmerged branch.
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main' && github.repository == 'PeraPlusbirPasha/OguzDows'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 3
+    permissions:
+      contents: read
+      pages: write
+    steps:
+      - name: Yalnız kaynak ayarı / ücretsiz Pages derleme isteği
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          endpoint="repos/$GITHUB_REPOSITORY/pages"
+          source=$(gh api "$endpoint" --jq '.source.branch + ":" + .source.path')
+          if [ "$source" != "main:/docs" ]; then
+            gh api --method PUT "$endpoint" --input - <<'JSON'
+          {"source":{"branch":"main","path":"/docs"}}
+          JSON
+            gh api --method POST "$endpoint/builds" --jq '{status, commit, url}'
+          fi
+          source=$(gh api "$endpoint" --jq '.source.branch + ":" + .source.path')
+          test "$source" = "main:/docs"
+          gh api "$endpoint" --jq '{source, build_type, html_url, https_enforced, status}'
+          echo '::notice title=Pages kaynağı doğrulandı::main:/docs; canlı deployment commit’i ayrıca doğrulanmalıdır.'

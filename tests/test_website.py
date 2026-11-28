@@ -11,6 +11,8 @@ from urllib.parse import unquote, urlsplit
 import xml.etree.ElementTree as ET
 
 from PIL import Image
+import yaml
+
 from support import ROOT, load
 
 site = load('oguzdows_public_website', 'website/build.py')
@@ -48,6 +50,28 @@ class WebsiteTests(unittest.TestCase):
             name = route + 'index.html'
             text = (ROOT / 'docs' / name).read_text()
             yield route, name, text, Document(text)
+
+    def test_pages_settings_permission_is_main_only_after_checks_not_given_to_pr_or_release_tools(self):
+        workflow = yaml.safe_load((ROOT / '.github/workflows/website.yml').read_text())
+        self.assertEqual(workflow['permissions'], {'contents': 'read'})
+        self.assertNotIn('permissions', workflow['jobs']['check'])
+        job = workflow['jobs']['pages-source']
+        self.assertEqual(job['needs'], 'check')
+        self.assertEqual(job['permissions'], {'contents': 'read', 'pages': 'write'})
+        for gate in ("github.event_name == 'push'", "github.ref == 'refs/heads/main'",
+                     "github.repository == 'PeraPlusbirPasha/OguzDows'"):
+            self.assertIn(gate, job['if'])
+        self.assertNotIn('||', job['if'])
+        self.assertEqual(len(job['steps']), 1)
+        script = job['steps'][0]['run']
+        self.assertIn('if [ "$source" != "main:/docs" ]', script)
+        self.assertIn('{"source":{"branch":"main","path":"/docs"}}', script)
+        self.assertIn('test "$source" = "main:/docs"', script)
+        self.assertIn('gh api --method PUT "$endpoint"', script)
+        self.assertIn('gh api --method POST "$endpoint/builds"', script)
+        for forbidden in ('contents: write', 'git push', 'release', 'build-pi.sh', 'gh-pages', 'gh auth', 'curl'):
+            self.assertNotIn(forbidden, script)
+        self.assertIn('canlı deployment commit’i ayrıca doğrulanmalıdır', script)
 
     def test_generated_pages_are_reproducible_and_do_not_touch_frozen_release_records(self):
         frozen = [ROOT / 'docs/releases/v2.0.md', ROOT / 'docs/releases/v2.0-release.json', ROOT / 'docs/AKINCI-BAGLANTI.md']
