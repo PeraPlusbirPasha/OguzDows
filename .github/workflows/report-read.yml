@@ -1,0 +1,47 @@
+name: OğuzDows · salt okunur CI JSON kanıtı
+
+on:
+  # Register this read-only helper on the working branch; push itself relays
+  # nothing. Only an explicit dispatch with a validated source can read files.
+  push:
+    branches: [arena/2d796713-o-uzdows]
+    paths: ['.github/workflows/report-read.yml']
+  workflow_dispatch:
+    inputs:
+      source_run:
+        description: Başarılı, aynı dal/depo kaynak koşusunun sayısal kimliği
+        type: string
+        required: true
+      source_revision:
+        description: Kaynak koşusunun tam commit SHA değeri
+        type: string
+        required: true
+      kind:
+        description: Yalnız sabit, herkese açık CI rapor dosyaları
+        type: choice
+        options: [native-arm64-appearance, pi-runtime]
+        required: true
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  read:
+    if: github.event_name == 'workflow_dispatch'
+    name: İki sabit raporun gerçek baytları · GET / download only
+    runs-on: ubuntu-24.04
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Artefakt kodu çalıştırmadan sınırlı JSON → ASCII byte relay
+        env:
+          GH_TOKEN: ${{ github.token }}
+          SOURCE_RUN: ${{ inputs.source_run }}
+          SOURCE_REVISION: ${{ inputs.source_revision }}
+          REPORT_KIND: ${{ inputs.kind }}
+        run: |
+          python3 .github/scripts/read-ci-reports.py --run "$SOURCE_RUN" \
+            --source "$SOURCE_REVISION" --kind "$REPORT_KIND"
