@@ -123,6 +123,47 @@ jobs:
           if-no-files-found: warn
           retention-days: 14
 
+  appearance:
+    name: ARM64 · gerçek Xfce tema ve duvar kâğıdı · ${{ matrix.suite }} (kart değil)
+    runs-on: ubuntu-24.04-arm
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        suite: [bookworm, trixie]
+    container:
+      image: debian:${{ matrix.suite }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Yalnız geçici ARM64 container'a Xfce ve gerçek ayar hizmetleri
+        run: |
+          apt-get update
+          apt-get install -y --no-install-recommends python3 python3-gi python3-pil python3-gi-cairo \
+            python3-apt git ca-certificates gir1.2-gtk-3.0 gsettings-desktop-schemas dconf-gsettings-backend \
+            xfconf xfwm4 xfce4-settings xfdesktop4 x11-xserver-utils \
+            xauth xvfb dbus-x11 fonts-dejavu-core librsvg2-common adwaita-icon-theme
+          test "$(dpkg --print-architecture)" = arm64
+      - name: Ürün temalarını ve çevrimdışı üreticiyi yerleştir
+        run: |
+          cp -a system/usr/share/themes/. /usr/share/themes/
+          install -Dm644 scripts/render-assets.py /usr/lib/oguzdows/render-assets.py
+          python3 scripts/render-assets.py --root /
+          gtk-update-icon-cache -f -t /usr/share/icons/hicolor
+      - name: Gerçek Karşılayıcı düğmeleri → XSettings / GTK → görünür xfdesktop pikselleri
+        run: |
+          python3 scripts/ci-run.py --title 'ARM64 real Welcome theme / wallpaper · ${{ matrix.suite }} (not a Pi)' -- \
+            xvfb-run -a -s '-screen 0 1024x768x24 -nolisten tcp' \
+            python3 tests/smoke-appearance.py --output test-results/arm64-appearance
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: arm64-appearance-${{ matrix.suite }}
+          path: test-results/arm64-appearance/
+          if-no-files-found: error
+          retention-days: 14
+
   bootstrap:
     name: amd64 / trixie · gerçek Flatpak + GNOME Yazılımlar kurulumu
     runs-on: ubuntu-24.04
