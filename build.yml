@@ -545,6 +545,54 @@ jobs:
               print('::notice title=Önceki tam Xfce RAM örnekleri::' + text.replace('%', '%25'))
           PY
 
+  mobile-diagnostics:
+    name: Özgün APK kimliklerini salt okunur incele (derlemez)
+    if: github.event_name == 'workflow_dispatch' && github.event.inputs.target == 'pc-diagnostics' && github.event.inputs.mobile_evidence_run != ''
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
+      actions: read
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          github-token: ${{ github.token }}
+          run-id: ${{ inputs.mobile_evidence_run }}
+          name: oguzdows-mobile-emulator-${{ inputs.mobile_evidence_run }}
+          path: mobile-evidence
+      - name: Yalnız veri okuyucuları ile paket / sürüm / instrumentation / imzacı
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends aapt apksigner
+          python3 - <<'PY'
+          import hashlib, json, re, subprocess
+          from pathlib import Path
+          root = Path('mobile-evidence')
+          package, = root.rglob('release-package.json')
+          receipt = json.loads(package.read_text())
+          for item in receipt['files']:
+              assert re.fullmatch(r'[A-Za-z0-9_.-]+\.apk', item['file'])
+              path, = root.rglob(item['file'])
+              assert not path.is_symlink() and path.is_file() and path.resolve().is_relative_to(root.resolve())
+              content = path.read_bytes()
+              digest = hashlib.sha256(content).hexdigest()
+              assert len(content) == item['bytes'] and digest == item['sha256']
+              def command(*args): return subprocess.check_output(args, text=True)
+              badging = command('aapt', 'dump', 'badging', str(path)).splitlines()
+              xml = command('aapt', 'dump', 'xmltree', str(path), 'AndroidManifest.xml').splitlines()
+              instrumentation = [xml[i:i+7] for i, line in enumerate(xml) if line.strip().startswith('E: instrumentation ')]
+              signature = command('apksigner', 'verify', '--verbose', '--print-certs', str(path))
+              pins = re.findall(r'^Signer #1 certificate SHA-256 digest: ([a-f0-9]{64})$', signature, re.MULTILINE)
+              assert len(pins) == 1 and receipt['certificate_sha256'][path.name] == pins[0]
+              data = dict(file=path.name, bytes=len(content), sha256=digest, source_sha=receipt['source_sha'],
+                  package_lines=[line for line in badging if line.startswith(('package:', 'instrumentation:'))],
+                  instrumentation_xml=instrumentation, certificate_sha256=pins[0],
+                  read_only=True, installed_or_executed=False)
+              text = json.dumps(data, ensure_ascii=True)
+              assert len(text) <= 3500
+              print('::notice title=Mobile read-only APK identity::' + text.replace('%', '%25'))
+          PY
+
   release:
     name: Doğrulanmış PC / Pi / mobil → Release taslağı (derlemez)
     if: github.event_name == 'workflow_dispatch' && github.event.inputs.target == 'pc-release'
