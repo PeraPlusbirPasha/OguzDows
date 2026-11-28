@@ -189,13 +189,16 @@ class PiAbiAndFeatureTests(unittest.TestCase):
                 if arch == 'armhf':
                     self.assertTrue({'firefox-esr', 'firefox-esr-l10n-tr'}.isdisjoint(contract['required_packages']))
                     self.assertIn('netsurf-gtk', contract['required_packages'])
-                self.assertEqual(len(contract['asset_hashes']), 69)  # 61 existing + 8 exact bridge/product/guide sources
+                self.assertEqual(len(contract['asset_hashes']), 75)  # 69 existing + 6 exact appearance runtime / callback sources
                 bridge_files = contract['features']['pc-phone-arm-bridge']['files']
                 self.assertEqual(len(bridge_files), 8)
                 for relative in bridge_files:
                     self.assertEqual(contract['asset_hashes'][relative], hashlib.sha256((overlay / relative).read_bytes()).hexdigest())
                 self.assertIn('file_manager', contract['python_modules'])
                 for relative in ('usr/lib/oguzdows/file_manager.py', 'usr/lib/oguzdows/render-assets.py',
+                                 'usr/lib/oguzdows/wallpapers.py', 'usr/lib/oguzdows/desktop_runtime.py',
+                                 'usr/lib/oguzdows/desktop_state.py', 'usr/lib/oguzdows/profiles.py',
+                                 'usr/lib/oguzdows/welcome.py', 'usr/lib/oguzdows/desktop_center.py',
                                  'usr/share/oguzdows/ui/modern.css', 'usr/share/oguzdows/ui/window-geometry.css',
                                  'usr/share/oguzdows/compositor/full.conf'):
                     self.assertEqual(contract['asset_hashes'][relative], hashlib.sha256((overlay / relative).read_bytes()).hexdigest())

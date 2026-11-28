@@ -28,7 +28,48 @@ def state_path() -> Path:
 
 
 def run(command):
-    return subprocess.run(command, capture_output=True, text=True, timeout=10, check=False)
+    return subprocess.run(command, stdin=subprocess.DEVNULL, capture_output=True, text=True,
+                          timeout=10, check=False, env={**os.environ, 'LC_ALL': 'C.UTF-8'})
+
+
+def xfce_properties():
+    """Stored keys are history, not evidence that a monitor is still active.
+
+    xfdesktop 4.18/4.20 may have only image-style / colour defaults for the
+    current connector. Always include live RandR outputs, even if another
+    (disconnected) connector already has last-image. Keep existing native
+    prefixes for GDK's older numeric monitor identifiers and exact rollback.
+    """
+    listing = run(['xfconf-query', '-c', 'xfce4-desktop', '-l'])
+    prefixes = set()
+    if listing.returncode == 0:
+        for line in listing.stdout.splitlines():
+            match = re.fullmatch(r'(/backdrop/screen[0-9]+/monitor[^/\s]+/workspace[0-9]+/)[^/\s]+', line.strip())
+            if match:
+                if len(match[1]) > 1024:
+                    raise ValueError('Duvar kâğıdı ayar yolunun uzunluğu geçersiz.')
+                prefixes.add(match[1])
+    monitors = run(['xrandr', '--query'])
+    screen = re.search(r'^Screen ([0-9]+):', monitors.stdout, re.MULTILINE)
+    names = set(re.findall(r'^([^/\s]+) connected(?: primary)? [0-9]+x[0-9]+[+-][0-9]+[+-][0-9]+(?:\s|$)',
+                           monitors.stdout, re.MULTILINE))
+    if monitors.returncode or screen is None or not names:
+        # Never report success after writing only an obsolete connector, or
+        # invent monitor0 when the actual X screen cannot be enumerated.
+        raise RuntimeError('Etkin X11 monitörleri okunamadı; duvar kâğıdı değiştirilmedi.')
+    count = run(['xfconf-query', '-c', 'xfwm4', '-p', '/general/workspace_count'])
+    value = count.stdout.strip() if count.returncode == 0 else '4'  # Xfce default before the first user override.
+    if not re.fullmatch(r'[0-9]{1,3}', value) or not 1 <= int(value) <= 128:
+        raise ValueError('Xfce çalışma alanı sayısı güvenle okunamadı.')
+    # Check the cartesian product before constructing it, not after allocating
+    # unbounded targets supplied by a malformed display/configuration reply.
+    if len(names) * int(value) > 128:
+        raise ValueError('Duvar kâğıdı ekran / çalışma alanı sınırını aşıyor.')
+    prefixes.update(f'/backdrop/screen{int(screen[1])}/monitor{name}/workspace{workspace}/'
+                    for name in names for workspace in range(int(value)))
+    if len(prefixes) > 128:
+        raise ValueError('Duvar kâğıdı ekran / çalışma alanı sınırını aşıyor.')
+    return {prefix + 'last-image' for prefix in prefixes}
 
 
 def apply(identifier: str, items=None, state: Path | None = None) -> None:
@@ -45,19 +86,10 @@ def apply_xfce(identifier: str, items=None, state: Path | None = None, undo=None
     item = next((entry for entry in entries if entry["id"] == identifier), None)
     if item is None or not Path(item["path"]).is_file():
         raise ValueError("Duvar kâğıdı bulunamadı.")
-    listing = run(["xfconf-query", "-c", "xfce4-desktop", "-l"])
-    properties = {line.strip() for line in listing.stdout.splitlines()
-                  if re.fullmatch(r"/backdrop/[^\s]+/last-image", line.strip())}
-    if not properties:
-        monitors = run(["xrandr", "--query"])
-        names = [match.group(1) for match in re.finditer(r"^(\S+) connected", monitors.stdout, re.MULTILINE)] or ["0"]
-        properties = {f"/backdrop/screen0/monitor{monitor}/workspace{workspace}/last-image"
-                      for monitor in names for workspace in range(4)}
+    properties = xfce_properties()
     from profiles import atomic_text, marker_text
     path = state or state_path()
     old_marker = marker_text(path.parent, path.name)
-    if len(properties) > 128:
-        raise ValueError('Duvar kâğıdı ekran / çalışma alanı sınırını aşıyor.')
     rows = []
     for prop in sorted(properties):
         for key, kind, target in ((prop, 'string', item['path']),

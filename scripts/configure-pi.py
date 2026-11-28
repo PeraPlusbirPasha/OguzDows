@@ -134,6 +134,8 @@ def configure(arch: str, output: Path) -> None:
     desktop_content = ['usr/lib/oguzdows/' + name for name in (
         'file_manager.py', 'resource_policy.py', 'desktop_material.py',
         'desktop_preferences.py', 'session.sh', 'render-assets.py',
+        'wallpapers.py', 'desktop_runtime.py', 'desktop_state.py', 'profiles.py',
+        'welcome.py', 'desktop_center.py',
         'workbench.py', 'workbench_core.py', 'app_catalog.py', 'store_core.py',
         'store_service.py', 'store.py', 'store_lifecycle.py', 'maintenance.py',
         'bridge.py', 'bridge_core.py', 'bridge_capture.py', 'product_info.py')]

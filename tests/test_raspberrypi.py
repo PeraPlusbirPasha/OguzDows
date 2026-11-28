@@ -502,6 +502,9 @@ class PiImageValidationTests(unittest.TestCase):
             root = self.fixture(directory, 'arm64')
             contract = json.loads((root / 'usr/share/oguzdows/pi-contract.json').read_text())
             for relative in ('usr/lib/oguzdows/file_manager.py', 'usr/lib/oguzdows/render-assets.py',
+                             'usr/lib/oguzdows/wallpapers.py', 'usr/lib/oguzdows/desktop_runtime.py',
+                             'usr/lib/oguzdows/desktop_state.py', 'usr/lib/oguzdows/profiles.py',
+                             'usr/lib/oguzdows/welcome.py', 'usr/lib/oguzdows/desktop_center.py',
                              'usr/share/oguzdows/ui/window-geometry.css', 'usr/share/oguzdows/ui/modern.css',
                              'usr/share/oguzdows/compositor/full.conf'):
                 with self.subTest(relative=relative):

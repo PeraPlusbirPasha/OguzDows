@@ -115,9 +115,29 @@ def child(directory):
         app = welcome.Welcome(); app.register(None); app.activate()
         app.window.move(20, 20); app.window.resize(570, 580)
         pump(.5)
+        app.navigate('styles')
+        app.profile_reload.set_active(False)  # Config transaction, not a panel process/restart test.
+        report['profile_themes'] = {}
+        for identifier in (*profiles.PROFILES, 'oguzdows'):
+            app.profile_buttons[identifier].emit('clicked')
+            assert app.profile_choice.get_active_id() == identifier
+            app.profile_apply.emit('clicked')
+            until(lambda: not app.profile_busy, 'Welcome profile worker did not finish: ' + identifier, 50)
+            message = app.profile_status.get_text()
+            assert 'kaydedildi' in message, message
+            assert profiles.selection()[0] == identifier
+            theme = read('xsettings', '/Net/ThemeName')
+            assert theme and 'User-' in theme, theme
+            assert read('xfwm4', '/general/theme') == theme
+            until(lambda: Gtk.Settings.get_default().get_property('gtk-theme-name') == theme,
+                  'Profile theme did not reach real GtkSettings: ' + identifier)
+            assert read('xfce4-panel', '/panels', 'int-array') == (['1', '90'] if identifier in profiles.DOCK_PROFILES else ['1'])
+            report['profile_themes'][identifier] = theme
+            save_report()
+        report['profile_panel_restart_tested'] = False
         app.navigate('appearance')
         for mode in ('dark', 'light'):
-            app.change_appearance(mode)
+            app.theme_buttons[mode].emit('clicked')
             until(lambda: not app.theme_busy, 'Welcome theme worker did not finish', 50)
             message = app.theme_status.get_text()
             assert 'uygulandı' in message, message
@@ -132,8 +152,8 @@ def child(directory):
         report['welcome_theme_callbacks_and_GTK_reload'] = True
         save_report()
         app.navigate('wallpapers')
-        for entry, rgb in zip(entries, ((160, 30, 40), (30, 60, 160))):
-            app.apply_wallpaper(entry)
+        for index, (entry, rgb) in enumerate(zip(entries, ((160, 30, 40), (30, 60, 160)))):
+            app.wallpaper_buttons[index].emit('clicked')
             until(lambda: not app.theme_busy, 'Welcome wallpaper worker did not finish', 50)
             message = app.wallpaper_status.get_text()
             assert 'seçimin kaydedildi' in message, message
@@ -154,7 +174,7 @@ def child(directory):
         for key in live_keys:
             profiles.set_property('xfce4-desktop', key, 'string', None, profiles.run)
         pump(.5)
-        app.apply_wallpaper(entries[0])
+        app.wallpaper_buttons[0].emit('clicked')
         until(lambda: not app.theme_busy, 'Stale connector operation did not finish', 50)
         assert 'seçimin kaydedildi' in app.wallpaper_status.get_text(), app.wallpaper_status.get_text()
         app.window.hide(); pump(.2)
@@ -167,6 +187,7 @@ def child(directory):
     except Exception as error:
         report['errors'].append(type(error).__name__ + ': ' + str(error))
         save_report()
+        print('::notice title=Appearance failure context::' + json.dumps(report, ensure_ascii=True), flush=True)
         raise
     finally:
         if app and app.window:
