@@ -19,8 +19,8 @@
   "flathub_application_download_tested": false,
   "origin": "Read-only GitHub run/job/check annotations; no synthetic report promoted into runtime proof",
   "local_tests": {
-    "ran": 739,
-    "passed": 730,
+    "ran": 741,
+    "passed": 732,
     "skipped": 9,
     "resource_warning_fatal": true,
     "mobile_source_contracts": 34,
@@ -31,13 +31,14 @@
     "source_revision": "5a44de0dde676d901a32be40d631d481e213439d",
     "freshly_rerun_for_source": true,
     "scope": "Local source/packaging/browser regressions; postbuild changes limited to documentation/tests/release tooling, never native APK or image acceptance",
-    "root_seconds": 33.229,
+    "root_seconds": 32.976,
     "npm_audit_scope": "all production and development dependencies",
     "documentation_entry_link_regression_updated_for_2_0": true,
     "native_or_image_acceptance_relaxed": false,
-    "release_packaging_tests": 45,
+    "release_packaging_tests": 47,
     "capture_mirror_regression": "Required canonical evidence.json sibling; only two fixed diagnostic layouts allowed, all regular bounded copies SHA-256 identical; missing/divergent/unexpected/symlink rejected",
-    "root_test_log_sha256": "7660261885d83a543da4bfb8e0c02d4b9b4c492d79b1dd011e2b16a2e53ef214"
+    "root_test_log_sha256": "4af4ec98e50b3e4c8f19333adfba3a439480298bcf46d12ef67521f601e889e6",
+    "instrumentation_manifest_regression": "Only the test package may omit versions; require one exact AndroidJUnitRunner and target application; main versionCode20/name, APK hashes, signatures and complete native acceptance remain required"
   },
   "runs": {
     "pc": {

@@ -159,6 +159,38 @@ class MobileReleaseAssetsTests(unittest.TestCase):
             with self.subTest(badging=badging, signer=signer), patch.object(release, 'command', side_effect=[badging, signer]), self.assertRaises(ValueError):
                 release.inspect_apk(Path('test.apk'), 'org.oguzdows.mobile', version='2.0.0-akinci', code=20)
 
+    def test_instrumentation_apk_omits_version_but_must_bind_to_the_real_runner_and_app(self):
+        # Actual AGP/aapt shape observed by read-only run 46099111876.
+        data = "package: name='org.oguzdows.mobile.test' versionCode='' versionName='' platformBuildVersionName='15'\n"
+        signature = 'Signer #1 certificate SHA-256 digest: ' + 'c' * 64 + '\n'
+        xml = ('    E: instrumentation (line=9)\n'
+               '      A: android:label(0x01010001)="Tests for org.oguzdows.mobile" (Raw: "Tests for org.oguzdows.mobile")\n'
+               '      A: android:name(0x01010003)="androidx.test.runner.AndroidJUnitRunner" (Raw: "androidx.test.runner.AndroidJUnitRunner")\n'
+               '      A: android:targetPackage(0x01010021)="org.oguzdows.mobile" (Raw: "org.oguzdows.mobile")\n'
+               '    E: queries (line=16)\n')
+        with patch.object(release, 'command', side_effect=[data, signature, xml]) as command:
+            identity = release.inspect_apk(Path('tests.apk'), 'org.oguzdows.mobile.test')
+        self.assertIsNone(identity['version_code'])
+        self.assertEqual(identity['version_name'], '')
+        self.assertEqual(identity['instrumentation'], dict(runner='androidx.test.runner.AndroidJUnitRunner', target_package='org.oguzdows.mobile'))
+        self.assertEqual(command.call_args_list[-1].args, ('aapt', 'dump', 'xmltree', 'tests.apk', 'AndroidManifest.xml'))
+        invalid = ['', xml.replace('targetPackage', 'notTheTarget'), xml.replace('org.oguzdows.mobile', 'other.app'),
+                   xml.replace('AndroidJUnitRunner', 'WrongRunner'), xml + xml,
+                   xml.replace('    E: queries (line=16)', '      A: android:targetPackage(0x01010021)="org.oguzdows.mobile"'),
+                   xml.replace('      A: android:targetPackage', '    E: queries (line=16)\n      A: android:targetPackage')]
+        for broken in invalid:
+            with self.subTest(xml=broken), patch.object(release, 'command', side_effect=[data, signature, broken]), self.assertRaises(ValueError):
+                release.inspect_apk(Path('tests.apk'), 'org.oguzdows.mobile.test')
+
+    def test_missing_versions_are_never_accepted_in_main_or_fixture_apk(self):
+        signature = 'Signer #1 certificate SHA-256 digest: ' + 'c' * 64 + '\n'
+        for package in ('org.oguzdows.mobile', 'org.oguzdows.fixture'):
+            for code, version in (('', ''), ('', '2.0.0-akinci'), ('20', '')):
+                data = f"package: name='{package}' versionCode='{code}' versionName='{version}'\n"
+                with self.subTest(package=package, code=code, version=version), \
+                        patch.object(release, 'command', side_effect=[data, signature]), self.assertRaises(ValueError):
+                    release.inspect_apk(Path('main.apk'), package)
+
     def test_web_archive_rejects_traversal_links_oversize_and_wrong_source(self):
         for name, kind, content, size in [('../escape', tarfile.REGTYPE, b'x', 1),
                                            ('web/link', tarfile.SYMTYPE, b'', 0),

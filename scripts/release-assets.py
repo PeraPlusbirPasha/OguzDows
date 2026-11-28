@@ -303,18 +303,50 @@ def mobile_assets(product):
             product['web_bundle'], product['web_bundle'] + '.sha256', 'BAGLANTI-REHBERI.md'}
 
 
+def instrumentation_identity(xml):
+    """Parse only direct attributes of the one binary-manifest instrumentation node."""
+    lines, blocks = xml.splitlines(), []
+    for index, line in enumerate(lines):
+        match = re.fullmatch(r'( *)E: instrumentation \(line=[0-9]+\)', line)
+        if match is None:
+            continue
+        depth, attributes = len(match[1]), []
+        for child in lines[index + 1:]:
+            if child.strip() and len(child) - len(child.lstrip()) <= depth:
+                break
+            attribute = re.fullmatch(' ' * (depth + 2) +
+                r'A: android:(name|targetPackage)\(0x[0-9a-f]{8}\)="([^"]+)"(?: \(Raw: "\2"\))?', child)
+            if attribute:
+                attributes.append(attribute.groups())
+        blocks.append(attributes)
+    expected = {'name': 'androidx.test.runner.AndroidJUnitRunner', 'targetPackage': 'org.oguzdows.mobile'}
+    if len(blocks) != 1 or len(blocks[0]) != 2 or dict(blocks[0]) != expected:
+        raise ValueError('Test APK’sında tek ve doğru runner / hedef paket instrumentation düğümü gerekli.')
+    return {'runner': expected['name'], 'target_package': expected['targetPackage']}
+
+
 def inspect_apk(path, package, *, version=None, code=None):
     """Independent host data readers, never execute/install code from the APK."""
     badging = command('aapt', 'dump', 'badging', str(path))
-    match = re.search(r"^package: name='([^']+)' versionCode='([0-9]+)' versionName='([^']*)'", badging, re.MULTILINE)
+    matches = re.findall(r"^package: name='([^']+)' versionCode='([0-9]*)' versionName='([^']*)'(?: |$)", badging, re.MULTILINE)
     signature = command('apksigner', 'verify', '--verbose', '--print-certs', str(path))
     pins = re.findall(r'^Signer #1 certificate SHA-256 digest: ([a-f0-9]{64})$', signature, re.MULTILINE)
-    if (match is None or match[1] != package or len(pins) != 1
-            or version is not None and match[3] != version or code is not None and int(match[2]) != code):
+    if len(matches) != 1 or matches[0][0] != package or len(pins) != 1:
         raise ValueError('APK iç paket/sürüm/imza kimliği geçersiz: ' + path.name)
-    return {'package': match[1], 'version_code': int(match[2]), 'version_name': match[3],
-            'certificate_sha256': pins[0], 'signature_verified': True,
-            'scope': 'read-only-aapt-and-apksigner-not-physical-install'}
+    _, raw_code, actual_version = matches[0]
+    actual_code = int(raw_code) if raw_code else None
+    # AGP's instrumentation APK legitimately omits versionCode/versionName.
+    # Never borrow the application's version or permit missing versions in it.
+    test_package = package == 'org.oguzdows.mobile.test'
+    if (not test_package and (actual_code is None or not actual_version)
+            or version is not None and actual_version != version or code is not None and actual_code != code):
+        raise ValueError('APK iç paket/sürüm/imza kimliği geçersiz: ' + path.name)
+    identity = {'package': package, 'version_code': actual_code, 'version_name': actual_version,
+                'certificate_sha256': pins[0], 'signature_verified': True,
+                'scope': 'read-only-aapt-and-apksigner-not-physical-install'}
+    if test_package:
+        identity['instrumentation'] = instrumentation_identity(command('aapt', 'dump', 'xmltree', str(path), 'AndroidManifest.xml'))
+    return identity
 
 
 def validate_web_bundle(path, revision, build_text):
