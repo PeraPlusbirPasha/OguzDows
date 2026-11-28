@@ -67,7 +67,9 @@
         <activity android:name=".LockActivity" android:exported="false" android:showWhenLocked="true" />
         <service android:name=".BridgeMirrorService" android:exported="false" android:foregroundServiceType="mediaProjection" />
         <activity android:name=".InstalledAppsActivity" android:exported="false" />
-        <activity android:name=".InstallReviewActivity" android:exported="false" />
+        <!-- This plain platform-view review needs no GPU effects. Avoid allocating another
+             HWUI renderer during the WebView handoff; native HOME/Compose/WebView keep acceleration. -->
+        <activity android:name=".InstallReviewActivity" android:exported="false" android:hardwareAccelerated="false" />
         <service android:name=".OguzInCallService" android:exported="true"
             android:permission="android.permission.BIND_INCALL_SERVICE">
             <meta-data android:name="android.telecom.IN_CALL_SERVICE_UI" android:value="true" />

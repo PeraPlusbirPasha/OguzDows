@@ -190,6 +190,23 @@ başarı kanıtı yerine geçmez. Davet/sır dosyaları raporlara alınmaz.
   `DESTROYED`, aynı görevde **farklı** örneğin `RESUMED` olduğunu zorunlu tutar.
   Altı düzen, kalıcılık, gerçek Ayarlar ve tam ekran iki hareket gereksinimi
   korunur; hiçbir vaka kaldırılmaz. Yeni tam koşu geçmeden 0.4 paketi yoktur.
+- [`58453b5` / 46084817275](https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/46084817275):
+  **20 JVM ve ilk 7 native seçim geçti; 8. seçimde yine ürün ANR'ı (5058 ms),
+  paket yok.** QEMU ön koşulu gerçek `LOADED`, varsayılan SMS ayarı `1` ve aktif
+  ağ `100` gördü. Bu kez gözlemci, **ürünün PID 5384 ana iş parçacığını 2003 ms
+  gecikmede** yakaladı: `HardwareRenderer.nCreateProxy → ThreadedRenderer.create
+  → ViewRootImpl.setView → ActivityThread.handleResumeActivity`. Bu, inceleme
+  penceresi oluşturulurken GPU/HWUI proxy beklemesinin gerçek Java örneğidir;
+  native RenderThread iç kök nedeni veya bütün cihazlar hakkında kanıt değildir.
+  [SDK](android/evidence/sdk-58453b5.json) · [başarısız koşu ve yığın](android/evidence/emulator-58453b5.json).
+  Yeni sınırlandırma yalnız sade platform-view `InstallReviewActivity` için 2D
+  yazılım çizimidir. HOME/Compose/WebView ve uygulamanın genel GPU'su değiştirilmez.
+  Cihaz vakası artık **üç zorunlu iptal/yeniden açma**, her seferinde gerçek 2D
+  pencere/kurulmama/özgün WebView odağı, sonra tek gerçek sistem kurulum onayı ve
+  yüklü sürüm/imzacı doğrulaması ister. Bunlar başarısız adımı tekrar deneme değildir;
+  herhangi biri başarısızsa tüm vaka başarısızdır. Henüz bu değişikliğe cihaz
+  başarısı yazılmaz. Gerçek HOME yeniden oluşturma ve sonraki vakalara bu koşuda
+  ulaşılamadı; yeni tam 24-vaka koşusu hâlâ zorunludur.
 - [`18034bb` masaüstü / 46076502634](https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/46076502634):
   Debian bookworm/trixie üzerinde **1024×768 ve 360×800: dört gerçek GTK köprü
   koşusu geçti**. Gerçek düğme/dosya/loopback TLS/GDK kareleri sınandı. Üretimin

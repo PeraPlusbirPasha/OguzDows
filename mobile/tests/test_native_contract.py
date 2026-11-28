@@ -122,6 +122,16 @@ class NativeSourceContracts(unittest.TestCase):
         self.assertNotIn('FLAG_GRANT_WRITE_URI_PERMISSION', installer)
         self.assertNotIn('file://', installer)
         self.assertIn('file.getParentFile()', installer)
+        # The observed nCreateProxy stall is isolated to the plain review window;
+        # never disable acceleration globally or on Compose HOME / the rich WebView.
+        software = [node.attrib[NS + 'name'] for node in self.manifest.findall('application/activity')
+                    if node.attrib.get(NS + 'hardwareAccelerated') == 'false']
+        self.assertEqual(software, ['.InstallReviewActivity'])
+        self.assertNotEqual(self.manifest.find('application').attrib.get(NS + 'hardwareAccelerated'), 'false')
+        test = (ROOT / 'android/app/src/androidTest/java/org/oguzdows/mobile/NativeDeviceTest.java').read_text()
+        self.assertIn('getDecorView().isHardwareAccelerated()', test)
+        self.assertIn('for (int cycle = 0; cycle < 3; cycle++)', test)
+        self.assertIn('review cancellation must not install', test)
 
     def test_live_store_anchor_signature_hash_https_and_atomic_rollback_are_mandatory(self):
         trust = json.loads((ROOT / 'android/store-trust.json').read_text())

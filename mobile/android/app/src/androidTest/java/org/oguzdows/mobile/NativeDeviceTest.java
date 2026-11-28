@@ -273,6 +273,17 @@ public final class NativeDeviceTest {
         tap("Görüşmeyi bitir");
         waitFor("real call removal/disconnection", 15000, this::callEnded);
     }
+    private void assertPlainReviewHasNoGpuWindow() {
+        AtomicReference<Boolean> accelerated = new AtomicReference<>();
+        instrumentation.runOnMainSync(() -> {
+            for (android.app.Activity activity : androidx.test.runner.lifecycle.ActivityLifecycleMonitorRegistry.getInstance()
+                .getActivitiesInStage(androidx.test.runner.lifecycle.Stage.RESUMED)) {
+                if (activity instanceof InstallReviewActivity)
+                    accelerated.set(activity.getWindow().getDecorView().isHardwareAccelerated());
+            }
+        });
+        assertEquals("the actual resumed review is plain 2D, not a new GPU window", Boolean.FALSE, accelerated.get());
+    }
     @Test public void localApkReviewCancelAndSystemInstall() throws Exception {
         home(); // Start review from a visible activity, not an API-35 background-activity-launch exception.
         boolean installed;
@@ -285,16 +296,28 @@ public final class NativeDeviceTest {
         }
         try (UiStallWatch stalls = new UiStallWatch(instrumentation)) {
             Intent review = new Intent(context, InstallReviewActivity.class).putExtra("privateApk", file.getAbsolutePath()).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-            stalls.phase("HomeActivity -> InstallReviewActivity, first review");
+            // Three required cancel/reopen cycles, not retries: every transition and
+            // non-installation assertion must pass before the one real final installation.
+            for (int cycle = 0; cycle < 3; cycle++) {
+                stalls.phase("HomeActivity -> InstallReviewActivity, required cancel cycle " + (cycle + 1));
+                scenario.onActivity(a -> a.startActivity(review));
+                assertTrue("private APK review ready", device.wait(Until.hasObject(By.text(buttonText("Sistem yükleyicisine geç"))), 25000));
+                assertPlainReviewHasNoGpuWindow();
+                if (cycle == 0) screenshot("native-apk-review");
+                tap("Vazgeç");
+                try { context.getPackageManager().getPackageInfo("org.oguzdows.fixture", 0); fail("review cancellation must not install"); }
+                catch (PackageManager.NameNotFoundException expected) { }
+                stalls.phase("return from cancelled review to HomeActivity, cycle " + (cycle + 1));
+                device.pressBack(); // Finish the review only after its dialog was cancelled.
+                waitFor("original rich UI regains actual window focus", 15000, () -> {
+                    AtomicReference<Boolean> focused = new AtomicReference<>(false);
+                    scenario.onActivity(a -> focused.set(a.hasWindowFocus())); return focused.get();
+                });
+            }
+            stalls.phase("HomeActivity -> InstallReviewActivity, final reviewed copy");
             scenario.onActivity(a -> a.startActivity(review));
-            assertTrue("private APK review ready", device.wait(Until.hasObject(By.text(buttonText("Sistem yükleyicisine geç"))), 25000));
-            screenshot("native-apk-review"); tap("Vazgeç");
-            try { context.getPackageManager().getPackageInfo("org.oguzdows.fixture", 0); fail("review cancellation must not install"); }
-            catch (PackageManager.NameNotFoundException expected) { }
-            stalls.phase("return from cancelled review to HomeActivity");
-            device.pressBack(); // Close the first review Activity after cancelling its dialog.
-            stalls.phase("HomeActivity -> InstallReviewActivity, second review");
-            scenario.onActivity(a -> a.startActivity(review)); tap("Sistem yükleyicisine geç");
+            assertTrue("final private review ready", device.wait(Until.hasObject(By.text(buttonText("Sistem yükleyicisine geç"))), 25000));
+            assertPlainReviewHasNoGpuWindow(); tap("Sistem yükleyicisine geç");
             stalls.phase("InstallReviewActivity -> system installer, final consent");
             UiObject2 install = device.wait(Until.findObject(By.text(Pattern.compile("(?i)install|yükle"))), 20000);
             assertNotNull("real system installer final consent", install); screenshot("system-installer-consent"); install.click();
