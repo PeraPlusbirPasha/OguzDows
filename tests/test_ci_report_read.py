@@ -19,16 +19,27 @@ class CiReportReadTests(unittest.TestCase):
         identity = {'source_revision': SOURCE, 'source_run': 123, 'artifact_id': 456, 'filename': 'result.json'}
         chunks = relay.report_chunks(content, identity)
         self.assertGreater(len(chunks), 1)
-        self.assertLessEqual(len(chunks), 40)
+        self.assertLessEqual(len(chunks), relay.MAX_REPORT_CHUNKS)
         for index, chunk in enumerate(chunks):
             self.assertEqual(chunk['part'], index)
             self.assertEqual(chunk['parts'], len(chunks))
             self.assertEqual(chunk['bytes'], len(content))
             self.assertEqual(chunk['sha256'], hashlib.sha256(content).hexdigest())
-            self.assertLess(len(json.dumps(chunk)), 3000)
+            self.assertLess(len(json.dumps(chunk)), 7000)
             json.dumps(chunk).encode('ascii')
         reconstructed = base64.b64decode(''.join(item['base64'] for item in chunks), validate=True)
         self.assertEqual(reconstructed, content)
+
+    def test_both_runtime_sized_reports_fit_actions_ten_notices_per_step_without_truncation(self):
+        # Synthetic runtime-sized JSON, not accepted image/runtime evidence.
+        content = json.dumps({'source_revision': SOURCE, 'errors': [], 'fixture': 'x' * 17000}).encode()
+        both = [relay.report_chunks(content, {'source_revision': SOURCE, 'artifact': arch})
+                for arch in ('armhf', 'arm64')]
+        self.assertLessEqual(sum(map(len, both)), 10)
+        self.assertEqual(sum(map(len, both)), 8)
+        for chunks in both:
+            self.assertEqual(base64.b64decode(''.join(item['base64'] for item in chunks), validate=True), content)
+        self.assertLessEqual(max(len(files) for _, files in relay.KINDS.values()) * relay.MAX_REPORT_CHUNKS, 10)
 
     def test_report_rejects_wrong_source_error_missing_json_or_oversized_annotation_budget(self):
         good = {'source_revision': SOURCE, 'errors': []}

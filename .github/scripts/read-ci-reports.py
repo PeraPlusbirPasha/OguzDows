@@ -16,6 +16,11 @@ from pathlib import Path
 import re
 import subprocess
 
+# Actions retains at most ten notice annotations per step, not the REST
+# endpoint's hundred-per-page limit. Two fixed reports get five chunks each.
+CHUNK_BASE64_BYTES = 6000
+MAX_REPORT_CHUNKS = 5
+
 KINDS = {
     'native-arm64-appearance': ('.github/workflows/portable.yml', {
         'arm64-appearance-bookworm': 'result.json', 'arm64-appearance-trixie': 'result.json'}),
@@ -45,9 +50,10 @@ def report_chunks(content, identity):
     if not isinstance(report, dict) or report.get('source_revision') != identity['source_revision'] or report.get('errors') != []:
         raise ValueError('CI JSON source/error fields do not match the successful run.')
     encoded = base64.b64encode(content).decode('ascii')
-    chunks = [encoded[start:start + 1800] for start in range(0, len(encoded), 1800)]
-    # Keep a complete collection retrievable through one <=100 annotation page.
-    if len(chunks) > 40:
+    chunks = [encoded[start:start + CHUNK_BASE64_BYTES] for start in range(0, len(encoded), CHUNK_BASE64_BYTES)]
+    # Leave both reports entirely within Actions' per-step notice budget.
+    # Each ASCII/base64 message is still far below the 64 KiB message limit.
+    if len(chunks) > MAX_REPORT_CHUNKS:
         raise ValueError('CI JSON report exceeds the small annotation relay budget.')
     return [{**identity, 'bytes': len(content), 'sha256': hashlib.sha256(content).hexdigest(),
              'part': index, 'parts': len(chunks), 'base64': chunk} for index, chunk in enumerate(chunks)]
