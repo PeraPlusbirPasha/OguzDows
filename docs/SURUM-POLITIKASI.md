@@ -15,9 +15,19 @@
 
 Başarılı [PC 46092345482](https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/46092345482), [Pi 46092347693](https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/46092347693) ve [mobil 46092350348](https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/46092350348) kabulünden sonra [46099334688 aktarımı](https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/46099334688) özgün dosyaları mevcut taslağa taşıdı. Ayrı salt-okunur **[46100003996 denetimi](https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/46100003996)**, kamuya açılmadan önce **26 dosyanın tamamını** yeniden indirip boyut/SHA-256, **26 JSON + 1 gerçek MediaProjection JPEG’i** ve APK paket/sürüm/sertifika/kabul kapılarını doğruladı; release'e yazmadı. SHA256SUMS dört imaj + üç APK + web olmak üzere sekiz girdidir. Yayından sonra herkese açık latest/etiket ve 26 indirme ucu kontrol edildi.
 
-**Ürün kaynağı ile yayımlayıcı ayrı kimliktir:** aktarım/yayın aracının `11339644aab61ebd3df6dc7d911753a6cbf19346` commit'i derlenmiş kaynak veya etiket hedefi değildir. Sonraki belge/kanıt testleri de bu imajları değiştirmez. v1.2/v1.1/v1.0.0 etiket/gövde/dosya kimlikleri, boyutları ve hash'leri korunmuş olarak doğrulandı. PR açık/taslak ve birleştirilmemiştir; cihaza flash veya ücretli AI etkinleştirilmedi.
+**Ürün kaynağı ile yayımlayıcı ayrı kimliktir:** aktarım/yayın aracının `11339644aab61ebd3df6dc7d911753a6cbf19346` commit'i derlenmiş kaynak veya etiket hedefi değildir. Sonraki belge/kanıt testleri de bu imajları değiştirmez. v1.2/v1.1/v1.0.0 etiket/gövde/dosya kimlikleri, boyutları ve hash'leri korunmuş olarak doğrulandı. Özgün 2.0 yayımı sırasında PR açık/taslaktı; bu tarihsel yayın kaydı sonraki kaynak/site birleştirmesiyle geriye dönük değiştirilmez. Cihaza flash veya ücretli AI etkinleştirilmedi.
 
 **OğuzKöprü/1**, PC/Pi/telefon arasında yalnız yerel izinli dosya ve salt ekran bağlantısıdır; uzaktan SMS/Telecom/yükleyici yetkisi veya bulut eşitleme değildir. Fiziksel PC/Pi/telefon/SIM, Pi performansı ve Zero siyah ekranı için tamamlanmamış testler tamamlanmış sayılmaz. Bulut üretken Rıfkı, ses/wake-word ve telefon ROM'u bu yayında tamamlanmadı. İlk iki reddedilmiş aktarım ve meşru test-APK manifest farkına ilişkin bağımsız teşhis [2.0 notlarında](releases/v2.0.md) saklanır; native kabul kapıları gevşetilmedi.
+
+## 2.0 Akıncı · yalnız ARM düzeltmesi 1
+
+**[v2.0-arm1](https://github.com/PeraPlusbirPasha/OguzDows/releases/tag/v2.0-arm1)**, ürün sürümü **2.0** kalacak şekilde yalnız Raspberry Pi armhf/arm64 imajlarını yeniler. Etiket hedefi/imaj kaynağı **`c5063ee8b558cb6c8af8301143cf3ce02106e2aa`**; PC ISO, mobil APK, özgün v2.0’ın 26 dosyası ve eski v1.2/v1.1/v1.0.0 yayınları değişmez. `v2.0-arm1` sonraki ana sürüm değildir ve özgün v2.0’ın Latest işaretini devralmaz. [Notlar](releases/v2.0-arm1.md) · [Gerçek yayın kaydı](releases/v2.0-arm1-release.json).
+
+[İki mimari derleme 46142709227](https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/46142709227) sonrası [aktarım 46147922509](https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/46147922509) özgün yeni imaj baytlarını ayrı taslağa taşıdı. **[Bağımsız salt-okunur denetim 46149729927](https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/46149729927)**, 11 yayın dosyasının tamamını yeniden indirip hash’ledi; 13 JSON ham kanıtı, iki salt-okunur MBR/FAT/ext4 imaj kimliğini, temiz kaynağı, 75 birebir kaynak/varlık sözleşmesini ve gerçek hedef GTK3/Xfce tema/duvar kâğıdı/piksel raporunu tekrar doğruladı. İmajlar aktarım sırasında yeniden paketlenmedi.
+
+Yeni Pi indirmeleri yalnız kendi `.sha256` / iki girdili ARM `SHA256SUMS` listesiyle eşleştirilir. Özgün 2.0’ın sekiz girdili listesi yeni ARM baytlarını kapsamaz. Web sitesi her platformu kendi doğrulanmış yayın kaydına bağlar; PC/APK için eski kaynak kimliği yeni ARM kaynağı diye sunulmaz. Kaynak/site değişiklikleri [PR #2](https://github.com/PeraPlusbirPasha/OguzDows/pull/2) üzerinden main’e alınır; eski etiket taşınmaz.
+
+Hedef kullanıcı-QEMU/host Xvfb görünüm kapısı, ayrı native ARM64 Welcome testi veya fiziksel Pi kabulüyle karıştırılmaz. Zero siyah ekranı ve fiziksel boot/LightDM/PAM/GPU/SD/performans sınırları korunur. Yeni mobil kabul iddiası yoktur; daha yeni CI’deki ANR/launcher UI-odak başarısızlıkları giderildi sayılmaz. Mevcut SD kartlar otomatik yükselmez; flash, ücretli servis veya bulut AI açılmaz.
 
 ## 1.2 ara güncellemesi
 
@@ -38,6 +48,8 @@ Yayın aktarımı **45201307283**, mevcut başarılı PC **45170572813** ve Pi *
 ## Her yayında aynı kimlik
 
 Her yeni yayında ürün içindeki sürüm bilgisi, açık kaynak commit kimliği, yayın etiketi, sürüm notları ve ISO’lar birbiriyle uyumlu olmalıdır. Daha eski ISO’lar yeni ürün değişikliklerini içeriyormuş gibi yeniden etiketlenmez.
+
+ARM gibi ayrı kapsamlı düzeltme etiketi ürün sürümünü değiştirmeden kullanılabilir; hangi mimarinin gerçekten yeniden derlendiği açıkça belirtilir ve eski etiket/dosyalar korunur.
 
 Sonraki değişiklikler yalnızca belge, test veya yayın aracıyla sınırlıysa mevcut ISO’nun yeniden derlenmediği açıkça belirtilir. Kaynak çalışma ağacının temizliği belirlenemediğinde `source_dirty: null`, temiz (`false`) olarak sunulmaz.
 

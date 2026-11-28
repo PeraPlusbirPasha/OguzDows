@@ -2,12 +2,16 @@
 
 ## Durum ve yayın sınırı
 
-Bu not **yayın sonrası kaynak düzeltmesini** anlatır. Açık çalışma dalındaki
-kodun değişmesi, kullanıcının SD/USB'sini veya yayımlanmış imajı güncellemez.
-**v2.0 Akıncı'nın `5a44de0dde676d901a32be40d631d481e213439d` kaynağından üretilen
-armhf/arm64 dosyaları değiştirilmedi; aşağıdaki düzeltmeler o dosyalarda yoktur.**
-Etiket, SHA-256 listesi ve [2.0 yayın kaydı](releases/v2.0-release.json) korunur.
-Yeni imaj yayımlanmış, cihaz güncellenmiş veya fiziksel Pi düzelmiş sayılmaz.
+Düzeltme, ayrı **[2.0 Akıncı · ARM düzeltmesi 1](https://github.com/PeraPlusbirPasha/OguzDows/releases/tag/v2.0-arm1)**
+armhf/arm64 imajlarında yayımlandı; imaj kaynağı **`c5063ee8b558cb6c8af8301143cf3ce02106e2aa`**.
+[Yeni ARM yayın kaydı](releases/v2.0-arm1-release.json), gerçek indirme
+boyutlarını, SHA-256’ları, kaynak koşusunu ve bağımsız denetimi bağlar.
+**Mevcut SD/USB kartlar otomatik güncellenmez; fiziksel Pi düzelmiş sayılmaz.**
+
+Özgün **v2.0 / `5a44de0dde676d901a32be40d631d481e213439d`** armhf/arm64
+dosyaları değiştirilmedi; bu düzeltmeler o eski dosyalarda yoktur.
+Etiket, SHA-256 listesi ve [özgün 2.0 yayın kaydı](releases/v2.0-release.json)
+korunur. PC ISO ve mobil APK da özgün 2.0’da kalır.
 
 ### Doğrulanan duvar kâğıdı hatası
 
@@ -71,6 +75,23 @@ Yeni kaynak için kabul koşulu, her iki ARM64 tabanda testin gerçekten geçmes
 ve kök birim testlerinin yeşil kalmasıdır. Çalıştırma kimlikleri ve JSON
 sonuçları [görünüm test kaydında](evidence/arm-appearance.json) tutulur;
 önceki sürümün kabul kayıtları yeniden yazılmaz.
+
+## Yeni imajların ayrı hedef görünüm kabulü
+
+[İki mimarili gerçek derleme 46142709227](https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/46142709227)
+ve **[bağımsız yeniden indirme / iç imaj denetimi 46149729927](https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/46149729927)**
+başarıyla tamamlandı. Temiz armhf ve arm64 imajlarında **75 birebir kaynak/varlık
+hash’i**, minimum CPU/ABI ve normal kullanıcı tam Xfce kapısı zorunludur.
+Kurulu üretim kodu, taklit edilmemiş ayar arka ucu ve gerçek kaynak politikasıyla
+açık/koyu GTK3’ü yeniden yükler; iki gerçek paketlenmiş duvar kâğıdının seçim
+kaydı/xfconf geri okumasını ve örtülmemiş kararlı masaüstü piksellerinin değişmesini
+sınar. Aktarım ve ayrı salt-okunur runner bu raporu imajın gömülü raporuyla ve
+beklenen kaynak sözleşmesiyle karşılaştırdı.
+
+Bu hedef kullanıcı-QEMU + host Xvfb testidir. Yukarıdaki native ARM64
+**Welcome düğmeleri / altı profil** testinden ayrı tutulur; GTK4/portal,
+fiziksel kernel/firmware/LightDM/PAM/GPU/HDMI/SD, tüm uygulamalar veya Pi
+performansı kabulü değildir. **İlk Zero/Zero W siyah ekran bildirimi açıktır.**
 
 ## Cihazında kolay ve güvenli teşhis
 

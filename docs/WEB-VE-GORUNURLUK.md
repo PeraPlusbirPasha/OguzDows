@@ -43,7 +43,7 @@ Google hesabına giriş / mülk sahipliği kullanıcıya aittir; şifre, OAuth k
 1. [Google Search Console](https://search.google.com/search-console/) aç; **URL öneki** mülkü ekle:
    `https://peraplusbirpasha.github.io/OguzDows/`
 2. **HTML etiketi** doğrulama yöntemini seç. Yalnız `content` değerini `website/site.json` içindeki `google_site_verification` alanına koy. Bu kamuya açık sahiplik etiketi bir hesap şifresi değildir; yine de gerçek değeri Google vermeden yer tutucu yayımlama.
-3. `python3 website/build.py` çalıştır, mevcut çalışma dalına kaydet/push et. Pages güncellenince Search Console’da **Doğrula** de.
+3. `python3 website/build.py` çalıştır, mevcut çalışma dalına kaydet/push et ve PR üzerinden `main`e al. `main:/docs` Pages yayını güncellenince Search Console’da **Doğrula** de.
 4. **Site Haritaları** bölümüne `sitemap.xml` ekle. Tam adres:
    `https://peraplusbirpasha.github.io/OguzDows/sitemap.xml`
 5. URL Denetimi ile ana sayfa ve `/indir/` için canlı testi aç; erişilebilir/indekslenebilir durumunu görüp istersen dizine ekleme iste. Bu istek Google’ın kabul veya sıra garantisi değildir.
@@ -82,13 +82,13 @@ python3 website/serve.py --host 0.0.0.0 --port 4174
 node --test website/tests/browser.test.mjs
 ```
 
-Görünüm metinleri `website/build.py`, stiller `website/assets/site.css` içindedir. Başlık/description/canonical üretimi ve tüm download/hash değerleri yayımlanmış `docs/releases/v2.0-release.json` makbuzuna bağlıdır. URL veya sürüm değişirse yalnız metin değiştirip bırakma; sitemap, metadata, link ve tarayıcı testlerini de çalıştır.
+Görünüm metinleri `website/build.py`, stiller `website/assets/site.css` içindedir. Başlık/description/canonical üretimi ve PC/APK/web download/hash değerleri değişmez `docs/releases/v2.0-release.json` makbuzuna bağlıdır. Yeni Pi imaj/checksum/envanter bağlantıları yalnız yayımlanmış, ayrı denetimi başarılı `docs/releases/v2.0-arm1-release.json` kaydıyla değiştirilir. İki yayının toplam checksum/manifest/kanıt bağlantıları birbirinden ayrıdır; eski 2.0 kaydı yeniden yazılmaz. URL veya sürüm değişirse yalnız metin değiştirip bırakma; sitemap, metadata, link ve tarayıcı testlerini de çalıştır.
 
 Marka kartını isteğe bağlı Pillow + sistem DejaVu fontuyla yeniden üretmek için `website/make-social.py` vardır. JPEG/font/kodlayıcı sürümü çıktıyı değiştirebilir; kart yayın APK/ISO bütünlük kanıtı değildir. Hero’daki Boğaz görseli önceden açıklanmış AI duvar kâğıdı, telefon görseli gerçek kabul edilmiş 2.0 emülatör thumbnail’idir.
 
 ### Dal / main / birleştirme sınırı
 
-Pages kaynağı bu oturumun mevcut dalındaki **`/docs`** dizinidir. Yalnız bu dala push edilir; yeni `gh-pages` dalı açılmaz ve `main`e doğrudan yazılmaz. GitHub’ın varsayılan depo girişinde eski README kalıyorsa, güncel README’nin `main`e taşınması ayrı PR birleştirme onayı gerektirir. Bu siteyi yayımlamak o büyük PR’ı gizlice birleştirme izni değildir. Site, `main`e birleşme beklemeden bu daldan sunulabilir.
+Üretim için GitHub Pages kaynağı **`main` / `/docs`** seçilir. Yeni değişiklikler mevcut çalışma dalına push edilir; kullanıcı onaylı PR üzerinden `main`e birleştirilir. `main`e doğrudan push edilmez, ayrı `gh-pages` dalı açılmaz. `website/site.json` içindeki rehber kaynak dalı da `main`dir. İlk site kurulumu çalışma dalından sunulmuştu; ARM düzeltmesiyle README, indirmeler ve main güncellemesi birlikte yetkilendirildi. Pages ayarındaki kaynak dalı ile yayımlanan commit ayrıca GitHub API/deployment üzerinden doğrulanır; yerel önizleme, üretim dağıtımı sayılmaz.
 
 ### Vercel durumu
 

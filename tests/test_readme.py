@@ -160,6 +160,18 @@ class ReadmeTests(unittest.TestCase):
         self.assertEqual(audit['evidence_file_count'], 13)
         self.assertIs(audit['release_modified'], False)
         self.assertNotEqual(audit['run_id'], record['release_transfer']['run_id'])
+        self.assertEqual(audit['download_access'], 'asset-scoped-signed-GET')
+        self.assertIs(audit['live_draft_metadata_rechecked_inside_audit'], False)
+        self.assertIs(audit['publication_collector_must_recheck_live_metadata'], True)
+        access = record['draft_read_access_and_live_metadata_recheck']
+        self.assertEqual(access['audit_job_permissions'], {'contents': 'read', 'actions': 'read'})
+        self.assertEqual(access['helper_permissions'], {'contents': 'write', 'actions': 'read'})
+        self.assertIs(access['helper_only_GETs_no_Release_mutation'], True)
+        self.assertIs(access['bearer_token_exported_to_auditor'], False)
+        self.assertIs(access['live_metadata_rechecked_after_audit_by_collector'], True)
+        self.assertRegex(access['live_release_snapshot_sha256'], r'^[0-9a-f]{64}$')
+        self.assertEqual(access['live_release_snapshot_sha256'], audit['draft_snapshot_sha256'])
+        self.assertIs(access['earlier_rejected_attempt']['accepted'], False)
         for name in ('all_release_assets_redownloaded_and_hashed', 'both_images_reinspected_read_only',
                      'expected_75_source_asset_contracts_matched'):
             self.assertIs(audit[name], True)
