@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import argparse
 import configparser
+import hashlib
 import json
 import os
 from pathlib import Path
@@ -45,6 +46,8 @@ def child(directory):
     report = {'scope': 'private-nonroot-native-Xfce-Welcome-theme-wallpaper-and-root-pixels',
               'architecture': subprocess.check_output(['dpkg', '--print-architecture'], text=True).strip(),
               'source_revision': os.environ.get('OGUZDOWS_SOURCE_REVISION', ''),
+              'runtime_sha256': {name: hashlib.sha256((ROOT / 'system/usr/lib/oguzdows' / name).read_bytes()).hexdigest()
+                                 for name in ('desktop_preferences.py', 'desktop_runtime.py', 'desktop_material.py', 'wallpapers.py')},
               'synthetic_image_fixture': True, 'physical_pi': False, 'physical_gpu': False,
               'performance_measurement': False, 'settings_backend_mocked': False,
               'errors': []}
@@ -203,7 +206,7 @@ def main():
                    XDG_CACHE_HOME=str(directory / 'cache'), XDG_RUNTIME_DIR=str(directory / 'runtime'),
                    XAUTHORITY=str(authority), XDG_CURRENT_DESKTOP='XFCE', GDK_BACKEND='x11',
                    XDG_SESSION_TYPE='x11', NO_AT_BRIDGE='1', GIO_USE_VFS='local',
-                   OGUZDOWS_SOURCE_REVISION=subprocess.check_output(['git', 'rev-parse', 'HEAD'], cwd=ROOT, text=True).strip())
+                   OGUZDOWS_SOURCE_REVISION=os.environ.get('OGUZDOWS_SOURCE_REVISION', os.environ.get('GITHUB_SHA', 'unrecorded')))
         command = ['dbus-run-session', '--', sys.executable, str(Path(__file__).resolve()), '--child', str(directory)]
         if os.getuid() == 0:
             for path in [directory, *directory.rglob('*')]: os.chown(path, 65534, 65534, follow_symlinks=False)

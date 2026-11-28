@@ -2,6 +2,11 @@ name: OğuzDows Taşınabilir Araçlar
 
 on:
   workflow_dispatch:
+    inputs:
+      appearance_only:
+        description: Yalnız ARM64 tema / duvar kâğıdı işlemlerini denetle (imaj veya Release üretmez)
+        type: boolean
+        default: false
   pull_request:
     paths:
       - 'native/**'
@@ -20,6 +25,7 @@ concurrency:
 
 jobs:
   emulated:
+    if: ${{ github.event_name != 'workflow_dispatch' || !inputs.appearance_only }}
     name: Gerçek 32 bit kullanıcı ABI · ${{ matrix.arch }} / bookworm (QEMU)
     runs-on: ubuntu-24.04
     timeout-minutes: 50
@@ -48,6 +54,7 @@ jobs:
           retention-days: 14
 
   arm64:
+    if: ${{ github.event_name != 'workflow_dispatch' || !inputs.appearance_only }}
     name: ARM64 gerçek GTK / kurulum · ${{ matrix.suite }} (kart değil)
     runs-on: ubuntu-24.04-arm
     timeout-minutes: 30
@@ -127,6 +134,8 @@ jobs:
     name: ARM64 · gerçek Xfce tema ve duvar kâğıdı · ${{ matrix.suite }} (kart değil)
     runs-on: ubuntu-24.04-arm
     timeout-minutes: 15
+    env:
+      OGUZDOWS_SOURCE_REVISION: ${{ github.event.pull_request.head.sha || github.sha }}
     strategy:
       fail-fast: false
       matrix:
@@ -141,7 +150,7 @@ jobs:
         run: |
           apt-get update
           apt-get install -y --no-install-recommends python3 python3-gi python3-pil python3-gi-cairo \
-            python3-apt git ca-certificates gir1.2-gtk-3.0 gsettings-desktop-schemas dconf-gsettings-backend \
+            python3-apt ca-certificates gir1.2-gtk-3.0 gsettings-desktop-schemas dconf-gsettings-backend \
             xfconf xfwm4 xfce4-settings xfdesktop4 x11-xserver-utils \
             xauth xvfb dbus-x11 fonts-dejavu-core librsvg2-common adwaita-icon-theme
           test "$(dpkg --print-architecture)" = arm64
@@ -165,6 +174,7 @@ jobs:
           retention-days: 14
 
   bootstrap:
+    if: ${{ github.event_name != 'workflow_dispatch' || !inputs.appearance_only }}
     name: amd64 / trixie · gerçek Flatpak + GNOME Yazılımlar kurulumu
     runs-on: ubuntu-24.04
     timeout-minutes: 20
