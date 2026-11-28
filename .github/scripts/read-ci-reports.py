@@ -15,11 +15,15 @@ import os
 from pathlib import Path
 import re
 import subprocess
+import zlib
 
 # Actions retains at most ten notice annotations per step, not the REST
 # endpoint's hundred-per-page limit. Two fixed reports get five chunks each.
-CHUNK_BASE64_BYTES = 6000
+# Compress losslessly rather than growing messages: the consumer's annotation
+# transport truncates at 4 KiB even though the Checks API allows larger text.
+CHUNK_BASE64_BYTES = 1800
 MAX_REPORT_CHUNKS = 5
+MAX_NOTICE_BYTES = 3000
 
 KINDS = {
     'native-arm64-appearance': ('.github/workflows/portable.yml', {
@@ -49,14 +53,15 @@ def report_chunks(content, identity):
     report = json.loads(content)
     if not isinstance(report, dict) or report.get('source_revision') != identity['source_revision'] or report.get('errors') != []:
         raise ValueError('CI JSON source/error fields do not match the successful run.')
-    encoded = base64.b64encode(content).decode('ascii')
+    encoded = base64.b64encode(zlib.compress(content, level=9)).decode('ascii')
     chunks = [encoded[start:start + CHUNK_BASE64_BYTES] for start in range(0, len(encoded), CHUNK_BASE64_BYTES)]
-    # Leave both reports entirely within Actions' per-step notice budget.
-    # Each ASCII/base64 message is still far below the 64 KiB message limit.
     if len(chunks) > MAX_REPORT_CHUNKS:
         raise ValueError('CI JSON report exceeds the small annotation relay budget.')
-    return [{**identity, 'bytes': len(content), 'sha256': hashlib.sha256(content).hexdigest(),
-             'part': index, 'parts': len(chunks), 'base64': chunk} for index, chunk in enumerate(chunks)]
+    result = [{**identity, 'encoding': 'zlib-base64', 'bytes': len(content), 'sha256': hashlib.sha256(content).hexdigest(),
+               'part': index, 'parts': len(chunks), 'base64': chunk} for index, chunk in enumerate(chunks)]
+    if any(len(json.dumps(item, ensure_ascii=True, separators=(',', ':'))) > MAX_NOTICE_BYTES for item in result):
+        raise ValueError('CI JSON annotation exceeds the bounded message transport.')
+    return result
 
 
 def main():
