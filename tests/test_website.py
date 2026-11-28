@@ -72,9 +72,17 @@ class WebsiteTests(unittest.TestCase):
         for forbidden in ('contents: write', 'git push', 'release', 'build-pi.sh', 'gh-pages', 'gh auth', 'curl'):
             self.assertNotIn(forbidden, script)
         self.assertIn('canlı deployment commit’i ayrıca doğrulanmalıdır', script)
+        events = workflow.get('on', workflow.get(True))  # PyYAML's YAML 1.1 'on' key.
+        for event in ('push', 'pull_request'):
+            paths = events[event]['paths']
+            self.assertIn('docs/releases/v2.0-arm*-release.json', paths)
+            self.assertIn('docs/evidence/arm-xfconf-locale.json', paths)
+            self.assertIn('tests/test_readme.py', paths)
 
     def test_generated_pages_are_reproducible_and_do_not_touch_frozen_release_records(self):
-        frozen = [ROOT / 'docs/releases/v2.0.md', ROOT / 'docs/releases/v2.0-release.json', ROOT / 'docs/AKINCI-BAGLANTI.md']
+        frozen = [ROOT / 'docs/releases/v2.0.md', ROOT / 'docs/releases/v2.0-release.json', ROOT / 'docs/AKINCI-BAGLANTI.md',
+                  ROOT / 'docs/releases/v2.0-arm1.md', ROOT / 'docs/releases/v2.0-arm1-release.json',
+                  ROOT / 'docs/evidence/arm-appearance.json', ROOT / 'docs/evidence/arm-xfconf-locale.json']
         before = {p: hashlib.sha256(p.read_bytes()).hexdigest() for p in frozen}
         outputs = site.outputs()
         self.assertEqual(len(outputs), 15)
@@ -92,8 +100,12 @@ class WebsiteTests(unittest.TestCase):
         return {'published': True, 'prerelease': False, 'tag': site.ARM_TAG, 'product_version': '2.0',
                 'source_revision': 'a' * 40, 'tag_target': 'a' * 40, 'asset_count': 11,
                 'pc_rebuilt': False, 'mobile_rebuilt': False, 'historical_v2_assets_modified': False,
+                'historical_arm1_assets_modified': False, 'xfconf_locale_runtime_schema': 1,
+                'native_locale_evidence': {'source_revision': 'a' * 40, 'conclusion': 'success', 'run_id': 123,
+                                           'path': 'docs/evidence/arm-xfconf-locale.json', 'sha256': 'c' * 64},
                 'release_download_audit': {'conclusion': 'success', 'all_release_assets_redownloaded_and_hashed': True,
-                                           'both_images_reinspected_read_only': True, 'expected_75_source_asset_contracts_matched': True},
+                                           'both_images_reinspected_read_only': True, 'expected_75_source_asset_contracts_matched': True,
+                                           'turkish_xfconf_runtime_gate_matched': True, 'native_ARM64_Turkish_Welcome_evidence_matched': True},
                 'files': {name: {'size': 123, 'sha256': 'b' * 64, 'state': 'uploaded',
                                  'url': site.REPO + '/releases/download/' + site.ARM_TAG + '/' + name} for name in names}}
 
@@ -107,17 +119,34 @@ class WebsiteTests(unittest.TestCase):
         self.assertEqual(site.validated_files(original, None), original['files'])
         for changes in ({'published': False}, {'tag': 'v2.0'}, {'product_version': '2.1'}, {'prerelease': True},
                         {'source_revision': original['source_revision'], 'tag_target': original['source_revision']},
-                        {'pc_rebuilt': True}, {'mobile_rebuilt': True}, {'historical_v2_assets_modified': True},
+                        {'source_revision': site.ARM_PREVIOUS_RELEASE['source_revision'], 'tag_target': site.ARM_PREVIOUS_RELEASE['source_revision']},
+                        {'tag': 'v2.0-arm1'}, {'pc_rebuilt': True}, {'mobile_rebuilt': True}, {'historical_v2_assets_modified': True},
+                        {'historical_arm1_assets_modified': True}, {'xfconf_locale_runtime_schema': True},
+                        {'xfconf_locale_runtime_schema': 0}, {'native_locale_evidence': {}}, {'native_locale_evidence': None},
                         {'release_download_audit': {}}, {'files': {}}, {'asset_count': 10}, {'tag_target': 'c' * 40}):
             with self.subTest(changes=changes), self.assertRaises(ValueError):
                 site.validated_files(original, {**refresh, **changes})
         for change in ({'url': site.REPO + '/releases/download/v2.0/OguzDows-rpi-armhf.img.xz'},
                        {'size': 0}, {'sha256': 'broken'}, {'state': 'pending'},
-                       {'sha256': original['files']['OguzDows-rpi-armhf.img.xz']['sha256']}):
+                       {'sha256': original['files']['OguzDows-rpi-armhf.img.xz']['sha256']},
+                       {'sha256': site.ARM_PREVIOUS_RELEASE['files']['OguzDows-rpi-armhf.img.xz']['sha256']}):
             bad = copy.deepcopy(refresh)
             bad['files']['OguzDows-rpi-armhf.img.xz'].update(change)
             with self.subTest(change=change), self.assertRaises(ValueError):
                 site.validated_files(original, bad)
+
+    def test_arm2_overlay_refuses_english_only_audits_or_unbound_native_locale_receipts(self):
+        for field in ('turkish_xfconf_runtime_gate_matched', 'native_ARM64_Turkish_Welcome_evidence_matched'):
+            refresh = self.arm_fixture()
+            refresh['release_download_audit'][field] = False
+            with self.subTest(field=field), self.assertRaises(ValueError):
+                site.validated_files(site.RELEASE, refresh)
+        for change in ({'source_revision': 'd' * 40}, {'conclusion': 'failure'}, {'run_id': True},
+                       {'path': 'docs/evidence/arm-appearance.json'}, {'sha256': 'invalid'}):
+            refresh = self.arm_fixture()
+            refresh['native_locale_evidence'].update(change)
+            with self.subTest(change=change), self.assertRaises(ValueError):
+                site.validated_files(site.RELEASE, refresh)
 
     def test_arm_receipt_renders_new_pi_links_and_separate_evidence_without_relabelling_other_platforms(self):
         refresh = self.arm_fixture()
@@ -138,7 +167,8 @@ class WebsiteTests(unittest.TestCase):
         for name in ('SHA256SUMS', 'release-manifest.json', 'test-evidence.tar.gz'):
             self.assertIn(refresh['files'][name]['url'], downloads)
             self.assertIn(refresh['files'][name]['url'], pi)
-        for text in ('75 kaynak/varlık', '13 JSON', 'otomatik güncellenmez', 'Fiziksel Pi kabulü değildir'):
+        for text in ('75 kaynak/varlık', '13 JSON', 'otomatik güncellenmez', 'Fiziksel Pi kabulü değildir',
+                     'ARM düzeltmesi 2', 'Xfce dizi ayarı güvenle okunamadı', 'Masaüstü Türkçe kalır'):
             self.assertIn(text, downloads)
         self.assertIn('<code>' + refresh['source_revision'][:7] + '</code>', downloads)
         self.assertNotIn('69 varlık', pi)
@@ -147,10 +177,12 @@ class WebsiteTests(unittest.TestCase):
         self.assertEqual(application['downloadUrl'], refresh['files']['OguzDows-rpi-arm64.img.xz']['url'])
         for path in site.PAGES:
             self.assertLess(len(outputs[path + 'index.html']), 32_000)
+            self.assertIn(site.ARM_RELEASE_URL, outputs[path + 'index.html'].decode())
+            self.assertIn('Pi · ARM düzeltmesi 2', outputs[path + 'index.html'].decode())
         # An absent receipt must not announce a completed build or expose draft URLs.
         with patch.object(site, 'ARM_RELEASE', None), patch.object(site, 'FILES', site.RELEASE['files']):
             fallback = site.outputs()
-        self.assertNotIn('/releases/download/v2.0-arm1/', fallback['indir/index.html'].decode())
+        self.assertNotIn('/releases/download/' + site.ARM_TAG + '/', fallback['indir/index.html'].decode())
         self.assertIn('69 varlık', fallback['raspberry-pi/index.html'].decode())
 
     def test_every_page_is_server_rendered_turkish_unique_and_canonical(self):

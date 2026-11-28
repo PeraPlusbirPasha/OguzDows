@@ -1,5 +1,6 @@
 """ARM-only draft transfer/audit negatives; synthetic files, NOT image acceptance."""
 from datetime import datetime, timezone
+import copy
 import hashlib
 import io
 import json
@@ -21,13 +22,42 @@ arm = load('arm_refresh_release_test', 'scripts/release-arm-refresh.py')
 
 
 class ArmRefreshTests(unittest.TestCase):
+    def locale_fixture(self, *, reproduced=True):
+        # Structural input ONLY. No GNU catalogue, settings or ARM runs here.
+        return {'schema': 1, 'environment': {'LANG': 'tr_TR.UTF-8', 'LANGUAGE': 'tr:en', 'LC_ALL': 'tr_TR.UTF-8'},
+                'raw_turkish_header': 'Değer, 2 ögeden oluşan dizidir:',
+                'unfixed_reader_error_reproduced': reproduced,
+                'unfixed_reader_header': 'Değer, 4 ögeden oluşan dizidir:' if reproduced else 'Value is an array with 4 items:',
+                'runners': ['profiles', 'desktop_runtime', 'wallpapers'], 'typed_arrays': ['int-array', 'double-array'],
+                **dict.fromkeys(arm.LOCALE_TRUE, True), 'settings_backend_mocked': False}
+
+    def native_fixture(self):
+        # Synthetic structural receipt, NEVER saved as production acceptance.
+        report = {'source_revision': REVISION, 'architecture': 'arm64',
+                  'scope': 'private-nonroot-native-Xfce-Welcome-theme-wallpaper-and-root-pixels',
+                  'runtime_sha256': {name: arm.base.sha256(ROOT / 'system/usr/lib/oguzdows' / name) for name in arm.NATIVE_RUNTIME},
+                  'locale_probe_sha256': arm.base.sha256(ROOT / 'scripts/pi_session_smoke.py'),
+                  'errors': [], 'synthetic_image_fixture': True,
+                  **dict.fromkeys(('physical_pi', 'physical_gpu', 'performance_measurement', 'settings_backend_mocked'), False),
+                  **dict.fromkeys(('welcome_theme_callbacks_and_GTK_reload', 'welcome_wallpaper_callbacks_and_real_pixels',
+                                   'stale_connector_does_not_swallow_change', 'randr_failure_injected', 'fallback_real_gdk_helper_and_pixels'), True),
+                  'profile_themes': dict.fromkeys(('oguzdows', 'kde', 'gnome', 'xfce', 'windows11', 'mac'), 'TEST ONLY'),
+                  'fixture-red_root_rgb': [160, 30, 40], 'fixture-blue_root_rgb': [30, 60, 160],
+                  'dark_theme': 'TEST ONLY dark', 'light_theme': 'TEST ONLY light'}
+        return {'schema': 1, 'scope': 'native-ARM64-Turkish-Xfce-Welcome-and-real-pixels-not-physical-Pi',
+                'acceptance': {'source_revision': REVISION, 'conclusion': 'success', 'run_id': 123,
+                               'results': [{'suite': suite, 'conclusion': 'success', 'job_id': index,
+                                            'report': {**report, 'xfconf_locale': self.locale_fixture(reproduced=suite == 'bookworm')}}
+                                           for index, suite in enumerate(('bookworm', 'trixie'), start=1)]}}
+
     def fixture(self, root):
         inputs = all_tests.AllReleaseAssetsTests().fixture(root)
         for arch in arm.base.PI_ARCHES:
             proof = inputs / 'evidence' / ('OguzDows-Pi-gunluk-' + arch)
             path = proof / 'pi-runtime-report.json'
             report = json.loads(path.read_text())
-            report.update(feature_presence={'asset_hashes': 75}, full_session={'appearance': {'settings_backend_mocked': False}})
+            report.update(feature_presence={'asset_hashes': 75}, full_session={'appearance': {
+                'settings_backend_mocked': False, 'xfconf_locale': self.locale_fixture()}})
             path.write_text(json.dumps(report) + '\n')
             collection = json.loads((proof / 'collection.json').read_text())
             collection['logs'][0]['copied_bytes'] = path.stat().st_size
@@ -43,7 +73,10 @@ class ArmRefreshTests(unittest.TestCase):
             self.assertEqual(version, '2.0')
             return {'version': version, 'build': {'arch': arch, 'source_revision': revision, 'source_dirty': False},
                     'uncompressed_bytes': 100, 'uncompressed_sha256': 'a' * 64}
+        native = root / 'native-fixture.json'
+        native.write_text(json.dumps(self.native_fixture()))
         with patch.object(arm, 'source_contract', return_value=contract), \
+                patch.object(arm, 'native_evidence', return_value=native), \
                 patch.object(arm.base, 'inspect_pi', side_effect=identity), patch('sys.stdout', io.StringIO()):
             return arm.prepare(root / 'input', root / 'output', repository=REPOSITORY, run_id=123,
                                release_id=456, revision=REVISION, publisher_revision='b' * 40,
@@ -57,13 +90,16 @@ class ArmRefreshTests(unittest.TestCase):
             self.assertEqual(set(expected), arm.NAMES)
             self.assertEqual(len(expected), 11)
             manifest = arm.base.read_json(root / 'output/release-manifest.json')
-            self.assertEqual(manifest['tag'], 'v2.0-arm1')
+            self.assertEqual(manifest['tag'], 'v2.0-arm2')
             self.assertEqual(manifest['product_version'], '2.0')
             self.assertEqual(manifest['source_revision'], REVISION)
             self.assertNotEqual(manifest['source_revision'], manifest['previous_release']['source_revision'])
             self.assertFalse(manifest['pc_rebuilt'])
             self.assertFalse(manifest['mobile_rebuilt'])
             self.assertFalse(manifest['previous_release']['assets_modified'])
+            self.assertEqual(manifest['supersedes_arm_release']['tag'], 'v2.0-arm1')
+            self.assertFalse(manifest['supersedes_arm_release']['assets_modified'])
+            self.assertIn('native-arm64-xfconf-locale.json', manifest['evidence_files'])
             self.assertEqual(set(manifest['evidence_files']), arm.EVIDENCE)
             self.assertEqual(len(manifest['evidence_files']), 13)
             for arch in arm.base.PI_ARCHES:
@@ -88,10 +124,45 @@ class ArmRefreshTests(unittest.TestCase):
             with self.subTest(arch=arch), tempfile.TemporaryDirectory() as directory:
                 contract = arm.source_contract(arch, REVISION, Path(directory) / 'config')
                 self.assertEqual(contract['appearance_runtime_schema'], 1)
+                self.assertEqual(contract['xfconf_locale_runtime_schema'], 1)
                 self.assertEqual(contract['source_revision'], REVISION)
                 self.assertEqual(len(contract['asset_hashes']), 75)
                 self.assertEqual(contract['asset_hashes']['usr/lib/oguzdows/wallpapers.py'],
                                  arm.base.sha256(ROOT / 'system/usr/lib/oguzdows/wallpapers.py'))
+
+    def test_native_evidence_requires_both_suites_exact_runtime_bytes_and_real_turkish_callbacks(self):
+        good = self.native_fixture()
+        arm.validate_native_evidence(good, REVISION)
+        for broken in ('source', 'suite', 'job', 'profiles-hash', 'probe-hash', 'settings-mock',
+                       'callback', 'pixels', 'errors', 'old-English-only-evidence'):
+            bad = copy.deepcopy(good)
+            acceptance = bad['acceptance']
+            report = acceptance['results'][0]['report']
+            if broken == 'source': acceptance['source_revision'] = 'c' * 40
+            if broken == 'suite': acceptance['results'].pop()
+            if broken == 'job': acceptance['results'][0]['conclusion'] = 'failure'
+            if broken == 'profiles-hash': report['runtime_sha256']['profiles.py'] = 'd' * 64
+            if broken == 'probe-hash': report['locale_probe_sha256'] = 'e' * 64
+            if broken == 'settings-mock': report['settings_backend_mocked'] = True
+            if broken == 'callback': report['welcome_theme_callbacks_and_GTK_reload'] = False
+            if broken == 'pixels': report['fixture-blue_root_rgb'] = [0, 0, 0]
+            if broken == 'errors': report['errors'] = ['TEST ONLY failure']
+            if broken == 'old-English-only-evidence': report.pop('xfconf_locale')
+            with self.subTest(broken=broken), self.assertRaises(ValueError):
+                arm.validate_native_evidence(bad, REVISION)
+
+    def test_locale_gate_rejects_missing_translated_header_mocked_or_missing_rollback_evidence(self):
+        good = self.locale_fixture()
+        arm.validate_locale(good, reproduced=True)
+        arm.validate_locale(self.locale_fixture(reproduced=False), reproduced=False)
+        for change in ({'schema': True}, {'environment': {'LANGUAGE': 'C'}}, {'raw_turkish_header': 'Value is an array with 2 items:'},
+                       {'typed_arrays': ['int-array']}, {'runners': ['profiles']}, {'typed_backup': False},
+                       {'persistence_failure_rollback': False}, {'compare_rollback': False}, {'settings_backend_mocked': True},
+                       {'unfixed_reader_error_reproduced': False}, {'unfixed_reader_header': 'Value is an array with 4 items:'}):
+            with self.subTest(change=change), self.assertRaises(ValueError):
+                arm.validate_locale({**good, **change}, reproduced=True)
+        with self.assertRaises(ValueError):
+            arm.validate_locale(self.locale_fixture(reproduced=False), reproduced=True)
 
     def test_manifest_rejects_old_tag_source_missing_arch_or_inflated_claim(self):
         with tempfile.TemporaryDirectory() as directory:
@@ -99,11 +170,11 @@ class ArmRefreshTests(unittest.TestCase):
             self.fixture(root)
             self.prepare(root)
             good = arm.base.read_json(root / 'output/release-manifest.json')
-            for change in ({'tag': 'v2.0'}, {'product_version': '2.0-arm1'}, {'source_revision': 'c' * 40},
+            for change in ({'tag': 'v2.0'}, {'tag': 'v2.0-arm1'}, {'product_version': '2.0-arm2'}, {'source_revision': 'c' * 40},
                            {'pc_rebuilt': True}, {'mobile_rebuilt': True}, {'physical_boot': True},
                            {'images_repacked_by_publisher': True}, {'images_built_in_source_run': False},
                            {'files': {}}, {'files': None}, {'evidence_files': {}}, {'image_identity': {}},
-                           {'publisher_revision': None}, {'schema': True}, {'previous_release': {}}):
+                           {'publisher_revision': None}, {'schema': True}, {'previous_release': {}}, {'supersedes_arm_release': {}}):
                 with self.subTest(change=change), self.assertRaises(ValueError):
                     arm.validate_manifest({**good, **change}, repository=REPOSITORY, run_id=123, release_id=456, revision=REVISION)
 
@@ -129,6 +200,7 @@ class ArmRefreshTests(unittest.TestCase):
                         patch.object(arm.base, 'api', return_value=release) as api, \
                         patch.object(arm.draft_read, 'download', side_effect=lambda _grant, dest: shutil.copytree(output, dest)) as get, \
                         patch.object(arm, 'inspect', return_value=manifest['image_identity']) as inspect, \
+                        patch.object(arm, 'native_evidence', return_value=root / 'native-fixture.json'), \
                         patch.object(arm.base, 'prepare_pi', wraps=arm.base.prepare_pi) as validate, patch('sys.stdout', io.StringIO()) as stdout:
                     arm.audit_release(release, root / 'audit', repository=REPOSITORY, run_id=123,
                                       release_id=456, revision=REVISION, notes='TEST ONLY ARM notes', artifacts={},
@@ -269,7 +341,7 @@ class DraftReadTests(unittest.TestCase):
         release = self.release()
         published_hash = arm.draft_read.snapshot_hash(release)
         item = release['assets'][0]
-        item['browser_download_url'] = item['browser_download_url'].replace('/v2.0-arm1/', '/untagged-8a82a6f2d62045573d67/')
+        item['browser_download_url'] = item['browser_download_url'].replace('/' + arm.TAG + '/', '/untagged-8a82a6f2d62045573d67/')
         arm.draft_read.validate_snapshot(release, repository=REPOSITORY, names={'test.txt'})
         self.assertEqual(arm.draft_read.snapshot_hash(release), published_hash)
         for route in ('untagged-wrong', 'v2.0', 'other-tag', 'untagged-8a82a6f2d62045573d67/escape'):

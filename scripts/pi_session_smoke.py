@@ -92,6 +92,111 @@ def news_fixture_check(prefix, home, log):
             process.wait(timeout=10)
 
 
+def xfconf_locale_check(home):
+    """Real CLI/catalogue/typed-array regression in an already private session.
+
+    Shared by native ARM64 Welcome CI and installed target-user QEMU CI.
+    Only the metadata persistence error is deliberately injected; the Xfconf
+    service, CLI, gettext catalogues, writes, readback and rollback are real.
+    """
+    home = Path(home)
+    if (os.getuid() == 0 or home.resolve() != Path.home().resolve()
+            or not (str(home).startswith('/run/oguzdows-ci.')
+                    or str(home).startswith('/tmp/oguzdows-appearance-ci-'))
+            or not os.environ.get('DBUS_SESSION_BUS_ADDRESS')
+            or os.environ.get('LANGUAGE') != 'tr:en' or os.environ.get('LC_ALL') != 'tr_TR.UTF-8'):
+        raise ValueError('Türkçe Xfconf regresyonu özel normal kullanıcı / tr_TR.UTF-8 / LANGUAGE=tr:en gerektirir.')
+    import profiles
+    import desktop_runtime
+    import wallpapers
+
+    channel = 'oguzdows-ci-locale'
+    row = ('xfce4-panel', '/panels/panel-1/background-rgba', 'double-array')
+    original = profiles.read_property(*row, profiles.run)
+    panel_keys = ('/panels', '/panels/panel-1/plugin-ids')
+    panels = {key: profiles.read_property('xfce4-panel', key, 'int-array', profiles.run) for key in panel_keys}
+    directory = home.parent / 'xfconf-locale-profiles'
+    header = None
+    try:
+        for module in (profiles, desktop_runtime, wallpapers):
+            for kind, values in (('int-array', ['17', '23']), ('int-array', ['17']),
+                                 ('double-array', ['0.125', '0.25', '0.5', '1'])):
+                profiles.set_property(channel, '/array', kind, values, module.run)
+                if profiles.read_property(channel, '/array', kind, module.run) != values:
+                    raise ValueError('Türkçe oturumda tür güvenli dizi geri okunamadı: ' + module.__name__)
+                # Control deliberately bypasses the fixed subprocess runners.
+                # It MUST be translated, otherwise this locale test has no coverage.
+                raw = subprocess.run(['xfconf-query', '-c', channel, '-p', '/array'],
+                                     check=True, capture_output=True, text=True, timeout=12)
+                if raw.stdout.splitlines()[0] != f'Değer, {len(values)} ögeden oluşan dizidir:':
+                    raise ValueError('Gerçek Türkçe Xfconf katalog başlığı etkin değil: ' + repr(raw.stdout))
+                if len(values) == 2:
+                    header = raw.stdout.splitlines()[0]
+            text = 'İstanbul, Kaçkar — ışık'
+            profiles.set_property(channel, '/utf8', 'string', text, module.run)
+            if profiles.read_property(channel, '/utf8', 'string', module.run) != text:
+                raise ValueError('Türkçe UTF-8 Xfconf değeri korunmadı.')
+
+        def unfixed_runner(command):
+            return subprocess.run(command, env={**os.environ, 'LC_ALL': 'C.UTF-8'},
+                                  capture_output=True, text=True, check=False, timeout=12)
+        unfixed_header = unfixed_runner(['xfconf-query', '-c', channel, '-p', '/array']).stdout.splitlines()[0]
+        reproduced = False
+        try:
+            previous_reader = profiles.read_property(channel, '/array', 'double-array', unfixed_runner)
+        except ValueError as error:
+            if str(error) != 'Xfce dizi ayarı güvenle okunamadı: /array' or unfixed_header != 'Değer, 4 ögeden oluşan dizidir:':
+                raise
+            reproduced = True
+        else:
+            # Newer libc/gettext may already suppress LANGUAGE for C.UTF-8.
+            # Record this honestly; Bookworm image acceptance requires the
+            # reproduced error separately, not fabricated Trixie coverage.
+            if previous_reader != ['0.125', '0.25', '0.5', '1'] or unfixed_header != 'Value is an array with 4 items:':
+                raise ValueError('Düzeltme öncesi Xfconf kontrol çıktısı beklenmiyor.')
+
+        target = ['0.125', '0.25', '0.5', '1']
+        if target == original:
+            target = ['0.5', '0.25', '0.125', '1']
+        undo = []
+        profiles.transaction([(*row, target)], directory, profiles.run, {}, undo=undo)
+        if profiles.read_property(*row, profiles.run) != target or len(undo) != 1:
+            raise ValueError('Gerçek dizi işlemi / geri okuması başarısız.')
+        backup = profiles.validate_backup(json.loads((directory / 'before-first-change.json').read_text()))
+        if [*row, original] not in backup:
+            raise ValueError('Türkçe oturumda tür güvenli ilk yedek korunmadı.')
+        undo[0]()
+        if profiles.read_property(*row, profiles.run) != original:
+            raise ValueError('Gerçek dizi işleminin karşılaştırmalı geri alması başarısız.')
+        # Missing metadata parent injects a persistence failure AFTER a real
+        # array write/readback, not a mocked successful/failed settings backend.
+        try:
+            profiles.transaction([(*row, target)], directory, profiles.run,
+                                 {'missing-parent/selection': 'TEST ONLY rollback\n'})
+        except FileNotFoundError:
+            pass
+        else:
+            raise ValueError('Kasıtlı kayıt hatası tetiklenmedi.')
+        if profiles.read_property(*row, profiles.run) != original:
+            raise ValueError('Kayıt hatasından sonra gerçek dizi geri alınmadı.')
+        if any(profiles.read_property('xfce4-panel', key, 'int-array', profiles.run) != value for key, value in panels.items()):
+            raise ValueError('Tema işlemi kişisel panel / eklenti dizilerini değiştirdi.')
+        return {'schema': 1, 'environment': {key: os.environ[key] for key in ('LANG', 'LANGUAGE', 'LC_ALL')},
+                'raw_turkish_header': header, 'unfixed_reader_error_reproduced': reproduced,
+                'unfixed_reader_header': unfixed_header,
+                'runners': ['profiles', 'desktop_runtime', 'wallpapers'],
+                'typed_arrays': ['int-array', 'double-array'], 'single_item_array': True,
+                'utf8_value_roundtrip': True, 'array_read_write_readback': True,
+                'typed_backup': True, 'compare_rollback': True, 'persistence_failure_rollback': True,
+                'personal_panel_arrays_unchanged': True, 'persistence_failure_injected': True,
+                'settings_backend_mocked': False}
+    finally:
+        profiles.set_property(*row, original, profiles.run)
+        result = profiles.run(['xfconf-query', '-c', channel, '-p', '/', '--reset', '--recursive'])
+        if result.returncode:
+            raise ValueError('Özel Xfconf test kanalı temizlenemedi.')
+
+
 def appearance_check(home):
     """Installed target code -> real XSettings and packaged wallpaper pixels.
 
@@ -124,6 +229,8 @@ def appearance_check(home):
         if time.monotonic() >= deadline:
             raise ValueError('İlk giriş görünüm işçisi tamamlanmadı.')
         pump()
+
+    locale_report = xfconf_locale_check(home)
 
     def apply(changes):
         deadline = time.monotonic() + 90
@@ -203,6 +310,7 @@ def appearance_check(home):
             raise ValueError('Hedef duvar kâğıdı ayarları geri okunarak doğrulanamadı.')
         images.append(entry['id']); signatures.append(value)
     return {'schema': 1, 'scope': 'target-user-QEMU-real-Xfce-appearance',
+            'xfconf_locale': locale_report,
             'gtk3_dark_light_reloaded': True, 'gtk_themes': themes, 'wallpaper_ids': images,
             'wallpaper_pixel_sha256': signatures, 'wallpaper_pixels_changed': True,
             'settings_backend_mocked': False, 'packaged_wallpapers': True,
@@ -326,7 +434,8 @@ def run_nonroot_session(cpu):
     for path in [directory, *directory.rglob('*')]:
         os.chown(path, 65534, 65534, follow_symlinks=False)
     root.chmod(0o711)  # Yalnızca geçiş; root raporu / evinin içeriği okunamaz.
-    env = {'PATH': '/usr/sbin:/usr/bin:/sbin:/bin', 'LANG': 'C.UTF-8',
+    env = {'PATH': '/usr/sbin:/usr/bin:/sbin:/bin',
+           'LANG': 'tr_TR.UTF-8', 'LANGUAGE': 'tr:en', 'LC_ALL': 'tr_TR.UTF-8',
            'HOME': str(home), 'USER': 'nobody', 'LOGNAME': 'nobody',
            'DISPLAY': os.environ['DISPLAY'], 'XAUTHORITY': str(directory / 'Xauthority'),
            'XDG_RUNTIME_DIR': str(directory / 'runtime'),

@@ -441,6 +441,15 @@ class PiImageValidationTests(unittest.TestCase):
             'wallpaper_pixels_changed': True, 'settings_backend_mocked': False,
             'packaged_wallpapers': True, 'welcome_callbacks_tested': False,
             'gtk4_portal_tested': False, 'physical_device': False, 'performance_measurement': False}
+        report['full_session']['appearance']['xfconf_locale'] = {
+            'schema': 1, 'environment': {'LANG': 'tr_TR.UTF-8', 'LANGUAGE': 'tr:en', 'LC_ALL': 'tr_TR.UTF-8'},
+            'raw_turkish_header': 'Değer, 2 ögeden oluşan dizidir:', 'unfixed_reader_error_reproduced': True,
+            'unfixed_reader_header': 'Değer, 4 ögeden oluşan dizidir:',
+            'runners': ['profiles', 'desktop_runtime', 'wallpapers'], 'typed_arrays': ['int-array', 'double-array'],
+            'single_item_array': True, 'utf8_value_roundtrip': True, 'array_read_write_readback': True,
+            'typed_backup': True, 'compare_rollback': True, 'persistence_failure_rollback': True,
+            'personal_panel_arrays_unchanged': True, 'persistence_failure_injected': True,
+            'settings_backend_mocked': False}
         report['full_session']['news'] = {'native_process_alive': True, 'worker_exited': True, 'cached_fixture_preserved': True,
                                           'network_tested': False, 'performance_measurement': False, 'window_pixels_verified': False}
         if arch == 'armhf':
@@ -573,8 +582,42 @@ class PiImageValidationTests(unittest.TestCase):
                 contract_path = root / 'usr/share/oguzdows/pi-contract.json'
                 contract = json.loads(contract_path.read_text())
                 self.assertEqual(contract.pop('appearance_runtime_schema'), 1)
+                self.assertEqual(contract.pop('xfconf_locale_runtime_schema'), 1)
                 contract_path.write_text(json.dumps(contract))
                 verify.validate(root, arch)
+
+    def test_new_export_requires_actual_turkish_gettext_array_backup_and_rollback_evidence(self):
+        changes = ({'schema': True}, {'environment': {'LANG': 'C.UTF-8'}},
+                   {'environment': {'LANG': 'tr_TR.UTF-8', 'LANGUAGE': 'C', 'LC_ALL': 'tr_TR.UTF-8'}},
+                   {'raw_turkish_header': 'Value is an array with 2 items:'},
+                   {'unfixed_reader_header': 'Value is an array with 4 items:'}, {'runners': ['profiles']},
+                   {'typed_arrays': ['int-array']}, {'unfixed_reader_error_reproduced': False},
+                   {'single_item_array': False}, {'utf8_value_roundtrip': False}, {'array_read_write_readback': False},
+                   {'typed_backup': False}, {'compare_rollback': False}, {'persistence_failure_rollback': False},
+                   {'personal_panel_arrays_unchanged': False}, {'persistence_failure_injected': False},
+                   {'settings_backend_mocked': True})
+        for arch in ('armhf', 'arm64'):
+            with self.subTest(arch=arch), tempfile.TemporaryDirectory() as directory, patch('sys.stdout', io.StringIO()):
+                root = self.fixture(directory, arch)
+                path = root / 'usr/share/oguzdows/pi-build-report.json'
+                report = json.loads(path.read_text())
+                appearance = report['full_session']['appearance']
+                original = appearance['xfconf_locale']
+                for change in (None, [], *({**original, **change} for change in changes)):
+                    with self.subTest(change=change):
+                        appearance['xfconf_locale'] = change
+                        path.write_text(json.dumps(report))
+                        with self.assertRaisesRegex(ValueError, 'Türkçe Xfconf'):
+                            verify.validate(root, arch)
+                appearance.pop('xfconf_locale')
+                path.write_text(json.dumps(report))
+                with self.assertRaisesRegex(ValueError, 'Türkçe Xfconf'):
+                    verify.validate(root, arch)
+                contract_path = root / 'usr/share/oguzdows/pi-contract.json'
+                contract = json.loads(contract_path.read_text())
+                self.assertEqual(contract.pop('xfconf_locale_runtime_schema'), 1)
+                contract_path.write_text(json.dumps(contract))
+                verify.validate(root, arch)  # old arm1 receipt remains readable, not upgraded to locale proof
 
     def test_export_rechecks_catalog_and_never_imports_the_images_python_module(self):
         with tempfile.TemporaryDirectory() as directory:

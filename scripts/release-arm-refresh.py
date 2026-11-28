@@ -27,14 +27,93 @@ def load(name, path):
 base = load('arm_refresh_shared_release', 'scripts/release-assets.py')
 config = load('arm_refresh_pi_config', 'scripts/configure-pi.py')
 draft_read = load('arm_refresh_draft_read', 'scripts/release-draft-read.py')
-TAG = 'v2.0-arm1'
+TAG = 'v2.0-arm2'
 VERSION = '2.0'
 NAMES = {f'OguzDows-rpi-{arch}.{suffix}' for arch in base.PI_ARCHES
          for suffix in ('img.xz', 'img.xz.sha256', 'packages.txt')}
 NAMES |= {'pi-gen.lock.json', 'SHA256SUMS', 'INDIRME-REHBERI.md', 'test-evidence.tar.gz', 'release-manifest.json'}
 EVIDENCE = {f'{name}-{arch}.json' for arch in base.PI_ARCHES for name in
             ('pi-runtime-report', 'pi-upstream-audit', 'pi-apt-adaptation', 'collection', 'image-identity', 'pi-contract')}
-EVIDENCE.add('native-arm64-appearance.json')
+EVIDENCE.add('native-arm64-xfconf-locale.json')
+NATIVE_EVIDENCE = ROOT / 'docs/evidence/arm-xfconf-locale.json'
+NATIVE_RUNTIME = ('desktop_preferences.py', 'desktop_runtime.py', 'desktop_material.py', 'wallpapers.py', 'profiles.py')
+LOCALE_TRUE = ('single_item_array', 'utf8_value_roundtrip', 'array_read_write_readback', 'typed_backup',
+               'compare_rollback', 'persistence_failure_rollback', 'personal_panel_arrays_unchanged', 'persistence_failure_injected')
+
+
+def validate_locale(receipt, *, reproduced):
+    if (not isinstance(receipt, dict) or type(receipt.get('schema')) is not int or receipt['schema'] != 1
+            or receipt.get('environment') != {'LANG': 'tr_TR.UTF-8', 'LANGUAGE': 'tr:en', 'LC_ALL': 'tr_TR.UTF-8'}
+            or receipt.get('raw_turkish_header') != 'Değer, 2 ögeden oluşan dizidir:'
+            or receipt.get('runners') != ['profiles', 'desktop_runtime', 'wallpapers']
+            or receipt.get('typed_arrays') != ['int-array', 'double-array']
+            or any(receipt.get(key) is not True for key in LOCALE_TRUE)
+            or type(receipt.get('unfixed_reader_error_reproduced')) is not bool
+            or reproduced and receipt['unfixed_reader_error_reproduced'] is not True
+            or receipt.get('unfixed_reader_header') != ('Değer, 4 ögeden oluşan dizidir:'
+                if receipt['unfixed_reader_error_reproduced'] else 'Value is an array with 4 items:')
+            or receipt.get('settings_backend_mocked') is not False):
+        raise ValueError('Türkçe gerçek Xfconf dizi / yedek / geri alma kanıtı geçersiz.')
+
+
+def validate_native_evidence(data, revision):
+    acceptance = data.get('acceptance', {}) if isinstance(data, dict) else {}
+    if (not isinstance(data, dict) or type(data.get('schema')) is not int or data['schema'] != 1
+            or data.get('scope') != 'native-ARM64-Turkish-Xfce-Welcome-and-real-pixels-not-physical-Pi'
+            or not isinstance(acceptance, dict) or acceptance.get('source_revision') != revision
+            or acceptance.get('conclusion') != 'success' or type(acceptance.get('run_id')) is not int
+            or acceptance['run_id'] <= 0 or not isinstance(acceptance.get('results'), list)
+            or len(acceptance['results']) != 2
+            or any(not isinstance(item, dict) for item in acceptance['results'])
+            or {item.get('suite') for item in acceptance['results']} != {'bookworm', 'trixie'}):
+        raise ValueError('Aynı kaynaklı iki taban gerçek ARM64 Türkçe görünüm kabulü gerekli.')
+    hashes = {name: base.sha256(ROOT / 'system/usr/lib/oguzdows' / name) for name in NATIVE_RUNTIME}
+    for item in acceptance['results']:
+        report = item.get('report', {})
+        if (item.get('conclusion') != 'success' or type(item.get('job_id')) is not int or item['job_id'] <= 0
+                or not isinstance(report, dict) or report.get('source_revision') != revision
+                or report.get('scope') != 'private-nonroot-native-Xfce-Welcome-theme-wallpaper-and-root-pixels'
+                or report.get('architecture') != 'arm64' or report.get('runtime_sha256') != hashes
+                or report.get('locale_probe_sha256') != base.sha256(ROOT / 'scripts/pi_session_smoke.py')
+                or report.get('errors') != [] or report.get('synthetic_image_fixture') is not True
+                or any(report.get(key) is not False for key in ('physical_pi', 'physical_gpu', 'performance_measurement', 'settings_backend_mocked'))
+                or any(report.get(key) is not True for key in ('welcome_theme_callbacks_and_GTK_reload',
+                           'welcome_wallpaper_callbacks_and_real_pixels', 'stale_connector_does_not_swallow_change',
+                           'randr_failure_injected', 'fallback_real_gdk_helper_and_pixels'))
+                or not isinstance(report.get('profile_themes'), dict)
+                or set(report['profile_themes']) != {'oguzdows', 'kde', 'gnome', 'xfce', 'windows11', 'mac'}
+                or report.get('fixture-red_root_rgb') != [160, 30, 40] or report.get('fixture-blue_root_rgb') != [30, 60, 160]
+                or not isinstance(report.get('dark_theme'), str) or not isinstance(report.get('light_theme'), str)
+                or report['dark_theme'] == report['light_theme']):
+            raise ValueError('ARM64 Türkçe görünüm kaynağı / gerçek callback / piksel kanıtı eşleşmedi.')
+        validate_locale(report.get('xfconf_locale'), reproduced=item['suite'] == 'bookworm')
+
+
+def native_evidence(revision):
+    data = base.read_json(NATIVE_EVIDENCE)
+    validate_native_evidence(data, revision)
+    repository, branch = os.environ['GITHUB_REPOSITORY'], os.environ['GITHUB_REF_NAME']
+    acceptance = data['acceptance']
+    run = base.api(f'repos/{repository}/actions/runs/{acceptance["run_id"]}')
+    if (run.get('status') != 'completed' or run.get('conclusion') != 'success'
+            or run.get('head_sha') != revision or run.get('head_branch') != branch
+            or run.get('path') != '.github/workflows/portable.yml'
+            or run.get('repository', {}).get('full_name') != repository
+            or run.get('head_repository', {}).get('full_name') != repository):
+        raise ValueError('Canlı gerçek ARM64 Türkçe görünüm çalışması kaynakla eşleşmedi.')
+    jobs = base.api(f'repos/{repository}/actions/runs/{acceptance["run_id"]}/jobs?per_page=100')['jobs']
+    for item in acceptance['results']:
+        selected = [job for job in jobs if job['id'] == item['job_id']]
+        if (len(selected) != 1 or selected[0]['conclusion'] != 'success'
+                or selected[0]['name'] != 'ARM64 · gerçek Xfce tema ve duvar kâğıdı · ' + item['suite'] + ' (kart değil)'):
+            raise ValueError('Canlı ARM64 Türkçe görünüm işi kaynak kaydıyla eşleşmedi.')
+    artifacts = base.api(f'repos/{repository}/actions/runs/{acceptance["run_id"]}/artifacts?per_page=100')['artifacts']
+    selected = [{key: item[key] for key in ('id', 'name', 'size_in_bytes', 'digest')} for item in artifacts
+                if item['name'] in ('arm64-appearance-bookworm', 'arm64-appearance-trixie')]
+    if (sorted(selected, key=lambda item: item['name']) != sorted(acceptance.get('artifacts', []), key=lambda item: item['name'])
+            or any(item['expired'] is not False or item['workflow_run']['head_sha'] != revision for item in artifacts)):
+        raise ValueError('Canlı ARM64 Türkçe görünüm artefakt kimlikleri eşleşmedi.')
+    return NATIVE_EVIDENCE
 
 
 def validate_changes(paths):
@@ -50,13 +129,15 @@ def source_contract(arch, revision, directory):
     path = directory / 'stage-oguzdows/00-desktop/files/overlay/usr/share/oguzdows/pi-contract.json'
     contract = base.read_json(path)
     contract['source_revision'] = revision  # publisher HEAD may differ ONLY in allowlisted docs/tools
-    if contract.get('appearance_runtime_schema') != 1 or len(contract['asset_hashes']) != 75:
-        raise ValueError('ARM düzeltmesi 75 kaynak/varlık ve gerçek görünüm kapısını gerektirir.')
+    if (contract.get('appearance_runtime_schema') != 1 or contract.get('xfconf_locale_runtime_schema') != 1
+            or len(contract['asset_hashes']) != 75):
+        raise ValueError('ARM düzeltmesi 75 kaynak/varlık, gerçek görünüm ve Türkçe Xfconf kapısını gerektirir.')
     return contract
 
 
 def validate_manifest(manifest, *, repository, run_id, release_id, revision):
     previous = base.read_json(ROOT / 'docs/releases/v2.0-release.json')
+    previous_arm = base.read_json(ROOT / 'docs/releases/v2.0-arm1-release.json')
     if not isinstance(manifest, dict):
         raise ValueError('ARM düzeltme manifesti nesne olmalı.')
     if (type(manifest.get('schema')) is not int or manifest['schema'] != 1 or manifest.get('kind') != 'oguzdows-arm-refresh'
@@ -68,6 +149,7 @@ def validate_manifest(manifest, *, repository, run_id, release_id, revision):
             or manifest.get('images_built_in_source_run') is not True
             or any(manifest.get(key) is not False for key in ('images_repacked_by_publisher', 'pc_rebuilt', 'mobile_rebuilt', 'physical_boot'))
             or manifest.get('previous_release') != {'tag': 'v2.0', 'source_revision': previous['source_revision'], 'assets_modified': False}
+            or manifest.get('supersedes_arm_release') != {'tag': 'v2.0-arm1', 'source_revision': previous_arm['source_revision'], 'assets_modified': False}
             or not isinstance(manifest.get('files'), dict) or set(manifest['files']) != NAMES - {'release-manifest.json'}
             or not isinstance(manifest.get('evidence_files'), dict) or set(manifest['evidence_files']) != EVIDENCE
             or not isinstance(manifest.get('image_identity'), dict) or set(manifest['image_identity']) != set(base.PI_ARCHES)):
@@ -82,6 +164,7 @@ def inspect(inputs, work, revision, runtime, evidence, *, audit=False):
         if (report.get('feature_presence', {}).get('asset_hashes') != 75
                 or report.get('full_session', {}).get('appearance', {}).get('settings_backend_mocked') is not False):
             raise ValueError('ARM hedef görünüm işlemi / 75 hash kanıtı eksik: ' + arch)
+        validate_locale(report.get('full_session', {}).get('appearance', {}).get('xfconf_locale'), reproduced=True)
         image = (inputs if audit else inputs / ('rpi-' + arch)) / f'OguzDows-rpi-{arch}.img.xz'
         identities[arch] = base.inspect_pi(image, arch, revision, VERSION, work, report, expected_contract=expected)
         if identities[arch]['build'].get('source_dirty') is not False:
@@ -105,13 +188,14 @@ def prepare(inputs, output, *, repository, run_id, release_id, revision, publish
     sums, evidence = [], {}
     runtime = base.prepare_pi(inputs, output, revision, sums, evidence)
     identities = inspect(inputs, work, revision, runtime, evidence)
-    evidence['native-arm64-appearance.json'] = ROOT / 'docs/evidence/arm-appearance.json'
+    evidence['native-arm64-xfconf-locale.json'] = native_evidence(revision)
     if set(evidence) != EVIDENCE:
         raise ValueError('ARM düzeltme ham kanıt dosya listesi eksik.')
     base.deterministic_bundle(evidence, output / 'test-evidence.tar.gz')
     (output / 'INDIRME-REHBERI.md').write_text(notes)
     (output / 'SHA256SUMS').write_text(''.join(sums))
     previous = base.read_json(ROOT / 'docs/releases/v2.0-release.json')
+    previous_arm = base.read_json(ROOT / 'docs/releases/v2.0-arm1-release.json')
     manifest = {'schema': 1, 'kind': 'oguzdows-arm-refresh', 'repository': repository,
                 'tag': TAG, 'product_version': VERSION, 'release_id': release_id,
                 'source_revision': revision, 'publisher_revision': publisher_revision,
@@ -119,6 +203,7 @@ def prepare(inputs, output, *, repository, run_id, release_id, revision, publish
                 'images_built_in_source_run': True, 'images_repacked_by_publisher': False,
                 'pc_rebuilt': False, 'mobile_rebuilt': False, 'physical_boot': False,
                 'previous_release': {'tag': 'v2.0', 'source_revision': previous['source_revision'], 'assets_modified': False},
+                'supersedes_arm_release': {'tag': 'v2.0-arm1', 'source_revision': previous_arm['source_revision'], 'assets_modified': False},
                 'source_artifacts': artifacts, 'artifact_digest_scope': 'ZIP archive only; image SHA-256 is in files/SHA256SUMS',
                 'image_identity': identities,
                 'evidence_files': {name: {'size': path.stat().st_size, 'sha256': base.sha256(path)}
@@ -169,6 +254,10 @@ def audit_release(release, work, *, repository, run_id, release_id, revision, no
     if base.inventory(downloaded) != expected or (downloaded / 'INDIRME-REHBERI.md').read_text() != notes:
         raise ValueError('ARM yeniden indirme SHA-256/boyut/sürüm notları eşleşmedi.')
     evidence = unpack_evidence(downloaded / 'test-evidence.tar.gz', work / 'evidence', manifest['evidence_files'])
+    native = evidence['native-arm64-xfconf-locale.json']
+    validate_native_evidence(base.read_json(native), revision)
+    if native.read_bytes() != native_evidence(revision).read_bytes():
+        raise ValueError('Yeniden indirilen gerçek ARM64 Türkçe görünüm kanıtı kaynak kaydıyla eşleşmedi.')
     # Independently rerun the original lock/upstream/APT/collection/source
     # checks using only the newly downloaded bytes; hardlinks do not repack.
     inputs = work / 'input'
@@ -211,7 +300,8 @@ def audit_release(release, work, *, repository, run_id, release_id, revision, no
         'release_id': release_id, 'tag': TAG, 'source_run_id': run_id, 'source_revision': revision,
         'publisher_revision': manifest['publisher_revision'], 'asset_count': len(expected), 'evidence_file_count': len(evidence),
         'all_release_assets_redownloaded_and_hashed': True, 'both_images_reinspected_read_only': True,
-        'expected_75_source_asset_contracts_matched': True, 'release_modified': False, 'draft': True,
+        'expected_75_source_asset_contracts_matched': True, 'turkish_xfconf_runtime_gate_matched': True,
+        'native_ARM64_Turkish_Welcome_evidence_matched': True, 'release_modified': False, 'draft': True,
         'download_access': 'asset-scoped-signed-GET' if read_grant is not None else 'authenticated-release-API',
         'live_draft_metadata_rechecked_inside_audit': read_grant is None,
         'publication_collector_must_recheck_live_metadata': read_grant is not None,

@@ -28,8 +28,12 @@ def state_path() -> Path:
 
 
 def run(command):
+    environment = {**os.environ, 'LC_ALL': 'C.UTF-8'}
+    if Path(command[0]).name == 'xfconf-query':
+        # Do not inherit gettext's LANGUAGE=tr:en for machine-readable output.
+        environment['LANGUAGE'] = 'C'
     return subprocess.run(command, stdin=subprocess.DEVNULL, capture_output=True, text=True,
-                          timeout=10, check=False, env={**os.environ, 'LC_ALL': 'C.UTF-8'})
+                          timeout=10, check=False, env=environment)
 
 
 def display_info():

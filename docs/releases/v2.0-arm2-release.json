@@ -1,0 +1,2024 @@
+{
+  "schema_version": 1,
+  "scope": "ARM-only-new-images-with-exact-75-source-contract-Turkish-Xfconf-array-backup-rollback-and-real-target-appearance-not-physical-Pi",
+  "repository": "PeraPlusbirPasha/OguzDows",
+  "product_version": "2.0",
+  "tag": "v2.0-arm2",
+  "release_id": 461704890,
+  "url": "https://github.com/PeraPlusbirPasha/OguzDows/releases/tag/v2.0-arm2",
+  "published": true,
+  "prerelease": false,
+  "latest_at_publication": false,
+  "source_revision": "6ec8f55054e8eddde7fb0e74d62c4332a2cd7e35",
+  "publisher_revision": "7e566018b944c88a8b3470d724143a1354352268",
+  "asset_count": 11,
+  "files": {
+    "INDIRME-REHBERI.md": {
+      "id": 805437412,
+      "size": 8413,
+      "sha256": "b5137332e292469729868ca9ff2717a9eba263bb7987c30816694d93779d89a7",
+      "state": "uploaded",
+      "url": "https://github.com/PeraPlusbirPasha/OguzDows/releases/download/v2.0-arm2/INDIRME-REHBERI.md"
+    },
+    "OguzDows-rpi-arm64.img.xz": {
+      "id": 805437450,
+      "size": 942624628,
+      "sha256": "54df1d349ef25a86d7dd5a484cc753313d1f32002a460dc39ca93b6615c5a33f",
+      "state": "uploaded",
+      "url": "https://github.com/PeraPlusbirPasha/OguzDows/releases/download/v2.0-arm2/OguzDows-rpi-arm64.img.xz"
+    },
+    "OguzDows-rpi-arm64.img.xz.sha256": {
+      "id": 805438487,
+      "size": 92,
+      "sha256": "fdaa2f7568d30dba59fe348176ce8acdb2891dceef1527288eb5d9ff664e9576",
+      "state": "uploaded",
+      "url": "https://github.com/PeraPlusbirPasha/OguzDows/releases/download/v2.0-arm2/OguzDows-rpi-arm64.img.xz.sha256"
+    },
+    "OguzDows-rpi-arm64.packages.txt": {
+      "id": 805438514,
+      "size": 179156,
+      "sha256": "14a027b2d55e7bf64d91c87513b9791d66e97fdd08418211470cca2be4af2044",
+      "state": "uploaded",
+      "url": "https://github.com/PeraPlusbirPasha/OguzDows/releases/download/v2.0-arm2/OguzDows-rpi-arm64.packages.txt"
+    },
+    "OguzDows-rpi-armhf.img.xz": {
+      "id": 805438565,
+      "size": 982475168,
+      "sha256": "f4749035233febd09f4e004001f2f539e0b226c569de145203702929dd08427d",
+      "state": "uploaded",
+      "url": "https://github.com/PeraPlusbirPasha/OguzDows/releases/download/v2.0-arm2/OguzDows-rpi-armhf.img.xz"
+    },
+    "OguzDows-rpi-armhf.img.xz.sha256": {
+      "id": 805439655,
+      "size": 92,
+      "sha256": "046bd592753df3eaef4688c92238e0617771a542a5c7c6df40431a32db5e0f6d",
+      "state": "uploaded",
+      "url": "https://github.com/PeraPlusbirPasha/OguzDows/releases/download/v2.0-arm2/OguzDows-rpi-armhf.img.xz.sha256"
+    },
+    "OguzDows-rpi-armhf.packages.txt": {
+      "id": 805439693,
+      "size": 178113,
+      "sha256": "bfc2abc23702433adf848226228bf14e0ab2fe782608a38c69142e5cee1d7401",
+      "state": "uploaded",
+      "url": "https://github.com/PeraPlusbirPasha/OguzDows/releases/download/v2.0-arm2/OguzDows-rpi-armhf.packages.txt"
+    },
+    "pi-gen.lock.json": {
+      "id": 805439799,
+      "size": 1375,
+      "sha256": "cfcb91286ad0e894cb9d5fc2055751e83f2334c14110436670b07d40d24c03c1",
+      "state": "uploaded",
+      "url": "https://github.com/PeraPlusbirPasha/OguzDows/releases/download/v2.0-arm2/pi-gen.lock.json"
+    },
+    "release-manifest.json": {
+      "id": 805439847,
+      "size": 6710,
+      "sha256": "09d6239b74101aa0db0c92a6f840dcfbc7f9d145305d8ca53b64fc26e597817e",
+      "state": "uploaded",
+      "url": "https://github.com/PeraPlusbirPasha/OguzDows/releases/download/v2.0-arm2/release-manifest.json"
+    },
+    "SHA256SUMS": {
+      "id": 805439752,
+      "size": 184,
+      "sha256": "4d28bb687bc9413a0f5a59e2aa26562e89ab1a22c0ab360e8950718e6be0fff1",
+      "state": "uploaded",
+      "url": "https://github.com/PeraPlusbirPasha/OguzDows/releases/download/v2.0-arm2/SHA256SUMS"
+    },
+    "test-evidence.tar.gz": {
+      "id": 805439906,
+      "size": 16547,
+      "sha256": "7f23858d6a2413826a6060b14d19cba05b1e208ffda6060d549f658959e1ef3e",
+      "state": "uploaded",
+      "url": "https://github.com/PeraPlusbirPasha/OguzDows/releases/download/v2.0-arm2/test-evidence.tar.gz"
+    }
+  },
+  "images_built_in_source_run": true,
+  "images_repacked_by_publisher": false,
+  "pc_rebuilt": false,
+  "mobile_rebuilt": false,
+  "historical_v2_assets_modified": false,
+  "historical_arm1_assets_modified": false,
+  "xfconf_locale_runtime_schema": 1,
+  "native_locale_evidence": {
+    "path": "docs/evidence/arm-xfconf-locale.json",
+    "sha256": "c9a1bacf5dff5de45a0e405376b084f26a1f53f8ba765abc1e990e48451abdc1",
+    "run_id": 46165804788,
+    "source_revision": "6ec8f55054e8eddde7fb0e74d62c4332a2cd7e35",
+    "conclusion": "success"
+  },
+  "physical_boot_verified": false,
+  "pi_performance_measured": false,
+  "source_run": {
+    "id": 46165807516,
+    "url": "https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/46165807516",
+    "source_revision": "6ec8f55054e8eddde7fb0e74d62c4332a2cd7e35",
+    "conclusion": "success",
+    "jobs": [
+      {
+        "id": 141042950069,
+        "name": "Pi yapılandırma ve güvenlik testleri",
+        "conclusion": "success",
+        "url": "https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/46165807516/job/141042950069"
+      },
+      {
+        "id": 141043425732,
+        "name": "Pi SD/USB imajı · arm64",
+        "conclusion": "success",
+        "url": "https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/46165807516/job/141043425732"
+      },
+      {
+        "id": 141043425753,
+        "name": "Pi SD/USB imajı · armhf",
+        "conclusion": "success",
+        "url": "https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/46165807516/job/141043425753"
+      }
+    ],
+    "artifacts": {
+      "OguzDows-Pi-gunluk-arm64": {
+        "id": 15273726189,
+        "name": "OguzDows-Pi-gunluk-arm64",
+        "size_in_bytes": 138489,
+        "digest": "sha256:fa25bdd145b9bd1e11c2016a83937a57c98c46b1f6a5402f12942561f67d428e"
+      },
+      "OguzDows-Pi-gunluk-armhf": {
+        "id": 15273694100,
+        "name": "OguzDows-Pi-gunluk-armhf",
+        "size_in_bytes": 137805,
+        "digest": "sha256:0cf6eaf794b06931e751c1dacf364dff0a6f3454b6938e403455dae47a8d35ff"
+      },
+      "OguzDows-rpi-arm64": {
+        "id": 15273636868,
+        "name": "OguzDows-rpi-arm64",
+        "size_in_bytes": 942805873,
+        "digest": "sha256:013d638220b6795fca5e0a82f3a3034114ff54ae02a21f6a4d3c59d03098270b"
+      },
+      "OguzDows-rpi-armhf": {
+        "id": 15273624704,
+        "name": "OguzDows-rpi-armhf",
+        "size_in_bytes": 982655370,
+        "digest": "sha256:ab630cfa6617999b38e85fcfb226ba0fe5867dfae6432baa9824326882c4b705"
+      }
+    },
+    "artifact_digest_scope": "Actions ZIP archives only; actual compressed image SHA-256 is in files and SHA256SUMS"
+  },
+  "target_runtime_reports": {
+    "armhf": {
+      "schema": 1,
+      "scope": "ARM-qemu-user-with-host-Xvfb",
+      "physical_boot": false,
+      "hardware_gpu": false,
+      "performance_measurement": false,
+      "real_package_transactions": false,
+      "real_audio_playback": false,
+      "errors": [],
+      "arch": "armhf",
+      "minimum_cpu": "arm1176",
+      "source_revision": "6ec8f55054e8eddde7fb0e74d62c4332a2cd7e35",
+      "pi_gen_commit": "8b71acc79287392a63985ba383c496d5419426b4",
+      "abi": {
+        "/usr/bin/python3": {
+          "bits": 32,
+          "machine": 40,
+          "hard_float": true
+        },
+        "/usr/lib/oguzdows/oguzdows-store-native": {
+          "bits": 32,
+          "machine": 40,
+          "hard_float": true
+        },
+        "/usr/lib/oguzdows/oguzdows-news-native": {
+          "bits": 32,
+          "machine": 40,
+          "hard_float": true
+        }
+      },
+      "python_modules": [
+        "hardware",
+        "pi_support",
+        "welcome_model",
+        "profiles",
+        "culture_core",
+        "compat_core",
+        "device_support",
+        "rifki_speech",
+        "resource_policy",
+        "resource_tune",
+        "file_manager",
+        "session_start",
+        "desktop_sessions",
+        "news_core",
+        "effects",
+        "workbench_core",
+        "bridge_core",
+        "bridge_capture",
+        "product_info"
+      ],
+      "feature_presence": {
+        "groups": [
+          "desktop-start-menu",
+          "welcome-rifki-narration",
+          "independent-light-dark-and-xp",
+          "cultural-wallpapers-and-tools",
+          "native-store",
+          "device-and-file-inspection",
+          "web-office-media",
+          "network-bluetooth-audio",
+          "pi-kms-camera-gpio",
+          "lightweight-news",
+          "original-icons-and-budgeted-transitions",
+          "offline-workbench",
+          "pc-phone-arm-bridge"
+        ],
+        "asset_hashes": 75,
+        "wallpapers": 20,
+        "selected_narration": 11,
+        "speech_contexts": 25
+      },
+      "packages": {
+        "adwaita-icon-theme": {
+          "architecture": "all",
+          "version": "43-1"
+        },
+        "alsa-utils": {
+          "architecture": "armhf",
+          "version": "1.2.8-1+rpt1"
+        },
+        "blueman": {
+          "architecture": "armhf",
+          "version": "2.3.5-2+b1"
+        },
+        "bluez": {
+          "architecture": "armhf",
+          "version": "5.66-1+rpt2+deb12u2"
+        },
+        "build-essential": {
+          "architecture": "armhf",
+          "version": "12.9"
+        },
+        "ca-certificates": {
+          "architecture": "all",
+          "version": "20250419~deb12u2"
+        },
+        "console-setup": {
+          "architecture": "all",
+          "version": "1.221rpt1"
+        },
+        "dbus-user-session": {
+          "architecture": "armhf",
+          "version": "1.14.10-1~deb12u1"
+        },
+        "dbus-x11": {
+          "architecture": "armhf",
+          "version": "1.14.10-1~deb12u1"
+        },
+        "dconf-gsettings-backend": {
+          "architecture": "armhf",
+          "version": "0.40.0-4"
+        },
+        "desktop-file-utils": {
+          "architecture": "armhf",
+          "version": "0.26-1"
+        },
+        "dosfstools": {
+          "architecture": "armhf",
+          "version": "4.2-1"
+        },
+        "e2fsprogs": {
+          "architecture": "armhf",
+          "version": "1.47.0-2"
+        },
+        "ethtool": {
+          "architecture": "armhf",
+          "version": "1:6.1-1"
+        },
+        "file-roller": {
+          "architecture": "armhf",
+          "version": "43.0-1"
+        },
+        "firmware-atheros": {
+          "architecture": "all",
+          "version": "1:20240709-2~bpo12+1+rpt4"
+        },
+        "firmware-brcm80211": {
+          "architecture": "all",
+          "version": "1:20240709-2~bpo12+1+rpt4"
+        },
+        "firmware-libertas": {
+          "architecture": "all",
+          "version": "1:20240709-2~bpo12+1+rpt4"
+        },
+        "firmware-realtek": {
+          "architecture": "all",
+          "version": "1:20240709-2~bpo12+1+rpt4"
+        },
+        "fontconfig": {
+          "architecture": "armhf",
+          "version": "2.14.1-4"
+        },
+        "fonts-dejavu-core": {
+          "architecture": "all",
+          "version": "2.37-6"
+        },
+        "fonts-inter": {
+          "architecture": "all",
+          "version": "4.0~beta7+ds-1"
+        },
+        "fonts-noto-color-emoji": {
+          "architecture": "all",
+          "version": "2.042-0+deb12u1"
+        },
+        "fonts-noto-core": {
+          "architecture": "all",
+          "version": "20201225-1"
+        },
+        "gir1.2-gtk-3.0": {
+          "architecture": "armhf",
+          "version": "1:3.24.38-2~deb12u3+rpi1+rpt1"
+        },
+        "gnome-themes-extra": {
+          "architecture": "armhf",
+          "version": "3.28-2"
+        },
+        "gpiod": {
+          "architecture": "armhf",
+          "version": "1.6.3-1+rpi1+b2"
+        },
+        "gsettings-desktop-schemas": {
+          "architecture": "all",
+          "version": "43.0-1+rpt1"
+        },
+        "gtk2-engines-murrine": {
+          "architecture": "armhf",
+          "version": "0.98.2-3+b1"
+        },
+        "gvfs": {
+          "architecture": "armhf",
+          "version": "1.50.3-1+deb12u1"
+        },
+        "gvfs-backends": {
+          "architecture": "armhf",
+          "version": "1.50.3-1+deb12u1"
+        },
+        "initramfs-tools": {
+          "architecture": "all",
+          "version": "0.142+rpt4+deb12u3"
+        },
+        "iproute2": {
+          "architecture": "armhf",
+          "version": "6.1.0-3"
+        },
+        "iw": {
+          "architecture": "armhf",
+          "version": "5.19-1"
+        },
+        "keyboard-configuration": {
+          "architecture": "all",
+          "version": "1.221rpt1"
+        },
+        "libgl1-mesa-dri": {
+          "architecture": "armhf",
+          "version": "24.2.8-1~bpo12+rpt5"
+        },
+        "libglib2.0-bin": {
+          "architecture": "armhf",
+          "version": "2.74.6-2+deb12u9"
+        },
+        "libglx-mesa0": {
+          "architecture": "armhf",
+          "version": "24.2.8-1~bpo12+rpt5"
+        },
+        "libgtk-3-bin": {
+          "architecture": "armhf",
+          "version": "1:3.24.38-2~deb12u3+rpi1+rpt1"
+        },
+        "libgtk-3-dev": {
+          "architecture": "armhf",
+          "version": "1:3.24.38-2~deb12u3+rpi1+rpt1"
+        },
+        "libjson-glib-1.0-0": {
+          "architecture": "armhf",
+          "version": "1.6.6-1"
+        },
+        "libjson-glib-dev": {
+          "architecture": "armhf",
+          "version": "1.6.6-1"
+        },
+        "libpam-systemd": {
+          "architecture": "armhf",
+          "version": "252.39-1~deb12u2+rpi1"
+        },
+        "libreoffice-calc": {
+          "architecture": "armhf",
+          "version": "4:7.4.7-1+rpi1+deb12u13"
+        },
+        "libreoffice-gtk3": {
+          "architecture": "armhf",
+          "version": "4:7.4.7-1+rpi1+deb12u13"
+        },
+        "libreoffice-impress": {
+          "architecture": "armhf",
+          "version": "4:7.4.7-1+rpi1+deb12u13"
+        },
+        "libreoffice-l10n-tr": {
+          "architecture": "all",
+          "version": "4:7.4.7-1+rpi1+deb12u13"
+        },
+        "libreoffice-writer": {
+          "architecture": "armhf",
+          "version": "4:7.4.7-1+rpi1+deb12u13"
+        },
+        "librsvg2-common": {
+          "architecture": "armhf",
+          "version": "2.54.7+dfsg-1~deb12u2"
+        },
+        "libwnck-3-dev": {
+          "architecture": "armhf",
+          "version": "43.0-3"
+        },
+        "libxfce4panel-2.0-dev": {
+          "architecture": "armhf",
+          "version": "4.18.2-1"
+        },
+        "libxfce4ui-2-dev": {
+          "architecture": "armhf",
+          "version": "4.18.2-2"
+        },
+        "libxfconf-0-dev": {
+          "architecture": "armhf",
+          "version": "4.18.0-2"
+        },
+        "light-locker": {
+          "architecture": "armhf",
+          "version": "1.8.0-3"
+        },
+        "lightdm": {
+          "architecture": "armhf",
+          "version": "1.26.0-8+rpt5+deb12u1"
+        },
+        "lightdm-gtk-greeter": {
+          "architecture": "armhf",
+          "version": "2.0.8-2"
+        },
+        "locales": {
+          "architecture": "all",
+          "version": "2.36-9+rpt2+deb12u14"
+        },
+        "lsb-release": {
+          "architecture": "all",
+          "version": "12.0-1"
+        },
+        "mate-polkit": {
+          "architecture": "armhf",
+          "version": "1.26.1-3+rpt3"
+        },
+        "mesa-utils": {
+          "architecture": "armhf",
+          "version": "8.5.0-1"
+        },
+        "mesa-vulkan-drivers": {
+          "architecture": "armhf",
+          "version": "24.2.8-1~bpo12+rpt5"
+        },
+        "mousepad": {
+          "architecture": "armhf",
+          "version": "0.5.10-2"
+        },
+        "netsurf-gtk": {
+          "architecture": "armhf",
+          "version": "3.10-1+b2"
+        },
+        "network-manager": {
+          "architecture": "armhf",
+          "version": "1.42.4-1+rpt1+deb12u1"
+        },
+        "network-manager-gnome": {
+          "architecture": "armhf",
+          "version": "1.30.0-2"
+        },
+        "ntfs-3g": {
+          "architecture": "armhf",
+          "version": "1:2022.10.3-1+deb12u4"
+        },
+        "openssl": {
+          "architecture": "armhf",
+          "version": "3.0.22-1~deb12u2+rpt1"
+        },
+        "parted": {
+          "architecture": "armhf",
+          "version": "3.5-3+deb12u1"
+        },
+        "pavucontrol": {
+          "architecture": "armhf",
+          "version": "5.0-2"
+        },
+        "pciutils": {
+          "architecture": "armhf",
+          "version": "1:3.9.0-4"
+        },
+        "pi-bluetooth": {
+          "architecture": "all",
+          "version": "0.1.20"
+        },
+        "picom": {
+          "architecture": "armhf",
+          "version": "9.1-1"
+        },
+        "pkg-config": {
+          "architecture": "armhf",
+          "version": "1.8.1-1"
+        },
+        "plymouth": {
+          "architecture": "armhf",
+          "version": "22.02.122-3+rpt1"
+        },
+        "plymouth-label": {
+          "architecture": "armhf",
+          "version": "22.02.122-3+rpt1"
+        },
+        "plymouth-themes": {
+          "architecture": "armhf",
+          "version": "22.02.122-3+rpt1"
+        },
+        "policykit-1": {
+          "architecture": "armhf",
+          "version": "122-3"
+        },
+        "procps": {
+          "architecture": "armhf",
+          "version": "2:4.0.2-3"
+        },
+        "pulseaudio": {
+          "architecture": "armhf",
+          "version": "16.1+dfsg1-2+rpt1.1"
+        },
+        "pulseaudio-utils": {
+          "architecture": "armhf",
+          "version": "16.1+dfsg1-2+rpt1.1"
+        },
+        "python3": {
+          "architecture": "armhf",
+          "version": "3.11.2-1"
+        },
+        "python3-apt": {
+          "architecture": "armhf",
+          "version": "2.6.0"
+        },
+        "python3-gi": {
+          "architecture": "armhf",
+          "version": "3.42.2-3+b1"
+        },
+        "python3-gpiozero": {
+          "architecture": "all",
+          "version": "2.0.1-0+rpt1"
+        },
+        "python3-libgpiod": {
+          "architecture": "armhf",
+          "version": "1.6.3-1+rpi1+b2"
+        },
+        "python3-pil": {
+          "architecture": "armhf",
+          "version": "9.4.0-1.1+deb12u1"
+        },
+        "python3-rpi-lgpio": {
+          "architecture": "all",
+          "version": "0.6-0~rpt1"
+        },
+        "python3-smbus2": {
+          "architecture": "armhf",
+          "version": "0.4.2-1"
+        },
+        "python3-spidev": {
+          "architecture": "armhf",
+          "version": "20200602~200721-1+bookworm"
+        },
+        "qt5-gtk-platformtheme": {
+          "architecture": "armhf",
+          "version": "5.15.8+dfsg-11+rpi1+deb12u3"
+        },
+        "raspberrypi-sys-mods": {
+          "architecture": "armhf",
+          "version": "20250930~bookworm"
+        },
+        "raspi-config": {
+          "architecture": "all",
+          "version": "20250813"
+        },
+        "raspi-utils": {
+          "architecture": "all",
+          "version": "20251002-1~bookworm"
+        },
+        "rfkill": {
+          "architecture": "armhf",
+          "version": "2.38.1-5+deb12u3"
+        },
+        "ristretto": {
+          "architecture": "armhf",
+          "version": "0.12.4-1"
+        },
+        "rpicam-apps-lite": {
+          "architecture": "all",
+          "version": "1.9.0-1~bpo12+1"
+        },
+        "rsync": {
+          "architecture": "armhf",
+          "version": "3.5.0+ds1-0+deb12u1"
+        },
+        "shared-mime-info": {
+          "architecture": "armhf",
+          "version": "2.2-1"
+        },
+        "sudo": {
+          "architecture": "armhf",
+          "version": "1.9.13p3-1+deb12u4"
+        },
+        "thunar": {
+          "architecture": "armhf",
+          "version": "4.18.4-1"
+        },
+        "thunar-volman": {
+          "architecture": "armhf",
+          "version": "4.18.0-1"
+        },
+        "tzdata": {
+          "architecture": "all",
+          "version": "2026f-0+deb12u1"
+        },
+        "usb-modeswitch": {
+          "architecture": "armhf",
+          "version": "2.6.1-3+b1"
+        },
+        "usbutils": {
+          "architecture": "armhf",
+          "version": "1:014-1+deb12u1"
+        },
+        "vlc": {
+          "architecture": "armhf",
+          "version": "1:3.0.24-0+deb12u1+rpt1"
+        },
+        "wireless-regdb": {
+          "architecture": "all",
+          "version": "2026.05.30-1~deb12u1"
+        },
+        "wpasupplicant": {
+          "architecture": "armhf",
+          "version": "2:2.10-12+deb12u3"
+        },
+        "x11-xserver-utils": {
+          "architecture": "armhf",
+          "version": "7.7+9"
+        },
+        "xdg-desktop-portal": {
+          "architecture": "armhf",
+          "version": "1.16.0-2"
+        },
+        "xdg-desktop-portal-gtk": {
+          "architecture": "armhf",
+          "version": "1.14.1-1"
+        },
+        "xdg-user-dirs": {
+          "architecture": "armhf",
+          "version": "0.18-1"
+        },
+        "xdg-utils": {
+          "architecture": "all",
+          "version": "1.1.3-4.1"
+        },
+        "xfce4": {
+          "architecture": "all",
+          "version": "4.18"
+        },
+        "xfce4-notifyd": {
+          "architecture": "armhf",
+          "version": "0.7.3-1"
+        },
+        "xfce4-power-manager": {
+          "architecture": "armhf",
+          "version": "4.18.1-1"
+        },
+        "xfce4-power-manager-plugins": {
+          "architecture": "armhf",
+          "version": "4.18.1-1"
+        },
+        "xfce4-pulseaudio-plugin": {
+          "architecture": "armhf",
+          "version": "0.4.5-1"
+        },
+        "xfce4-screenshooter": {
+          "architecture": "armhf",
+          "version": "1.10.3-1"
+        },
+        "xfce4-session": {
+          "architecture": "armhf",
+          "version": "4.18.1-1"
+        },
+        "xfce4-settings": {
+          "architecture": "armhf",
+          "version": "4.18.2-1"
+        },
+        "xfce4-terminal": {
+          "architecture": "armhf",
+          "version": "1.0.4-1"
+        },
+        "xfce4-whiskermenu-plugin": {
+          "architecture": "armhf",
+          "version": "2.7.2-1"
+        },
+        "xinit": {
+          "architecture": "armhf",
+          "version": "1.4.0-1"
+        },
+        "xserver-xorg": {
+          "architecture": "armhf",
+          "version": "1:7.7+23+b1"
+        },
+        "xserver-xorg-input-evdev": {
+          "architecture": "armhf",
+          "version": "1:2.10.6-2+b2"
+        },
+        "xserver-xorg-input-libinput": {
+          "architecture": "armhf",
+          "version": "1.2.1-1"
+        },
+        "xserver-xorg-video-fbdev": {
+          "architecture": "armhf",
+          "version": "1:0.5.0-2"
+        },
+        "zram-tools": {
+          "architecture": "all",
+          "version": "0.3.3.1-1.1"
+        }
+      },
+      "suite": "bookworm",
+      "gui": {
+        "gtk_window": true,
+        "gtk_version": [
+          3,
+          24,
+          38
+        ],
+        "xfce_version": "xfce4-session 4.18.1 (Xfce 4.18)",
+        "native_store_version": "OğuzDows Mağaza · GTK 3.24.38",
+        "native_news_version": "OğuzDows Haber · GTK 3.24.38"
+      },
+      "full_session": {
+        "scope": "non-root-Xfce-on-host-Xvfb",
+        "uid": 65534,
+        "lightdm_pam": false,
+        "physical_boot": false,
+        "performance_measurement": false,
+        "errors": [],
+        "xfwm4": true,
+        "xfce4-panel": true,
+        "xfdesktop": true,
+        "x11_window_manager": "Xfwm4",
+        "stable_samples": 5,
+        "panel_configuration": "Değer, 1 ögeden oluşan dizidir:\n\n1",
+        "startup_profile": "full",
+        "appearance": {
+          "schema": 1,
+          "scope": "target-user-QEMU-real-Xfce-appearance",
+          "xfconf_locale": {
+            "schema": 1,
+            "environment": {
+              "LANG": "tr_TR.UTF-8",
+              "LANGUAGE": "tr:en",
+              "LC_ALL": "tr_TR.UTF-8"
+            },
+            "raw_turkish_header": "Değer, 2 ögeden oluşan dizidir:",
+            "unfixed_reader_error_reproduced": true,
+            "unfixed_reader_header": "Değer, 4 ögeden oluşan dizidir:",
+            "runners": [
+              "profiles",
+              "desktop_runtime",
+              "wallpapers"
+            ],
+            "typed_arrays": [
+              "int-array",
+              "double-array"
+            ],
+            "single_item_array": true,
+            "utf8_value_roundtrip": true,
+            "array_read_write_readback": true,
+            "typed_backup": true,
+            "compare_rollback": true,
+            "persistence_failure_rollback": true,
+            "personal_panel_arrays_unchanged": true,
+            "persistence_failure_injected": true,
+            "settings_backend_mocked": false
+          },
+          "gtk3_dark_light_reloaded": true,
+          "gtk_themes": {
+            "dark": "OguzDowsXPDarkUser-64d1e089f51915c4",
+            "light": "OguzDowsXPUser-55f765198363859e"
+          },
+          "wallpaper_ids": [
+            "kackar-sisi",
+            "bogaz-sabahi"
+          ],
+          "wallpaper_pixel_sha256": [
+            "da9fc1519075a321f6480f390e091087dfa7dc2a81615540635106c113e257fd",
+            "298fe369ec337a08125cffc0476d751195e9acebc4df525fa70cc66a8ea80e4b"
+          ],
+          "wallpaper_pixels_changed": true,
+          "settings_backend_mocked": false,
+          "packaged_wallpapers": true,
+          "welcome_callbacks_tested": false,
+          "gtk4_portal_tested": false,
+          "physical_device": false,
+          "performance_measurement": false
+        },
+        "news": {
+          "native_process_alive": true,
+          "worker_exited": true,
+          "cached_fixture_preserved": true,
+          "network_tested": false,
+          "performance_measurement": false,
+          "window_pixels_verified": false
+        },
+        "browser": {
+          "program": "netsurf-gtk",
+          "local_start_page_alive": true,
+          "network_tested": false,
+          "modern_sites_verified": false
+        }
+      }
+    },
+    "arm64": {
+      "schema": 1,
+      "scope": "ARM-qemu-user-with-host-Xvfb",
+      "physical_boot": false,
+      "hardware_gpu": false,
+      "performance_measurement": false,
+      "real_package_transactions": false,
+      "real_audio_playback": false,
+      "errors": [],
+      "arch": "arm64",
+      "minimum_cpu": "cortex-a53",
+      "source_revision": "6ec8f55054e8eddde7fb0e74d62c4332a2cd7e35",
+      "pi_gen_commit": "3a7eeb9bd49278375b8871b284c1aacf54a31b34",
+      "abi": {
+        "/usr/bin/python3": {
+          "bits": 64,
+          "machine": 183,
+          "hard_float": null
+        },
+        "/usr/lib/oguzdows/oguzdows-store-native": {
+          "bits": 64,
+          "machine": 183,
+          "hard_float": null
+        },
+        "/usr/lib/oguzdows/oguzdows-news-native": {
+          "bits": 64,
+          "machine": 183,
+          "hard_float": null
+        }
+      },
+      "python_modules": [
+        "hardware",
+        "pi_support",
+        "welcome_model",
+        "profiles",
+        "culture_core",
+        "compat_core",
+        "device_support",
+        "rifki_speech",
+        "resource_policy",
+        "resource_tune",
+        "file_manager",
+        "session_start",
+        "desktop_sessions",
+        "news_core",
+        "effects",
+        "workbench_core",
+        "bridge_core",
+        "bridge_capture",
+        "product_info"
+      ],
+      "feature_presence": {
+        "groups": [
+          "desktop-start-menu",
+          "welcome-rifki-narration",
+          "independent-light-dark-and-xp",
+          "cultural-wallpapers-and-tools",
+          "native-store",
+          "device-and-file-inspection",
+          "web-office-media",
+          "network-bluetooth-audio",
+          "pi-kms-camera-gpio",
+          "lightweight-news",
+          "original-icons-and-budgeted-transitions",
+          "offline-workbench",
+          "pc-phone-arm-bridge"
+        ],
+        "asset_hashes": 75,
+        "wallpapers": 20,
+        "selected_narration": 11,
+        "speech_contexts": 25
+      },
+      "packages": {
+        "adwaita-icon-theme": {
+          "architecture": "all",
+          "version": "43-1"
+        },
+        "alsa-utils": {
+          "architecture": "arm64",
+          "version": "1.2.8-1+rpt1"
+        },
+        "blueman": {
+          "architecture": "arm64",
+          "version": "2.3.5-2+b1"
+        },
+        "bluez": {
+          "architecture": "arm64",
+          "version": "5.66-1+rpt2+deb12u2"
+        },
+        "build-essential": {
+          "architecture": "arm64",
+          "version": "12.9"
+        },
+        "ca-certificates": {
+          "architecture": "all",
+          "version": "20250419~deb12u2"
+        },
+        "console-setup": {
+          "architecture": "all",
+          "version": "1.221rpt1"
+        },
+        "dbus-user-session": {
+          "architecture": "arm64",
+          "version": "1.14.10-1~deb12u1"
+        },
+        "dbus-x11": {
+          "architecture": "arm64",
+          "version": "1.14.10-1~deb12u1"
+        },
+        "dconf-gsettings-backend": {
+          "architecture": "arm64",
+          "version": "0.40.0-4"
+        },
+        "desktop-file-utils": {
+          "architecture": "arm64",
+          "version": "0.26-1"
+        },
+        "dosfstools": {
+          "architecture": "arm64",
+          "version": "4.2-1"
+        },
+        "e2fsprogs": {
+          "architecture": "arm64",
+          "version": "1.47.0-2+b2"
+        },
+        "ethtool": {
+          "architecture": "arm64",
+          "version": "1:6.1-1"
+        },
+        "file-roller": {
+          "architecture": "arm64",
+          "version": "43.0-1"
+        },
+        "firefox-esr": {
+          "architecture": "arm64",
+          "version": "153.8.0esr-1~deb12u1"
+        },
+        "firefox-esr-l10n-tr": {
+          "architecture": "all",
+          "version": "153.8.0esr-1~deb12u1"
+        },
+        "firmware-atheros": {
+          "architecture": "all",
+          "version": "1:20240709-2~bpo12+1+rpt4"
+        },
+        "firmware-brcm80211": {
+          "architecture": "all",
+          "version": "1:20240709-2~bpo12+1+rpt4"
+        },
+        "firmware-libertas": {
+          "architecture": "all",
+          "version": "1:20240709-2~bpo12+1+rpt4"
+        },
+        "firmware-realtek": {
+          "architecture": "all",
+          "version": "1:20240709-2~bpo12+1+rpt4"
+        },
+        "flatpak": {
+          "architecture": "arm64",
+          "version": "1.14.10-1~deb12u2"
+        },
+        "fontconfig": {
+          "architecture": "arm64",
+          "version": "2.14.1-4"
+        },
+        "fonts-dejavu-core": {
+          "architecture": "all",
+          "version": "2.37-6"
+        },
+        "fonts-inter": {
+          "architecture": "all",
+          "version": "4.0~beta7+ds-1"
+        },
+        "fonts-noto-color-emoji": {
+          "architecture": "all",
+          "version": "2.042-0+deb12u1"
+        },
+        "fonts-noto-core": {
+          "architecture": "all",
+          "version": "20201225-1"
+        },
+        "gir1.2-flatpak-1.0": {
+          "architecture": "arm64",
+          "version": "1.14.10-1~deb12u2"
+        },
+        "gir1.2-gtk-3.0": {
+          "architecture": "arm64",
+          "version": "1:3.24.38-2~deb12u3+rpi1+rpt1"
+        },
+        "gnome-themes-extra": {
+          "architecture": "arm64",
+          "version": "3.28-2"
+        },
+        "gpiod": {
+          "architecture": "arm64",
+          "version": "1.6.3-1+b3"
+        },
+        "gsettings-desktop-schemas": {
+          "architecture": "all",
+          "version": "43.0-1+rpt1"
+        },
+        "gtk2-engines-murrine": {
+          "architecture": "arm64",
+          "version": "0.98.2-3+b1"
+        },
+        "gvfs": {
+          "architecture": "arm64",
+          "version": "1.50.3-1+deb12u1"
+        },
+        "gvfs-backends": {
+          "architecture": "arm64",
+          "version": "1.50.3-1+deb12u1"
+        },
+        "initramfs-tools": {
+          "architecture": "all",
+          "version": "0.142+rpt4+deb12u3"
+        },
+        "iproute2": {
+          "architecture": "arm64",
+          "version": "6.1.0-3"
+        },
+        "iw": {
+          "architecture": "arm64",
+          "version": "5.19-1"
+        },
+        "keyboard-configuration": {
+          "architecture": "all",
+          "version": "1.221rpt1"
+        },
+        "libgl1-mesa-dri": {
+          "architecture": "arm64",
+          "version": "24.2.8-1~bpo12+rpt5"
+        },
+        "libglib2.0-bin": {
+          "architecture": "arm64",
+          "version": "2.74.6-2+deb12u9"
+        },
+        "libglx-mesa0": {
+          "architecture": "arm64",
+          "version": "24.2.8-1~bpo12+rpt5"
+        },
+        "libgtk-3-bin": {
+          "architecture": "arm64",
+          "version": "1:3.24.38-2~deb12u3+rpi1+rpt1"
+        },
+        "libgtk-3-dev": {
+          "architecture": "arm64",
+          "version": "1:3.24.38-2~deb12u3+rpi1+rpt1"
+        },
+        "libjson-glib-1.0-0": {
+          "architecture": "arm64",
+          "version": "1.6.6-1"
+        },
+        "libjson-glib-dev": {
+          "architecture": "arm64",
+          "version": "1.6.6-1"
+        },
+        "libpam-systemd": {
+          "architecture": "arm64",
+          "version": "252.39-1~deb12u2"
+        },
+        "libreoffice-calc": {
+          "architecture": "arm64",
+          "version": "4:7.4.7-1+deb12u14"
+        },
+        "libreoffice-gtk3": {
+          "architecture": "arm64",
+          "version": "4:7.4.7-1+deb12u14"
+        },
+        "libreoffice-impress": {
+          "architecture": "arm64",
+          "version": "4:7.4.7-1+deb12u14"
+        },
+        "libreoffice-l10n-tr": {
+          "architecture": "all",
+          "version": "4:7.4.7-1+deb12u14"
+        },
+        "libreoffice-writer": {
+          "architecture": "arm64",
+          "version": "4:7.4.7-1+deb12u14"
+        },
+        "librsvg2-common": {
+          "architecture": "arm64",
+          "version": "2.54.7+dfsg-1~deb12u2"
+        },
+        "libwnck-3-dev": {
+          "architecture": "arm64",
+          "version": "43.0-3"
+        },
+        "libxfce4panel-2.0-dev": {
+          "architecture": "arm64",
+          "version": "4.18.2-1"
+        },
+        "libxfce4ui-2-dev": {
+          "architecture": "arm64",
+          "version": "4.18.2-2"
+        },
+        "libxfconf-0-dev": {
+          "architecture": "arm64",
+          "version": "4.18.0-2"
+        },
+        "light-locker": {
+          "architecture": "arm64",
+          "version": "1.8.0-3"
+        },
+        "lightdm": {
+          "architecture": "arm64",
+          "version": "1.26.0-8+rpt5+deb12u1"
+        },
+        "lightdm-gtk-greeter": {
+          "architecture": "arm64",
+          "version": "2.0.8-2+b1"
+        },
+        "locales": {
+          "architecture": "all",
+          "version": "2.36-9+rpt2+deb12u14"
+        },
+        "lsb-release": {
+          "architecture": "all",
+          "version": "12.0-1"
+        },
+        "mate-polkit": {
+          "architecture": "arm64",
+          "version": "1.26.1-3+rpt3"
+        },
+        "mesa-utils": {
+          "architecture": "arm64",
+          "version": "8.5.0-1"
+        },
+        "mesa-vulkan-drivers": {
+          "architecture": "arm64",
+          "version": "24.2.8-1~bpo12+rpt5"
+        },
+        "mousepad": {
+          "architecture": "arm64",
+          "version": "0.5.10-2"
+        },
+        "netsurf-gtk": {
+          "architecture": "arm64",
+          "version": "3.10-1+b3"
+        },
+        "network-manager": {
+          "architecture": "arm64",
+          "version": "1.42.4-1+rpt1+deb12u1"
+        },
+        "network-manager-gnome": {
+          "architecture": "arm64",
+          "version": "1.30.0-2"
+        },
+        "ntfs-3g": {
+          "architecture": "arm64",
+          "version": "1:2022.10.3-1+deb12u4"
+        },
+        "openssl": {
+          "architecture": "arm64",
+          "version": "3.0.22-1~deb12u2+rpt1"
+        },
+        "parted": {
+          "architecture": "arm64",
+          "version": "3.5-3+deb12u1"
+        },
+        "pavucontrol": {
+          "architecture": "arm64",
+          "version": "5.0-2"
+        },
+        "pciutils": {
+          "architecture": "arm64",
+          "version": "1:3.9.0-4"
+        },
+        "pi-bluetooth": {
+          "architecture": "all",
+          "version": "0.1.20"
+        },
+        "picom": {
+          "architecture": "arm64",
+          "version": "9.1-1"
+        },
+        "pkg-config": {
+          "architecture": "arm64",
+          "version": "1.8.1-1"
+        },
+        "plymouth": {
+          "architecture": "arm64",
+          "version": "22.02.122-3+rpt1"
+        },
+        "plymouth-label": {
+          "architecture": "arm64",
+          "version": "22.02.122-3+rpt1"
+        },
+        "plymouth-themes": {
+          "architecture": "arm64",
+          "version": "22.02.122-3+rpt1"
+        },
+        "policykit-1": {
+          "architecture": "arm64",
+          "version": "122-3"
+        },
+        "procps": {
+          "architecture": "arm64",
+          "version": "2:4.0.2-3"
+        },
+        "pulseaudio": {
+          "architecture": "arm64",
+          "version": "16.1+dfsg1-2+rpt1.1"
+        },
+        "pulseaudio-utils": {
+          "architecture": "arm64",
+          "version": "16.1+dfsg1-2+rpt1.1"
+        },
+        "python3": {
+          "architecture": "arm64",
+          "version": "3.11.2-1+b1"
+        },
+        "python3-apt": {
+          "architecture": "arm64",
+          "version": "2.6.0"
+        },
+        "python3-gi": {
+          "architecture": "arm64",
+          "version": "3.42.2-3+b1"
+        },
+        "python3-gpiozero": {
+          "architecture": "all",
+          "version": "2.0.1-0+rpt1"
+        },
+        "python3-libgpiod": {
+          "architecture": "arm64",
+          "version": "1.6.3-1+b3"
+        },
+        "python3-pil": {
+          "architecture": "arm64",
+          "version": "9.4.0-1.1+deb12u1"
+        },
+        "python3-rpi-lgpio": {
+          "architecture": "all",
+          "version": "0.6-0~rpt1"
+        },
+        "python3-smbus2": {
+          "architecture": "arm64",
+          "version": "0.4.2-1"
+        },
+        "python3-spidev": {
+          "architecture": "arm64",
+          "version": "20200602~200721-1+bookworm"
+        },
+        "qt5-gtk-platformtheme": {
+          "architecture": "arm64",
+          "version": "5.15.8+dfsg-11+deb12u3"
+        },
+        "raspberrypi-sys-mods": {
+          "architecture": "arm64",
+          "version": "20250930~bookworm"
+        },
+        "raspi-config": {
+          "architecture": "all",
+          "version": "20250813"
+        },
+        "raspi-utils": {
+          "architecture": "all",
+          "version": "20251002-1~bookworm"
+        },
+        "rfkill": {
+          "architecture": "arm64",
+          "version": "2.38.1-5+deb12u3"
+        },
+        "ristretto": {
+          "architecture": "arm64",
+          "version": "0.12.4-1"
+        },
+        "rpicam-apps-lite": {
+          "architecture": "all",
+          "version": "1.9.0-1~bpo12+1"
+        },
+        "rsync": {
+          "architecture": "arm64",
+          "version": "3.5.0+ds1-0+deb12u1"
+        },
+        "shared-mime-info": {
+          "architecture": "arm64",
+          "version": "2.2-1"
+        },
+        "sudo": {
+          "architecture": "arm64",
+          "version": "1.9.13p3-1+deb12u4"
+        },
+        "thunar": {
+          "architecture": "arm64",
+          "version": "4.18.4-1"
+        },
+        "thunar-volman": {
+          "architecture": "arm64",
+          "version": "4.18.0-1"
+        },
+        "tzdata": {
+          "architecture": "all",
+          "version": "2026f-0+deb12u1"
+        },
+        "usb-modeswitch": {
+          "architecture": "arm64",
+          "version": "2.6.1-3+b1"
+        },
+        "usbutils": {
+          "architecture": "arm64",
+          "version": "1:014-1+deb12u1"
+        },
+        "vlc": {
+          "architecture": "arm64",
+          "version": "1:3.0.24-0+deb12u1+rpt1"
+        },
+        "wireless-regdb": {
+          "architecture": "all",
+          "version": "2026.05.30-1~deb12u1"
+        },
+        "wpasupplicant": {
+          "architecture": "arm64",
+          "version": "2:2.10-12+deb12u3"
+        },
+        "x11-xserver-utils": {
+          "architecture": "arm64",
+          "version": "7.7+9+b1"
+        },
+        "xdg-desktop-portal": {
+          "architecture": "arm64",
+          "version": "1.16.0-2"
+        },
+        "xdg-desktop-portal-gtk": {
+          "architecture": "arm64",
+          "version": "1.14.1-1"
+        },
+        "xdg-user-dirs": {
+          "architecture": "arm64",
+          "version": "0.18-1"
+        },
+        "xdg-utils": {
+          "architecture": "all",
+          "version": "1.1.3-4.1"
+        },
+        "xfce4": {
+          "architecture": "all",
+          "version": "4.18"
+        },
+        "xfce4-notifyd": {
+          "architecture": "arm64",
+          "version": "0.7.3-1"
+        },
+        "xfce4-power-manager": {
+          "architecture": "arm64",
+          "version": "4.18.1-1"
+        },
+        "xfce4-power-manager-plugins": {
+          "architecture": "arm64",
+          "version": "4.18.1-1"
+        },
+        "xfce4-pulseaudio-plugin": {
+          "architecture": "arm64",
+          "version": "0.4.5-1"
+        },
+        "xfce4-screenshooter": {
+          "architecture": "arm64",
+          "version": "1.10.3-1"
+        },
+        "xfce4-session": {
+          "architecture": "arm64",
+          "version": "4.18.1-1"
+        },
+        "xfce4-settings": {
+          "architecture": "arm64",
+          "version": "4.18.2-1"
+        },
+        "xfce4-terminal": {
+          "architecture": "arm64",
+          "version": "1.0.4-1"
+        },
+        "xfce4-whiskermenu-plugin": {
+          "architecture": "arm64",
+          "version": "2.7.2-1"
+        },
+        "xinit": {
+          "architecture": "arm64",
+          "version": "1.4.0-1"
+        },
+        "xserver-xorg": {
+          "architecture": "arm64",
+          "version": "1:7.7+23"
+        },
+        "xserver-xorg-input-evdev": {
+          "architecture": "arm64",
+          "version": "1:2.10.6-2+b1"
+        },
+        "xserver-xorg-input-libinput": {
+          "architecture": "arm64",
+          "version": "1.2.1-1+b1"
+        },
+        "xserver-xorg-video-fbdev": {
+          "architecture": "arm64",
+          "version": "1:0.5.0-2"
+        },
+        "zram-tools": {
+          "architecture": "all",
+          "version": "0.3.3.1-1.1"
+        }
+      },
+      "suite": "bookworm",
+      "gui": {
+        "gtk_window": true,
+        "gtk_version": [
+          3,
+          24,
+          38
+        ],
+        "xfce_version": "xfce4-session 4.18.1 (Xfce 4.18)",
+        "native_store_version": "OğuzDows Mağaza · GTK 3.24.38",
+        "native_news_version": "OğuzDows Haber · GTK 3.24.38"
+      },
+      "full_session": {
+        "scope": "non-root-Xfce-on-host-Xvfb",
+        "uid": 65534,
+        "lightdm_pam": false,
+        "physical_boot": false,
+        "performance_measurement": false,
+        "errors": [],
+        "xfwm4": true,
+        "xfce4-panel": true,
+        "xfdesktop": true,
+        "x11_window_manager": "Xfwm4",
+        "stable_samples": 5,
+        "panel_configuration": "Değer, 1 ögeden oluşan dizidir:\n\n1",
+        "startup_profile": "full",
+        "appearance": {
+          "schema": 1,
+          "scope": "target-user-QEMU-real-Xfce-appearance",
+          "xfconf_locale": {
+            "schema": 1,
+            "environment": {
+              "LANG": "tr_TR.UTF-8",
+              "LANGUAGE": "tr:en",
+              "LC_ALL": "tr_TR.UTF-8"
+            },
+            "raw_turkish_header": "Değer, 2 ögeden oluşan dizidir:",
+            "unfixed_reader_error_reproduced": true,
+            "unfixed_reader_header": "Değer, 4 ögeden oluşan dizidir:",
+            "runners": [
+              "profiles",
+              "desktop_runtime",
+              "wallpapers"
+            ],
+            "typed_arrays": [
+              "int-array",
+              "double-array"
+            ],
+            "single_item_array": true,
+            "utf8_value_roundtrip": true,
+            "array_read_write_readback": true,
+            "typed_backup": true,
+            "compare_rollback": true,
+            "persistence_failure_rollback": true,
+            "personal_panel_arrays_unchanged": true,
+            "persistence_failure_injected": true,
+            "settings_backend_mocked": false
+          },
+          "gtk3_dark_light_reloaded": true,
+          "gtk_themes": {
+            "dark": "OguzDowsXPDarkUser-64d1e089f51915c4",
+            "light": "OguzDowsXPUser-55f765198363859e"
+          },
+          "wallpaper_ids": [
+            "kackar-sisi",
+            "bogaz-sabahi"
+          ],
+          "wallpaper_pixel_sha256": [
+            "da9fc1519075a321f6480f390e091087dfa7dc2a81615540635106c113e257fd",
+            "298fe369ec337a08125cffc0476d751195e9acebc4df525fa70cc66a8ea80e4b"
+          ],
+          "wallpaper_pixels_changed": true,
+          "settings_backend_mocked": false,
+          "packaged_wallpapers": true,
+          "welcome_callbacks_tested": false,
+          "gtk4_portal_tested": false,
+          "physical_device": false,
+          "performance_measurement": false
+        },
+        "news": {
+          "native_process_alive": true,
+          "worker_exited": true,
+          "cached_fixture_preserved": true,
+          "network_tested": false,
+          "performance_measurement": false,
+          "window_pixels_verified": false
+        }
+      }
+    }
+  },
+  "target_runtime_json_byte_relay": {
+    "run_id": 46172578613,
+    "url": "https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/46172578613",
+    "source_revision": "c1350caf8f2ec709645369a8897125b5f6d65b80",
+    "job_id": 141064075854,
+    "conclusion": "success",
+    "permissions": {
+      "contents": "read",
+      "actions": "read"
+    },
+    "artifact_code_executed": false,
+    "reports": {
+      "OguzDows-Pi-gunluk-arm64": {
+        "source_run": 46165807516,
+        "source_revision": "6ec8f55054e8eddde7fb0e74d62c4332a2cd7e35",
+        "kind": "pi-runtime",
+        "artifact_id": 15273726189,
+        "artifact": "OguzDows-Pi-gunluk-arm64",
+        "artifact_digest": "sha256:fa25bdd145b9bd1e11c2016a83937a57c98c46b1f6a5402f12942561f67d428e",
+        "filename": "pi-runtime-report.json",
+        "encoding": "zlib-base64",
+        "bytes": 16825,
+        "sha256": "37b3aea2b620ac2c92ab6a9d6019aadeedd5dfef05753f1117a9ab399aa9a309",
+        "parts": 3
+      },
+      "OguzDows-Pi-gunluk-armhf": {
+        "source_run": 46165807516,
+        "source_revision": "6ec8f55054e8eddde7fb0e74d62c4332a2cd7e35",
+        "kind": "pi-runtime",
+        "artifact_id": 15273694100,
+        "artifact": "OguzDows-Pi-gunluk-armhf",
+        "artifact_digest": "sha256:0cf6eaf794b06931e751c1dacf364dff0a6f3454b6938e403455dae47a8d35ff",
+        "filename": "pi-runtime-report.json",
+        "encoding": "zlib-base64",
+        "bytes": 16615,
+        "sha256": "23847603f0b93a5d7d8ed5b26d376b114e7b7f807298d9d1ecf9446d3fe5b939",
+        "parts": 3
+      }
+    },
+    "scope": "GET/download original successful CI JSON; exact size/SHA-256/base64 parts checked, no manually repaired Unicode"
+  },
+  "target_runtime_json_byte_relay_rejected": [
+    {
+      "id": 46171886371,
+      "job_id": 141061924429,
+      "source_revision": "7e566018b944c88a8b3470d724143a1354352268",
+      "accepted": false,
+      "reason": "Actions retained only ten notice annotations in one step; armhf has thirteen parts and arm64 parts are missing. No missing bytes were invented or repaired.",
+      "correction": "de5dfea19eb3ac17225fb91e12c3d305acab81a6",
+      "image_native_and_transfer_runs_not_restarted": true
+    },
+    {
+      "id": 46172114390,
+      "job_id": 141062638384,
+      "source_revision": "de5dfea19eb3ac17225fb91e12c3d305acab81a6",
+      "accepted": false,
+      "reason": "All eight larger annotation messages are truncated to 4096 characters by the consumer transport. No truncated JSON/base64 was manually repaired or accepted.",
+      "correction": "c1350caf8f2ec709645369a8897125b5f6d65b80",
+      "image_native_and_transfer_runs_not_restarted": true
+    }
+  ],
+  "image_identity": {
+    "arm64": {
+      "scope": "read-only-MBR-FAT-ext4-identity-and-existing-verifier-not-physical-boot",
+      "build": {
+        "platform": "raspberrypi",
+        "arch": "arm64",
+        "suite": "bookworm",
+        "pi_gen_commit": "3a7eeb9bd49278375b8871b284c1aacf54a31b34",
+        "status": "physical-boot-unverified",
+        "source_revision": "6ec8f55054e8eddde7fb0e74d62c4332a2cd7e35",
+        "source_dirty": false
+      },
+      "version": "2.0",
+      "uncompressed_bytes": 4731174912,
+      "uncompressed_sha256": "b194a2be23b19309e254cc60925afa280f43c6fc70bda6b761d7090a3329ac8b",
+      "existing_pi_verifier_passed": true,
+      "embedded_runtime_matches_raw_artifact": true
+    },
+    "armhf": {
+      "scope": "read-only-MBR-FAT-ext4-identity-and-existing-verifier-not-physical-boot",
+      "build": {
+        "platform": "raspberrypi",
+        "arch": "armhf",
+        "suite": "bookworm",
+        "pi_gen_commit": "8b71acc79287392a63985ba383c496d5419426b4",
+        "status": "physical-boot-unverified",
+        "source_revision": "6ec8f55054e8eddde7fb0e74d62c4332a2cd7e35",
+        "source_dirty": false
+      },
+      "version": "2.0",
+      "uncompressed_bytes": 4043309056,
+      "uncompressed_sha256": "b295a05273fa7f0f980e4559f19d545c637eada82325bd19b60a36c979a87d94",
+      "existing_pi_verifier_passed": true,
+      "embedded_runtime_matches_raw_artifact": true
+    }
+  },
+  "release_transfer": {
+    "run_id": 46171902102,
+    "url": "https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/46171902102",
+    "job_id": 141061969343,
+    "conclusion": "success",
+    "actual_receipt": {
+      "release_id": 461704890,
+      "tag": "v2.0-arm2",
+      "draft": true,
+      "source_revision": "6ec8f55054e8eddde7fb0e74d62c4332a2cd7e35",
+      "source_run_id": 46165807516,
+      "asset_count": 11,
+      "historical_v2_assets_modified": false
+    }
+  },
+  "release_download_audit": {
+    "run_id": 46172590331,
+    "url": "https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/46172590331",
+    "job_id": 141064208237,
+    "conclusion": "success",
+    "release_id": 461704890,
+    "tag": "v2.0-arm2",
+    "source_run_id": 46165807516,
+    "source_revision": "6ec8f55054e8eddde7fb0e74d62c4332a2cd7e35",
+    "publisher_revision": "7e566018b944c88a8b3470d724143a1354352268",
+    "asset_count": 11,
+    "evidence_file_count": 13,
+    "all_release_assets_redownloaded_and_hashed": true,
+    "both_images_reinspected_read_only": true,
+    "expected_75_source_asset_contracts_matched": true,
+    "turkish_xfconf_runtime_gate_matched": true,
+    "native_ARM64_Turkish_Welcome_evidence_matched": true,
+    "release_modified": false,
+    "draft": true,
+    "download_access": "asset-scoped-signed-GET",
+    "live_draft_metadata_rechecked_inside_audit": false,
+    "publication_collector_must_recheck_live_metadata": true,
+    "draft_snapshot_sha256": "b3fc93fcee5b0f38c805e25ac20f07243421577ab441efa7159ba8a278464fea",
+    "physical_boot": false
+  },
+  "draft_read_access_and_live_metadata_recheck": {
+    "helper_job_id": 141064109857,
+    "helper_url": "https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/46172590331/job/141064109857",
+    "helper_conclusion": "success",
+    "helper_permissions": {
+      "contents": "write",
+      "actions": "read"
+    },
+    "helper_only_GETs_no_Release_mutation": true,
+    "helper_note": "GitHub requires contents:write even to GET private draft metadata; the separate auditor is read-only",
+    "audit_job_permissions": {
+      "contents": "read",
+      "actions": "read"
+    },
+    "bearer_token_exported_to_auditor": false,
+    "download_access": "expiring asset-only read SAS URLs; no generic GitHub credential",
+    "live_release_snapshot_sha256": "b3fc93fcee5b0f38c805e25ac20f07243421577ab441efa7159ba8a278464fea",
+    "live_metadata_rechecked_after_audit_by_collector": true,
+    "snapshot_hash_scope": "Release ID/tag/source/notes/draft/prerelease and stable asset API IDs/names/URLs/sizes/digests/states; mutable untagged browser routes excluded and validated separately",
+    "snapshot_draft_field_normalized_only_after_authorized_publication": true
+  },
+  "full_product_bytes_hashed_in_GitHub_runner": true,
+  "full_product_bytes_downloaded_or_independently_hashed_in_local_sandbox": false,
+  "previous_releases_preserved": {
+    "v2.0-arm1": {
+      "release_id": 461532378,
+      "source_revision": "c5063ee8b558cb6c8af8301143cf3ce02106e2aa",
+      "asset_count": 11,
+      "body_sha256": "fd822fc9594aabce2932401384bd9bb423a577552491da4ecd2c0ea257544509",
+      "tag_body_asset_ids_sizes_hashes_unchanged": true
+    },
+    "v2.0": {
+      "release_id": 461210500,
+      "source_revision": "5a44de0dde676d901a32be40d631d481e213439d",
+      "asset_count": 26,
+      "body_sha256": "a2577c57c655bcb7e42803f0c2f3b38331e1be2e444a3521ecf6dae026aac078",
+      "tag_body_asset_ids_sizes_hashes_unchanged": true
+    },
+    "v1.2": {
+      "release_id": 460537352,
+      "source_revision": "dc92fe9e47d8cdc599094281780e274cc49d1470",
+      "asset_count": 17,
+      "body_sha256": "9a91f1a7edd82d390f341a05b9a75de8324f5525802e4e64ad6a18292a8dd8a0",
+      "tag_body_asset_ids_sizes_hashes_unchanged": true
+    },
+    "v1.1": {
+      "release_id": 455583593,
+      "source_revision": "29f7738534cd00bd87887f530355ef45e01eb28c",
+      "asset_count": 17,
+      "body_sha256": "f42850683fa13925a243270dd881cf4beccf916db09a693f38fec9131d808486",
+      "tag_body_asset_ids_sizes_hashes_unchanged": true
+    },
+    "v1.0.0": {
+      "release_id": 452038375,
+      "source_revision": "bcd03315873f186ee25f9296afc44356defd0763",
+      "asset_count": 8,
+      "body_sha256": "f6e7c447c722e0a3dfa2084f9ed86e99a6814c3af276ce0f01921296c5e4ce41",
+      "tag_body_asset_ids_sizes_hashes_unchanged": true
+    }
+  },
+  "newer_mobile_ci_not_accepted": [
+    {
+      "run_id": 46141102883,
+      "job_id": 140967180202,
+      "url": "https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/46141102883/job/140967180202",
+      "attempt": 1,
+      "source_revision": "01f634c7c03825096269d6eef0fdb9ec1da40435",
+      "conclusion": "failure",
+      "accepted": false,
+      "product_anr_detected": true,
+      "product_crash_detected": false,
+      "runtime_anr_crash_checks_performed": true,
+      "acceptance_failure": "Acceptance refused: missing / unexpected scope or app health: product_anr_detected",
+      "setup_failure": null,
+      "preflight": {
+        "sim_state": "LOADED",
+        "default_sms_subscription_setting": 1,
+        "active_default_network": 100,
+        "ready": true
+      },
+      "failed_selections": [],
+      "missing_native_ui": [],
+      "root_cause_confirmed": false,
+      "product_source_paths_unchanged_from_original_v2": [
+        "mobile/android/app/src",
+        "mobile/android/fixture",
+        "mobile/scripts",
+        "mobile/preview/src",
+        "mobile/preview/public"
+      ],
+      "replaces_original_apk_acceptance": false
+    },
+    {
+      "run_id": 46141102883,
+      "job_id": 140971721566,
+      "url": "https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/46141102883/job/140971721566",
+      "attempt": 2,
+      "source_revision": "01f634c7c03825096269d6eef0fdb9ec1da40435",
+      "conclusion": "failure",
+      "accepted": false,
+      "product_anr_detected": false,
+      "product_crash_detected": false,
+      "runtime_anr_crash_checks_performed": true,
+      "acceptance_failure": "Acceptance refused: failed / empty / skipped / wrong native case count: LauncherDeviceTest.suite",
+      "setup_failure": null,
+      "preflight": {
+        "sim_state": "LOADED",
+        "default_sms_subscription_setting": 1,
+        "active_default_network": 100,
+        "ready": true
+      },
+      "failed_selections": [
+        {
+          "name": "LauncherDeviceTest.suite",
+          "passed": false,
+          "test_cases": 0,
+          "seconds": 98.89,
+          "failure": "INSTRUMENTATION_STATUS: stack=java.lang.AssertionError: Missing native UI: launcher-device-panel; pa"
+        }
+      ],
+      "missing_native_ui": [
+        "launcher-device-panel"
+      ],
+      "root_cause_confirmed": false,
+      "product_source_paths_unchanged_from_original_v2": [
+        "mobile/android/app/src",
+        "mobile/android/fixture",
+        "mobile/scripts",
+        "mobile/preview/src",
+        "mobile/preview/public"
+      ],
+      "replaces_original_apk_acceptance": false
+    },
+    {
+      "run_id": 46143262394,
+      "job_id": 140974464222,
+      "url": "https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/46143262394/job/140974464222",
+      "attempt": 1,
+      "source_revision": "86347fc7e16830a598edf6d183093b995779998b",
+      "conclusion": "failure",
+      "accepted": false,
+      "product_anr_detected": false,
+      "product_crash_detected": false,
+      "runtime_anr_crash_checks_performed": true,
+      "acceptance_failure": "Acceptance refused: failed / empty / skipped / wrong native case count: LauncherDeviceTest.suite",
+      "setup_failure": null,
+      "preflight": {
+        "sim_state": "LOADED",
+        "default_sms_subscription_setting": 1,
+        "active_default_network": 100,
+        "ready": true
+      },
+      "failed_selections": [
+        {
+          "name": "LauncherDeviceTest.suite",
+          "passed": false,
+          "test_cases": 0,
+          "seconds": 89.8,
+          "failure": "INSTRUMENTATION_STATUS: stack=java.lang.AssertionError: Missing native UI: launcher-wallpapers; pack"
+        }
+      ],
+      "missing_native_ui": [
+        "launcher-wallpapers"
+      ],
+      "root_cause_confirmed": false,
+      "product_source_paths_unchanged_from_original_v2": [
+        "mobile/android/app/src",
+        "mobile/android/fixture",
+        "mobile/scripts",
+        "mobile/preview/src",
+        "mobile/preview/public"
+      ],
+      "replaces_original_apk_acceptance": false
+    },
+    {
+      "run_id": 46144565111,
+      "job_id": 140977645533,
+      "url": "https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/46144565111/job/140977645533",
+      "attempt": 1,
+      "source_revision": "3f8541a0c1129323f2882ade4e0776a7d7aad70e",
+      "conclusion": "failure",
+      "accepted": false,
+      "product_anr_detected": false,
+      "product_crash_detected": false,
+      "runtime_anr_crash_checks_performed": true,
+      "acceptance_failure": "Acceptance refused: failed / empty / skipped / wrong native case count: LauncherDeviceTest.suite",
+      "setup_failure": null,
+      "preflight": {
+        "sim_state": "LOADED",
+        "default_sms_subscription_setting": 1,
+        "active_default_network": 100,
+        "ready": true
+      },
+      "failed_selections": [
+        {
+          "name": "LauncherDeviceTest.suite",
+          "passed": false,
+          "test_cases": 0,
+          "seconds": 93.2,
+          "failure": "INSTRUMENTATION_STATUS: stack=java.lang.AssertionError: Missing native UI: launcher-wallpapers; pack"
+        }
+      ],
+      "missing_native_ui": [
+        "launcher-wallpapers"
+      ],
+      "root_cause_confirmed": false,
+      "product_source_paths_unchanged_from_original_v2": [
+        "mobile/android/app/src",
+        "mobile/android/fixture",
+        "mobile/scripts",
+        "mobile/preview/src",
+        "mobile/preview/public"
+      ],
+      "replaces_original_apk_acceptance": false
+    },
+    {
+      "run_id": 46149463903,
+      "job_id": 140992711587,
+      "url": "https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/46149463903/job/140992711587",
+      "attempt": 1,
+      "source_revision": "5d21038334973507cd9a3f186c1ae4d5b362d3aa",
+      "conclusion": "failure",
+      "accepted": false,
+      "product_anr_detected": null,
+      "product_crash_detected": null,
+      "runtime_anr_crash_checks_performed": false,
+      "acceptance_failure": "QEMU SIM / OS-selected SMS subscription / default network not ready; no device acceptance inferred.",
+      "setup_failure": "QEMU SIM / OS-selected SMS subscription / default network not ready; no device acceptance inferred.",
+      "preflight": {
+        "sim_state": "LOADED",
+        "default_sms_subscription_setting": null,
+        "active_default_network": 100,
+        "ready": false
+      },
+      "failed_selections": [],
+      "missing_native_ui": [],
+      "root_cause_confirmed": false,
+      "product_source_paths_unchanged_from_original_v2": [
+        "mobile/android/app/src",
+        "mobile/android/fixture",
+        "mobile/scripts",
+        "mobile/preview/src",
+        "mobile/preview/public"
+      ],
+      "replaces_original_apk_acceptance": false
+    }
+  ],
+  "mobile_failure_reference": {
+    "receipt": "docs/releases/v2.0-arm1-release.json",
+    "refreshed_by_this_ARM_release": false,
+    "later_known_job": 140996292704,
+    "later_known_run": 46150475109,
+    "later_known_failure": "LauncherDeviceTest.test01ActualNativeHomeAndInventory StaleObjectException",
+    "accepted": false
+  },
+  "known_issues": [
+    "First-generation Pi Zero/Zero W account-to-desktop black screen unresolved",
+    "No physical Pi kernel/firmware/LightDM/PAM/GPU/HDMI/SD/performance acceptance",
+    "Target GTK3/Xfce appearance gate is not Welcome callback, GTK4/portal, all applications or package installation acceptance",
+    "Mobile APK remains the original v2.0 accepted package; newer CI ANR and launcher focus/UI failures are not fixed or accepted by this ARM release",
+    "No automatic SD-card migration, paid service, microphone/wake-word or cloud AI activation"
+  ],
+  "tag_target": "6ec8f55054e8eddde7fb0e74d62c4332a2cd7e35",
+  "published_at_github": "2026-11-28T17:55:47Z",
+  "public_download_checks": [
+    {
+      "name": "INDIRME-REHBERI.md",
+      "url": "https://github.com/PeraPlusbirPasha/OguzDows/releases/download/v2.0-arm2/INDIRME-REHBERI.md",
+      "status": 302,
+      "unauthenticated": true,
+      "full_bytes_downloaded_by_this_head_check": false
+    },
+    {
+      "name": "OguzDows-rpi-arm64.img.xz",
+      "url": "https://github.com/PeraPlusbirPasha/OguzDows/releases/download/v2.0-arm2/OguzDows-rpi-arm64.img.xz",
+      "status": 302,
+      "unauthenticated": true,
+      "full_bytes_downloaded_by_this_head_check": false
+    },
+    {
+      "name": "OguzDows-rpi-arm64.img.xz.sha256",
+      "url": "https://github.com/PeraPlusbirPasha/OguzDows/releases/download/v2.0-arm2/OguzDows-rpi-arm64.img.xz.sha256",
+      "status": 302,
+      "unauthenticated": true,
+      "full_bytes_downloaded_by_this_head_check": false
+    },
+    {
+      "name": "OguzDows-rpi-arm64.packages.txt",
+      "url": "https://github.com/PeraPlusbirPasha/OguzDows/releases/download/v2.0-arm2/OguzDows-rpi-arm64.packages.txt",
+      "status": 302,
+      "unauthenticated": true,
+      "full_bytes_downloaded_by_this_head_check": false
+    },
+    {
+      "name": "OguzDows-rpi-armhf.img.xz",
+      "url": "https://github.com/PeraPlusbirPasha/OguzDows/releases/download/v2.0-arm2/OguzDows-rpi-armhf.img.xz",
+      "status": 302,
+      "unauthenticated": true,
+      "full_bytes_downloaded_by_this_head_check": false
+    },
+    {
+      "name": "OguzDows-rpi-armhf.img.xz.sha256",
+      "url": "https://github.com/PeraPlusbirPasha/OguzDows/releases/download/v2.0-arm2/OguzDows-rpi-armhf.img.xz.sha256",
+      "status": 302,
+      "unauthenticated": true,
+      "full_bytes_downloaded_by_this_head_check": false
+    },
+    {
+      "name": "OguzDows-rpi-armhf.packages.txt",
+      "url": "https://github.com/PeraPlusbirPasha/OguzDows/releases/download/v2.0-arm2/OguzDows-rpi-armhf.packages.txt",
+      "status": 302,
+      "unauthenticated": true,
+      "full_bytes_downloaded_by_this_head_check": false
+    },
+    {
+      "name": "SHA256SUMS",
+      "url": "https://github.com/PeraPlusbirPasha/OguzDows/releases/download/v2.0-arm2/SHA256SUMS",
+      "status": 302,
+      "unauthenticated": true,
+      "full_bytes_downloaded_by_this_head_check": false
+    },
+    {
+      "name": "pi-gen.lock.json",
+      "url": "https://github.com/PeraPlusbirPasha/OguzDows/releases/download/v2.0-arm2/pi-gen.lock.json",
+      "status": 302,
+      "unauthenticated": true,
+      "full_bytes_downloaded_by_this_head_check": false
+    },
+    {
+      "name": "release-manifest.json",
+      "url": "https://github.com/PeraPlusbirPasha/OguzDows/releases/download/v2.0-arm2/release-manifest.json",
+      "status": 302,
+      "unauthenticated": true,
+      "full_bytes_downloaded_by_this_head_check": false
+    },
+    {
+      "name": "test-evidence.tar.gz",
+      "url": "https://github.com/PeraPlusbirPasha/OguzDows/releases/download/v2.0-arm2/test-evidence.tar.gz",
+      "status": 302,
+      "unauthenticated": true,
+      "full_bytes_downloaded_by_this_head_check": false
+    }
+  ],
+  "public_release_tag_check": {
+    "unauthenticated": true,
+    "status": 200,
+    "release_id": 461704890,
+    "source_revision": "6ec8f55054e8eddde7fb0e74d62c4332a2cd7e35",
+    "original_v2_remains_latest": true
+  }
+}

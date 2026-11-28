@@ -1,0 +1,270 @@
+{
+  "schema": 1,
+  "scope": "native-ARM64-Turkish-Xfce-Welcome-and-real-pixels-not-physical-Pi",
+  "baseline_arm_release": {
+    "tag": "v2.0-arm1",
+    "source_revision": "c5063ee8b558cb6c8af8301143cf3ce02106e2aa",
+    "files_not_changed": true
+  },
+  "failure": {
+    "reported_error": "Tema değiştirilemedi: Xfce dizi ayarı güvenle okunamadı",
+    "cause": "Bookworm GNU gettext honours inherited LANGUAGE=tr:en despite LC_ALL=C.UTF-8; typed array parser correctly refuses the translated header.",
+    "reproduced_against_real_unfixed_subprocess_environment_in_accepted_bookworm_job": true
+  },
+  "fix_commits": [
+    "a83a1519c2bddf6379fab982dc45109589c76e3c"
+  ],
+  "probe_followup_commits": [
+    "6ec8f55054e8eddde7fb0e74d62c4332a2cd7e35"
+  ],
+  "earlier_rejected_probe": {
+    "run_id": 46165420494,
+    "url": "https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/46165420494",
+    "source_revision": "a83a1519c2bddf6379fab982dc45109589c76e3c",
+    "accepted": false,
+    "bookworm_job_id": 141041785784,
+    "trixie_job_id": 141041785505,
+    "reason": "Bookworm locale/UI/pixels passed; probe incorrectly assumed C.UTF-8 translates on Trixie too. Follow-up records the real platform difference without changing the runtime repair."
+  },
+  "acceptance": {
+    "source_revision": "6ec8f55054e8eddde7fb0e74d62c4332a2cd7e35",
+    "run_id": 46165804788,
+    "run_url": "https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/46165804788",
+    "event": "workflow_dispatch",
+    "conclusion": "success",
+    "results": [
+      {
+        "suite": "bookworm",
+        "job_id": 141042942469,
+        "job_url": "https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/46165804788/job/141042942469",
+        "conclusion": "success",
+        "report": {
+          "scope": "private-nonroot-native-Xfce-Welcome-theme-wallpaper-and-root-pixels",
+          "architecture": "arm64",
+          "source_revision": "6ec8f55054e8eddde7fb0e74d62c4332a2cd7e35",
+          "runtime_sha256": {
+            "desktop_preferences.py": "de34fefff96d73cd52da645e8a510316277f62f6cea7ffc5f995caddac625fd5",
+            "desktop_runtime.py": "b86a03b2527e82ca73a1374311bb7828cf8e7c19becc82516680c697f84736be",
+            "desktop_material.py": "f89fa06bb13924572a3fae98243dada97afb24d1cf64a52a32f44b3cbc778205",
+            "wallpapers.py": "e597e526f9f4dd9b6789358a5df8f9f824681166b78886ff75602527a2cf9f7d",
+            "profiles.py": "e57a2d3a4364761c657a8b2177aeaba1cdfca234fa9b7814f6c5af93c12e9614"
+          },
+          "locale_probe_sha256": "d707fc39b51564d34ba96c323dc3e2a78b3ef8699ef6b302fb4a130d2dba5cd1",
+          "synthetic_image_fixture": true,
+          "physical_pi": false,
+          "physical_gpu": false,
+          "performance_measurement": false,
+          "settings_backend_mocked": false,
+          "errors": [],
+          "xfconf_locale": {
+            "schema": 1,
+            "environment": {
+              "LANG": "tr_TR.UTF-8",
+              "LANGUAGE": "tr:en",
+              "LC_ALL": "tr_TR.UTF-8"
+            },
+            "raw_turkish_header": "Değer, 2 ögeden oluşan dizidir:",
+            "unfixed_reader_error_reproduced": true,
+            "unfixed_reader_header": "Değer, 4 ögeden oluşan dizidir:",
+            "runners": [
+              "profiles",
+              "desktop_runtime",
+              "wallpapers"
+            ],
+            "typed_arrays": [
+              "int-array",
+              "double-array"
+            ],
+            "single_item_array": true,
+            "utf8_value_roundtrip": true,
+            "array_read_write_readback": true,
+            "typed_backup": true,
+            "compare_rollback": true,
+            "persistence_failure_rollback": true,
+            "personal_panel_arrays_unchanged": true,
+            "persistence_failure_injected": true,
+            "settings_backend_mocked": false
+          },
+          "profile_themes": {
+            "oguzdows": "OguzDowsXPUser-90ca56597aee5ba1",
+            "kde": "OguzDowsLightUser-17b6e475bb01c1b4",
+            "gnome": "OguzDowsGnomeUser-98c783e59902615e",
+            "xfce": "OguzDowsLightUser-dbf3db51220aa070",
+            "windows11": "OguzDowsElevenUser-d0f25e588c6a3026",
+            "mac": "OguzDowsMacUser-a882356ed63dcc63"
+          },
+          "profile_panel_restart_tested": false,
+          "dark_theme": "OguzDowsXPDarkUser-74557b0580936f13",
+          "light_theme": "OguzDowsXPUser-90ca56597aee5ba1",
+          "welcome_theme_callbacks_and_GTK_reload": true,
+          "fixture-red_root_rgb": [
+            160,
+            30,
+            40
+          ],
+          "fixture-blue_root_rgb": [
+            30,
+            60,
+            160
+          ],
+          "welcome_wallpaper_callbacks_and_real_pixels": true,
+          "stale_connector_does_not_swallow_change": true,
+          "randr_failure_injected": true,
+          "fallback_real_gdk_helper_and_pixels": true,
+          "native_property_count": 5,
+          "shared_revision": 13
+        }
+      },
+      {
+        "suite": "trixie",
+        "job_id": 141042942732,
+        "job_url": "https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/46165804788/job/141042942732",
+        "conclusion": "success",
+        "report": {
+          "scope": "private-nonroot-native-Xfce-Welcome-theme-wallpaper-and-root-pixels",
+          "architecture": "arm64",
+          "source_revision": "6ec8f55054e8eddde7fb0e74d62c4332a2cd7e35",
+          "runtime_sha256": {
+            "desktop_preferences.py": "de34fefff96d73cd52da645e8a510316277f62f6cea7ffc5f995caddac625fd5",
+            "desktop_runtime.py": "b86a03b2527e82ca73a1374311bb7828cf8e7c19becc82516680c697f84736be",
+            "desktop_material.py": "f89fa06bb13924572a3fae98243dada97afb24d1cf64a52a32f44b3cbc778205",
+            "wallpapers.py": "e597e526f9f4dd9b6789358a5df8f9f824681166b78886ff75602527a2cf9f7d",
+            "profiles.py": "e57a2d3a4364761c657a8b2177aeaba1cdfca234fa9b7814f6c5af93c12e9614"
+          },
+          "locale_probe_sha256": "d707fc39b51564d34ba96c323dc3e2a78b3ef8699ef6b302fb4a130d2dba5cd1",
+          "synthetic_image_fixture": true,
+          "physical_pi": false,
+          "physical_gpu": false,
+          "performance_measurement": false,
+          "settings_backend_mocked": false,
+          "errors": [],
+          "xfconf_locale": {
+            "schema": 1,
+            "environment": {
+              "LANG": "tr_TR.UTF-8",
+              "LANGUAGE": "tr:en",
+              "LC_ALL": "tr_TR.UTF-8"
+            },
+            "raw_turkish_header": "Değer, 2 ögeden oluşan dizidir:",
+            "unfixed_reader_error_reproduced": false,
+            "unfixed_reader_header": "Value is an array with 4 items:",
+            "runners": [
+              "profiles",
+              "desktop_runtime",
+              "wallpapers"
+            ],
+            "typed_arrays": [
+              "int-array",
+              "double-array"
+            ],
+            "single_item_array": true,
+            "utf8_value_roundtrip": true,
+            "array_read_write_readback": true,
+            "typed_backup": true,
+            "compare_rollback": true,
+            "persistence_failure_rollback": true,
+            "personal_panel_arrays_unchanged": true,
+            "persistence_failure_injected": true,
+            "settings_backend_mocked": false
+          },
+          "profile_themes": {
+            "oguzdows": "OguzDowsXPUser-90ca56597aee5ba1",
+            "kde": "OguzDowsLightUser-17b6e475bb01c1b4",
+            "gnome": "OguzDowsGnomeUser-98c783e59902615e",
+            "xfce": "OguzDowsLightUser-dbf3db51220aa070",
+            "windows11": "OguzDowsElevenUser-d0f25e588c6a3026",
+            "mac": "OguzDowsMacUser-a882356ed63dcc63"
+          },
+          "profile_panel_restart_tested": false,
+          "dark_theme": "OguzDowsXPDarkUser-74557b0580936f13",
+          "light_theme": "OguzDowsXPUser-90ca56597aee5ba1",
+          "welcome_theme_callbacks_and_GTK_reload": true,
+          "fixture-red_root_rgb": [
+            160,
+            30,
+            40
+          ],
+          "fixture-blue_root_rgb": [
+            30,
+            60,
+            160
+          ],
+          "welcome_wallpaper_callbacks_and_real_pixels": true,
+          "stale_connector_does_not_swallow_change": true,
+          "randr_failure_injected": true,
+          "fallback_real_gdk_helper_and_pixels": true,
+          "native_property_count": 5,
+          "shared_revision": 13
+        }
+      }
+    ],
+    "artifacts": [
+      {
+        "id": 15272075019,
+        "name": "arm64-appearance-bookworm",
+        "size_in_bytes": 4125,
+        "digest": "sha256:ba21fa52e9c98a1cbe9f69b6d36a7b3cbbfb4a956262e874085f157fbdf01557"
+      },
+      {
+        "id": 15271752421,
+        "name": "arm64-appearance-trixie",
+        "size_in_bytes": 4175,
+        "digest": "sha256:dc9744b36eb811a26be8df2e4ec443abe86acf3b9e6ad514bde5e0ba878473df"
+      }
+    ],
+    "artifact_digest_scope": "Actions ZIP archive identity, not an image SHA-256; actual JSON file bytes collected by a GET/download-only byte relay and individually SHA-256/size checked",
+    "exact_json_byte_relay": {
+      "run_id": 46166334769,
+      "url": "https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/46166334769",
+      "source_revision": "e84c78a4276328cb48a3d83a695e3ee99794633b",
+      "job_id": 141044588943,
+      "conclusion": "success",
+      "permissions": {
+        "contents": "read",
+        "actions": "read"
+      },
+      "artifact_code_executed": false,
+      "reports": {
+        "arm64-appearance-bookworm": {
+          "source_run": 46165804788,
+          "source_revision": "6ec8f55054e8eddde7fb0e74d62c4332a2cd7e35",
+          "kind": "native-arm64-appearance",
+          "artifact_id": 15272075019,
+          "artifact": "arm64-appearance-bookworm",
+          "artifact_digest": "sha256:ba21fa52e9c98a1cbe9f69b6d36a7b3cbbfb4a956262e874085f157fbdf01557",
+          "filename": "result.json",
+          "bytes": 2630,
+          "sha256": "0449ef25f8e4052165996cf52ba5568262228e8ef1f57fefd7500952fbe6d779",
+          "parts": 2
+        },
+        "arm64-appearance-trixie": {
+          "source_run": 46165804788,
+          "source_revision": "6ec8f55054e8eddde7fb0e74d62c4332a2cd7e35",
+          "kind": "native-arm64-appearance",
+          "artifact_id": 15271752421,
+          "artifact": "arm64-appearance-trixie",
+          "artifact_digest": "sha256:dc9744b36eb811a26be8df2e4ec443abe86acf3b9e6ad514bde5e0ba878473df",
+          "filename": "result.json",
+          "bytes": 2628,
+          "sha256": "84ea562500bd78119a5464e510464211d614e3674acffe73c69f86d2a872b421",
+          "parts": 2
+        }
+      },
+      "scope": "GET/download original successful CI JSON; exact size/SHA-256/base64 parts checked, no manually repaired Unicode"
+    }
+  },
+  "local_tests_at_image_source": {
+    "command": ".venv/bin/python -W error::ResourceWarning -m unittest discover -s tests -p test_*.py -v",
+    "scope": "x86_64 host; explicitly synthetic native-settings fixtures where marked, not physical/ARM GUI proof",
+    "total": 788,
+    "passed": 779,
+    "skipped": 9
+  },
+  "not_established": [
+    "Physical Pi boot, kernel, firmware, LightDM/PAM, GPU/HDMI/KMS, SD or performance.",
+    "Trixie reproduction of the old C.UTF-8 error: its real unfixed control was already English; Turkish tr_TR.UTF-8 and fixed callbacks are nevertheless tested.",
+    "Visible panel restart/native Dock behaviour; the Welcome profile configuration test does not restart a panel.",
+    "Real legacy X server without RandR; only primary query failure is injected in the existing fallback test.",
+    "Automatic installation on existing SD cards or new PC/APK acceptance."
+  ]
+}
