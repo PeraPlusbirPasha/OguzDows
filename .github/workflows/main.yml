@@ -668,8 +668,48 @@ jobs:
           python3 scripts/ci-run.py --title 'ARM düzeltme aktarımı' -- \
             python3 scripts/release-arm-refresh.py --run "$SOURCE_RUN" --release-id "$RELEASE_ID" --tag "$RELEASE_TAG"
 
+  arm-release-audit-access:
+    name: ARM taslağı GET-only dosya erişimi (token aktarmaz)
+    if: github.event_name == 'workflow_dispatch' && inputs.target == 'arm-release' && inputs.release_audit_only == true
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    # GitHub requires contents:write even for GET of a private draft. This
+    # helper ONLY GETs metadata/asset redirects; the image auditor stays read-only.
+    permissions:
+      contents: write
+      actions: read
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+          fetch-depth: 0
+      - name: GET yardımcısı bağımlılığı ve negatif regresyonlar
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends python3-yaml
+          python3 scripts/ci-run.py --title 'ARM GET erişimi regresyonu' -- \
+            python3 -W error::ResourceWarning -m unittest discover -s tests -p 'test_release_arm_refresh.py' -v
+      - name: Yalnız 11 dosyaya kısa ömürlü GET URL’leri / üstveri snapshot’ı
+        env:
+          GH_TOKEN: ${{ github.token }}
+          SOURCE_RUN: ${{ inputs.pi_evidence_run }}
+          RELEASE_TAG: ${{ inputs.release_tag }}
+          RELEASE_ID: ${{ inputs.release_id }}
+        run: |
+          python3 scripts/ci-run.py --title 'ARM GET-only taslak erişimi' -- \
+            python3 scripts/release-arm-refresh.py --create-read-grant .cache/arm-read-access/grant.json \
+              --run "$SOURCE_RUN" --release-id "$RELEASE_ID" --tag "$RELEASE_TAG"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ARM-draft-expiring-GET-access
+          path: .cache/arm-read-access/grant.json
+          include-hidden-files: true
+          if-no-files-found: error
+          retention-days: 1
+
   arm-release-audit:
     name: ARM taslağı bağımsız yeniden indir / salt okunur doğrula
+    needs: arm-release-audit-access
     if: github.event_name == 'workflow_dispatch' && inputs.target == 'arm-release' && inputs.release_audit_only == true
     runs-on: ubuntu-24.04
     timeout-minutes: 50
@@ -692,6 +732,10 @@ jobs:
         run: |
           python3 scripts/ci-run.py --title 'ARM bağımsız denetim regresyonu' -- \
             python3 -W error::ResourceWarning -m unittest discover -s tests -p 'test_release*.py' -v
+      - uses: actions/download-artifact@v4
+        with:
+          name: ARM-draft-expiring-GET-access
+          path: .cache/arm-read-access
       - name: Tüm baytları yeniden indir / SHA-256 / iki imajı yeniden salt okunur incele
         env:
           GH_TOKEN: ${{ github.token }}
@@ -700,7 +744,8 @@ jobs:
           RELEASE_ID: ${{ inputs.release_id }}
         run: |
           python3 scripts/ci-run.py --title 'ARM bağımsız yeniden indirme denetimi' -- \
-            python3 scripts/release-arm-refresh.py --audit --run "$SOURCE_RUN" --release-id "$RELEASE_ID" --tag "$RELEASE_TAG"
+            python3 scripts/release-arm-refresh.py --audit --read-grant .cache/arm-read-access/grant.json \
+              --run "$SOURCE_RUN" --release-id "$RELEASE_ID" --tag "$RELEASE_TAG"
 
   raspberrypi:
     name: Raspberry Pi

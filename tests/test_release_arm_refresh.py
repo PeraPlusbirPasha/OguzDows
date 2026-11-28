@@ -1,4 +1,6 @@
 """ARM-only draft transfer/audit negatives; synthetic files, NOT image acceptance."""
+from datetime import datetime, timezone
+import hashlib
 import io
 import json
 import lzma
@@ -72,7 +74,7 @@ class ArmRefreshTests(unittest.TestCase):
 
     def test_publisher_allowlist_cannot_hide_recipe_source_lock_or_target_smoke_changes(self):
         arm.validate_changes(['docs/index.html', 'docs/releases/v2.0-arm1.md', 'website/build.py',
-                              '.github/workflows/main.yml', 'scripts/release-arm-refresh.py',
+                              '.github/workflows/main.yml', 'scripts/release-arm-refresh.py', 'scripts/release-draft-read.py',
                               'scripts/release-assets.py', 'tests/test_release_arm_refresh.py', 'README.md'])
         for path in ('system/usr/lib/oguzdows/wallpapers.py', 'scripts/configure-pi.py',
                      'scripts/verify-pi.py', 'scripts/pi_session_smoke.py', 'scripts/pi-runtime-smoke.py',
@@ -106,33 +108,50 @@ class ArmRefreshTests(unittest.TestCase):
                     arm.validate_manifest({**good, **change}, repository=REPOSITORY, run_id=123, release_id=456, revision=REVISION)
 
     def test_independent_audit_rehashes_all_downloads_and_repeats_inspection_without_release_writes(self):
-        with tempfile.TemporaryDirectory() as directory:
-            root = Path(directory)
-            self.fixture(root)
-            expected = self.prepare(root)
-            output = root / 'output'
-            manifest = arm.base.read_json(output / 'release-manifest.json')
-            release = {'id': 456, 'draft': True, 'tag_name': arm.TAG, 'target_commitish': REVISION,
-                       'body': 'TEST ONLY ARM notes', 'assets': [dict(name=name, state='uploaded', size=row['size'], digest='sha256:' + row['sha256'])
-                                                              for name, row in expected.items()]}
-            def command(*args):
-                if args[:3] == ('gh', 'release', 'download'):
-                    shutil.copytree(output, Path(args[-1]))
-                return ''
-            with patch.object(arm.base, 'command', side_effect=command) as called, \
-                    patch.object(arm.base, 'api', return_value=release), \
-                    patch.object(arm, 'inspect', return_value=manifest['image_identity']) as inspect, \
-                    patch.object(arm.base, 'prepare_pi', wraps=arm.base.prepare_pi) as validate, patch('sys.stdout', io.StringIO()):
-                arm.audit_release(release, root / 'audit', repository=REPOSITORY, run_id=123,
-                                  release_id=456, revision=REVISION, notes='TEST ONLY ARM notes', artifacts={})
-            validate.assert_called_once()
-            inspect.assert_called_once()
-            self.assertTrue(inspect.call_args.kwargs['audit'])
-            for call in called.call_args_list:
-                self.assertNotIn('upload', call.args)
-                self.assertNotIn('edit', call.args)
-                self.assertNotIn('delete', call.args)
-            self.assertEqual(arm.base.inventory(output), expected)
+        for use_grant in (False, True):
+            with self.subTest(use_grant=use_grant), tempfile.TemporaryDirectory() as directory:
+                root = Path(directory)
+                self.fixture(root)
+                expected = self.prepare(root)
+                output = root / 'output'
+                manifest = arm.base.read_json(output / 'release-manifest.json')
+                release = {'id': 456, 'draft': True, 'prerelease': False, 'tag_name': arm.TAG, 'target_commitish': REVISION,
+                           'body': 'TEST ONLY ARM notes', 'assets': [dict(id=index, name=name, state='uploaded',
+                               size=row['size'], digest='sha256:' + row['sha256'],
+                               url=f'https://api.github.com/repos/{REPOSITORY}/releases/assets/{index}',
+                               browser_download_url=f'https://github.com/{REPOSITORY}/releases/download/{arm.TAG}/{name}')
+                               for index, (name, row) in enumerate(expected.items(), start=1)]}
+                def command(*args):
+                    if args[:3] == ('gh', 'release', 'download'):
+                        shutil.copytree(output, Path(args[-1]))
+                    return ''
+                with patch.object(arm.base, 'command', side_effect=command) as called, \
+                        patch.object(arm.base, 'api', return_value=release) as api, \
+                        patch.object(arm.draft_read, 'download', side_effect=lambda _grant, dest: shutil.copytree(output, dest)) as get, \
+                        patch.object(arm, 'inspect', return_value=manifest['image_identity']) as inspect, \
+                        patch.object(arm.base, 'prepare_pi', wraps=arm.base.prepare_pi) as validate, patch('sys.stdout', io.StringIO()) as stdout:
+                    arm.audit_release(release, root / 'audit', repository=REPOSITORY, run_id=123,
+                                      release_id=456, revision=REVISION, notes='TEST ONLY ARM notes', artifacts={},
+                                      read_grant={'release': release} if use_grant else None)
+                validate.assert_called_once()
+                inspect.assert_called_once()
+                self.assertTrue(inspect.call_args.kwargs['audit'])
+                if use_grant:
+                    get.assert_called_once()
+                    api.assert_not_called()  # no private-draft API, let alone a write token
+                else:
+                    api.assert_called_once()
+                    get.assert_not_called()
+                line, = [line for line in stdout.getvalue().splitlines() if line.startswith('::notice title=ARM release bağımsız')]
+                summary = json.loads(line.split('::', 2)[2])
+                self.assertEqual(summary['live_draft_metadata_rechecked_inside_audit'], not use_grant)
+                self.assertEqual(summary['publication_collector_must_recheck_live_metadata'], use_grant)
+                self.assertEqual(summary['draft_snapshot_sha256'], arm.draft_read.snapshot_hash(release))
+                for call in called.call_args_list:
+                    self.assertNotIn('upload', call.args)
+                    self.assertNotIn('edit', call.args)
+                    self.assertNotIn('delete', call.args)
+                self.assertEqual(arm.base.inventory(output), expected)
 
     def test_archive_rejects_mismatched_hash_missing_duplicate_symlink_or_escaping_member(self):
         for kind in ('hash', 'missing', 'duplicate', 'symlink', 'escape'):
@@ -191,14 +210,110 @@ class ArmRefreshTests(unittest.TestCase):
         for name in ('verify', 'installed-boot', 'build'):
             self.assertIn("target != 'arm-release'", jobs[name]['if'])
         self.assertEqual(jobs['arm-release']['permissions']['contents'], 'write')
-        self.assertEqual(jobs['arm-release-audit']['permissions']['contents'], 'read')
+        self.assertEqual(jobs['arm-release-audit']['permissions'], {'contents': 'read', 'actions': 'read'})
+        self.assertEqual(jobs['arm-release-audit']['needs'], 'arm-release-audit-access')
+        grant_job = jobs['arm-release-audit-access']
+        self.assertEqual(grant_job['permissions'], {'contents': 'write', 'actions': 'read'})
+        grant_script = '\n'.join(step.get('run', '') for step in grant_job['steps'])
+        self.assertIn('--create-read-grant', grant_script)
+        self.assertNotIn('--audit', grant_script)
+        upload, = [step for step in grant_job['steps'] if step.get('uses') == 'actions/upload-artifact@v4']
+        self.assertEqual(upload['with']['retention-days'], 1)
         audit_script = '\n'.join(step.get('run', '') for step in jobs['arm-release-audit']['steps'])
-        self.assertIn('release-arm-refresh.py --audit', audit_script)
-        for job in ('arm-release', 'arm-release-audit'):
+        self.assertIn('release-arm-refresh.py --audit --read-grant', audit_script)
+        for job in ('arm-release', 'arm-release-audit', 'arm-release-audit-access'):
             text = '\n'.join(step.get('run', '') for step in jobs[job]['steps'])
             self.assertNotIn('build-pi.sh', text)
             self.assertNotIn('--clobber', text)
             self.assertNotIn('gh release edit', text)
+
+
+class DraftReadTests(unittest.TestCase):
+    NOW = 1_800_000_000
+    CONTENT = b'SYNTHETIC TEST ONLY, not an image'
+
+    def url(self, *, until=1800, host='release-assets.githubusercontent.com', permission='r'):
+        expiry = datetime.fromtimestamp(self.NOW + until, timezone.utc).isoformat().replace('+00:00', 'Z')
+        return f'https://{host}/github-production-release-asset/123/test?sp={permission}&se={expiry}&sig=synthetic-test-only'
+
+    def release(self):
+        return {'id': 456, 'draft': True, 'prerelease': False, 'tag_name': arm.TAG, 'target_commitish': REVISION,
+                'body': 'SYNTHETIC TEST ONLY', 'assets': [{'id': 789, 'name': 'test.txt', 'state': 'uploaded',
+                    'size': len(self.CONTENT), 'digest': 'sha256:' + hashlib.sha256(self.CONTENT).hexdigest(),
+                    'url': f'https://api.github.com/repos/{REPOSITORY}/releases/assets/789',
+                    'browser_download_url': f'https://github.com/{REPOSITORY}/releases/download/{arm.TAG}/test.txt'}]}
+
+    def test_grant_is_short_lived_get_only_no_bearer_token_and_tampering_or_expiry_rejected(self):
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / 'grant.json'
+            with patch.object(arm.draft_read.time, 'time', return_value=self.NOW), \
+                    patch.object(arm.draft_read, 'asset_read_url', return_value=self.url()):
+                grant = arm.draft_read.create_grant(self.release(), path, repository=REPOSITORY, names={'test.txt'})
+                self.assertEqual(path.stat().st_mode & 0o777, 0o600)
+                self.assertEqual(arm.draft_read.load_grant(path, repository=REPOSITORY, names={'test.txt'}), grant)
+                self.assertNotIn('Authorization', path.read_text())
+                bad = json.loads(path.read_text())
+                bad['release']['assets'][0]['size'] += 1
+                path.write_text(json.dumps(bad))
+                with self.assertRaisesRegex(ValueError, 'hash'):
+                    arm.draft_read.load_grant(path, repository=REPOSITORY, names={'test.txt'})
+                path.write_text(json.dumps(grant))
+                with self.assertRaises(ValueError):
+                    arm.draft_read.load_grant(path, repository='wrong/repository', names={'test.txt'})
+                with self.assertRaises(ValueError):
+                    arm.draft_read.load_grant(path, repository=REPOSITORY, names={'../escape'})
+            with patch.object(arm.draft_read.time, 'time', return_value=self.NOW + 4000), self.assertRaises(ValueError):
+                arm.draft_read.load_grant(path, repository=REPOSITORY, names={'test.txt'})
+
+    def test_only_github_asset_origin_read_permission_and_short_future_expiry_are_allowed(self):
+        self.assertEqual(arm.draft_read.signed_url_expiry(self.url(), self.NOW), self.NOW + 1800)
+        for url in (self.url(host='evil.example'), self.url(host='release-assets.githubusercontent.com.evil.example'),
+                    self.url(host='user@release-assets.githubusercontent.com'), self.url(host='release-assets.githubusercontent.com:443'),
+                    self.url(permission='rw'), self.url(until=-1), self.url(until=9999),
+                    self.url().replace('https:', 'http:'), self.url() + '#fragment', self.url() + '&se=broken'):
+            with self.subTest(kind=url.split('?')[0]), self.assertRaises(ValueError) as error:
+                arm.draft_read.signed_url_expiry(url, self.NOW)
+            self.assertNotIn(url, str(error.exception))
+
+    def test_snapshot_rejects_duplicates_escaping_names_and_foreign_authenticated_api_requests(self):
+        for kind in ('duplicate', 'escape', 'api', 'digest', 'size'):
+            release = self.release()
+            item = release['assets'][0]
+            if kind == 'duplicate': release['assets'].append(dict(item))
+            if kind == 'escape': item['name'] = '../test.txt'
+            if kind == 'api': item['url'] = 'https://evil.example/steal-token'
+            if kind == 'digest': item['digest'] = 'sha256:wrong'
+            if kind == 'size': item['size'] = True
+            with self.subTest(kind=kind), self.assertRaises(ValueError):
+                arm.draft_read.validate_snapshot(release, repository=REPOSITORY, names={'test.txt'})
+
+    def test_get_download_has_no_authorization_and_checks_exact_size_hash_and_hides_errors(self):
+        for kind in ('valid', 'short', 'long', 'hash', 'network'):
+            with self.subTest(kind=kind), tempfile.TemporaryDirectory() as directory:
+                grant = {'release': self.release(), 'urls': {'test.txt': self.url()}}
+                content = self.CONTENT
+                if kind == 'short': content = content[:-1]
+                if kind == 'long': content += b'x'
+                if kind == 'hash': content = b'x' * len(content)
+                response = io.BytesIO(content)
+                response.status = 200
+                with patch.object(arm.draft_read.time, 'time', return_value=self.NOW), \
+                        patch.object(arm.draft_read.urllib.request, 'build_opener') as build, patch('sys.stdout', io.StringIO()):
+                    build.return_value.open.return_value = response
+                    if kind == 'network': build.return_value.open.side_effect = OSError(self.url())
+                    destination = Path(directory) / 'download'
+                    if kind == 'valid':
+                        arm.draft_read.download(grant, destination)
+                        self.assertEqual((destination / 'test.txt').read_bytes(), self.CONTENT)
+                    else:
+                        with self.assertRaises(ValueError) as error:
+                            arm.draft_read.download(grant, destination)
+                        self.assertNotIn(self.url(), str(error.exception))
+                        self.assertFalse((destination / 'test.txt').exists())
+                    request = build.return_value.open.call_args.args[0]
+                    self.assertEqual(request.get_method(), 'GET')
+                    self.assertFalse(request.has_header('Authorization'))
+                response.close()
 
 
 if __name__ == '__main__':

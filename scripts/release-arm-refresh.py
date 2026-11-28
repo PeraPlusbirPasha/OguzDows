@@ -26,6 +26,7 @@ def load(name, path):
 
 base = load('arm_refresh_shared_release', 'scripts/release-assets.py')
 config = load('arm_refresh_pi_config', 'scripts/configure-pi.py')
+draft_read = load('arm_refresh_draft_read', 'scripts/release-draft-read.py')
 TAG = 'v2.0-arm1'
 VERSION = '2.0'
 NAMES = {f'OguzDows-rpi-{arch}.{suffix}' for arch in base.PI_ARCHES
@@ -38,7 +39,7 @@ EVIDENCE.add('native-arm64-appearance.json')
 
 def validate_changes(paths):
     for path in paths:
-        if path.startswith('website/') or path == 'scripts/release-arm-refresh.py':
+        if path.startswith('website/') or path in ('scripts/release-arm-refresh.py', 'scripts/release-draft-read.py'):
             continue
         base.validate_changes([path])
 
@@ -149,10 +150,13 @@ def unpack_evidence(archive_path, directory, expected):
     return paths
 
 
-def audit_release(release, work, *, repository, run_id, release_id, revision, notes, artifacts):
+def audit_release(release, work, *, repository, run_id, release_id, revision, notes, artifacts, read_grant=None):
     work.mkdir(parents=True, exist_ok=False)
     downloaded = work / 'download'
-    base.command('gh', 'release', 'download', TAG, '--repo', repository, '--pattern', '*', '--dir', str(downloaded))
+    if read_grant is None:
+        base.command('gh', 'release', 'download', TAG, '--repo', repository, '--pattern', '*', '--dir', str(downloaded))
+    else:
+        draft_read.download(read_grant, downloaded)
     manifest = base.read_json(downloaded / 'release-manifest.json')
     validate_manifest(manifest, repository=repository, run_id=run_id, release_id=release_id, revision=revision)
     base.command('git', 'merge-base', '--is-ancestor', manifest['publisher_revision'], 'HEAD')
@@ -196,7 +200,10 @@ def audit_release(release, work, *, repository, run_id, release_id, revision, no
         sums.append(digest + '  ' + name + '\n')
     if (downloaded / 'SHA256SUMS').read_text() != ''.join(sums):
         raise ValueError('İki ARM birleşik SHA256SUMS listesi eşleşmedi.')
-    current = base.api(f'repos/{repository}/releases/{release_id}')
+    # GitHub denies private-draft metadata to contents:read. A grant contains
+    # the GET-only helper's snapshot, not a pretend second live API response.
+    # The separate publication collector MUST compare live metadata afterward.
+    current = base.api(f'repos/{repository}/releases/{release_id}') if read_grant is None else read_grant['release']
     base.validate_draft(current, release_id, TAG, revision, notes)
     base.check_remote(current, expected, complete=True)
     base.emit_files(expected)
@@ -205,6 +212,10 @@ def audit_release(release, work, *, repository, run_id, release_id, revision, no
         'publisher_revision': manifest['publisher_revision'], 'asset_count': len(expected), 'evidence_file_count': len(evidence),
         'all_release_assets_redownloaded_and_hashed': True, 'both_images_reinspected_read_only': True,
         'expected_75_source_asset_contracts_matched': True, 'release_modified': False, 'draft': True,
+        'download_access': 'asset-scoped-signed-GET' if read_grant is not None else 'authenticated-release-API',
+        'live_draft_metadata_rechecked_inside_audit': read_grant is None,
+        'publication_collector_must_recheck_live_metadata': read_grant is not None,
+        'draft_snapshot_sha256': draft_read.snapshot_hash(release),
         'physical_boot': False}), flush=True)
 
 
@@ -214,8 +225,12 @@ def main():
     parser.add_argument('--release-id', type=int, required=True)
     parser.add_argument('--tag', choices=[TAG], required=True)
     parser.add_argument('--audit', action='store_true')
+    parser.add_argument('--create-read-grant', type=Path, help='GET-only helper; never transfer or audit images')
+    parser.add_argument('--read-grant', type=Path, help='Expiring asset-only GET access; audit only, no bearer token')
     parser.add_argument('--work', type=Path, default=Path('.cache/arm-release'))
     args = parser.parse_args()
+    if (args.create_read_grant and (args.audit or args.read_grant)) or (args.read_grant and not args.audit):
+        parser.error('GET erişim yardımcısı aktarım/denetim yapmaz; okuma belgesi yalnız --audit ile kullanılabilir.')
     repository, branch = os.environ['GITHUB_REPOSITORY'], os.environ['GITHUB_REF_NAME']
     if args.run <= 0 or args.release_id <= 0 or not re.fullmatch('[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+', repository):
         parser.error('Geçerli kaynak çalışma / taslak kimliği / depo gerekli.')
@@ -228,13 +243,26 @@ def main():
     if revision not in notes or f'actions/runs/{args.run}' not in notes:
         raise ValueError('Sürüm notları doğru başarılı ARM çalışması / commit içermeli.')
     endpoint = f'repos/{repository}/releases/{args.release_id}'
-    release = base.api(endpoint)
+    read_grant = draft_read.load_grant(args.read_grant, repository=repository, names=NAMES) if args.read_grant else None
+    release = base.api(endpoint) if read_grant is None else read_grant['release']
     base.validate_draft(release, args.release_id, TAG, revision, notes)
     names = ['OguzDows-rpi-' + arch for arch in base.PI_ARCHES] + ['OguzDows-Pi-gunluk-' + arch for arch in base.PI_ARCHES]
     artifacts = base.validate_artifacts(base.api(f'repos/{repository}/actions/runs/{args.run}/artifacts?per_page=100'), names, args.run, revision)
+    if args.create_read_grant:
+        grant = draft_read.create_grant(release, args.create_read_grant, repository=repository, names=NAMES)
+        current = base.api(endpoint)
+        base.validate_draft(current, args.release_id, TAG, revision, notes)
+        if draft_read.snapshot_hash(current) != grant['snapshot_sha256']:
+            raise ValueError('Taslak üstverisi GET erişimi oluşturulurken değişti.')
+        print('::notice title=ARM draft GET-only access snapshot::' + json.dumps({
+            'release_id': args.release_id, 'tag': TAG, 'source_revision': revision,
+            'asset_count': len(current['assets']), 'snapshot_sha256': grant['snapshot_sha256'],
+            'asset_read_only': True, 'bearer_token_exported': False, 'release_modified': False,
+            'max_lifetime_seconds': 3700, 'draft': True}), flush=True)
+        return
     if args.audit:
         audit_release(release, args.work, repository=repository, run_id=args.run, release_id=args.release_id,
-                      revision=revision, notes=notes, artifacts=artifacts)
+                      revision=revision, notes=notes, artifacts=artifacts, read_grant=read_grant)
         return
     args.work.mkdir(parents=True, exist_ok=False)
     inputs, output = args.work / 'input', args.work / 'upload'

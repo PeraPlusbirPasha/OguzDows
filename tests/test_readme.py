@@ -31,7 +31,8 @@ class References(HTMLParser):
 class ReadmeTests(unittest.TestCase):
     def test_local_markdown_html_images_and_explicit_navigation_anchors_resolve(self):
         for name in ('README.md', 'docs/TEKNIK-REHBER.md', 'docs/SURUM-POLITIKASI.md', 'docs/assets/README.md',
-                     'docs/releases/v1.1.md', 'docs/releases/v1.2.md', 'docs/releases/v2.0.md',
+                     'docs/releases/v1.1.md', 'docs/releases/v1.2.md', 'docs/releases/v2.0.md', 'docs/releases/v2.0-arm1.md',
+                     'docs/ARM-GORUNUM-TESHIS.md', 'docs/WEB-VE-GORUNURLUK.md',
                      'docs/AKINCI-BAGLANTI.md', 'mobile/INSTALL.md', 'raspberrypi/README.md', 'docs/ELEMENTARY-HABER.md',
                      'docs/V1.1-TEST-KANITI.md', 'docs/V1.1-GELISTIRME.md', 'docs/YEREL-MASAUSTU.md',
                      'docs/ATOLYE-VE-MAGAZA-YENILEME.md', 'docs/MASAUSTU-GORSEL-YENILEME.md',
@@ -55,20 +56,30 @@ class ReadmeTests(unittest.TestCase):
                     self.assertTrue(destination.is_relative_to(ROOT))
                     self.assertTrue(destination.is_file(), destination)
 
-    def test_current_downloads_point_to_v20_images_launcher_web_and_preserve_published_history(self):
+    def test_current_downloads_preserve_v20_pc_mobile_and_use_only_a_published_pi_overlay(self):
         text = (ROOT / 'README.md').read_text()
         links = re.findall(r'https://github\.com/PeraPlusbirPasha/OguzDows/releases/download/([^/]+)/([^\s)"<>]+)', text)
-        # Current entry links move to Akıncı; historical release receipts/tests
-        # remain pinned to their original sources. This is documentation only,
-        # not a relaxation of any image, SDK, native or publication gate.
-        self.assertEqual(set(links), {('v2.0', name) for name in (
+        # Exact platform/tag mapping; historical receipts stay pinned. An ARM
+        # supplement never relabels PC/APK bytes or replaces the old checksum list.
+        expected = {('v2.0', name) for name in (
             'OguzDows-amd64.iso', 'OguzDows-amd64.iso.sha256',
             'OguzDows-i386.iso', 'OguzDows-i386.iso.sha256',
             'OguzDows-rpi-armhf.img.xz', 'OguzDows-rpi-armhf.img.xz.sha256',
             'OguzDows-rpi-arm64.img.xz', 'OguzDows-rpi-arm64.img.xz.sha256',
             'OguzDows-Mobile-2.0-Akinci-debug.apk', 'OguzDows-Mobile-2.0-Akinci-debug.apk.sha256',
             'OguzDows-Web-2.0-Akinci.tar.gz', 'OguzDows-Web-2.0-Akinci.tar.gz.sha256',
-            'SHA256SUMS', 'release-manifest.json', 'test-evidence.tar.gz')})
+            'SHA256SUMS', 'release-manifest.json', 'test-evidence.tar.gz')}
+        path = ROOT / 'docs/releases/v2.0-arm1-release.json'
+        if path.is_file():
+            receipt = json.loads(path.read_text())
+            self.assertIs(receipt['published'], True)
+            pi_files = {f'OguzDows-rpi-{arch}.img.xz{suffix}' for arch in ('armhf', 'arm64') for suffix in ('', '.sha256')}
+            expected -= {('v2.0', name) for name in pi_files}
+            expected |= {('v2.0-arm1', name) for name in pi_files | {'SHA256SUMS', 'release-manifest.json', 'test-evidence.tar.gz'}}
+            self.assertIn('docs/releases/v2.0-arm1-release.json', text)
+            self.assertIn('75 birebir kaynak/varlık', text)
+            self.assertIn('otomatik güncellenmez', text)
+        self.assertEqual(set(links), expected)
         self.assertIn('mobile/INSTALL.md', text)
         self.assertIn('docs/AKINCI-BAGLANTI.md', text)
         self.assertIn('<h1 align="center">OğuzDows 2.0 · Akıncı</h1>', text)
@@ -90,6 +101,91 @@ class ReadmeTests(unittest.TestCase):
         self.assertIn('masaüstü ekran görüntüsü değil', text)
         self.assertIn('Debian trixie', text)
         self.assertIn('Debian bookworm', text)
+
+    def test_arm_receipt_never_claims_rebuilt_pc_mobile_historical_mutation_or_physical_acceptance(self):
+        path = ROOT / 'docs/releases/v2.0-arm1-release.json'
+        if not path.is_file():
+            self.assertNotIn('/releases/download/v2.0-arm1/', (ROOT / 'README.md').read_text())
+            return  # Source scaffolding only: no publication is inferred from this branch.
+        record = json.loads(path.read_text())
+        original = json.loads((ROOT / 'docs/releases/v2.0-release.json').read_text())
+        source = 'c5063ee8b558cb6c8af8301143cf3ce02106e2aa'
+        self.assertEqual(record['source_revision'], source)
+        self.assertEqual(record['tag_target'], source)
+        self.assertEqual(record['release_id'], 461532378)
+        self.assertEqual(record['tag'], 'v2.0-arm1')
+        self.assertEqual(record['product_version'], '2.0')
+        self.assertIs(record['published'], True)
+        self.assertIs(record['prerelease'], False)
+        self.assertIs(record['latest_at_publication'], False)
+        for name in ('pc_rebuilt', 'mobile_rebuilt', 'historical_v2_assets_modified',
+                     'physical_boot_verified', 'pi_performance_measured', 'images_repacked_by_publisher'):
+            self.assertIs(record[name], False)
+        expected = {f'OguzDows-rpi-{arch}.{suffix}' for arch in ('armhf', 'arm64')
+                    for suffix in ('img.xz', 'img.xz.sha256', 'packages.txt')}
+        expected |= {'SHA256SUMS', 'pi-gen.lock.json', 'INDIRME-REHBERI.md', 'release-manifest.json', 'test-evidence.tar.gz'}
+        self.assertEqual(record['asset_count'], 11)
+        self.assertEqual(set(record['files']), expected)
+        for name, item in record['files'].items():
+            self.assertRegex(item['sha256'], r'^[0-9a-f]{64}$')
+            self.assertGreater(item['size'], 0)
+            self.assertEqual(item['state'], 'uploaded')
+            self.assertEqual(item['url'], 'https://github.com/PeraPlusbirPasha/OguzDows/releases/download/v2.0-arm1/' + name)
+            if name.endswith('.img.xz'):
+                self.assertGreater(item['size'], 100_000_000)
+                self.assertNotEqual(item['sha256'], original['files'][name]['sha256'])
+        source_run = record['source_run']
+        self.assertEqual(source_run['id'], 46142709227)
+        self.assertEqual(source_run['source_revision'], source)
+        self.assertEqual(source_run['conclusion'], 'success')
+        self.assertEqual(len(source_run['jobs']), 3)
+        self.assertTrue(all(job['conclusion'] == 'success' for job in source_run['jobs']))
+        self.assertEqual(set(record['target_runtime_reports']), {'armhf', 'arm64'})
+        for arch, report in record['target_runtime_reports'].items():
+            self.assertEqual(report['arch'], arch)
+            self.assertEqual(report['feature_presence']['asset_hashes'], 75)
+            self.assertEqual(len(report['feature_presence']['groups']), 13)
+            self.assertEqual(report['errors'], [])
+            self.assertEqual(report['full_session']['uid'], 65534)
+            appearance = report['full_session']['appearance']
+            self.assertEqual(appearance['schema'], 1)
+            for name in ('gtk3_dark_light_reloaded', 'packaged_wallpapers', 'wallpaper_pixels_changed'):
+                self.assertIs(appearance[name], True)
+            for name in ('settings_backend_mocked', 'physical_device', 'performance_measurement',
+                         'welcome_callbacks_tested', 'gtk4_portal_tested'):
+                self.assertIs(appearance[name], False)
+            self.assertEqual(len(set(appearance['wallpaper_pixel_sha256'])), 2)
+        audit = record['release_download_audit']
+        self.assertEqual(audit['conclusion'], 'success')
+        self.assertEqual(audit['evidence_file_count'], 13)
+        self.assertIs(audit['release_modified'], False)
+        self.assertNotEqual(audit['run_id'], record['release_transfer']['run_id'])
+        for name in ('all_release_assets_redownloaded_and_hashed', 'both_images_reinspected_read_only',
+                     'expected_75_source_asset_contracts_matched'):
+            self.assertIs(audit[name], True)
+        self.assertEqual(set(record['image_identity']), {'armhf', 'arm64'})
+        for arch, identity in record['image_identity'].items():
+            self.assertEqual(identity['build']['arch'], arch)
+            self.assertEqual(identity['build']['source_revision'], source)
+            self.assertIs(identity['build']['source_dirty'], False)
+            self.assertIs(identity['existing_pi_verifier_passed'], True)
+            self.assertIs(identity['embedded_runtime_matches_raw_artifact'], True)
+        self.assertEqual(len(record['public_download_checks']), 11)
+        self.assertTrue(all(item['unauthenticated'] and item['status'] in (200, 302, 307)
+                            and not item['full_bytes_downloaded_by_this_head_check'] for item in record['public_download_checks']))
+        for tag, count in (('v2.0', 26), ('v1.2', 17), ('v1.1', 17), ('v1.0.0', 8)):
+            before = record['previous_releases_preserved'][tag]
+            self.assertEqual(before['asset_count'], count)
+            self.assertIs(before['tag_body_asset_ids_sizes_hashes_unchanged'], True)
+        self.assertIs(record['full_product_bytes_hashed_in_GitHub_runner'], True)
+        self.assertIs(record['full_product_bytes_downloaded_or_independently_hashed_in_local_sandbox'], False)
+        rejected = record['newer_mobile_ci_not_accepted']
+        self.assertTrue({140967180202, 140971721566, 140974464222, 140977645533} <= {item['job_id'] for item in rejected})
+        for item in rejected:
+            self.assertEqual(item['conclusion'], 'failure')
+            self.assertIs(item['accepted'], False)
+            self.assertIs(item['replaces_original_apk_acceptance'], False)
+            self.assertIs(item['root_cause_confirmed'], False)
 
     def test_published_v11_record_keeps_real_image_hashes_source_and_test_limits(self):
         record = json.loads((ROOT / 'docs/releases/v1.1-release.json').read_text())
