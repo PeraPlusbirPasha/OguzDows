@@ -1,0 +1,52 @@
+{
+  "source_sha": "fb6cad5a3f56c5bf37e739388ded5ffce8e5ad13",
+  "assembled": [
+    {
+      "file": "app/build/outputs/apk/debug/app-debug.apk",
+      "bytes": 23991680,
+      "sha256": "622a59fd5686b09da687a6b6f7e72f24963341695b210a3addbf58c292eefb56"
+    },
+    {
+      "file": "app/build/outputs/apk/androidTest/debug/app-debug-androidTest.apk",
+      "bytes": 1026833,
+      "sha256": "ddfa69cf0b1fa860a7ee2b72ca3b827e69386e8019fab350ff40b2073a31c2e6"
+    },
+    {
+      "file": "fixture/build/outputs/apk/debug/fixture-debug.apk",
+      "bytes": 11512,
+      "sha256": "2e48a342abf9a4f37fd2d6865e94d046aeefbe9ecc3f5c6302a2a9313d7434d4"
+    }
+  ],
+  "java_unit_tests": {
+    "tests": 13,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "lint": {
+    "Warning": 43,
+    "Information": 1
+  },
+  "lint_warning_ids": {
+    "ApplySharedPref": 1,
+    "OldTargetApi": 1,
+    "RequiresFeature": 1,
+    "GradleDependency": 11,
+    "SetJavaScriptEnabled": 1,
+    "DataExtractionRules": 1,
+    "VectorPath": 12,
+    "UsableSpace": 2,
+    "IconLocation": 1,
+    "ClickableViewAccessibility": 2,
+    "SetTextI18n": 10
+  },
+  "emulator_passed": null,
+  "physical_sim_tested": false,
+  "gms_certification_tested": false,
+  "github": {
+    "run_url": "https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/46065713858",
+    "job_id": 140730403637,
+    "job_url": "https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/46065713858/job/140730403637",
+    "scope": "Native 0.3 launcher acceptance: 17/17 cases in 11 selections; emulator only. SDK assembly is not device evidence on its own."
+  }
+}

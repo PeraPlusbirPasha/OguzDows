@@ -1,0 +1,41 @@
+@import url("resource:///org/gtk/libgtk/theme/Adwaita/gtk-contained.css");
+@import url("../../OguzDows/gtk-3.0/welcome.css");
+@import url("/usr/share/oguzdows/ui/window-geometry.css");
+
+@define-color theme_selected_bg_color #a9253c;
+@define-color theme_selected_fg_color #ffffff;
+@define-color selected_bg_color #a9253c;
+@define-color selected_fg_color #ffffff;
+@define-color welcome_sidebar_bg #e9edf2;
+
+window, dialog { background-color: #f6f7fa; color: #1e2a3a; }
+headerbar, headerbar:backdrop { background-image: none; background-color: #e9edf2; color: #1e2a3a; border-bottom: 2px solid #a9253c; opacity: 1; }
+headerbar label:backdrop { color: #334155; }
+headerbar button.titlebutton, headerbar button.titlebutton:backdrop { background-image: none; background-color: #dbe2eb; color: #1e2a3a; border: 1px solid #708198; opacity: 1; -gtk-icon-effect: none; min-width: 24px; min-height: 24px; box-shadow: none; text-shadow: none; }
+headerbar button.titlebutton.close, headerbar button.titlebutton.close:backdrop { background-color: #a9253c; border-color: #9c2338; color: #ffffff; }
+headerbar button.titlebutton:hover { background-color: #c7d4e3; }
+headerbar button.titlebutton.close:hover { background-color: #c93246; }
+button.suggested-action { background-image: none; background-color: #a9253c; color: #ffffff; border-color: #9c2338; }
+button.suggested-action:hover { background-color: #c93246; }
+button:focus, entry:focus { border-color: #18797e; }
+selection { background-color: #a9253c; color: #ffffff; }
+progressbar progress, scale highlight { background-image: none; background-color: #18797e; }
+.xfce4-panel.background { background-image: none; background-color: #e3e9f0; color: #1e2a3a; opacity: 1; }
+.xfce4-panel button { color: #1e2a3a; border-radius: 4px; }
+.xfce4-panel button:checked { background-color: #bfd0e3; }
+.xfce4-panel button:hover { background-color: #cfdae7; }
+.oguzdows-window .heading { font-size: 28px; font-weight: 800; letter-spacing: -1px; }
+.oguzdows-window .eyebrow { color: #156d73; font-size: 10px; font-weight: 700; letter-spacing: 2px; }
+.oguzdows-window .muted { color: #4b5b70; }
+.oguzdows-window .card { background-image: none; background-color: #ffffff; border: 1px solid #a7b4c6; border-radius: 10px; padding: 16px; }
+.oguzdows-window .card:hover { background-color: #e7f2f2; border-color: #18797e; }
+.oguzdows-window .card.primary { border-color: #a9253c; background-color: #fff0f1; }
+.oguzdows-window .card:disabled { opacity: 0.65; }
+.oguzdows-window .card-title, .oguzdows-window .section-title { font-size: 15px; font-weight: 700; }
+.oguzdows-window .pill { background-color: #d4e9e7; color: #165b60; border-radius: 12px; padding: 5px 12px; }
+.oguzdows-window textview, .oguzdows-window textview text { background-color: #ffffff; color: #1e2a3a; font-family: monospace; font-size: 11px; }
+.rifki-window textview, .rifki-window textview text { font-family: "Inter", sans-serif; font-size: 12px; background-color: #ffffff; color: #1e2a3a; }
+.rifki-window entry { background-image: none; background-color: #ffffff; color: #1e2a3a; border: 1px solid #708198; min-height: 30px; }
+.rifki-window button { background-image: none; background-color: #e9edf2; color: #1e2a3a; border: 1px solid #708198; }
+.rifki-window button:hover { background-color: #d5e3ed; border-color: #18797e; }
+.rifki-window .muted { font-size: 10px; }

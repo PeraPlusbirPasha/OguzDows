@@ -1,0 +1,54 @@
+{
+  "schema_version": 1,
+  "source_sha": "023a89c9f22bdcd27eabecf8437b05addcab03e9",
+  "version": "0.2.0-emulator",
+  "distribution": "DEBUG Actions artifact, not a production-signed Release or ROM/OTA/ISO",
+  "github": {
+    "run_url": "https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/46048445728",
+    "job_url": "https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/46048445728/job/140673465222",
+    "workflow_conclusion": "success",
+    "package_and_apksigner_step_conclusion": "success"
+  },
+  "artifact": {
+    "id": 15222979423,
+    "name": "oguzdows-mobile-emulator-46048445728",
+    "browser_url": "https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/46048445728/artifacts/15222979423",
+    "archive_download_url": "https://api.github.com/repos/PeraPlusbirPasha/OguzDows/actions/artifacts/15222979423/zip",
+    "bytes": 5814068,
+    "digest": "sha256:da41920f1c3d5701dd9ab688373f5d8bce2957df27519c897a38004c84c6f6ac",
+    "retention_days": 14
+  },
+  "files": [
+    {
+      "file": "OguzDows-Mobile-0.2.0-emulator-debug.apk",
+      "bytes": 6993130,
+      "sha256": "175c471a87d9c6020d29a8a8cbca7a3903eb05e939c0c5fd32c26790917c2f04"
+    },
+    {
+      "file": "OguzDows-Mobile-0.2.0-emulator-tests.apk",
+      "bytes": 1047733,
+      "sha256": "57bd2d692c628e75bdb85b7625bacc2f475268b6c62fa982749058d90c184709"
+    },
+    {
+      "file": "OguzDows-inert-install-fixture.apk",
+      "bytes": 7501,
+      "sha256": "e61576583c82dd72753644d726e47a06ebab1873d1e04c2247b62339a1ec41be"
+    }
+  ],
+  "additional_package_files": [
+    "APK-SIGNATURE.txt",
+    "SHA256SUMS",
+    "BUILD.txt"
+  ],
+  "ci_apksigner_verify_passed": true,
+  "local_retrieval": {
+    "attempted": true,
+    "completed": false,
+    "independent_apk_hash_or_signature_verification": false,
+    "reason": "gh run download reached the GitHub artifact storage redirect, but the sandbox outbound allowlist does not include its blob host (EOF). No APK bytes were retrieved locally. File hashes are observed CI build evidence; artifact metadata is from the GitHub API."
+  },
+  "physical_device_tested": false,
+  "production_signing": false,
+  "gms_certified": false,
+  "rom_built": false
+}

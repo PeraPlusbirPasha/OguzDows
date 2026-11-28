@@ -1,0 +1,10 @@
+[Desktop Entry]
+Type=Application
+Name=OğuzDows Uyumluluk
+Comment=EXE ve APK dosyalarını çalıştırmadan önce incele ve açıkça onayla
+Exec=/usr/local/bin/oguzdows-open %f
+Icon=oguzdows-compatibility
+Terminal=false
+Categories=System;Utility;
+MimeType=application/x-ms-dos-executable;application/vnd.microsoft.portable-executable;application/x-msdownload;application/x-dosexec;application/vnd.android.package-archive;
+StartupNotify=true

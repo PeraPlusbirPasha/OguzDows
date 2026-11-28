@@ -1,0 +1,9 @@
+[Xfce Panel]
+Type=X-XFCE-PanelPlugin
+Encoding=UTF-8
+Name=OğuzDows görevleri / Dock
+Comment=Tek alt görev çubuğu veya bağımsız büyüyen Dock; yerel pencere olayları
+Icon=oguzdows-desktop
+X-XFCE-Module=oguzdows-tasks
+X-XFCE-Internal=TRUE
+X-XFCE-API=2.0

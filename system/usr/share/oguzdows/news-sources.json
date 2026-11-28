@@ -1,0 +1,22 @@
+[
+  {
+    "id": "trt-manset",
+    "name": "TRT Haber · Manşet",
+    "url": "https://www.trthaber.com/manset_articles.rss"
+  },
+  {
+    "id": "bbc-turkce",
+    "name": "BBC News Türkçe",
+    "url": "https://feeds.bbci.co.uk/turkce/rss.xml"
+  },
+  {
+    "id": "dw-turkce",
+    "name": "DW Türkçe",
+    "url": "https://rss.dw.com/rdf/rss-tur-all"
+  },
+  {
+    "id": "trt-bilim",
+    "name": "TRT Haber · Bilim / Teknoloji",
+    "url": "https://www.trthaber.com/bilim_teknoloji_articles.rss"
+  }
+]

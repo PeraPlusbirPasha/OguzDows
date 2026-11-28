@@ -3,6 +3,8 @@ from __future__ import annotations
 
 import json
 import platform
+
+import resource_policy
 from pathlib import Path
 
 
@@ -32,41 +34,11 @@ def armv6(machine: str | None = None, board: str | None = None) -> bool:
 
 
 def policy(memory_kib: int, board: str, requested: str = "auto") -> dict:
-    if requested not in ("auto", "mini", "light", "full"):
-        raise ValueError("Profil auto, mini, light veya full olmalı.")
-    legacy = armv6("", board)
-    if requested == "auto":
-        profile = "mini" if legacy or 0 < memory_kib <= 786432 else "light" if 0 < memory_kib <= 2097152 else "full"
-    else:
-        profile = requested
-    # Zram gerçek RAM'den büyük ayrılmaz; kullanıcı 'full' seçse de kapasite güvenli.
-    usable_mb = max(1, memory_kib // 1024) if memory_kib > 0 else 512
-    zram_mb = min(usable_mb, max(64, min(384 if profile == "mini" else 1024,
-                                      usable_mb * (75 if profile == "mini" else 50) // 100)))
-    return {"profile": profile, "compositing": profile == "full", "animations": profile == "full",
-            "zram_mb": zram_mb, "algorithm": "lz4", "swappiness": 100, "page_cluster": 0}
+    return resource_policy.policy(memory_kib, legacy=armv6("", board), requested=requested)
 
 
 def current_policy(root: Path = Path("/")) -> dict:
-    memory = 0
-    for line in text(root / "proc/meminfo").splitlines():
-        if line.startswith("MemTotal:"):
-            try:
-                memory = max(0, int(line.split()[1]))
-            except (ValueError, IndexError):
-                pass
-    requested = "auto"
-    # Dosya shell olarak çalıştırılmaz; yalnızca bilinen anahtar/değerler okunur.
-    for line in text(root / "etc/oguzdows/pi.conf").splitlines():
-        key, sep, value = line.partition("#")[0].strip().partition("=")
-        if sep and key.strip() == "profile":
-            requested = value.strip()
-    for arg in text(root / "proc/cmdline").split():
-        if arg.startswith("oguzdows.profile="):
-            requested = arg.partition("=")[2]
-    if requested not in ("auto", "mini", "light", "full"):
-        requested = "auto"  # Hatalı ayar, açılışı engellemesin.
-    return policy(memory, model(root), requested)
+    return resource_policy.current_policy(root)
 
 
 def peripheral_summary(root: Path = Path("/sys")) -> str:

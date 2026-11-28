@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# OğuzDows • Ay Yıldız — canlı sistem ve kurulum ISO'su
+# OğuzDows • Akıncı — canlı sistem ve kurulum ISO'su
 # Kullanım: sudo ./build.sh [amd64|i386]
 # Yalnızca yapılandırma üretmek için: ./build.sh [amd64|i386] --configure-only
 set -euo pipefail

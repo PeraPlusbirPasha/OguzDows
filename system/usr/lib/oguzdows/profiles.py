@@ -1,93 +1,499 @@
-"""Beş görünüm; hepsi aynı hafif Xfce. Root, ağ ve sürekli süreç yok."""
+"""Altı yerel Xfce düzeni; tipli yedek, dar izin listesi ve bağımsız tema/efekt.
+
+İskele Xfce panelidir; modern görev grubu yerel C eklentisidir. Yeni shell,
+sürekli Python çizici veya Plank çalışmaz.
+Panel/plugin dizileri Xfce'de girişte yüklenir. Yenileme yalnızca ayrı kullanıcı
+onayıyla istenir; tarz seçmek panel sürecini zorla kapatmaz.
+"""
 from __future__ import annotations
 
+import fcntl
 import json
+import math
 import os
+import re
 import subprocess
+import tempfile
+from contextlib import contextmanager
 from pathlib import Path
 
+from resource_policy import current_policy
+
 PROFILES = {
-    'oguzdows': {'name': 'OğuzDows', 'description': 'Ay yıldız, koyu tonlar, üst panel.', 'position': 6, 'length': 100, 'size': 38, 'gtk': 'OguzDows', 'layout': 'O|HMC', 'wm': 'OguzDows'},
-    'kde': {'name': 'KDE tarzı', 'description': 'Altta geniş görev çubuğu, koyu uygulamalar.', 'position': 10, 'length': 100, 'size': 44, 'gtk': 'Adwaita-dark', 'layout': 'O|HMC', 'wm': 'OguzDows'},
-    'gnome': {'name': 'GNOME tarzı', 'description': 'Sade üst çubuk, açık uygulamalar.', 'position': 6, 'length': 100, 'size': 34, 'gtk': 'Adwaita', 'layout': 'O|C', 'wm': 'OguzDows'},
-    'xfce': {'name': 'Klasik Xfce', 'description': 'İnce panel ve alışıldık hafif görünüm.', 'position': 6, 'length': 100, 'size': 30, 'gtk': 'Adwaita', 'layout': 'O|HMC', 'wm': 'Default'},
-    'mac': {'name': 'Mac esintisi', 'description': 'Ortalanmış alt panel, solda pencere düğmeleri.', 'position': 10, 'length': 68, 'size': 48, 'gtk': 'Adwaita', 'layout': 'CHM|O', 'wm': 'OguzDows'},
+    'oguzdows': {'name': 'OğuzDows', 'description': 'Başlat, mavi cam esintili alt çubuk ve turkuaz vurgular.', 'position': 10, 'size': 38, 'layout': 'O|HMC', 'appearance': 'light'},
+    'kde': {'name': 'Plasma esintisi · Xfce', 'description': 'Geniş alt görev çubuğu, okunaklı sekmeler ve mavi vurgular.', 'position': 10, 'size': 44, 'layout': 'O|HMC', 'appearance': 'dark'},
+    'gnome': {'name': 'Ubuntu / GNOME esintisi · Xfce', 'description': 'Ubuntu esintili sol iskele, üst durum çubuğu ve sıcak vurgular.', 'position': 9, 'size': 32, 'layout': 'O|HMC', 'appearance': 'light'},
+    'xfce': {'name': 'Klasik Xfce', 'description': 'İnce üst panel, metinli görevler; en sade yerleşim.', 'position': 9, 'size': 30, 'layout': 'O|HMC', 'appearance': 'light'},
+    'windows11': {'name': 'Windows 11 esintisi · Xfce', 'description': 'Tek alt buzlu görev çubuğu; ekran merkezinde uygulamalar, sağda tepsi ve tarih/saat. Windows çalıştırmaz.', 'position': 10, 'size': 56, 'layout': 'O|HMC', 'appearance': 'light'},
+    'mac': {'name': 'macOS esintisi · Xfce', 'description': 'İnce üst uygulama / yerler menüsü + bağımsız büyüyen alt Dock; sol trafik ışıkları.', 'position': 9, 'size': 28, 'layout': 'CHM|', 'appearance': 'light'},
 }
+APPEARANCES = {'light': 'Açık', 'dark': 'Koyu'}
+EFFECTS = {'off': 'Efektsiz · en hafif', 'glass': 'Hafif cam · isteğe bağlı',
+           'aero': 'Aero esintisi · cam / gölge + kısa pencere geçişi'}
+DOCK = 90
+DOCK_PROFILES = ('mac', 'gnome')
+NATIVE_PROFILES = ('windows11', 'mac')
+LAUNCHERS = {90: 'oguzdows-browser.desktop', 91: 'oguzdows-files.desktop',
+             92: 'oguzdows-store.desktop', 93: 'oguzdows-terminal.desktop'}
+ARRAY_TYPES = {'int-array': 'int', 'double-array': 'double', 'string-array': 'string'}
 
 
-def settings(identifier):
-    if identifier not in PROFILES:
-        raise ValueError('Bilinmeyen görünüm tarzı.')
+def theme(identifier, appearance):
+    if identifier not in PROFILES or appearance not in APPEARANCES:
+        raise ValueError('Bilinmeyen görünüm veya tema.')
+    names = {'oguzdows': ('OguzDowsXP', 'OguzDowsXPDark'),
+             'mac': ('OguzDowsMac', 'OguzDowsMacDark'),
+             'gnome': ('OguzDowsGnome', 'OguzDowsGnomeDark'),
+             'windows11': ('OguzDowsEleven', 'OguzDowsElevenDark')}
+    return names.get(identifier, ('OguzDowsLight', 'OguzDows'))[appearance == 'dark']
+
+
+def settings(identifier, appearance=None, effects='off', resources=None):
+    if identifier not in PROFILES or effects not in EFFECTS:
+        raise ValueError('Bilinmeyen görünüm tarzı / efekti.')
     item = PROFILES[identifier]
-    return [
+    appearance = item['appearance'] if appearance is None else appearance
+    gtk = theme(identifier, appearance)  # Aero'da da kimlik / tema girişini doğrula.
+    if effects == 'aero' and identifier not in NATIVE_PROFILES:
+        gtk = ('OguzDowsAero', 'OguzDowsAeroDark')[appearance == 'dark']
+    dock = identifier in DOCK_PROFILES
+    budget = current_policy() if resources is None else resources
+    glass = effects in ('glass', 'aero') and budget['compositing']
+    transitions = glass and effects == 'aero'
+    # Alfa yalnız arka plan rengindedir; metin / ikon / düğme opaklığı düşmez.
+    light_panel = appearance == 'light' and (identifier in ('mac', 'windows11') or effects == 'aero')
+    rgba = (['0.93', '0.94', '0.96'] if light_panel
+            else ['0.09', '0.16', '0.25']) + ['0.94' if glass else '1']
+    choices = [
         ('xfce4-panel', '/panels/panel-1/position', 'string', f"p={item['position']};x=0;y=0"),
-        ('xfce4-panel', '/panels/panel-1/length', 'uint', str(item['length'])),
+        ('xfce4-panel', '/panels/panel-1/length', 'double', '100'),
+        ('xfce4-panel', '/panels/panel-1/length-adjust', 'bool', 'false'),
         ('xfce4-panel', '/panels/panel-1/size', 'uint', str(item['size'])),
+        ('xfce4-panel', '/panels/panel-1/mode', 'uint', '0'),
+        ('xfce4-panel', '/panels/panel-1/icon-size', 'uint', '20' if identifier == 'mac' else '22'),
+        ('xfce4-panel', '/panels/panel-1/nrows', 'uint', '1'),
+        ('xfce4-panel', '/plugins/plugin-4/icon-size', 'int', '20'),
+        ('xfce4-panel', '/plugins/plugin-4/single-row', 'bool', 'true'),
+        ('xfce4-panel', '/plugins/plugin-4/square-icons', 'bool', 'false'),
+        ('xfce4-panel', '/plugins/plugin-4/symbolic-icons', 'bool', 'true'),
         ('xfce4-panel', '/panels/panel-1/enter-opacity', 'uint', '100'),
         ('xfce4-panel', '/panels/panel-1/leave-opacity', 'uint', '100'),
-        ('xsettings', '/Net/ThemeName', 'string', item['gtk']),
+        ('xfce4-panel', '/panels/panel-1/background-style', 'uint', '1' if glass else '0'),
+        ('xfce4-panel', '/panels/panel-1/background-rgba', 'double-array', rgba),
+        # Durum / saat kümesi merkez grubun dışında; asimetrik sağ alan
+        # Başlat + simgeleri sola itemez. Dar ekranda da çakışma olmaz.
+        ('xfce4-panel', '/panels/panel-1/plugin-ids', 'int-array', ['95', '3', '4', '5', '6', '7'] if identifier == 'windows11' else ['1', '96', '3', '4', '5', '6', '7'] if identifier == 'mac' else ['1', '3', '4', '5', '6', '7'] if dock else ['1', '2', '3', '4', '5', '6', '7']),
+        ('xfce4-panel', '/plugins/plugin-1/button-title', 'string', 'Başlat' if identifier == 'oguzdows' else 'Etkinlikler' if identifier == 'gnome' else 'Uygulamalar' if identifier == 'mac' else 'OğuzDows'),
+        ('xfce4-panel', '/plugins/plugin-1/button-icon', 'string', 'oguzdows-desktops' if identifier == 'mac' else 'oguzdows-start'),
+        ('xfce4-panel', '/plugins/plugin-1/show-button-title', 'bool', str(identifier != 'windows11').lower()),
+        ('xfce4-panel', '/plugins/plugin-1/show-button-icon', 'bool', 'true'),
+        ('xfce4-panel', '/plugins/plugin-1/view-mode', 'int', '0'),
+        ('xfce4-panel', '/plugins/plugin-2/show-labels', 'bool', str(not dock and identifier != 'windows11').lower()),
+        ('xfce4-panel', '/plugins/plugin-2/flat-buttons', 'bool', 'true'),
+        ('xfce4-panel', '/plugins/plugin-2/show-handle', 'bool', 'false'),
+        ('xsettings', '/Net/ThemeName', 'string', gtk),
+        ('xsettings', '/Gtk/ApplicationPreferDarkTheme', 'bool', str(appearance == 'dark').lower()),
         ('xsettings', '/Gtk/CursorThemeName', 'string', 'OguzDowsTespih'),
         ('xsettings', '/Gtk/CursorThemeSize', 'int', '32'),
-        ('xsettings', '/Gtk/EnableAnimations', 'bool', 'false'),
-        ('xsettings', '/Gtk/DecorationLayout', 'string', 'close,minimize,maximize:menu' if identifier == 'mac' else ('menu:close' if identifier == 'gnome' else 'menu:minimize,maximize,close')),
-        ('xfwm4', '/general/theme', 'string', item['wm']),
+        ('xsettings', '/Gtk/EnableAnimations', 'bool', str(transitions).lower()),
+        ('xsettings', '/Gtk/DecorationLayout', 'string', 'close,minimize,maximize:' if identifier == 'mac' else 'menu:minimize,maximize,close'),
+        ('xfwm4', '/general/theme', 'string', gtk),
         ('xfwm4', '/general/button_layout', 'string', item['layout']),
-        ('xfwm4', '/general/use_compositing', 'bool', 'false'),
+        ('xfwm4', '/general/title_alignment', 'string', 'center' if identifier == 'mac' else 'left'),
+        # Aero'nun tek kompozitörü Picom; başarısızsa yönetici xfwm'a döner.
+        ('xfwm4', '/general/use_compositing', 'bool', str(glass and not transitions).lower()),
+        ('xfwm4', '/general/frame_opacity', 'int', '100'),
+        ('xfwm4', '/general/inactive_opacity', 'int', '100'),
+        ('xfwm4', '/general/popup_opacity', 'int', '100'),
+        ('xfwm4', '/general/show_popup_shadow', 'bool', 'false'),
+        ('xfwm4', '/general/show_frame_shadow', 'bool', 'false'),
+        ('xfwm4', '/general/shadow_opacity', 'int', '20'),
     ]
+    dock_values = [('position', 'string', 'p=7;x=0;y=0' if identifier == 'gnome' else 'p=10;x=0;y=0'),
+                   ('mode', 'uint', '1' if identifier == 'gnome' else '0'),
+                   ('length', 'double', '1'),
+                   ('length-adjust', 'bool', 'true'), ('size', 'uint', '50' if identifier == 'gnome' else '72'),
+                   ('icon-size', 'uint', '36'), ('nrows', 'uint', '1'), ('position-locked', 'bool', 'true'),
+                   ('autohide-behavior', 'uint', '0'), ('enter-opacity', 'uint', '100'), ('leave-opacity', 'uint', '100'),
+                   ('background-style', 'uint', '1'), ('background-rgba', 'double-array', rgba),
+                   ('plugin-ids', 'int-array', ['95'] if identifier == 'mac' else ['90', '91', '92', '93', '94', '2'])]
+    for key, kind, value in dock_values:
+        choices.append(('xfce4-panel', '/panels/panel-90/' + key, kind, value if dock else None))
+    for plugin, desktop in LAUNCHERS.items():
+        choices.extend([('xfce4-panel', f'/plugins/plugin-{plugin}', 'string', 'launcher' if identifier == 'gnome' else None),
+                        ('xfce4-panel', f'/plugins/plugin-{plugin}/items', 'string-array', ['/usr/share/applications/' + desktop] if identifier == 'gnome' else None)])
+    choices.extend([
+        ('xfce4-panel', '/plugins/plugin-3/expand', 'bool', 'false' if identifier == 'windows11' else 'true'),
+        ('xfce4-panel', '/plugins/plugin-7/digital-layout', 'uint', '3'),
+        ('xfce4-panel', '/plugins/plugin-7/digital-time-font', 'string', 'Inter 9'),
+        ('xfce4-panel', '/plugins/plugin-7/digital-time-format', 'string', '%H:%M%n%d.%m.%Y' if identifier == 'windows11' else '%a %d %b  %H:%M' if identifier == 'mac' else '%d %B %A  ·  %H:%M'),
+        ('xfce4-panel', '/plugins/plugin-95', 'string', 'oguzdows-tasks' if identifier in NATIVE_PROFILES else None),
+        ('xfce4-panel', '/plugins/plugin-95/style', 'string', identifier if identifier in NATIVE_PROFILES else None),
+        ('xfce4-panel', '/plugins/plugin-96', 'string', 'directorymenu' if identifier == 'mac' else None),
+        ('xfce4-panel', '/plugins/plugin-96/base-directory', 'string', str(Path.home()) if identifier == 'mac' else None),
+        ('xfce4-panel', '/plugins/plugin-96/icon-name', 'string', 'user-home' if identifier == 'mac' else None),
+        ('xfce4-panel', '/plugins/plugin-94', 'string', 'separator' if identifier == 'gnome' else None),
+                    ('xfce4-panel', '/plugins/plugin-94/style', 'uint', '1' if identifier == 'gnome' else None),
+                    ('xfce4-panel', '/plugins/plugin-94/expand', 'bool', 'false' if identifier == 'gnome' else None),
+                    # En son yayımla; başka kullanıcı panellerini transaction korur.
+                    ('xfce4-panel', '/panels', 'int-array', ['1', '90'] if dock else ['1'])])
+    return choices
 
 
 def run(command):
-    return subprocess.run(command, capture_output=True, text=True, check=False, timeout=12)
+    return subprocess.run(command, capture_output=True, text=True, check=False, timeout=12,
+                          env={**os.environ, 'LC_ALL': 'C.UTF-8'})
 
 
 def state_directory():
     return Path(os.environ.get('XDG_STATE_HOME', str(Path.home() / '.local/state'))) / 'oguzdows/profiles'
 
 
+def read_state(directory, name, default=''):
+    try:
+        return (directory / name).read_text().strip()
+    except OSError:
+        return default
+
+
+def selection(directory=None):
+    directory = state_directory() if directory is None else directory
+    identifier = read_state(directory, 'selected')
+    identifier = identifier if identifier in PROFILES else 'oguzdows'
+    appearance = read_state(directory, 'appearance')
+    return identifier, appearance if appearance in APPEARANCES else PROFILES[identifier]['appearance']
+
+
+def effect_selection(directory=None):
+    value = read_state(state_directory() if directory is None else directory, 'effects')
+    return value if value in EFFECTS else 'off'
+
+
+def atomic_text(path, text):
+    descriptor, name = tempfile.mkstemp(prefix='.' + path.name + '-', dir=path.parent)
+    temporary = Path(name)
+    try:
+        with os.fdopen(descriptor, 'w', encoding='utf-8') as stream:
+            stream.write(text)
+        os.replace(temporary, path)
+    finally:
+        temporary.unlink(missing_ok=True)
+
+
+def decimal_value(value):
+    number = float(value)
+    if not math.isfinite(number):
+        raise ValueError('Xfce sayısal ayarı sonlu değil.')
+    return format(number, '.12g')
+
+
+def read_property(channel, path, kind, execute):
+    result = execute(['xfconf-query', '-c', channel, '-p', path])
+    if result.returncode:
+        return None
+    value = result.stdout.strip()
+    if kind in ARRAY_TYPES:
+        lines = value.splitlines()
+        if not lines or not re.fullmatch(r'Value is an array with [0-9]+ items?:', lines[0]):
+            raise ValueError('Xfce dizi ayarı güvenle okunamadı: ' + path)
+        values = [line.strip() for line in lines[1:] if line.strip()]
+        if len(values) != int(lines[0].split()[5]) or not 0 < len(values) <= 128:
+            raise ValueError('Xfce dizi ayarının boyutu geçersiz: ' + path)
+        # xfconf-query 4.18 double değerlerini %f ile (altı ondalık) yazar.
+        return [decimal_value(item) for item in values] if kind == 'double-array' else values
+    return decimal_value(value) if kind == 'double' else value
+
+
 def set_property(channel, path, kind, value, execute):
     base = ['xfconf-query', '-c', channel, '-p', path]
     if value is None:
-        # İlk ayarda bulunmayan özellik geri dönüşte oluşturulmuş bırakılmaz.
-        execute([*base, '--reset'])
-    elif execute([*base, '-s', value]).returncode and execute([*base, '-n', '-t', kind, '-s', value]).returncode:
+        if execute([*base, '--reset']).returncode and execute(base).returncode == 0:
+            raise RuntimeError('Xfce ayarı geri alınamadı: ' + path)
+        return
+    arguments = []
+    if kind in ARRAY_TYPES:
+        arguments.append('--force-array')
+        for item in value:
+            arguments.extend(['-t', ARRAY_TYPES[kind], '-s', item])
+    else:
+        arguments.extend(['-t', kind, '-s', value])
+    if execute([*base, *arguments]).returncode and execute([*base, '-n', *arguments]).returncode:
         raise RuntimeError('Xfce ayarı uygulanamadı: ' + path)
 
 
-def apply(identifier, directory=None, execute=run):
-    choices = settings(identifier)
-    directory = state_directory() if directory is None else directory
-    previous = []
-    for channel, path, kind, _ in choices:
-        value = execute(['xfconf-query', '-c', channel, '-p', path])
-        previous.append((channel, path, kind, value.stdout.strip() if value.returncode == 0 else None))
+@contextmanager
+def locked(directory):
     directory.mkdir(parents=True, exist_ok=True)
-    backup = directory / 'before-first-change.json'
-    if not backup.exists():
-        with backup.open('x', encoding='utf-8') as stream:
-            json.dump(previous, stream, ensure_ascii=False)
-        backup.chmod(0o600)
-    try:
-        for item in choices:
-            set_property(*item, execute)
-    except (OSError, RuntimeError, subprocess.SubprocessError):
-        for item in previous:
-            try:
-                set_property(*item, execute)
-            except (OSError, RuntimeError, subprocess.SubprocessError):
-                pass
-        raise
-    (directory / 'selected').write_text(identifier + '\n')
+    with (directory / '.lock').open('a') as lock:
+        try:
+            fcntl.flock(lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
+        except BlockingIOError as error:
+            raise RuntimeError('Başka bir görünüm işlemi devam ediyor.') from error
+        yield
+
+
+def marker_text(directory, name):
+    path = directory / name
+    if path.is_symlink() or path.exists() and (not path.is_file() or path.stat().st_size > 4096):
+        raise ValueError('Görünüm seçim kaydı güvenle yedeklenemedi.')
+    return path.read_text() if path.exists() else None
+
+
+def normalized(kind, value):
+    if value is None:
+        return None
+    # xfconf-query'nin wire metni %f (6 hane). Daha çok ondalıklı
+    # vurgu hesabını CLI'nin gerçekten gösterebildiği hassasiyetle karşılaştır.
+    if kind == 'double-array':
+        return [decimal_value(format(float(item), '.6f')) for item in value]
+    return decimal_value(format(float(value), '.6f')) if kind == 'double' else value
+
+
+def rollback_values(previous, targets, directory, execute, old_metadata, metadata):
+    errors = []
+    for channel, path, kind, old in reversed(previous):
+        key = (channel, path)
+        if key not in targets:
+            continue
+        try:
+            # Haricî ayar aracı işlemden sonra yazdıysa onu geri alma.
+            if read_property(channel, path, kind, execute) != normalized(kind, targets[key]):
+                continue
+            set_property(channel, path, kind, old, execute)
+            if read_property(channel, path, kind, execute) != old:
+                raise RuntimeError('Xfce geri alma geri okunarak doğrulanamadı: ' + path)
+        except (OSError, ValueError, RuntimeError, subprocess.SubprocessError) as error:
+            errors.append(str(error))
+    for name, old in old_metadata.items():
+        try:
+            if marker_text(directory, name) != metadata[name]:
+                continue
+            if old is None:
+                (directory / name).unlink(missing_ok=True)
+            else:
+                atomic_text(directory / name, old)
+            if marker_text(directory, name) != old:
+                raise RuntimeError('Görünüm seçim kaydı geri alınamadı: ' + name)
+        except (OSError, ValueError, RuntimeError) as error:
+            errors.append(str(error))
+    if errors:
+        raise RuntimeError('Xfce işlemi tam geri alınamadı: ' + '; '.join(errors))
+
+
+def transaction(choices, directory, execute, metadata, layout=False, undo=None):
+    choices = [tuple(row) for row in choices]
+    with locked(directory):
+        previous = [(channel, path, kind, read_property(channel, path, kind, execute))
+                    for channel, path, kind, _ in settings('oguzdows')]
+        owned = read_state(directory, 'layout-v2') == 'owned'
+        wants_dock = any(ch == 'xfce4-panel' and path == '/panels' and value and str(DOCK) in value
+                         for ch, path, _kind, value in choices)
+        wants_reserved = wants_dock or any(ch == 'xfce4-panel' and path == '/plugins/plugin-95' and value
+                                          for ch, path, _kind, value in choices)
+        if layout and not owned:
+            reserved = any(value is not None for _ch, path, _kind, value in previous
+                           if path.startswith(('/panels/panel-90/', '/plugins/plugin-9')))
+            reserved = reserved or any(path == '/panels' and value and str(DOCK) in value
+                                       for _ch, path, _kind, value in previous)
+            if wants_reserved and reserved:
+                raise ValueError('90–96 numaralı panel / eklenti kullanımda. Kişisel panelin üzerine yazılmadı.')
+            if not wants_reserved:
+                # Tek panel tarzı, bize ait olmayan kişisel iskeleye dokunmaz.
+                choices = [row for row in choices if not row[1].startswith(('/panels/panel-90/', '/plugins/plugin-9'))]
+        backup = directory / 'before-first-change.json'
+        saved = validate_backup(json.loads(backup.read_text())) if backup.exists() else []
+        saved_keys = {tuple(row[:2]) for row in saved}
+        # Önceki sürümün ilk yedeğini koru; yeni anahtarları ilk değiştirmeden ekle.
+        saved.extend(list(row) for row in previous if row[:2] not in saved_keys)
+        atomic_text(backup, json.dumps(saved, ensure_ascii=False))
+        old_metadata = {name: marker_text(directory, name) for name in metadata}
+        previous_by_key = {(ch, path): value for ch, path, _kind, value in previous}
+        if layout:
+            current_panels = previous_by_key.get(('xfce4-panel', '/panels')) or ['1']
+            panels = [value for value in current_panels if value != str(DOCK) or not (owned or wants_dock)]
+            if '1' not in panels:
+                panels.insert(0, '1')
+            if wants_dock:
+                panels.append(str(DOCK))
+            plugins = previous_by_key.get(('xfce4-panel', '/panels/panel-1/plugin-ids')) or []
+            known_plugins = ('1', '2', '3', '4', '5', '6', '7') + (('95', '96') if owned or wants_reserved else ())
+            extras = [value for value in plugins if value not in known_plugins]
+            choices = [(ch, path, kind,
+                        panels if ch == 'xfce4-panel' and path == '/panels' else
+                        value[:value.index('3')] + extras + value[value.index('3'):] if
+                        ch == 'xfce4-panel' and path == '/panels/panel-1/plugin-ids' else value)
+                       for ch, path, kind, value in choices]
+        changed = {}
+        try:
+            for row in choices:
+                if previous_by_key.get(row[:2]) == normalized(row[2], row[3]):
+                    continue
+                changed[row[:2]] = row[3]
+                set_property(*row, execute)
+                if read_property(*row[:3], execute) != normalized(row[2], row[3]):
+                    raise RuntimeError('Xfce ayarı geri okunarak doğrulanamadı: ' + row[1])
+            for name, value in metadata.items():
+                if value is None:
+                    (directory / name).unlink(missing_ok=True)
+                else:
+                    atomic_text(directory / name, value)
+        except (OSError, ValueError, RuntimeError, subprocess.SubprocessError):
+            rollback_values(previous, changed, directory, execute, old_metadata, metadata)
+            raise
+        if undo is not None:
+            def rollback():
+                with locked(directory):
+                    rollback_values(previous, changed, directory, execute, old_metadata, metadata)
+            undo.append(rollback)
+
+
+def apply(identifier, directory=None, execute=run, appearance=None, *, manage_compositor=True, undo=None):
+    directory = state_directory() if directory is None else directory
+    if appearance is None:
+        value = read_state(directory, 'appearance')
+        appearance = value if value in APPEARANCES else None
+    choices = settings(identifier, appearance, effect_selection(directory))
+    if not manage_compositor:
+        choices = [row for row in choices if row[:2] != ('xfwm4', '/general/use_compositing')]
+    transaction(choices, directory, execute,
+                {'selected': identifier + '\n', 'layout-v2': 'owned\n' if identifier in (*DOCK_PROFILES, *NATIVE_PROFILES) else None}, layout=True, undo=undo)
+
+
+def set_appearance(appearance, directory=None, execute=run):
+    if appearance not in APPEARANCES:
+        raise ValueError('Bilinmeyen açık/koyu tema seçimi.')
+    directory = state_directory() if directory is None else directory
+    identifier, _ = selection(directory)
+    keys = {('xsettings', '/Net/ThemeName'), ('xsettings', '/Gtk/ApplicationPreferDarkTheme'), ('xfwm4', '/general/theme')}
+    if identifier in DOCK_PROFILES and read_state(directory, 'layout-v2') == 'owned':
+        keys.add(('xfce4-panel', '/panels/panel-90/background-rgba'))
+    if identifier in NATIVE_PROFILES or effect_selection(directory) == 'aero':
+        keys.add(('xfce4-panel', '/panels/panel-1/background-rgba'))
+    transaction([row for row in settings(identifier, appearance, effect_selection(directory)) if row[:2] in keys], directory, execute,
+                {'appearance': appearance + '\n'})
+
+
+def set_effects(effects, directory=None, execute=run, resources=None):
+    if effects not in EFFECTS:
+        raise ValueError('Bilinmeyen efekt seçimi.')
+    directory = state_directory() if directory is None else directory
+    identifier, appearance = selection(directory)
+    keys = {('xsettings', '/Net/ThemeName'), ('xsettings', '/Gtk/EnableAnimations'), ('xfwm4', '/general/theme'),
+            ('xfwm4', '/general/show_frame_shadow'), ('xfwm4', '/general/shadow_opacity'),
+            ('xfwm4', '/general/use_compositing'), ('xfce4-panel', '/panels/panel-1/background-style'),
+            ('xfce4-panel', '/panels/panel-1/background-rgba'), ('xfce4-panel', '/panels/panel-90/background-rgba')}
+    choices = [row for row in settings(identifier, appearance, effects, resources) if row[:2] in keys]
+    # Daha önce iskele seçilmediyse ayrılmış panel alanına yazma.
+    if identifier not in DOCK_PROFILES:
+        choices = [row for row in choices if '/panel-90/' not in row[1]]
+    transaction(choices, directory, execute, {'effects': effects + '\n'})
+
+
+def set_shared(preferences, directory=None, execute=run, resources=None, material_theme=None, surface_only=False, undo=None):
+    """Ortak temayı uygula; panel dizileri, kısayollar ve imleç değişmez.
+
+    Zengin cam ayrı temadır: yalnız GPU bütçesi + açık blur onayıyla. Eski
+    Aero ve düşük kaynak döşemeleri opak kalır; başlık yazısı / düğmeler her
+    iki temada da opaktır.
+    """
+    directory = state_directory() if directory is None else directory
+    resources = current_policy() if resources is None else resources
+    identifier, _appearance = selection(directory)
+    appearance, effect = preferences['appearance'], preferences['effects']
+    # Motor devri effects.reconcile'a aittir. Picom henüz seçim sahibiyken
+    # Xfwm'ı burada açmak çakışır; aynı true tercihini sonra tekrar yazmak da
+    # xfconf değişiklik sinyali üretmeyip camı kompozitörsüz bırakabilir.
+    keys = {('xsettings', '/Net/ThemeName'), ('xsettings', '/Gtk/ApplicationPreferDarkTheme'),
+            ('xsettings', '/Gtk/EnableAnimations'), ('xfwm4', '/general/theme'),
+            ('xfwm4', '/general/show_frame_shadow'), ('xfwm4', '/general/shadow_opacity'),
+            ('xfce4-panel', '/panels/panel-1/background-style'),
+            ('xfce4-panel', '/panels/panel-1/background-rgba')}
+    if identifier in DOCK_PROFILES and read_state(directory, 'layout-v2') == 'owned':
+        keys.add(('xfce4-panel', '/panels/panel-90/background-rgba'))
+    glass = effect == 'aero' and preferences['blur'] and resources['compositing']
+    if surface_only:
+        keys = {key for key in keys if key[1] in ('/Net/ThemeName', '/general/theme') or key[1].endswith('background-rgba')}
+    choices = []
+    for channel, path, kind, value in settings(identifier, appearance, effect, resources):
+        if (channel, path) not in keys:
+            continue
+        if path in ('/Net/ThemeName', '/general/theme'):
+            if material_theme:
+                value = material_theme
+            elif glass and identifier not in NATIVE_PROFILES:
+                value = 'OguzDowsAeroGlassDark' if appearance == 'dark' else 'OguzDowsAeroGlass'
+        if path == '/Gtk/EnableAnimations' and preferences['motion'] == 'reduced':
+            value = 'false'
+        if path.endswith('background-rgba'):
+            # Üst menü daha yoğun tonlanır; metin / ikon katmanı opaktır.
+            panel = 1 if '/panel-1/' in path else 90
+            if panel == 90 or identifier in NATIVE_PROFILES or PROFILES[identifier]['position'] == 10:
+                color = [int(preferences['accent'][i:i + 2], 16) / 255 for i in (1, 3, 5)]
+                base = .13 if appearance == 'dark' else .94
+                alpha = ('0.88' if panel == 1 and identifier == 'mac' else '0.84') if glass else (
+                    '0.94' if effect == 'glass' and resources['compositing'] else '1')
+                value = [decimal_value(.12 * component + .88 * base) for component in color] + [alpha]
+        choices.append((channel, path, kind, value))
+    transaction(choices, directory, execute, {'appearance': appearance + '\n', 'effects': effect + '\n'}, undo=undo)
+
+
+def validate_backup(values):
+    allowed = {(channel, path, kind) for channel, path, kind, _ in settings('oguzdows')}
+    allowed.add(('xfce4-panel', '/panels/panel-1/length', 'uint'))  # 1.1 ilk yedek biçimi
+    if not isinstance(values, list) or len(values) > len(allowed):
+        raise ValueError('Görünüm yedeği geçersiz.')
+    seen = set()
+    for row in values:
+        if (not isinstance(row, list) or len(row) != 4 or not all(isinstance(value, str) for value in row[:3])
+                or tuple(row[:3]) not in allowed or tuple(row[:2]) in seen):
+            raise ValueError('Görünüm yedeği geçersiz; serbest komut çalıştırılmadı.')
+        value, kind = row[3], row[2]
+        if value is None:
+            valid = True
+        elif kind in ARRAY_TYPES:
+            valid = (isinstance(value, list) and 0 < len(value) <= 128
+                     and all(isinstance(item, str) and len(item) <= 4096 for item in value))
+        else:
+            valid = isinstance(value, str) and len(value) <= 4096
+        if not valid:
+            raise ValueError('Görünüm yedeği türü geçersiz.')
+        seen.add(tuple(row[:2]))
+    return values
 
 
 def restore(directory=None, execute=run):
     directory = state_directory() if directory is None else directory
-    values = json.loads((directory / 'before-first-change.json').read_text())
-    allowed = {(channel, path, kind) for channel, path, kind, _ in settings('oguzdows')}
-    if not isinstance(values, list) or len(values) > len(allowed):
-        raise ValueError('Görünüm yedeği geçersiz.')
-    for row in values:
-        if (not isinstance(row, list) or len(row) != 4 or not all(isinstance(value, str) for value in row[:3])
-                or tuple(row[:3]) not in allowed or not (isinstance(row[3], str) or row[3] is None)):
-            raise ValueError('Görünüm yedeği geçersiz; serbest komut çalıştırılmadı.')
-    for row in values:
-        set_property(*row, execute)
+    values = validate_backup(json.loads((directory / 'before-first-change.json').read_text()))
+    transaction(values, directory, execute, {'selected': None, 'appearance': None, 'effects': None, 'layout-v2': None})
+
+
+def reload_panels(execute=run):
+    # Yalnızca ayrı onay düğmesinden. kill / pkill / --quit / root yok.
+    if execute(['xfce4-panel', '--restart']).returncode:
+        raise RuntimeError('Panel yenilenemedi. Ayarlar kaydedildi; oturumu yeniden açabilirsin.')
+
+
+def session(execute=run, directory=None, resources=None):
+    resources = current_policy() if resources is None else resources
+    # Güçlü makinede varsayılanı zorla açma / kullanıcının kompozitörüne dokunma.
+    # Düşük RAM veya güvenli grafik kipinde, önceden seçili cam da devre dışıdır.
+    if not resources['compositing']:
+        for row in [('xfwm4', '/general/use_compositing', 'bool', 'false'),
+                    ('xsettings', '/Gtk/EnableAnimations', 'bool', 'false')]:
+            set_property(*row, execute)
+        if effect_selection(directory) in ('glass', 'aero'):
+            identifier, appearance = selection(directory)
+            for row in settings(identifier, appearance, 'off'):
+                if row[3] is not None and (row[1].endswith('background-rgba') or row[1] == '/panels/panel-1/background-style'):
+                    set_property(*row, execute)
+    elif effect_selection(directory) in ('glass', 'aero'):
+        set_effects(effect_selection(directory), directory, execute, resources)
+
+
+if __name__ == '__main__':
+    import argparse
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--session', action='store_true')
+    args = parser.parse_args()
+    if args.session:
+        session()

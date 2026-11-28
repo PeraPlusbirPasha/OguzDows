@@ -1,0 +1,58 @@
+{
+  "source_sha": "44e8cac5412f1562c9a20f56088bf87e5e201dad",
+  "assembled": [
+    {
+      "file": "app/build/outputs/apk/debug/app-debug.apk",
+      "bytes": 24418460,
+      "sha256": "091435864a717c6f3284eac41fd50a9b37ace128f1799cf52f3e59126818cae1"
+    },
+    {
+      "file": "app/build/outputs/apk/androidTest/debug/app-debug-androidTest.apk",
+      "bytes": 1085409,
+      "sha256": "44861823c1d10b49a2ced1aaca9992929450f4f6fa9698e0db51c88f0892d7c4"
+    },
+    {
+      "file": "fixture/build/outputs/apk/debug/fixture-debug.apk",
+      "bytes": 11512,
+      "sha256": "894800a1964f2a3a2fafaf933769468ce70ba9fb9b6ec60704ec72aeb08a0aaf"
+    }
+  ],
+  "java_unit_tests": {
+    "tests": 20,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "java_test_classes": {
+    "org.oguzdows.mobile.ConnectedRulesTest": 7,
+    "org.oguzdows.mobile.PlatformRulesTest": 6,
+    "org.oguzdows.mobile.LauncherRulesTest": 7
+  },
+  "lint": {
+    "Warning": 47,
+    "Information": 1
+  },
+  "lint_warning_ids": {
+    "ApplySharedPref": 1,
+    "OldTargetApi": 1,
+    "RequiresFeature": 1,
+    "GradleDependency": 11,
+    "SetJavaScriptEnabled": 1,
+    "CustomX509TrustManager": 1,
+    "DataExtractionRules": 1,
+    "VectorPath": 12,
+    "UsableSpace": 5,
+    "IconLocation": 1,
+    "ClickableViewAccessibility": 2,
+    "SetTextI18n": 10
+  },
+  "emulator_passed": null,
+  "physical_sim_tested": false,
+  "gms_certification_tested": false,
+  "github": {
+    "run_url": "https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/46085559560",
+    "job_id": 140794187914,
+    "job_url": "https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/46085559560/job/140794187914",
+    "scope": "20 successful JVM cases / SDK / lint only. Three device selections failed, so no distribution package."
+  }
+}

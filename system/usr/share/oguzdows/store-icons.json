@@ -1,0 +1,152 @@
+[
+  {
+    "id": "firefox",
+    "badge": "Ff",
+    "color": "#aa4528"
+  },
+  {
+    "id": "thunderbird",
+    "badge": "Tb",
+    "color": "#2b5fa2"
+  },
+  {
+    "id": "transmission",
+    "badge": "Tr",
+    "color": "#316c63"
+  },
+  {
+    "id": "filezilla",
+    "badge": "Fz",
+    "color": "#a83647"
+  },
+  {
+    "id": "remmina",
+    "badge": "Rm",
+    "color": "#4960a7"
+  },
+  {
+    "id": "libreoffice",
+    "badge": "LO",
+    "color": "#2f744c"
+  },
+  {
+    "id": "evince",
+    "badge": "PDF",
+    "color": "#9a5840"
+  },
+  {
+    "id": "xournalpp",
+    "badge": "X+",
+    "color": "#84612b"
+  },
+  {
+    "id": "gimp",
+    "badge": "Gi",
+    "color": "#6651a2"
+  },
+  {
+    "id": "inkscape",
+    "badge": "In",
+    "color": "#365977"
+  },
+  {
+    "id": "krita",
+    "badge": "Kr",
+    "color": "#5363b0"
+  },
+  {
+    "id": "blender",
+    "badge": "3D",
+    "color": "#a15b23"
+  },
+  {
+    "id": "vlc",
+    "badge": "VLC",
+    "color": "#a95429"
+  },
+  {
+    "id": "audacity",
+    "badge": "Au",
+    "color": "#2b669c"
+  },
+  {
+    "id": "kdenlive",
+    "badge": "Kd",
+    "color": "#466f9e"
+  },
+  {
+    "id": "obs",
+    "badge": "OBS",
+    "color": "#545d73"
+  },
+  {
+    "id": "handbrake",
+    "badge": "Hb",
+    "color": "#527341"
+  },
+  {
+    "id": "geany",
+    "badge": "Ge",
+    "color": "#267074"
+  },
+  {
+    "id": "builder",
+    "badge": "Bu",
+    "color": "#674e9e"
+  },
+  {
+    "id": "gitg",
+    "badge": "Git",
+    "color": "#a85449"
+  },
+  {
+    "id": "supertuxkart",
+    "badge": "Kart",
+    "color": "#4c7d45"
+  },
+  {
+    "id": "supertux",
+    "badge": "Tux",
+    "color": "#2a7891"
+  },
+  {
+    "id": "aisleriot",
+    "badge": "As",
+    "color": "#456e9d"
+  },
+  {
+    "id": "keepassxc",
+    "badge": "Kp",
+    "color": "#497640"
+  },
+  {
+    "id": "baobab",
+    "badge": "Disk",
+    "color": "#6b57a3"
+  },
+  {
+    "id": "bleachbit",
+    "badge": "Bb",
+    "color": "#8b5054"
+  },
+  {
+    "id": "wine",
+    "badge": "EXE",
+    "color": "#69529d"
+  },
+  {
+    "id": "flathub",
+    "badge": "+",
+    "color": "#287f87"
+  },
+  {
+    "id": "flatpak-support",
+    "badge": "Fp",
+    "color": "#356e89"
+  },
+  {
+    "id": "software-center",
+    "badge": "Gs",
+    "color": "#7b4b96"
+  }
+]

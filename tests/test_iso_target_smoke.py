@@ -16,6 +16,84 @@ smoke = load('iso_target_smoke_contract', 'tests/smoke-iso-target.py')
 
 
 class IsoTargetSmokeContractTests(unittest.TestCase):
+    def test_new_native_material_news_and_store_bytes_must_match_image_source(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            for relative, source in smoke.NATIVE_CONTENT.items():
+                target = root / relative
+                target.parent.mkdir(parents=True, exist_ok=True)
+                target.write_bytes(source.read_bytes())
+            with patch('builtins.print'):
+                hashes = smoke.native_material_contract(root)
+            self.assertEqual(len(hashes), 24)
+            (root / 'usr/share/oguzdows/ui/modern.css').write_text('stale old theme')
+            with self.assertRaisesRegex(RuntimeError, 'eşleşmiyor'):
+                smoke.native_material_contract(root)
+
+    def test_modes_and_accent_exact_hashes_and_native_target_abi_are_gated_in_iso(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            for relative, source in smoke.MODE_CONTENT.items():
+                target = root / relative; target.parent.mkdir(parents=True, exist_ok=True)
+                target.write_bytes(source.read_bytes())
+            header = bytearray(20); header[:4] = b'\x7fELF'; header[4] = 2; header[5] = 1; header[18:20] = (62).to_bytes(2, 'little')
+            library = root / 'usr/lib/x86_64-linux-gnu/xfce4/panel/plugins/liboguzdows-tasks.so'
+            library.parent.mkdir(parents=True); library.write_bytes(header)
+            observer = root / 'usr/lib/oguzdows/oguzdows-accent-watch'; observer.write_bytes(header); observer.chmod(0o755)
+            stat = Path.stat
+            def owned(path, *, follow_symlinks=True):
+                values = list(stat(path, follow_symlinks=follow_symlinks)); values[4] = values[5] = 0
+                return os.stat_result(values)
+            with patch.object(Path, 'stat', owned), patch('builtins.print') as printed:
+                report = smoke.mode_contract(root, 'amd64')
+                self.assertTrue(report['target_abi_verified'])
+                self.assertEqual(len(report['content_sha256']), len(smoke.MODE_CONTENT))
+                self.assertGreaterEqual(len(report['content_sha256']), 30)
+                for call in printed.call_args_list: self.assertLess(len(call.args[0].encode()), 4000)
+                header[4] = 1; library.write_bytes(header)
+                with self.assertRaisesRegex(RuntimeError, 'ABI'): smoke.mode_contract(root, 'amd64')
+                header[4] = 2; library.write_bytes(header)
+                (root / 'usr/lib/oguzdows/accent.py').write_text('old worker')
+                with self.assertRaisesRegex(RuntimeError, 'eşleşmiyor'): smoke.mode_contract(root, 'amd64')
+
+    def test_final_notice_retains_boot_source_abi_and_every_ram_budget_without_duplicate_hashes(self):
+        measurements = [{'vm_ram_mib': ram, 'valid_idle_measurement': True, 'target_met': True,
+                         'median_used_mb': 300, 'max_used_mb': 301,
+                         'low_ram_budget': {'passed': True, 'minimum_available_bytes': 50000000,
+                                            'observed_min_available_bytes': 100000000, 'fail_reasons': []}}
+                        for ram in (512, 1024, 2048)]
+        report = {'arch': 'amd64', 'source_revision': 'a' * 40, 'modes': ['bios', 'efi'],
+                  'build': {'source_revision': 'a' * 40, 'source_dirty': None},
+                  'desktop_idle': measurements[2], 'low_ram': measurements[:2],
+                  'desktop_contract': {'desktop_modes': {'target_abi_verified': True},
+                                       'native_app_content_sha256': {'large': 'x' * 10000}}}
+        text = smoke.result_summary(report)
+        selected = json.loads(text)
+        self.assertLess(len(text.encode()), 3500)
+        self.assertEqual(selected['modes'], ['bios', 'efi'])
+        self.assertEqual(selected['build'], report['build'])
+        self.assertTrue(selected['desktop_modes_target_abi_verified'])
+        self.assertEqual([value['vm_ram_mib'] for value in selected['low_ram']], [512, 1024])
+        self.assertEqual(selected['desktop_idle'], measurements[2])
+        self.assertNotIn('native_app_content_sha256', text)
+        report['build']['unexpected'] = 'x' * 4000
+        with self.assertRaisesRegex(RuntimeError, 'sınırını'):
+            smoke.result_summary(report)
+
+    def test_verbose_package_diagnostics_do_not_consume_the_ram_notice_budget(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory); target = root / 'target'; output = root / 'output'
+            output.mkdir(); (target / 'var/lib/dpkg').mkdir(parents=True)
+            (target / 'var/lib/dpkg/status').write_text('Package: initramfs-tools\nVersion: 1\nStatus: install ok installed\n')
+            with patch('builtins.print') as printed:
+                smoke.record_live_state(target, output, 'before')
+            self.assertTrue((output / 'target-live-before.json').is_file())
+            self.assertFalse(any(call.args[0].startswith('::notice') for call in printed.call_args_list))
+        workflows = yaml.safe_load((ROOT / '.github/workflows/main.yml').read_text())
+        diagnostic = workflows['jobs']['diagnostics']['steps'][-1]['run']
+        self.assertIn("'desktop_idle', 'low_ram'", diagnostic)
+        self.assertNotIn('::notice title=Önceki erken açılış belleği', diagnostic)
+
     def test_guard_rejects_non_ci_and_non_regular_iso_before_mount_or_mkdtemp(self):
         arguments = ['smoke-iso-target', '--iso', '/dev/null', '--arch', 'amd64', '--expected-revision', 'a' * 40]
         for ci, uid in (('false', 0), ('true', 1000), ('true', 0)):
@@ -54,7 +132,7 @@ class IsoTargetSmokeContractTests(unittest.TestCase):
                 smoke.configure_idle_test(root, 0)
             self.assertFalse(list(root.iterdir()))
             smoke.configure_idle_test(root, 1001)
-            marker = root / 'home/oguz-idle-proof/.local/state/oguzdows/welcome-seen'
+            marker = root / 'home/oguz-idle-proof/.local/state/oguzdows/welcome-installed-1.1-seen'
             self.assertTrue(marker.is_file())
             script = (root / 'usr/local/sbin/oguzdows-disposable-idle').read_text()
             for argument in ('--user 1001', '--wait-for-desktop 180', '--settle-seconds 120', '--samples 6 --interval 5', '--idle-confirmed'):
@@ -78,11 +156,93 @@ class IsoTargetSmokeContractTests(unittest.TestCase):
                 result = smoke.boot_os(root / 'private.img', 'bios', root, root, 'abc', graphical_idle=True)
             self.assertFalse(result['target_met'])
             self.assertIn('::warning', notice.call_args.args[0])
-            self.assertEqual(json.loads((root / 'desktop-idle.json').read_text()), measurement)
+            self.assertEqual(json.loads((root / 'desktop-idle.json').read_text()), {**measurement, 'vm_ram_mib': 2048})
             measurement['samples'][0]['graphical_xfce'] = False
             serial.write_text('OGUZDOWS-TARGET-OS-OK:abc\nOGUZDOWS-DESKTOP-IDLE-JSON:' + json.dumps(measurement) + '\n')
             with patch.object(smoke.subprocess, 'Popen', return_value=process), self.assertRaisesRegex(RuntimeError, 'tam Xfce'):
                 smoke.boot_os(root / 'private.img', 'bios', root, root, 'abc', graphical_idle=True)
+
+    def test_low_ram_boot_records_real_vm_budget_and_rejects_oom(self):
+        for ram in (512, 1024):
+            with self.subTest(ram=ram), tempfile.TemporaryDirectory() as directory:
+                root = Path(directory)
+                serial = root / 'target-os-bios.serial.log'
+                measurement = {'samples': [{'graphical_xfce': True, 'total_bytes': (ram - 32) * 1024**2,
+                                            'available_bytes': ram * 1024**2 // 2} for _ in range(6)],
+                               'valid_idle_measurement': True, 'target_met': True}
+                uart = 'OGUZDOWS-TARGET-OS-OK:abc\nOGUZDOWS-DESKTOP-IDLE-JSON:' + json.dumps(measurement) + '\n'
+                serial.write_text(uart)
+                process = Mock()
+                process.poll.return_value = None
+                with patch.object(smoke.subprocess, 'Popen', return_value=process) as spawn, patch('builtins.print'):
+                    result = smoke.boot_os(root / 'private.img', 'bios', root, root, 'abc', graphical_idle=True, ram_mib=ram)
+                command = spawn.call_args.args[0]
+                self.assertEqual(command[command.index('-m') + 1], str(ram))
+                self.assertEqual(result['vm_ram_mib'], ram)
+                self.assertEqual(json.loads((root / 'low-ram-idle.json').read_text())['vm_ram_mib'], ram)
+                self.assertFalse((root / 'desktop-idle.json').exists(), 'Ana 2 GiB kanıtı ile karışmamalı')
+                serial.write_text('oom-kill: constraint=CONSTRAINT_NONE\n' + uart)
+                with patch.object(smoke.subprocess, 'Popen', return_value=process), self.assertRaisesRegex(RuntimeError, 'OOM'):
+                    smoke.boot_os(root / 'private.img', 'bios', root, root, 'abc', graphical_idle=True, ram_mib=ram)
+        with patch.object(smoke.subprocess, 'Popen') as spawn, self.assertRaises(ValueError):
+            smoke.boot_os(Path('/unused'), 'bios', Path('/unused'), Path('/unused'), 'abc', ram_mib=256)
+        spawn.assert_not_called()
+
+    def test_pre_userspace_kernel_panic_fails_immediately_without_waiting_for_desktop(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            serial = root / 'target-os-bios.serial.log'
+            serial.write_text('gunzip\nunpack_to_rootfs\nKernel panic - not syncing: System is deadlocked on memory\n')
+            process = Mock()
+            process.poll.return_value = None
+            with patch.object(smoke.subprocess, 'Popen', return_value=process), patch.object(smoke.time, 'sleep') as pause:
+                with self.assertRaisesRegex(RuntimeError, '512 MiB erken çekirdek paniği'):
+                    smoke.boot_os(root / 'private.img', 'bios', root, root, 'abc', graphical_idle=True, ram_mib=512)
+            pause.assert_not_called()
+            process.terminate.assert_called_once()
+            self.assertFalse((root / 'low-ram-idle.json').exists())
+
+    def test_512_failure_keeps_1024_test_and_fails_whole_gate_without_hiding_either_result(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            results = []
+            success = {'vm_ram_mib': 1024, 'valid_idle_measurement': True}
+            with patch.object(smoke, 'boot_os', side_effect=[RuntimeError('512 initramfs OOM'), success]) as boot:
+                with self.assertRaisesRegex(RuntimeError, '512 initramfs OOM'):
+                    smoke.check_low_ram(root / 'private.img', root, root, 'abc', results)
+            self.assertEqual([call.kwargs['ram_mib'] for call in boot.call_args_list], [512, 1024])
+            self.assertEqual(results[1], success)
+            self.assertFalse(results[0]['valid_idle_measurement'])
+            self.assertEqual(json.loads((root / 'ram-512/low-ram-boot-error.json').read_text())['error'], '512 initramfs OOM')
+            self.assertFalse((root / 'ram-1024/low-ram-boot-error.json').exists())
+
+    def test_low_ram_budget_needs_actual_headroom_not_just_the_600_mb_number(self):
+        total = 480 * 1024**2
+        threshold = (total + 9) // 10
+        samples = [{'total_bytes': total, 'available_bytes': threshold} for _ in range(6)]
+        measurement = {'samples': samples, 'target_met': True, 'valid_idle_measurement': True}
+        budget = smoke.low_ram_budget(measurement, 512)
+        self.assertTrue(budget['passed'])
+        self.assertEqual(budget['minimum_available_bytes'], threshold)
+        samples[-1]['available_bytes'] -= 1
+        budget = smoke.low_ram_budget(measurement, 512)
+        self.assertFalse(budget['passed'])
+        self.assertIn('payı yetersiz', budget['fail_reasons'][0])
+
+    def test_low_ram_budget_refuses_missing_or_other_vm_data_and_above_target_idle(self):
+        base = {'samples': [{'total_bytes': 960 * 1024**2, 'available_bytes': 500 * 1024**2} for _ in range(6)],
+                'target_met': True, 'valid_idle_measurement': True}
+        self.assertTrue(smoke.low_ram_budget(base, 1024)['passed'])
+        for change in ({'target_met': False}, {'valid_idle_measurement': False}, {'samples': []},
+                       {'samples': [{'total_bytes': 10, 'available_bytes': 9}] * 6},
+                       {'samples': [{'total_bytes': 960 * 1024**2, 'available_bytes': True}] * 6},
+                       {'samples': [{'total_bytes': 960 * 1024**2}] * 6},
+                       {'samples': base['samples'][:5]}):
+            with self.subTest(change=change):
+                self.assertFalse(smoke.low_ram_budget({**base, **change}, 1024)['passed'])
+        self.assertFalse(smoke.low_ram_budget(base, 512)['passed'], 'Farklı RAM VM örnekleri kanıt sayılamaz.')
+        with self.assertRaises(ValueError):
+            smoke.low_ram_budget(base, 2048)
 
     def test_uart_does_not_parse_partial_graphical_json_before_the_record_is_complete(self):
         with tempfile.TemporaryDirectory() as directory:
@@ -187,7 +347,12 @@ class IsoTargetSmokeContractTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory) / 'target-evidence/amd64'
             root.mkdir(parents=True)
-            (root / 'target-os-result.json').write_text(json.dumps({'arch': 'amd64', 'source_revision': 'a' * 40}))
+            target = root / 'target-os-result.json'
+            initramfs = {'6.12.fixture': {'size': '190000000', 'mtime_ns': '1234'}}
+            target.write_text(json.dumps({'arch': 'amd64', 'source_revision': 'a' * 40,
+                                          'initramfs': initramfs, 'error': 'long failure\\%\n' * 300}))
+            serial = root / 'target-os-bios.serial.log'
+            serial.write_text('PRIVATE-NOT-RELAYED\n[1] Memory: 123K\n[2] Kernel panic - not syncing: memory\n')
             sample = {'used_bytes': 650_000_000, 'graphical_xfce': True, 'desktop_user': 1000,
                       'desktop_processes': ['xfce4-panel', 'xfce4-session', 'xfdesktop', 'xfwm4'],
                       'known_foreground_or_package_work': [], 'cpu_total_ticks': 1000, 'cpu_idle_ticks': 990,
@@ -203,6 +368,16 @@ class IsoTargetSmokeContractTests(unittest.TestCase):
             path.write_bytes(original)
             result = subprocess.run(['bash', '-c', script], cwd=directory, capture_output=True, text=True)
             self.assertEqual(result.returncode, 0, result.stderr)
+            target_prefix = '::notice title=Önceki hedef sistem kanıtı::'
+            target_note = next(line for line in result.stdout.splitlines() if line.startswith(target_prefix))
+            target_data = json.loads(target_note[len(target_prefix):].replace('%25', '%'))
+            self.assertEqual(target_data['initramfs'], initramfs)
+            self.assertEqual(target_data['report_sha256'], hashlib.sha256(target.read_bytes()).hexdigest())
+            self.assertEqual(len(target_data['error_tail']), 1400)
+            memory_prefix = 'Önceki erken açılış belleği: '
+            memory_note = next(line for line in result.stdout.splitlines() if line.startswith(memory_prefix))
+            self.assertEqual(json.loads(memory_note[len(memory_prefix):])['boot_memory_lines'],
+                             ['[1] Memory: 123K', '[2] Kernel panic - not syncing: memory'])
             prefix = '::notice title=Önceki tam Xfce RAM örnekleri::'
             annotation = next(line for line in result.stdout.splitlines() if line.startswith(prefix))
             self.assertLess(len(annotation), 4096)

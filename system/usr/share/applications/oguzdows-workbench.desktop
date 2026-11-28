@@ -1,0 +1,27 @@
+[Desktop Entry]
+Type=Application
+Name=OğuzDows Atölye
+Comment=16 çevrimdışı araç: görev, not, dosya, hesap, renk ve başlangıç
+Exec=/usr/local/bin/oguzdows-workbench
+Icon=oguzdows-workbench
+Terminal=false
+Categories=Utility;Office;
+Keywords=Atölye;Görev;Not;Dosya;Hesap;JSON;Renk;Birim;Başlangıç;
+StartupNotify=true
+Actions=Tasks;Notes;Checksum;Calculator;
+
+[Desktop Action Tasks]
+Name=Günüm · Görevler
+Exec=/usr/local/bin/oguzdows-workbench --tool tasks
+
+[Desktop Action Notes]
+Name=Defter · Notlar
+Exec=/usr/local/bin/oguzdows-workbench --tool notes
+
+[Desktop Action Checksum]
+Name=Dosya doğrula
+Exec=/usr/local/bin/oguzdows-workbench --tool checksum
+
+[Desktop Action Calculator]
+Name=Hesap
+Exec=/usr/local/bin/oguzdows-workbench --tool calculator

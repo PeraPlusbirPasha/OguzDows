@@ -33,31 +33,43 @@ def brand(image):
     return image.convert('RGB')
 
 
-def prepare(source, target):
+def prepare(source, target, names=NAMES, origins=None):
     target.mkdir(parents=True, exist_ok=True)
     records = []
-    for name in NAMES:
-        original = source / (name + '.jpg')
-        output = target / original.name
+    for name in names:
+        original = source / (name + '.png')
+        if not original.is_file():
+            original = source / (name + '.jpg')
+        output = target / (name + '.jpg')
         if original.resolve() == output.resolve():
             raise ValueError('Özgün kaynakla çıktı aynı olamaz; logo iki kez eklenmez.')
         with Image.open(original) as image:
             source_size = image.size
             brand(image).save(output, quality=94, subsampling=0, optimize=True)
-        records.append({'file': original.name, 'source_size': source_size,
+        records.append({'file': output.name, 'source_size': source_size,
                         'source_sha256': hashlib.sha256(original.read_bytes()).hexdigest(),
                         'packaged_sha256': hashlib.sha256(output.read_bytes()).hexdigest(),
-                        'origin': 'AI-generated; not a camera photograph', 'logo': 'bottom-right'})
+                        'origin': (origins or {}).get(name, 'AI-generated; not a camera photograph'), 'logo': 'bottom-right'})
     return records
 
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--source', type=Path, required=True)
+    parser.add_argument('--names', nargs='+', default=NAMES)
+    parser.add_argument('--append', action='store_true', help='Var olan diğer kayıtları koru')
     parser.add_argument('--target', type=Path, default=ROOT / 'system/usr/share/backgrounds/oguzdows')
     args = parser.parse_args()
-    records = prepare(args.source, args.target)
-    (ROOT / 'artwork/landscapes.json').write_text(json.dumps(records, indent=2, ensure_ascii=False) + '\n')
+    if any(not name or any(char not in 'abcdefghijklmnopqrstuvwxyz0123456789-' for char in name) for name in args.names):
+        raise ValueError('Güvenli görsel kimlikleri gerekli.')
+    manifest = ROOT / 'artwork/landscapes.json'
+    previous = json.loads(manifest.read_text()) if manifest.is_file() else []
+    replaced = {name + '.jpg' for name in args.names}
+    retained = [row for row in previous if row['file'] not in replaced]
+    if retained and not args.append:
+        raise ValueError('Diğer görselleri silmemek için --append seçeneğini kullanın.')
+    records = retained + prepare(args.source, args.target, args.names)
+    manifest.write_text(json.dumps(records, indent=2, ensure_ascii=False) + '\n')
 
 
 if __name__ == '__main__':

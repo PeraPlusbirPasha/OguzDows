@@ -1,0 +1,19 @@
+@import url("../../OguzDows/gtk-3.0/gtk.css");
+@import url("../../OguzDows/gtk-3.0/dock.css");
+/* OğuzDows özgün Xfce teması: ayrı shell / Microsoft işletim sistemi değildir. */
+@define-color theme_selected_bg_color #276bc1;
+@define-color selected_bg_color #276bc1;
+headerbar, headerbar:backdrop { background-color: #172a42; background-image: none; color: #f3f7ff; opacity: 1; }
+headerbar label:backdrop { color: #f3f7ff; }
+.xfce4-panel.background { background-color: #172a42; background-image: none; color: #f3f7ff; border: 1px solid #759ac2; opacity: 1; }
+.xfce4-panel button, .xfce4-panel label { color: #f3f7ff; }
+.xfce4-panel button { border-radius: 7px; padding: 3px 8px; }
+.xfce4-panel button:hover, .xfce4-panel button:checked { background-color: #28476a; border-bottom: 2px solid #4d91eb; }
+headerbar button.titlebutton.close, headerbar button.titlebutton.close:backdrop { background-color: #b92541; color: #ffffff; opacity: 1; }
+
+/* Windows mode: wide quiet caption controls; close turns red on interaction. */
+headerbar { min-height: 32px; padding: 0 0 0 10px; border-bottom-width: 1px; }
+headerbar button.titlebutton, headerbar button.titlebutton:backdrop { min-width: 42px; min-height: 32px; padding: 0; margin: 0; border: 0; border-radius: 0; background-color: transparent; }
+headerbar button.titlebutton.close, headerbar button.titlebutton.close:backdrop { background-color: transparent; color: inherit; }
+headerbar button.titlebutton.close:hover { background-color: #c62b3d; color: #ffffff; }
+.xfce4-panel.background { border: 1px solid alpha(@theme_fg_color, .18); }

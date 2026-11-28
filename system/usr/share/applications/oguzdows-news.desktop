@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Application
+Name=OğuzDows Haber
+Comment=Hafif RSS / Atom okuyucu; çevrimdışı metin, büyük yazı ve isteğe bağlı yenileme
+Exec=/usr/local/bin/oguzdows-news
+Icon=oguzdows-news
+Terminal=false
+Categories=Network;News;
+StartupNotify=true

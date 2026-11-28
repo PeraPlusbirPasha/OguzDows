@@ -1,0 +1,17 @@
+{
+  "source_sha": "5a44de0dde676d901a32be40d631d481e213439d",
+  "passed": true,
+  "native_cases": 24,
+  "jvm_cases": 20,
+  "interop_files": 4,
+  "real_capture_sha256": "4c03fe2b035f38463a55b30794239ce4a5229ad64f1e0b37979fce82a2b4db83",
+  "physical_devices_tested": false,
+  "rom_or_gms_certification": false,
+  "github": {
+    "run_url": "https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/46092350348",
+    "job_id": 140816933793,
+    "job_url": "https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/46092350348/job/140816933793",
+    "workflow_conclusion": "success",
+    "evidence_scope": "Observed actual CI check receipts, cross-checked independently; not locally executed APK or physical-device acceptance"
+  }
+}

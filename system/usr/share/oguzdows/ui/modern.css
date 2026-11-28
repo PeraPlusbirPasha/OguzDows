@@ -1,0 +1,298 @@
+/* OğuzDows native material system · GTK 3 (not browser CSS).
+ * Backdrop blur + window scale/opacity belong to the owned compositor.
+ * Opaque content is the default. Only independently confirmed Picom gets alpha.
+ * No per-tile shadow/blur stacks, no geometry animation, no webview.
+ */
+@define-color og_accent #187e91;
+@define-color og_accent_fg #ffffff;
+@define-color og_ink #213247;
+@define-color og_muted #53677d;
+@define-color og_line rgba(56, 83, 115, 0.16);
+
+window.oguzdows-modern { background-image: none; background-color: #f4f6f9; color: @og_ink; font-family: "Inter", sans-serif; font-size: 10pt; }
+.oguzdows-modern decoration { border: 1px solid rgba(93, 115, 141, 0.25); border-radius: 10px; }
+.oguzdows-modern.solid-csd decoration { border-radius: 0; box-shadow: none; }
+.oguzdows-modern headerbar, .oguzdows-modern headerbar:backdrop { background-image: linear-gradient(to bottom, #ffffff, #edf1f6); color: @og_ink; border: 0; border-bottom: 1px solid @og_line; box-shadow: inset 0 1px rgba(255,255,255,0.8); min-height: 42px; padding: 4px 10px; opacity: 1; }
+.oguzdows-modern headerbar label:backdrop { color: #53677d; }
+.oguzdows-modern .title { font-size: 22px; font-weight: 700; letter-spacing: -0.4px; }
+.oguzdows-modern headerbar .title { font-size: 13px; letter-spacing: 0; }
+.oguzdows-modern .heading { font-size: 28px; font-weight: 700; letter-spacing: -0.7px; }
+.oguzdows-modern .page-title { font-size: 26px; font-weight: 700; letter-spacing: -0.6px; }
+.oguzdows-modern .eyebrow { font-size: 10px; font-weight: 700; letter-spacing: 1.1px; color: @og_accent; }
+.oguzdows-modern .section-title, .oguzdows-modern .card-title { font-size: 15px; font-weight: 600; }
+.oguzdows-modern .subtitle, .oguzdows-modern .dim-label, .oguzdows-modern .muted { color: @og_muted; font-size: 12px; opacity: 1; }
+.oguzdows-modern .accent { color: @og_accent; }
+.oguzdows-modern separator { background-color: @og_line; min-width: 1px; min-height: 1px; }
+
+/* Controls share a small radius, a single hairline and an inset light edge. */
+.oguzdows-modern button { background-image: none; background-color: #ffffff; color: @og_ink; border: 1px solid @og_line; border-radius: 8px; padding: 7px 11px; box-shadow: inset 0 1px rgba(255,255,255,0.65); text-shadow: none; transition: background-color 160ms cubic-bezier(0.2,0.8,0.2,1), border-color 160ms ease-out; }
+.oguzdows-modern button:hover { background-color: #eaf2f7; border-color: alpha(@og_accent,0.55); }
+.oguzdows-modern button:active, .oguzdows-modern button:checked { background-color: #dae8f0; border-color: alpha(@og_accent,0.65); box-shadow: none; }
+.oguzdows-modern button:disabled { color: #738298; background-color: #e9edf2; box-shadow: none; }
+.oguzdows-modern button:focus, .oguzdows-modern entry:focus { border-color: @og_accent; outline-color: @og_accent; outline-width: 2px; outline-offset: 2px; }
+.oguzdows-modern button.suggested-action { background-color: @og_accent; color: @og_accent_fg; border-color: shade(@og_accent,0.85); }
+.oguzdows-modern button.suggested-action:hover { background-color: shade(@og_accent,1.12); }
+.oguzdows-modern button.destructive-action { background-color: #fff5f5; color: #a72e42; border-color: rgba(167,46,66,0.3); }
+.oguzdows-modern headerbar button.titlebutton, .oguzdows-modern headerbar button.titlebutton:backdrop { background-color: #e4eaf0; color: #23364c; border: 1px solid rgba(50,72,100,0.24); border-radius: 7px; min-width: 22px; min-height: 22px; padding: 2px; opacity: 1; -gtk-icon-effect: none; }
+.oguzdows-modern headerbar button.titlebutton.close, .oguzdows-modern headerbar button.titlebutton.close:backdrop { color: #8d2337; background-color: #f5e3e7; border-color: rgba(141,35,55,0.25); }
+.oguzdows-modern headerbar button.titlebutton.close:hover { color: #ffffff; background-color: #b83149; }
+.oguzdows-modern entry { background-image: none; background-color: #ffffff; color: @og_ink; border: 1px solid @og_line; border-radius: 9px; min-height: 30px; padding: 5px 11px; box-shadow: none; }
+.oguzdows-modern popover, .oguzdows-modern menu { background-image: none; background-color: #fafcff; color: @og_ink; border: 1px solid rgba(70,96,124,0.22); border-radius: 10px; padding: 6px; }
+.oguzdows-modern menuitem { border-radius: 6px; padding: 6px 10px; }
+.oguzdows-modern menuitem:hover { background-color: #e2eef5; }
+.oguzdows-modern notebook > header { background-color: #edf1f6; border: 0; border-bottom: 1px solid @og_line; }
+.oguzdows-modern notebook tab { padding: 10px 16px; }
+.oguzdows-modern textview, .oguzdows-modern textview text { background-color: #fbfcfe; color: @og_ink; }
+.oguzdows-modern scrolledwindow, .oguzdows-modern viewport { background-color: transparent; border: 0; }
+.oguzdows-modern selection { background-color: @og_accent; color: @og_accent_fg; }
+
+/* The page is a surface, not a deck of floating rectangles. */
+.oguzdows-modern .card, .oguzdows-modern .metric { background-image: none; background-color: rgba(255,255,255,0.48); border: 1px solid @og_line; border-radius: 10px; padding: 14px; box-shadow: none; }
+.oguzdows-modern .card:hover { background-color: #edf4f8; border-color: alpha(@og_accent,0.35); }
+.oguzdows-modern .card.primary { background-color: #e5eff4; border-color: alpha(@og_accent,0.28); }
+.oguzdows-modern .metric-value { font-size: 25px; font-weight: 600; }
+.oguzdows-modern .status-strip, .oguzdows-modern .scope-note { background-color: rgba(99,129,158,0.06); border: 1px solid @og_line; border-radius: 8px; padding: 10px 12px; }
+.oguzdows-modern .pill { background-color: #e3eff2; color: #24616d; border: 1px solid alpha(@og_accent,0.15); border-radius: 10px; padding: 4px 10px; font-size: 11px; }
+.oguzdows-modern .oguz-action { background-color: transparent; border-color: transparent; padding: 10px 8px; box-shadow: none; }
+.oguzdows-modern .oguz-action:hover { background-color: rgba(255,255,255,0.65); border-color: @og_line; }
+.oguzdows-modern .oguz-action image { transition: -gtk-icon-transform 180ms ease-out; }
+.oguzdows-modern .oguz-action:hover image { -gtk-icon-transform: scale(1.06); }
+
+/* Shared sidebar / list rhythm. */
+.oguzdows-modern .store-sidebar, .oguzdows-modern .welcome-sidebar { background-color: rgba(98,126,157,0.065); padding: 8px 4px; border: 0; }
+.oguzdows-modern .store-sidebar row, .oguzdows-modern .welcome-sidebar row { border: 1px solid transparent; border-radius: 8px; margin: 2px 3px; padding: 0; }
+.oguzdows-modern .store-sidebar row:selected, .oguzdows-modern .welcome-sidebar row:selected { background-color: #deeaf2; border-color: rgba(67,116,143,0.17); color: @og_ink; }
+.oguzdows-modern .store-sidebar row:selected label, .oguzdows-modern .welcome-sidebar row:selected label { color: @og_ink; }
+.oguzdows-modern .style-card { border-width: 1px; border-radius: 10px; padding: 4px; }
+.oguzdows-modern .selected-style { border-color: @og_accent; }
+
+/* Store: one editorial feature, then dense, quiet app rows. No fake ratings. */
+.oguzdows-modern .store-feature { background-image: linear-gradient(125deg, #e1edf1, #f7fafc); border: 1px solid rgba(61,112,139,0.18); border-radius: 12px; padding: 20px; box-shadow: inset 0 1px rgba(255,255,255,0.8); }
+.oguzdows-modern .store-feature .feature-title { font-size: 23px; font-weight: 700; letter-spacing: -0.4px; }
+.oguzdows-modern flowboxchild { padding: 0; }
+.oguzdows-modern .app-card { background-image: none; background-color: transparent; border: 1px solid transparent; border-bottom-color: @og_line; border-radius: 8px; padding: 6px; box-shadow: none; }
+.oguzdows-modern .app-card:hover { background-color: rgba(255,255,255,0.74); border-color: rgba(61,112,139,0.2); }
+.oguzdows-modern .app-name { font-size: 14px; font-weight: 600; }
+.oguzdows-modern .source-chip { font-size: 11px; color: #47627c; }
+.oguzdows-modern.compact-store .page-title { font-size: 21px; }
+.oguzdows-modern.compact-store .store-sidebar { padding: 8px 0; }
+.oguzdows-modern.compact-store .store-sidebar row { margin: 2px 0; }
+.oguzdows-modern.compact-store .store-feature { padding: 12px; }
+
+/* News has a real reader surface, transparent chrome and honest mode banner. */
+.oguzdows-modern .news-list { background-color: transparent; padding: 0 14px; }
+.oguzdows-modern .news-item { background-color: transparent; border: 0; border-bottom: 1px solid @og_line; padding: 16px 8px; }
+.oguzdows-modern .news-item:hover, .oguzdows-modern .news-item:selected { background-color: #e5eef5; color: @og_ink; }
+.oguzdows-modern .news-headline { font-size: 17px; font-weight: 600; letter-spacing: -0.2px; }
+.oguzdows-modern .reader-title { font-size: 25px; font-weight: 700; letter-spacing: -0.5px; }
+.oguzdows-modern .news-status { font-size: 11px; color: @og_muted; }
+.oguzdows-modern .news-banner { background-color: #e7f0f4; color: #30556b; border: 1px solid rgba(48,85,107,0.18); border-radius: 8px; padding: 10px 12px; margin: 0 12px 4px; font-size: 12px; }
+.oguzdows-modern .news-banner.example { background-color: #fcf1dd; color: #78521c; border-color: rgba(120,82,28,0.2); }
+
+/* Dark is the same material hierarchy, not a second component library. */
+window.oguzdows-modern.oguzdows-dark { background-color: #17212e; color: #e4edf6; }
+.oguzdows-modern.oguzdows-dark decoration { border-color: rgba(180,204,229,0.19); }
+.oguzdows-modern.oguzdows-dark headerbar, .oguzdows-modern.oguzdows-dark headerbar:backdrop { background-image: linear-gradient(to bottom, #2c394b, #223041); color: #ecf3fb; border-color: rgba(184,210,234,0.16); box-shadow: inset 0 1px rgba(255,255,255,0.055); }
+.oguzdows-modern.oguzdows-dark headerbar label:backdrop { color: #afc1d6; }
+.oguzdows-modern.oguzdows-dark .subtitle, .oguzdows-modern.oguzdows-dark .dim-label, .oguzdows-modern.oguzdows-dark .muted, .oguzdows-modern.oguzdows-dark .news-status, .oguzdows-modern.oguzdows-dark .source-chip { color: #aebfd1; }
+.oguzdows-modern.oguzdows-dark button { background-color: #2a3a4f; color: #e4edf6; border-color: rgba(182,206,232,0.18); box-shadow: inset 0 1px rgba(255,255,255,0.035); }
+.oguzdows-modern.oguzdows-dark button:hover { background-color: #344a60; border-color: alpha(@og_accent,0.65); }
+.oguzdows-modern.oguzdows-dark button:active, .oguzdows-modern.oguzdows-dark button:checked { background-color: #38546a; }
+.oguzdows-modern.oguzdows-dark button:disabled { background-color: #223044; color: #8295ac; }
+.oguzdows-modern.oguzdows-dark button.suggested-action { background-color: @og_accent; color: @og_accent_fg; }
+.oguzdows-modern.oguzdows-dark button.destructive-action { background-color: #3c2c3c; color: #ffc0c9; }
+.oguzdows-modern.oguzdows-dark headerbar button.titlebutton, .oguzdows-modern.oguzdows-dark headerbar button.titlebutton:backdrop { background-color: #354459; color: #f0f5fc; }
+.oguzdows-modern.oguzdows-dark headerbar button.titlebutton.close, .oguzdows-modern.oguzdows-dark headerbar button.titlebutton.close:backdrop { background-color: #673346; color: #ffffff; }
+.oguzdows-modern.oguzdows-dark entry, .oguzdows-modern.oguzdows-dark textview, .oguzdows-modern.oguzdows-dark textview text { background-color: #1c2a3b; color: #e4edf6; border-color: rgba(182,206,232,0.2); }
+.oguzdows-modern.oguzdows-dark popover, .oguzdows-modern.oguzdows-dark menu, .oguzdows-modern.oguzdows-dark notebook > header { background-color: #243449; color: #e4edf6; border-color: rgba(182,206,232,0.18); }
+.oguzdows-modern.oguzdows-dark .card, .oguzdows-modern.oguzdows-dark .metric, .oguzdows-modern.oguzdows-dark .status-strip, .oguzdows-modern.oguzdows-dark .scope-note { background-color: rgba(157,191,218,0.045); border-color: rgba(182,206,232,0.14); box-shadow: none; }
+.oguzdows-modern.oguzdows-dark .card.primary, .oguzdows-modern.oguzdows-dark .pill { background-color: #263e4b; color: #d2edf2; }
+.oguzdows-modern.oguzdows-dark .oguz-action, .oguzdows-modern.oguzdows-dark .app-card { background-color: transparent; box-shadow: none; }
+.oguzdows-modern.oguzdows-dark .oguz-action:hover, .oguzdows-modern.oguzdows-dark .app-card:hover { background-color: rgba(163,204,232,0.075); }
+.oguzdows-modern.oguzdows-dark .store-sidebar, .oguzdows-modern.oguzdows-dark .welcome-sidebar { background-color: rgba(8,18,32,0.14); }
+.oguzdows-modern.oguzdows-dark .store-sidebar row:selected, .oguzdows-modern.oguzdows-dark .welcome-sidebar row:selected, .oguzdows-modern.oguzdows-dark .news-item:selected, .oguzdows-modern.oguzdows-dark .news-item:hover { background-color: #2a4157; color: #e4edf6; }
+.oguzdows-modern.oguzdows-dark .store-sidebar row:selected label, .oguzdows-modern.oguzdows-dark .welcome-sidebar row:selected label { color: #e4edf6; }
+.oguzdows-modern.oguzdows-dark .store-feature { background-image: linear-gradient(125deg, #294655, #253145); border-color: rgba(151,198,216,0.18); box-shadow: inset 0 1px rgba(255,255,255,0.06); }
+.oguzdows-modern.oguzdows-dark .news-banner { background-color: #233e50; color: #c7e0ee; }
+.oguzdows-modern.oguzdows-dark .news-banner.example { background-color: #473e30; color: #f2d4a0; }
+
+/* Real ARGB background only; publisher text and title/close controls stay opaque.
+ * Tint approximates saturation, NOT a claim of a universal saturation shader. */
+window.oguzdows-modern.oguzdows-glass { background-color: rgba(237,244,250,0.86); }
+window.oguzdows-modern.oguzdows-dark.oguzdows-glass { background-color: rgba(20,33,48,0.90); }
+.oguzdows-modern.reduced-motion *, .oguzdows-modern.reduced-motion { transition: none; animation: none; }
+.oguzdows-modern.reduced-motion .oguz-action:hover image { -gtk-icon-transform: none; }
+
+/* The shared application material must NOT erase the selected WM convention. */
+.oguzdows-modern.oguzdows-mac headerbar,
+.oguzdows-modern.oguzdows-eleven headerbar { background-image: none; background-color: mix(@theme_bg_color, @og_accent, .08); border-radius: 10px 10px 0 0; min-height: 32px; padding: 3px 8px; }
+.oguzdows-modern.oguzdows-mac headerbar button.titlebutton,
+.oguzdows-modern.oguzdows-mac headerbar button.titlebutton:backdrop { min-width: 12px; min-height: 12px; padding: 0; margin: 0 4px; border-radius: 50%; border: 1px solid rgba(0,0,0,.22); color: #352c2b; box-shadow: none; }
+.oguzdows-modern.oguzdows-mac headerbar button.titlebutton.close,
+.oguzdows-modern.oguzdows-mac headerbar button.titlebutton.close:backdrop { background-color: #ed6a5f; color: #352c2b; }
+.oguzdows-modern.oguzdows-mac headerbar button.titlebutton.minimize,
+.oguzdows-modern.oguzdows-mac headerbar button.titlebutton.minimize:backdrop { background-color: #f5bf4f; }
+.oguzdows-modern.oguzdows-mac headerbar button.titlebutton.maximize,
+.oguzdows-modern.oguzdows-mac headerbar button.titlebutton.maximize:backdrop { background-color: #61c454; }
+.oguzdows-modern.oguzdows-mac headerbar button.titlebutton image { -gtk-icon-transform: scale(.65); }
+.oguzdows-modern.oguzdows-eleven headerbar { padding: 0 0 0 10px; }
+.oguzdows-modern.oguzdows-eleven headerbar button.titlebutton,
+.oguzdows-modern.oguzdows-eleven headerbar button.titlebutton:backdrop,
+.oguzdows-modern.oguzdows-eleven headerbar button.titlebutton.close,
+.oguzdows-modern.oguzdows-eleven headerbar button.titlebutton.close:backdrop { min-width: 42px; min-height: 32px; padding: 0; margin: 0; border: 0; border-radius: 0; background-color: transparent; color: @theme_fg_color; box-shadow: none; }
+.oguzdows-modern.oguzdows-eleven headerbar button.titlebutton.close:hover { background-color: #c62b3d; color: #ffffff; }
+window.oguzdows-modern.oguzdows-glass,
+window.oguzdows-modern.oguzdows-dark.oguzdows-glass { background-color: alpha(mix(@theme_bg_color, @og_accent, .12), .90); }
+.oguzdows-modern.maximized decoration, .oguzdows-modern.fullscreen decoration,
+.oguzdows-modern.tiled decoration, .oguzdows-modern.maximized headerbar,
+.oguzdows-modern.fullscreen headerbar, .oguzdows-modern.tiled headerbar { border-radius: 0; box-shadow: none; }
+
+.oguzdows-modern.solid-csd, .oguzdows-modern.solid-csd headerbar { border-radius: 0; }
+
+/* Start is a launcher, not a maximizable dashboard of bordered tiles. */
+window.oguzdows-modern.hub-window {
+  background-color: #f6f7fb; border: 1px solid rgba(72,86,107,.20); border-radius: 10px;
+}
+window.oguzdows-modern.oguzdows-dark.hub-window { background-color: #24252d; border-color: rgba(226,230,245,.15); }
+window.oguzdows-modern.hub-window.oguzdows-glass { background-color: rgba(246,247,251,.95); }
+window.oguzdows-modern.oguzdows-dark.hub-window.oguzdows-glass { background-color: rgba(34,35,43,.95); }
+window.oguzdows-modern.hub-window.solid-surface { border-radius: 0; }
+.oguzdows-modern.hub-window .hub-search { border-radius: 18px; border-bottom: 2px solid @og_accent; min-height: 26px; }
+.oguzdows-modern.hub-window .hub-section-title { font-size: 13px; font-weight: 600; }
+.oguzdows-modern.hub-window button.hub-app,
+.oguzdows-modern.oguzdows-dark.hub-window button.hub-app {
+  background: transparent; border: 1px solid transparent; border-radius: 7px; box-shadow: none;
+  padding: 8px 4px; font-size: 11px; font-weight: 400;
+}
+.oguzdows-modern.hub-window button.hub-app:hover { background-color: rgba(255,255,255,.8); }
+.oguzdows-modern.oguzdows-dark.hub-window button.hub-app:hover { background-color: rgba(226,230,245,.07); }
+.oguzdows-modern.hub-window button.hub-app:active { background-color: alpha(@og_accent,.12); }
+.oguzdows-modern.hub-window button.hub-app image,
+.oguzdows-modern.hub-window button.hub-recent image { transition: -gtk-icon-transform 120ms ease-out; }
+.oguzdows-modern.hub-window button.hub-app:hover image { -gtk-icon-transform: translateY(-2px); }
+.oguzdows-modern.hub-window button.hub-app:active image { -gtk-icon-transform: scale(.92); }
+.oguzdows-modern.hub-window button.hub-link { font-size: 11px; padding: 4px 9px; }
+.oguzdows-modern.hub-window .hub-hint { font-size: 10px; color: #607082; }
+.oguzdows-modern.oguzdows-dark.hub-window .hub-hint { color: #a7adbd; }
+.oguzdows-modern.hub-window .hub-footer { background-color: rgba(55,67,94,.045); border-top: 1px solid rgba(55,67,94,.08); }
+.oguzdows-modern.oguzdows-dark.hub-window .hub-footer { background-color: rgba(0,0,0,.13); border-color: rgba(226,230,245,.08); }
+.oguzdows-modern.hub-window .hub-footer button { background: transparent; border-color: transparent; box-shadow: none; padding: 6px; }
+.oguzdows-modern.hub-window .hub-footer button:hover { background-color: alpha(@og_accent,.10); }
+.oguzdows-modern.hub-window button.hub-recent,
+.oguzdows-modern.oguzdows-dark.hub-window button.hub-recent { background: transparent; border-color: transparent; box-shadow: none; padding: 9px; font-size: 12px; }
+.oguzdows-modern.hub-window button.hub-recent:hover { background-color: alpha(@og_accent,.08); }
+.oguzdows-modern.reduced-motion.hub-window button.hub-app image,
+.oguzdows-modern.reduced-motion.hub-window button.hub-app:hover image,
+.oguzdows-modern.reduced-motion.hub-window button.hub-app:active image { -gtk-icon-transform: none; transition: none; }
+
+/* Editorial Store: three user-switched features; no carousel timer or webview. */
+.oguzdows-modern .store-feature { padding: 20px; min-height: 140px; }
+.oguzdows-modern .store-feature.feature-work { background-image: linear-gradient(120deg, #205d76, #24516b); }
+.oguzdows-modern .store-feature.feature-create { background-image: linear-gradient(120deg, #345774, #4d4483); }
+.oguzdows-modern .store-feature.feature-media { background-image: linear-gradient(120deg, #8c405f, #51447a); }
+.oguzdows-modern .store-feature label { color: #ffffff; }
+.oguzdows-modern .store-feature .eyebrow { color: #c8eae8; font-size: 9px; }
+.oguzdows-modern .store-feature .feature-title { font-size: 26px; font-weight: 700; }
+.oguzdows-modern .store-feature .feature-app { font-size: 14px; font-weight: 600; }
+.oguzdows-modern .store-feature .feature-summary { color: #e2eaf5; font-size: 12px; }
+.oguzdows-modern .store-feature button.hero-cta { background: #f2f6f6; color: #263a54; border: 0; border-radius: 16px; padding: 7px 16px; box-shadow: none; }
+.oguzdows-modern .store-feature button.hero-cta:hover { background: #ffffff; }
+.oguzdows-modern .store-feature button.hero-cta label { color: #263a54; }
+.oguzdows-modern .feature-tabs button.text-button { min-width: 0; }
+.oguzdows-modern .feature-tabs button { font-size: 11px; padding: 4px 14px; border-radius: 12px; box-shadow: none; }
+.oguzdows-modern .category-chip { border-radius: 16px; padding: 7px 13px; font-size: 11px; }
+.oguzdows-modern button.app-card { background-color: #ffffff; border: 1px solid rgba(62,78,103,.12); border-radius: 12px; padding: 3px; box-shadow: none; }
+.oguzdows-modern button.app-card:hover { border-color: alpha(@og_accent,.45); background-color: #fcfdff; }
+.oguzdows-modern.oguzdows-dark button.app-card { background-color: #242c3b; border-color: rgba(200,220,244,.1); }
+.oguzdows-modern.oguzdows-dark button.app-card:hover { background-color: #2c3748; border-color: alpha(@og_accent,.5); }
+.oguzdows-modern.compact-store .store-feature { padding: 16px; min-height: 140px; }
+.oguzdows-modern.compact-store .store-feature .feature-title { font-size: 23px; }
+
+/* Picture-led headlines stay light: cached 320x180 rasters, no embedded site. */
+.oguzdows-modern .news-list { padding: 4px 12px; }
+.oguzdows-modern .news-item { padding: 18px 8px; border-radius: 8px; margin: 0 0 3px; }
+.oguzdows-modern .news-headline { font-size: 17px; font-weight: 600; }
+.oguzdows-modern .news-read-link { color: @og_accent; font-size: 11px; font-weight: 600; }
+.oguzdows-modern.oguzdows-dark .news-read-link { color: #8fd4dc; }
+.oguzdows-modern .news-image-caption { font-size: 10px; color: #607187; }
+.oguzdows-modern.oguzdows-dark .news-image-caption { color: #aebfd1; }
+.oguzdows-modern .reader-title { font-size: 23px; }
+
+.oguzdows-modern.compact-news .news-item { padding: 12px 4px; }
+.oguzdows-modern.compact-news .news-headline { font-size: 15px; }
+.oguzdows-modern.compact-news .reader-title { font-size: 20px; }
+
+/* Plain, selectable RSS body; the complete article has one native scrollbar. */
+.oguzdows-modern .news-body { padding: 8px 6px; }
+
+/* Application-priority decoration rules must honor the same state geometry as
+ * the GTK theme. A generic 10px app radius otherwise wins over maximized/tiled
+ * theme rules, leaving cut corners in Store / News / the desktop center. */
+.oguzdows-modern.maximized decoration, .oguzdows-modern.fullscreen decoration,
+.oguzdows-modern.tiled decoration, .oguzdows-modern.solid-csd decoration,
+.oguzdows-modern.tiled-left decoration, .oguzdows-modern.tiled-right decoration,
+.oguzdows-modern.tiled-top decoration, .oguzdows-modern.tiled-bottom decoration,
+.oguzdows-modern.maximized headerbar, .oguzdows-modern.fullscreen headerbar,
+.oguzdows-modern.tiled headerbar, .oguzdows-modern.solid-csd headerbar,
+.oguzdows-modern.tiled-left headerbar, .oguzdows-modern.tiled-right headerbar,
+.oguzdows-modern.tiled-top headerbar, .oguzdows-modern.tiled-bottom headerbar {
+  border-radius: 0; box-shadow: none; margin: 0;
+}
+
+/* Atölye / next native shell. Static surfaces, one-pixel edges, no tile blur
+ * or layout animation. Existing window-geometry rules remain authoritative. */
+window.oguzdows-modern { background-color: #f7f9fc; }
+.oguzdows-modern:not(.oguzdows-mac):not(.oguzdows-eleven) headerbar {
+  background-image: none; background-color: #ffffff; box-shadow: none;
+}
+.oguzdows-modern .field-label { font-size: 11px; font-weight: 600; color: @og_muted; margin-top: 5px; }
+.oguzdows-modern .workbench-sidebar, .oguzdows-modern .center-sidebar {
+  background: #eef2f7; border: 0; padding: 10px 5px;
+}
+.oguzdows-modern .workbench-sidebar row, .oguzdows-modern .center-sidebar row {
+  background: transparent; border: 0; border-radius: 7px; margin: 2px 0; padding: 0;
+}
+.oguzdows-modern .workbench-sidebar row:hover, .oguzdows-modern .center-sidebar row:hover { background: #e3ebf3; }
+.oguzdows-modern .workbench-sidebar row:selected, .oguzdows-modern .center-sidebar row:selected {
+  background: #ddeaf2; color: #213247; box-shadow: inset 3px 0 @og_accent;
+}
+.oguzdows-modern .workbench-sidebar row:selected label, .oguzdows-modern .center-sidebar row:selected label { color: #213247; }
+.oguzdows-modern .tool-card {
+  background: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 12px; box-shadow: none;
+}
+.oguzdows-modern .tool-card:hover { background: #fafdff; border-color: alpha(@og_accent, .6); }
+.oguzdows-modern .tool-card:active { background: #e6f0f5; }
+.oguzdows-modern .workbench-hero {
+  background-image: linear-gradient(120deg, #173c53, #1c5661); border-radius: 14px; padding: 26px;
+}
+.oguzdows-modern .workbench-hero .hero-title { color: #f5fcff; font-size: 32px; font-weight: 700; letter-spacing: -.8px; }
+.oguzdows-modern .workbench-hero .hero-description { color: #d9e9f0; font-size: 13px; }
+.oguzdows-modern .workbench-hero .hero-caption { color: #a7dbd8; font-size: 9px; font-weight: 600; letter-spacing: 1px; margin-top: 12px; }
+.oguzdows-modern .workbench-status { border-top: 1px solid @og_line; padding-top: 8px; }
+.oguzdows-modern .record-list { background: #ffffff; border: 1px solid @og_line; border-radius: 9px; }
+.oguzdows-modern .record-list row { padding: 4px; border-bottom: 1px solid @og_line; }
+.oguzdows-modern .record-list row:selected { background: #e2edf4; color: #213247; }
+.oguzdows-modern .record-list row:selected label { color: #213247; }
+.oguzdows-modern .calculator-result { font-size: 28px; font-weight: 600; color: @og_accent; padding: 16px 0; }
+.oguzdows-modern .color-preview { padding: 22px; border: 1px solid @og_line; border-radius: 10px; font-size: 23px; font-weight: 600; }
+.oguzdows-modern .world-clocks { font-family: monospace; font-size: 14px; padding: 10px; }
+.oguzdows-modern button:hover image { -gtk-icon-transform: translateY(-1px); }
+.oguzdows-modern button:active image { -gtk-icon-transform: scale(.94); }
+.oguzdows-modern.reduced-motion button image,
+.oguzdows-modern.reduced-motion button:hover image,
+.oguzdows-modern.reduced-motion button:active image { -gtk-icon-transform: none; transition: none; }
+window.oguzdows-modern.oguzdows-dark { background-color: #182330; }
+.oguzdows-modern.oguzdows-dark:not(.oguzdows-mac):not(.oguzdows-eleven) headerbar { background-image: none; background-color: #213043; }
+.oguzdows-modern.oguzdows-dark .workbench-sidebar, .oguzdows-modern.oguzdows-dark .center-sidebar { background: #14202e; }
+.oguzdows-modern.oguzdows-dark .workbench-sidebar row:hover, .oguzdows-modern.oguzdows-dark .center-sidebar row:hover { background: #23364a; }
+.oguzdows-modern.oguzdows-dark .workbench-sidebar row:selected, .oguzdows-modern.oguzdows-dark .center-sidebar row:selected { background: #294357; color: #edf5fc; }
+.oguzdows-modern.oguzdows-dark .workbench-sidebar row:selected label, .oguzdows-modern.oguzdows-dark .center-sidebar row:selected label { color: #edf5fc; }
+.oguzdows-modern.oguzdows-dark .tool-card, .oguzdows-modern.oguzdows-dark .record-list { background: #213043; border-color: rgba(183,209,237,.16); }
+.oguzdows-modern.oguzdows-dark .tool-card:hover { background: #283c50; border-color: alpha(@og_accent,.7); }
+.oguzdows-modern.oguzdows-dark .tool-card:active, .oguzdows-modern.oguzdows-dark .record-list row:selected { background: #2c485c; }
+.oguzdows-modern.oguzdows-dark .record-list row:selected label { color: #edf5fc; }
+.oguzdows-modern.oguzdows-dark .field-label { color: #afc4d7; }
+.oguzdows-modern.oguzdows-dark .calculator-result { color: #8cdae1; }
+/* Do not let the modern chrome override normal square maximized / tiled CSD. */
+.oguzdows-modern.maximized headerbar, .oguzdows-modern.tiled headerbar,
+.oguzdows-modern.fullscreen headerbar, .oguzdows-modern.solid-csd headerbar { border-radius: 0; box-shadow: none; }

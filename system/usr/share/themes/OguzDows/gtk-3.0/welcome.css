@@ -1,0 +1,22 @@
+/* Yerel GTK kutuları; önizleme için Python/Cairo/Pillow döngüsü yoktur. */
+.oguzdows-window .welcome-sidebar { background-color: @welcome_sidebar_bg; }
+.oguzdows-window .welcome-sidebar row { border: 0; border-radius: 11px; margin: 3px 6px; padding: 0; }
+.oguzdows-window .welcome-sidebar row:selected { background-color: @theme_selected_bg_color; color: @theme_selected_fg_color; }
+.oguzdows-window .welcome-sidebar row:selected label { color: @theme_selected_fg_color; }
+.oguzdows-window .style-card { border: 2px solid @borders; border-radius: 8px; background-image: none; padding: 2px; }
+.oguzdows-window .style-card:hover { border-color: #278f92; }
+.oguzdows-window .selected-style { border-color: #c93246; }
+.oguzdows-window .style-preview { border: 1px solid #657488; border-radius: 4px; }
+.oguzdows-window .preview-workspace { background-color: #8eb0b2; min-height: 74px; }
+.oguzdows-window .preview-panel { background-image: none; background-color: #245ca5; color: #ffffff; min-height: 15px; }
+.oguzdows-window .preview-panel label { color: #ffffff; font-size: 9px; }
+.oguzdows-window .preview-start { background-color: #286d35; color: #ffffff; padding: 1px 6px; font-weight: bold; }
+.oguzdows-window .preview-window { background-color: #ebedf1; color: #263649; border: 2px solid #477bb7; border-radius: 3px; }
+.oguzdows-window .preview-window label { color: #263649; font-size: 10px; }
+.oguzdows-window .narration-bar { background-color: @welcome_sidebar_bg; }
+.oguzdows-window .narration-bar button { padding: 6px; }
+
+.preview-mac .preview-workspace { background-color: #a7c7dc; }
+.preview-gnome .preview-workspace { background-color: #8a648b; }
+.preview-mac .preview-panel { background-color: #e3e8f1; color: #233247; }
+.preview-gnome .preview-panel { background-color: #302d3b; color: #ffffff; }

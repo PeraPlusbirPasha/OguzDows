@@ -1,0 +1,87 @@
+{
+  "source_sha": "58453b57d69237a1915229784cdf8122179f12e5",
+  "sdk": "35",
+  "abi": "x86_64",
+  "image_fingerprint": "google/sdk_gphone64_x86_64/emu64xa:15/AE3A.240806.043/12960925:userdebug/dev-keys",
+  "emulator_only": true,
+  "physical_sim_tested": false,
+  "emergency_calls_tested": false,
+  "gms_certification_tested": false,
+  "mms_rcs_supported": false,
+  "tests": [
+    {
+      "name": "NativeDeviceTest.bundledBridgeRolesValidationAndIsolation",
+      "passed": true,
+      "test_cases": 1,
+      "seconds": 24.61
+    },
+    {
+      "name": "NativeDeviceTest.paidActionsRequireFinalNativeConsent",
+      "passed": true,
+      "test_cases": 1,
+      "seconds": 16.53
+    },
+    {
+      "name": "NativeDeviceTest.systemVolumeBrightnessAndNativeThemeAreReal",
+      "passed": true,
+      "test_cases": 1,
+      "seconds": 15.89
+    },
+    {
+      "name": "NativeDeviceTest.incomingSmsUsesTheRealProviderAndRichInbox",
+      "passed": true,
+      "test_cases": 1,
+      "seconds": 13.92
+    },
+    {
+      "name": "NativeDeviceTest.outgoingSmsWaitsForActualSentCallback",
+      "passed": true,
+      "test_cases": 1,
+      "seconds": 10.46
+    },
+    {
+      "name": "NativeDeviceTest.outgoingCallUsesTelecomAndOurInCallService",
+      "passed": true,
+      "test_cases": 1,
+      "seconds": 14.89
+    },
+    {
+      "name": "NativeDeviceTest.incomingCallCanBeAnsweredMutedAndEndedInOurUi",
+      "passed": true,
+      "test_cases": 1,
+      "seconds": 7.9
+    },
+    {
+      "name": "NativeDeviceTest.localApkReviewCancelAndSystemInstall",
+      "passed": false,
+      "test_cases": 0,
+      "seconds": 8.34
+    }
+  ],
+  "display": {
+    "pixels": "720x1600",
+    "density": 280,
+    "gpu": "headless SwiftShader"
+  },
+  "preflight": {
+    "sim_state": "LOADED",
+    "default_sms_subscription_setting": 1,
+    "active_default_network": 100,
+    "ready": true
+  },
+  "passed": false,
+  "product_anr_detected": true,
+  "pre_anr_java_sample": {
+    "process": "org.oguzdows.mobile",
+    "pid": 5384,
+    "phase": "HomeActivity -> InstallReviewActivity, first review",
+    "main_delay_ms": 2003,
+    "main": "  at android.graphics.HardwareRenderer.nCreateProxy(Native Method)\n  at android.graphics.HardwareRenderer.<init>(HardwareRenderer.java:199)\n  at android.view.ThreadedRenderer.<init>(ThreadedRenderer.java:334)\n  at android.view.ThreadedRenderer.create(ThreadedRenderer.java:232)\n  at android.view.ViewRootImpl.enableHardwareAcceleration(ViewRootImpl.java:2018)\n  at android.view.ViewRootImpl.setView(ViewRootImpl.java:1529)\n  at android.view.WindowManagerGlobal.addView(WindowManagerGlobal.java:442)\n  at android.view.WindowManagerImpl.addView(WindowManagerImpl.java:158)\n  at android.app.ActivityThread.handleResumeActivity(ActivityThread.java:5395)\n  at android.app.servertransaction.ResumeActivityItem.execute(ResumeActivityItem.java:57)\n  at android.app.servertransaction.ActivityTransactionItem.execute(ActivityTransactionItem.java:60)\n  at android.app.servertransaction.TransactionExecutor.executeLifecycleItem(TransactionExecutor.java:225)\n  at android.app.servertransaction.TransactionExecutor.executeTransactionItems(TransactionExecutor.java:107)\n  at android.app.servertransaction.TransactionExecutor.execute(TransactionExecutor.java:81)\n  at android.app.ActivityThread$H.handleMessage(ActivityThread.java:2636)\n  at android.os.Handler.dispatchMessage(Handler.java:107)\n  at android.os.Looper.loopOnce(Looper.java:232)\n  at android.os.Looper.loop(Looper.java:317)\n  at android.app.ActivityThread.main(ActivityThread.java:8705)\n  at java.lang.reflect.Method.invoke(Native Method)\n  at com.android.internal.os.RuntimeInit$MethodAndArgsCaller.run(RuntimeInit.java:580)\n  at com.android.internal.os.ZygoteInit.main(ZygoteInit.java:886)\n"
+  },
+  "github": {
+    "run_url": "https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/46084817275",
+    "job_id": 140791807371,
+    "job_url": "https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/46084817275/job/140791807371",
+    "scope": "QEMU preflight observed a loaded SIM, OS default SMS setting 1 and active network 100; all first seven native selections passed. Eighth selection aborted on a HomeActivity focus-loss ANR (5058 ms) during first private review launch. The actual target PID 5384 main thread sample at delay 2003 ms is blocked in HardwareRenderer.nCreateProxy -> ThreadedRenderer.create -> ViewRootImpl.setView -> ActivityThread.handleResumeActivity. This is a scoped Java observation before the ANR, not a native RenderThread trace or proof of its internal root cause. New real-HOME recreation and later suites were NOT reached. No package."
+  }
+}

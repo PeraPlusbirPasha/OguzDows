@@ -1,0 +1,24 @@
+@import url("../../OguzDows/gtk-3.0/gtk.css");
+@import url("../../OguzDows/gtk-3.0/dock.css");
+/* Bu bir shell / global menü değil, özgün hafif Xfce temasıdır. */
+@define-color theme_selected_bg_color #2469ad;
+@define-color selected_bg_color #2469ad;
+headerbar, headerbar:backdrop { background-image: none; background-color: #292c33; color: #ffffff; border-bottom: 1px solid #54535e; opacity: 1; }
+headerbar label:backdrop { color: #ffffff; }
+button.suggested-action { background-color: #2469ad; border-color: #2469ad; color: #ffffff; }
+selection { background-color: #2469ad; color: #ffffff; }
+.xfce4-panel.background { background-color: #292c33; color: #ffffff; background-image: none; border: 0; opacity: 1; }
+.xfce4-panel button, .xfce4-panel label { color: #ffffff; }
+.xfce4-panel button { border-radius: 8px; }
+.xfce4-panel button:checked { background-color: #474855; border-bottom: 2px solid #659fd9; }
+.xfce4-panel button:hover { background-color: #45434e; }
+headerbar button.titlebutton, headerbar button.titlebutton:backdrop { border-radius: 14px; color: #20252d; border-color: #767e8c; min-width: 22px; min-height: 22px; padding: 1px; }
+headerbar button.titlebutton.close, headerbar button.titlebutton.close:backdrop { background-color: #f16e68; color: #20252d; border-color: #ab4240; }
+headerbar button.titlebutton.minimize, headerbar button.titlebutton.minimize:backdrop { background-color: #f4cf72; }
+headerbar button.titlebutton.maximize, headerbar button.titlebutton.maximize:backdrop { background-color: #81c79a; }
+
+/* macOS esintisi: left traffic lights, restrained unified toolbar, separate Dock. */
+headerbar { min-height: 30px; padding: 3px 8px; border-bottom-width: 1px; }
+headerbar button.titlebutton, headerbar button.titlebutton:backdrop { min-width: 12px; min-height: 12px; padding: 0; margin: 0 4px; border-radius: 50%; border-width: 1px; }
+headerbar button.titlebutton image { -gtk-icon-transform: scale(.65); }
+.xfce4-panel.background { border-bottom: 1px solid alpha(@theme_fg_color, .18); }

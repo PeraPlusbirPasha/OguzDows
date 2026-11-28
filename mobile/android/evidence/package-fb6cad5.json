@@ -1,0 +1,54 @@
+{
+  "schema_version": 1,
+  "source_sha": "fb6cad5a3f56c5bf37e739388ded5ffce8e5ad13",
+  "version": "0.3.0-launcher",
+  "distribution": "DEBUG Actions artifact after 17/17 native emulator acceptance; not a production-signed Release or ROM/OTA/ISO",
+  "github": {
+    "run_url": "https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/46065713858",
+    "job_url": "https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/46065713858/job/140730403637",
+    "workflow_conclusion": "success",
+    "package_and_apksigner_step_conclusion": "success"
+  },
+  "artifact": {
+    "id": 15231331173,
+    "name": "oguzdows-mobile-emulator-46065713858",
+    "browser_url": "https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/46065713858/artifacts/15231331173",
+    "archive_download_url": "https://api.github.com/repos/PeraPlusbirPasha/OguzDows/actions/artifacts/15231331173/zip",
+    "bytes": 16692242,
+    "digest": "sha256:060106f39032d29be2228579fd4362cac4f17a6205ad6babe35ba5857840228d",
+    "retention_days": 14
+  },
+  "files": [
+    {
+      "file": "OguzDows-Mobile-0.3.0-launcher-debug.apk",
+      "bytes": 23991680,
+      "sha256": "622a59fd5686b09da687a6b6f7e72f24963341695b210a3addbf58c292eefb56"
+    },
+    {
+      "file": "OguzDows-Mobile-0.3.0-launcher-tests.apk",
+      "bytes": 1026833,
+      "sha256": "ddfa69cf0b1fa860a7ee2b72ca3b827e69386e8019fab350ff40b2073a31c2e6"
+    },
+    {
+      "file": "OguzDows-inert-install-fixture.apk",
+      "bytes": 11512,
+      "sha256": "2e48a342abf9a4f37fd2d6865e94d046aeefbe9ecc3f5c6302a2a9313d7434d4"
+    }
+  ],
+  "additional_package_files": [
+    "APK-SIGNATURE.txt",
+    "SHA256SUMS",
+    "BUILD.txt"
+  ],
+  "ci_apksigner_verify_passed": true,
+  "local_retrieval": {
+    "attempted": true,
+    "completed": false,
+    "independent_apk_hash_or_signature_verification": false,
+    "reason": "gh run download reached the GitHub artifact storage redirect, but the sandbox outbound allowlist does not include its blob host (EOF). No APK bytes were retrieved locally. File hashes are observed CI build evidence; artifact metadata is from the GitHub API. The small native screenshot alone was reconstructed and visually inspected locally from bounded checks annotations."
+  },
+  "physical_device_tested": false,
+  "production_signing": false,
+  "gms_certified": false,
+  "rom_built": false
+}

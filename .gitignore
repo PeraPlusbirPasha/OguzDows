@@ -19,3 +19,6 @@ __pycache__/
 /preview/
 /test-results/
 /image-search/
+
+# Deneysel ARM portlama katmanları
+/build-arm-*/

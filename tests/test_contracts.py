@@ -36,7 +36,11 @@ class ContractsTests(unittest.TestCase):
                     if not technical:
                         self.assertNotIn('debian', text)
                     self.assertNotIn("whitesur", text)
-                    self.assertNotIn("macos", text)
+                    # Kullanıcı açıkça macOS esintili düzen istedi. Ürün kimliği
+                    # macOS olamaz; dürüst esinti / kurulmaz açıklaması olabilir.
+                    if 'macos' in text:
+                        self.assertIn('xfce', text)
+                        self.assertTrue('esinti' in text or 'kurulmaz' in text)
 
     def test_live_admin_account_is_bounded_to_live_boot(self):
         unit = (ROOT / "system/etc/systemd/system/oguzdows-live-setup.service").read_text()
@@ -128,7 +132,8 @@ class ContractsTests(unittest.TestCase):
         for entry in menu.findall(".//Directory"):
             self.assertTrue((ROOT / "system/usr/share/desktop-directories" / entry.text).is_file())
         rc = (ROOT / "system/etc/skel/.config/xfce4/panel/whiskermenu-1.rc").read_text()
-        self.assertIn("button-title=OğuzDows", rc)
+        self.assertIn("button-title=Başlat", rc)
+        self.assertIn("button-icon=oguzdows", rc)
         self.assertIn("custom-menu-file=/etc/xdg/menus/oguzdows-applications.menu", rc)
         live = (ROOT / "system/usr/lib/oguzdows/live-setup.sh").read_text()
         self.assertIn("usermod -c 'OğuzDows Canlı Oturum' oguz", live)

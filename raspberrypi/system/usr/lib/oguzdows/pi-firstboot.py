@@ -15,7 +15,8 @@ from pathlib import Path
 
 STATE = Path("/var/lib/oguzdows")
 PROVISION = Path("/boot/firmware/oguzdows-userconf.txt")
-GROUPS = ("sudo", "adm", "dialout", "audio", "video", "plugdev", "input", "gpio", "spi", "i2c", "netdev", "render")
+# Resmî pi-gen stage2 üyelikleri; yalnızca zaten var olan gruplar eklenir.
+GROUPS = ("sudo", "adm", "dialout", "cdrom", "audio", "users", "video", "games", "plugdev", "input", "gpio", "spi", "i2c", "netdev", "render")
 USERNAME = re.compile(r"[a-z][a-z0-9_-]{0,30}")
 SHA512 = re.compile(r"\$6\$(?:rounds=[0-9]{4,9}\$)?[./0-9A-Za-z]{1,16}\$[./0-9A-Za-z]{86}")
 YESCRYPT = re.compile(r"\$y\$[./0-9A-Za-z]{1,16}\$[./0-9A-Za-z]{1,86}\$[./0-9A-Za-z]{20,128}")
@@ -143,7 +144,7 @@ def main() -> int:
             cleanup_provision()
             return 0
         subprocess.run(["/usr/bin/plymouth", "quit"], check=False, capture_output=True)
-        print("\nOğuzDows · Ay Yıldız\nRaspberry Pi ilk açılış kurulumu\n")
+        print("\nOğuzDows · Akıncı\nRaspberry Pi ilk açılış kurulumu\n")
         print("Ortak kullanıcı veya parola yok. Bir yönetici hesabı oluşturacağız.\nParolanız yazılırken görünmez; root hesabı kilitli ve SSH kapalıdır.\n")
         try:
             provision = read_provision()

@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1600" height="560" viewBox="0 0 1600 560" role="img" aria-labelledby="title description">
-  <title id="title">OğuzDows · Ay Yıldız</title>
-  <desc id="description">Koyu lacivert zemin üzerinde al kırmızısı ay yıldız, turkuaz yörüngeler ve Anadolu kilim motifleri. Köklerinden güç alır. Özgürce üretir. Türkçe, hafif, sana ait.</desc>
+  <title id="title">OğuzDows 2.0 · Akıncı</title>
+  <desc id="description">OğuzDows 2.0 Akıncı: PC ve Raspberry Pi için Türkçe masaüstü, telefon için ayrı native launcher. Ay yıldız ve Anadolu kilim motifleri. Köklerinden güç alır. Özgürce üretir.</desc>
   <defs>
     <linearGradient id="background" x1="0" y1="0" x2="1" y2="1">
       <stop stop-color="#101b2c"/>
@@ -41,7 +41,7 @@
       <path d="M906 560c78-82 42-149 105-211s147-22 194-89 33-128 114-161S1521 107 1641 0"/>
     </g>
     <rect x="70" y="47" width="286" height="2" rx="1" fill="url(#line)"/>
-    <text x="70" y="86" font-family="DejaVu Sans, Arial, sans-serif" font-size="17" font-weight="700" letter-spacing="4" fill="#94b7bf">AY YILDIZ · 1.0</text>
+    <text x="70" y="86" font-family="DejaVu Sans, Arial, sans-serif" font-size="17" font-weight="700" letter-spacing="4" fill="#94b7bf">AKINCI · 2.0</text>
     <text x="64" y="220" font-family="DejaVu Sans, Arial, sans-serif" font-size="98" font-weight="700" letter-spacing="-4" fill="#fff8ee">OğuzDows</text>
     <text x="70" y="295" font-family="DejaVu Sans, Arial, sans-serif" font-size="35" font-weight="400" fill="#d9e6e7">Köklerinden güç alır.</text>
     <text x="70" y="344" font-family="DejaVu Sans, Arial, sans-serif" font-size="35" font-weight="700" fill="#fff8ee">Özgürce üretir.</text>
@@ -65,7 +65,7 @@
       </g>
     </g>
     <path d="M70 481h1460" stroke="#587178" stroke-opacity="0.30"/>
-    <text x="70" y="520" font-family="DejaVu Sans, Arial, sans-serif" font-size="15" letter-spacing="2" fill="#9fb8bf">TÜRKÇE MASAÜSTÜ / XFCE / CANLI PC ISO</text>
+    <text x="70" y="520" font-family="DejaVu Sans, Arial, sans-serif" font-size="15" letter-spacing="2" fill="#9fb8bf">PC ISO / RASPBERRY PI / NATIVE LAUNCHER APK</text>
     <rect x="1214" y="498" width="316" height="28" fill="url(#kilim)" opacity="0.55"/>
   </g>
   <rect x="1" y="1" width="1598" height="558" rx="28" fill="none" stroke="#416169" stroke-opacity="0.60"/>

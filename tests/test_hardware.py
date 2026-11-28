@@ -26,7 +26,7 @@ class HardwareTests(unittest.TestCase):
         self.assertTrue(hardware.light_profile("nomodeset", 8388608))
         self.assertTrue(hardware.light_profile("oguzdows.profile=light", 8388608))
         self.assertFalse(hardware.light_profile("quiet", 8388608))
-        self.assertFalse(hardware.light_profile("quiet", 0))
+        self.assertTrue(hardware.light_profile("quiet", 0))  # Bilinmeyen RAM ile efekt açılmaz.
 
     def test_broadcom_detection_is_an_allowlist_not_a_vendor_wide_rule(self):
         with tempfile.TemporaryDirectory() as directory:

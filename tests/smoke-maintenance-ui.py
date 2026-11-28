@@ -6,6 +6,7 @@ import os
 import subprocess
 import sys
 import tempfile
+import traceback
 from pathlib import Path
 from unittest.mock import patch
 
@@ -13,8 +14,8 @@ import gi
 
 gi.require_version('Gtk', '3.0')
 gi.require_version('Gdk', '3.0')
-from gi.repository import Gdk, GLib, Gtk
-from support import load
+from gi.repository import Gdk, Gio, GLib, Gtk
+from support import load, native_gtk_imports
 
 
 def main():
@@ -25,6 +26,7 @@ def main():
     args.output.mkdir(parents=True, exist_ok=True)
     if not Gtk.init_check([])[0]:
         raise RuntimeError('Xvfb gerekli.')
+    toolkit_imports = native_gtk_imports(Gtk, Gdk)
     errors = []
     original_hook = sys.excepthook
     def error_hook(kind, value, trace):
@@ -33,6 +35,10 @@ def main():
     sys.excepthook = error_hook
     with tempfile.TemporaryDirectory(prefix='oguzdows-tools-ui-') as directory:
         os.environ.update(XDG_CONFIG_HOME=directory, XDG_STATE_HOME=directory, OGUZDOWS_TESTING='1')
+        Gio.bus_get_sync(Gio.BusType.SESSION, None).call_sync(
+            'org.freedesktop.DBus', '/org/freedesktop/DBus', 'org.freedesktop.DBus',
+            'UpdateActivationEnvironment', GLib.Variant('(a{ss})', ({'XDG_CONFIG_HOME': directory, 'XDG_STATE_HOME': directory},)),
+            None, Gio.DBusCallFlags.NONE, 5000, None)
         Gtk.Settings.get_default().set_property('gtk-theme-name', 'OguzDows')
         if args.component == 'updater':
             profiles = load('tools_smoke_profiles', 'system/usr/lib/oguzdows/profiles.py')
@@ -40,8 +46,8 @@ def main():
             for name in profiles.PROFILES:
                 profiles.apply(name)
                 for channel, path, _kind, expected in profiles.settings(name):
-                    result = subprocess.run(['xfconf-query', '-c', channel, '-p', path], capture_output=True, text=True, check=True)
-                    assert result.stdout.strip() == expected, (name, path, result.stdout)
+                    value = profiles.read_property(channel, path, _kind, profiles.run)
+                    assert value == expected, (name, path, value, expected)
             profiles.restore()
         module = load('tools_smoke_' + args.component, 'system/usr/lib/oguzdows/' + args.component + '.py')
         app = {'updater': lambda: module.Updater(), 'culture': lambda: module.Culture(),
@@ -124,7 +130,8 @@ def main():
                     screenshot('store-setup-error.png')
                 close()
             except Exception as error:
-                errors.append(str(error))
+                errors.append(type(error).__name__ + ': ' + str(error))
+                traceback.print_exc()
                 loop.quit()
             return GLib.SOURCE_REMOVE
         def finish():
@@ -140,11 +147,13 @@ def main():
                 screenshot('updater-auth-cancelled.png')
                 close()
             except Exception as error:
-                errors.append(str(error))
+                errors.append(type(error).__name__ + ': ' + str(error))
+                traceback.print_exc()
                 loop.quit()
             return GLib.SOURCE_REMOVE
         def close():
-            assert not {'PIL', 'cairo', 'rifki_pet', 'rifki_scene'}.intersection(sys.modules)
+            unexpected = ({'PIL', 'cairo', 'rifki_pet', 'rifki_scene'} - toolkit_imports).intersection(sys.modules)
+            assert not unexpected, 'Unexpected optional application imports: ' + ', '.join(sorted(unexpected))
             app.window.destroy()
             app.quit()
             loop.quit()
@@ -157,8 +166,9 @@ def main():
             GLib.timeout_add_seconds(30, timeout)
             loop.run()
         (args.output / ('maintenance-ui-' + args.component + '.json')).write_text(json.dumps({'gtk': True, 'component': args.component,
-            'native_xfconf_profiles': 5 if args.component == 'updater' else 0, 'apt_mocked': True,
-            'package_installation_tested': False, 'network_used': False, 'errors': errors}, ensure_ascii=False, indent=2) + '\n')
+            'native_xfconf_profiles': 6 if args.component == 'updater' else 0, 'apt_mocked': True,
+            'package_installation_tested': False, 'network_used': False,
+            'gtk_binding_imports_before_application': sorted(toolkit_imports), 'errors': errors}, ensure_ascii=False, indent=2) + '\n')
     if errors:
         raise AssertionError('\n'.join(errors))
     print(args.component + ': gerçek GTK ve kullanıcı onay akışı doğrulandı. Paket kurulmadı.')

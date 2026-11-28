@@ -1,0 +1,10 @@
+[Desktop Entry]
+Type=Application
+Name=OğuzDows Sistem İzleyici
+Comment=Gerçek CPU, RAM ve ağ grafikleri; görünmezken duraklar
+Exec=/usr/local/bin/oguzdows-monitor
+Icon=oguzdows-monitor
+Terminal=false
+Categories=System;Monitor;
+Keywords=CPU;RAM;Ağ;Performans;Süreçler;
+StartupNotify=true

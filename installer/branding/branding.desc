@@ -10,15 +10,15 @@ navigation: widget
 strings:
   productName: "OğuzDows"
   shortProductName: "OğuzDows"
-  version: "1.0"
-  shortVersion: "1.0"
-  versionedName: "OğuzDows · Ay Yıldız"
-  shortVersionedName: "OğuzDows 1.0"
+  version: "2.0"
+  shortVersion: "2.0"
+  versionedName: "OğuzDows 2.0 · Akıncı"
+  shortVersionedName: "OğuzDows 2.0"
   bootloaderEntryName: "OğuzDows"
-  productUrl: "https://github.com/PeraPlusbirPasha/O-uzDows"
-  supportUrl: "https://github.com/PeraPlusbirPasha/O-uzDows/issues"
-  knownIssuesUrl: "https://github.com/PeraPlusbirPasha/O-uzDows/issues"
-  releaseNotesUrl: "https://github.com/PeraPlusbirPasha/O-uzDows/releases"
+  productUrl: "https://github.com/PeraPlusbirPasha/OguzDows"
+  supportUrl: "https://github.com/PeraPlusbirPasha/OguzDows/issues"
+  knownIssuesUrl: "https://github.com/PeraPlusbirPasha/OguzDows/issues"
+  releaseNotesUrl: "https://github.com/PeraPlusbirPasha/OguzDows/releases"
 images:
   productIcon: logo.png
   productLogo: logo.png

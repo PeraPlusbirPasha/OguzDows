@@ -1,3 +1,4 @@
+import hashlib
 import json
 import re
 import tempfile
@@ -38,24 +39,34 @@ class AssetTests(unittest.TestCase):
                 for state in ("active", "inactive", "prelight", "pressed"):
                     self.assertTrue((theme / f"{button}-{state}.png").is_file())
             manifest = json.loads((root / "usr/share/oguzdows/wallpapers.json").read_text())
-            self.assertEqual({item['id'] for item in manifest}, {'bogaz-sabahi', 'kackar-sisi', 'kapadokya-isigi', 'oludeniz-kiyisi', 'tuz-golu-aksami', 'ani-kisi'})
-            self.assertEqual(len(manifest), 6)
-            self.assertTrue(all(item.get('origin') == 'AI-generated' and item.get('logo') == 'bottom-right' for item in manifest))
+            self.assertTrue({'bogaz-sabahi', 'kackar-sisi', 'kapadokya-isigi', 'oludeniz-kiyisi', 'tuz-golu-aksami', 'ani-kisi', 'halay', 'cay-simit', 'istanbul-kedisi'} <= {item['id'] for item in manifest})
+            self.assertEqual(len(manifest), 20)
+            self.assertEqual(sum(item.get('origin') == 'AI-generated' for item in manifest), 16)
+            self.assertEqual(sum(item.get('origin') == 'Original illustration' for item in manifest), 4)
+            self.assertTrue(all(item.get('logo') == 'bottom-right' for item in manifest))
             for retired in ('istanbul', 'kapadokya', 'pamukkale', 'kackar', 'anadolu'):
                 self.assertFalse((wallpaper.parent / (retired + '.png')).exists())
             pixels = set()
             for item in manifest:
                 with Image.open(root / item["path"].lstrip("/")) as image:
                     self.assertEqual(image.size, (1920, 1080))
-                    pixels.add(image.tobytes())
+                    pixels.add(hashlib.sha256(image.tobytes()).hexdigest())
                 with Image.open(root / item["preview"].lstrip("/")) as preview:
                     self.assertEqual(preview.size, (320, 180))
-            self.assertEqual(len(pixels), 6)
+            self.assertEqual(len(pixels), 20)
             with Image.open(wallpaper) as default, Image.open(wallpaper.parent / 'bogaz-sabahi.jpg') as scenery:
                 self.assertEqual(default.tobytes(), scenery.tobytes())
             for state in ("active", "inactive"):
                 with Image.open(theme / f"close-{state}.png") as close:
                     self.assertEqual(close.getchannel("A").getextrema(), (255, 255))
+            for name in ('OguzDowsAero', 'OguzDowsAeroDark', 'OguzDowsEleven', 'OguzDowsElevenDark'):
+                for part in ('title-1-active', 'close-active', 'close-inactive'):
+                    with Image.open(root / f'usr/share/themes/{name}/xfwm4/{part}.png') as image:
+                        if part.startswith('title-'):
+                            self.assertEqual(image.crop((0, 1, image.width, image.height)).getchannel('A').getextrema(), (255, 255))
+                            self.assertEqual(image.getpixel((0, 0))[3], 255)  # Xfwm mask requires exact opacity
+                        else:
+                            self.assertEqual(image.getchannel('A').getextrema(), (255, 255))
             original = bios.read_bytes()
             renderer.render(root)
             self.assertEqual(bios.read_bytes(), original)

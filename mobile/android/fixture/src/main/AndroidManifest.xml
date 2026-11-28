@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Inert installer fixture, never distributed as a product or granted phone/network permissions. -->
+    <application android:label="OğuzDows test paketi" android:allowBackup="false" android:theme="@android:style/Theme.Material.Light.NoActionBar">
+        <activity android:name=".FixtureActivity" android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <receiver android:name=".FixtureWidgetProvider" android:label="OğuzDows test widget" android:exported="true" android:permission="android.permission.BIND_APPWIDGET">
+            <intent-filter><action android:name="android.appwidget.action.APPWIDGET_UPDATE" /></intent-filter>
+            <meta-data android:name="android.appwidget.provider" android:resource="@xml/fixture_widget" />
+        </receiver>
+    </application>
+</manifest>

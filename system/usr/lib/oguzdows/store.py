@@ -155,6 +155,8 @@ class Store(Gtk.Application):
             button = Gtk.Button(label=title)
             button.connect('clicked', callback)
             box.pack_start(button, False, False, 0)
+        import ui_theme
+        ui_theme.setup(self.window)
         self.window.add(box)
         self.window.show_all()
 
@@ -212,7 +214,7 @@ class Store(Gtk.Application):
             self.window.present()
             return
         self.window = Gtk.ApplicationWindow(application=self, title='OğuzDows Mağaza')
-        self.window.set_icon_name('oguzdows')
+        self.window.set_icon_name('oguzdows-store')
         self.window.set_default_size(540, 320)
         self.window.connect('delete-event', lambda *_: self.busy)
         header = Gtk.HeaderBar(title='Mağazan hazır', subtitle='GNOME Yazılımlar · Sistem + Flatpak')
@@ -228,6 +230,8 @@ class Store(Gtk.Application):
         self.skip = Gtk.Button(label='Yalnızca sistem uygulamalarıyla devam et')
         self.skip.connect('clicked', self.only_system)
         box.pack_start(self.skip, False, False, 0)
+        import ui_theme
+        ui_theme.setup(self.window)
         self.window.add(box)
         self.window.show_all()
 

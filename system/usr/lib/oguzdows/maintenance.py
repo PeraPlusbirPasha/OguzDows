@@ -13,6 +13,8 @@ from datetime import datetime, timezone
 from email.utils import parsedate_to_datetime
 from pathlib import Path
 
+import app_catalog
+
 ENV = {'PATH': '/usr/sbin:/usr/bin:/sbin:/bin', 'LC_ALL': 'C.UTF-8',
        'LANG': 'C.UTF-8', 'HOME': '/root', 'DEBIAN_FRONTEND': 'noninteractive'}
 APT = ['/usr/bin/apt-get', '-o', 'Dpkg::Lock::Timeout=60', '-o', 'Acquire::Retries=1',
@@ -23,8 +25,10 @@ APT = ['/usr/bin/apt-get', '-o', 'Dpkg::Lock::Timeout=60', '-o', 'Acquire::Retri
        '-o', 'Dpkg::Options::=--force-confdef', '-o', 'Dpkg::Options::=--force-confold']
 PARDUS_APPS = ('pardus-image-writer', 'pardus-night-light', 'pardus-pen')
 DESKTOPS = {
-    'kde': ('plasma-desktop', 'plasma-workspace', 'kwin-x11', 'dolphin', 'konsole', 'systemsettings'),
-    'gnome': ('gnome-session', 'gnome-session-xsession', 'gnome-shell', 'gnome-control-center', 'nautilus', 'gnome-terminal'),
+    'kde': ('plasma-desktop', 'plasma-workspace', 'kwin-x11', 'dolphin', 'konsole', 'systemsettings',
+            'breeze', 'kwin-common', 'plasma-pa', 'plasma-nm', 'powerdevil', 'kde-config-gtk-style', 'kde-cli-tools'),
+    'gnome': ('gnome-session', 'gnome-session-xsession', 'gnome-shell', 'gnome-control-center', 'nautilus',
+              'gnome-terminal', 'gnome-tweaks', 'gnome-shell-extension-prefs'),
 }
 DRIVERS = {
     'intel-wifi': ('firmware-iwlwifi',), 'realtek': ('firmware-realtek',),
@@ -61,6 +65,39 @@ def build_info(path=Path('/usr/share/oguzdows/build-info.json')):
     return data
 
 
+def build_desktop_info(path=Path('/usr/share/oguzdows/build-info.json')):
+    """Sadece sabit desktop: demetleri için ayrı PC / ARM64 sözleşmesi."""
+    data = build_store_info(path)
+    if data['arch'] not in ('amd64', 'arm64'):
+        raise MaintenanceError('Gerçek Plasma / GNOME amd64 veya ARM64 gerektirir; Zero / armhf için hafif Xfce düzenleri korunur.')
+    return data
+
+
+def desktop_resources(memory_kib, legacy=False):
+    # MemTotal, 2 GiB kartta ayrılan GPU / firmware belleğinden daha küçüktür.
+    if legacy or memory_kib < 1792000:
+        raise MaintenanceError('Gerçek Plasma / GNOME için en az 2 GiB sınıfı cihaz gerekir; 4 GiB ve çalışan 3B sürücü önerilir. 512 MiB / 1 GiB ve Zero için hafif düzeni seçin.')
+
+
+def build_store_info(path=Path('/usr/share/oguzdows/build-info.json')):
+    """Yalnızca sabit mağaza app: istekleri için ayrı ARM tabanı sözleşmesi.
+
+    Genel bakım / sürücü / depo işlemlerinin PC sınırı genişletilmez;
+    gerçek masaüstü işlemi ayrıca build_desktop_info ile daraltılır.
+    """
+    try:
+        data = json.loads(path.read_text())
+    except (OSError, ValueError):
+        raise MaintenanceError('Mağaza için imaj kimliği okunamadı.')
+    if isinstance(data, dict):
+        if data.get('platform') == 'raspberrypi' and data.get('arch') in ('armhf', 'arm64') and data.get('suite') == 'bookworm':
+            return data
+        if (data.get('platform') == 'arm' and data.get('arch') == 'arm64' and data.get('suite') == 'trixie'
+                and data.get('device_profile') in ('arm64-uefi', 'pinephone', 'pinephone-pro', 'rockpro64')):
+            return data
+    return build_info(path)
+
+
 def driver_suggestions(sysfs=Path('/sys/bus'), suite='trixie'):
     found = {}
     for bus in ('pci', 'usb'):
@@ -88,10 +125,26 @@ def driver_suggestions(sysfs=Path('/sys/bus'), suite='trixie'):
 def request_packages(request, info, suggestions=None):
     if request == 'upgrade':
         return None
+    if request.startswith(('app:', 'remove-app:')):
+        identifier = request.partition(':')[2]
+        if info.get('arch') not in ('amd64', 'i386') and identifier == 'wine':
+            raise MaintenanceError('Windows Wine demeti yalnızca x86 PC içindir. ARM emülasyonu varsayılmadı.')
+        try:
+            if request.startswith('remove-app:') and app_catalog.get(identifier).get('managed_bundle'):
+                raise MaintenanceError('Mağaza altyapısı dar uygulama kaldırma işlemi değildir; portallar / paket motoru korunuyor.')
+            return app_catalog.packages(identifier)
+        except ValueError as error:
+            raise MaintenanceError(str(error)) from error
     if request.startswith('desktop:') and request[8:] in DESKTOPS:
-        if info['arch'] != 'amd64':
-            raise MaintenanceError('Gerçek KDE/GNOME kurulumu bu sürümde yalnızca amd64 için sunulur.')
-        return list(DESKTOPS[request[8:]])
+        if info['arch'] not in ('amd64', 'arm64'):
+            raise MaintenanceError('Gerçek KDE/GNOME için amd64 veya ARM64 gerekir; armhf / Zero için Xfce düzenleri kullanılır.')
+        packages = list(DESKTOPS[request[8:]])
+        if info['suite'] == 'bookworm':
+            # GNOME 43 X11 dosyası gnome-session içindedir; ayrı paket yeni tabandadır.
+            packages = [name for name in packages if name != 'gnome-session-xsession']
+        # Bookworm / trixie startplasma-x11 ve Xsession girdisini zaten
+        # plasma-workspace sağlar. Daha yeni bir tabanın paket ayrımını taşıma.
+        return packages
     if request.startswith('driver:'):
         choice = request[7:]
         found = driver_suggestions(suite=info['suite']) if suggestions is None else suggestions
@@ -108,7 +161,11 @@ def request_packages(request, info, suggestions=None):
 
 def apt_command(request, info, simulate=False, suggestions=None):
     packages = request_packages(request, info, suggestions)
-    command = [*APT, '--simulate' if simulate else '--assume-yes', '--no-remove']
+    command = [*APT, '--simulate' if simulate else '--assume-yes']
+    if request.startswith('remove-app:'):
+        # No purge, autoremove, wildcard, arbitrary package or force flag.
+        return [*command, 'remove', *packages]
+    command.append('--no-remove')
     if packages is None:
         return [*command, '--with-new-pkgs', 'upgrade']
     return [*command, '--no-install-recommends', 'install', *packages]
@@ -130,6 +187,38 @@ def parse_plan(text):
     return changes
 
 
+
+def removal_plan(text, packages, cache):
+    """Only explicitly catalogued app packages may go; never dependencies.
+
+    APT itself resolves reverse dependencies. If that resolution includes ANY
+    extra removal or install the whole plan is refused. Personal app data and
+    package configuration are retained (remove, not purge / autoremove).
+    """
+    allowed = set(packages)
+    changes = []
+    for line in text.splitlines():
+        if line.startswith(('Inst ', 'Conf ')):
+            raise MaintenanceError('Kaldırma planı başka paket kurmak / yapılandırmak istiyor; reddedildi.')
+        if not line.startswith('Remv '):
+            continue
+        match = re.fullmatch(r'Remv ([a-z0-9][a-z0-9+.-]*(?::[a-z0-9]+)?) \[([^\]\s]+)\](?:.*)', line)
+        if not match:
+            raise MaintenanceError('APT kaldırma satırı doğrulanamadı; paketler korunuyor.')
+        name, version = match[1], match[2]
+        base = name.split(':')[0]
+        if base not in allowed or name not in cache:
+            raise MaintenanceError('Kaldırma başka bir paketi de etkiliyor: ' + name + '. Dar mağaza planı reddedildi.')
+        package = cache[name]
+        installed = package.installed
+        if (installed is None or installed.version != version or package.essential
+                or installed.priority in ('required', 'important')
+                or getattr(getattr(package, '_pkg', None), 'selected_state', 0) == 2):  # libapt PkgSelectedState::Hold
+            raise MaintenanceError('Temel / önemli / tutulan paket ya da değişmiş kurulum durumu kaldırılamaz: ' + name)
+        changes.append({'package': name, 'version': version, 'operation': 'remove', 'detail': line})
+    return changes
+
+
 def verify_origins(changes, cache, request, info):
     allowed_suites = {info['suite'], info['suite'] + '-security', info['suite'] + '-updates'}
     for change in changes:
@@ -141,10 +230,16 @@ def verify_origins(changes, cache, request, info):
             raise MaintenanceError('Bu mimari için doğrulanmayan paket: ' + name)
         trusted = [origin for origin in candidate.origins if origin.trusted]
         debian = any(origin.origin == 'Debian' and origin.codename in allowed_suites for origin in trusted)
+        # Pi uygulamaları kendi imzası doğrulanmış mevcut pi-gen kaynaklarını
+        # kullanır. Başka dağıtım kaynağı eklenmez; PC kuralı değişmez.
+        pi = (info.get('platform') == 'raspberrypi' and request.startswith(('app:', 'desktop:'))
+              and info['suite'] == 'bookworm' and info['arch'] in ('armhf', 'arm64')
+              and any(origin.origin in ('Raspbian', 'Raspberry Pi Foundation')
+                      and origin.codename in allowed_suites for origin in trusted))
         pardus = (info['arch'] == 'amd64' and info['suite'] == 'trixie'
                   and name.split(':')[0] in PARDUS_APPS
                   and any(origin.origin == 'Pardus' and origin.codename == 'yirmibes' for origin in trusted))
-        if not debian and not (pardus and (request == 'upgrade' or request.startswith('pardus:'))):
+        if not debian and not pi and not (pardus and (request == 'upgrade' or request.startswith('pardus:'))):
             raise MaintenanceError('Paketin imzalı kaynağı / taban sürümü izinli değil: ' + name
                                    + '. Ubuntu/Kali/Pardus temel sistem paketleri karıştırılmadı.')
 
@@ -152,12 +247,16 @@ def verify_origins(changes, cache, request, info):
 def make_plan(request, info, execute, cache, suggestions=None):
     command = apt_command(request, info, True, suggestions)
     text = execute(command)
-    changes = parse_plan(text)
-    verify_origins(changes, cache, request, info)
+    removing = request.startswith('remove-app:')
+    changes = removal_plan(text, request_packages(request, info, suggestions), cache) if removing else parse_plan(text)
+    if not removing:
+        verify_origins(changes, cache, request, info)
     # APT'nin tuttuğu paketleri de kullanıcıya göster; plan değişirse yeniden onay.
     digest = hashlib.sha256((request + '\n' + text).encode()).hexdigest()
     return {'request': request, 'token': digest, 'changes': changes, 'detail': text,
-            'note': 'Paket kaldırma ve dağıtım yükseltmesi kapalıdır. Tutulan paketler zorlanmaz.'}
+            'intent': 'remove' if removing else 'install',
+            'note': ('Yalnız seçili uygulamanın katalog paketleri kaldırılır. Bağımlılıklar, kişisel dosyalar ve yapılandırma korunur. Başka paketin kaldırılması istenirse işlem reddedilir.'
+                     if removing else 'Paket kaldırma ve dağıtım yükseltmesi kapalıdır. Tutulan paketler zorlanmaz.')}
 
 
 def apply_plan(request, token, info, execute, cache, suggestions=None):
@@ -167,8 +266,16 @@ def apply_plan(request, token, info, execute, cache, suggestions=None):
     if plan['token'] != token:
         raise MaintenanceError('Paket planı değişti. Yeniden denetleyip yeni planı onaylayın.')
     if plan['changes']:
-        execute(apt_command(request, info, False, suggestions))
-    return {'message': 'İşlem tamamlandı. Çekirdek / firmware güncellendiyse yeniden başlatın.',
+        if request.startswith('remove-app:'):
+            # Caller holds dpkg's frontend lock over replan + execution. Unlike
+            # a second apt-get resolver run, dpkg cannot silently widen the
+            # approved removal set. Its backend lock + dependency / Essential
+            # checks stay enabled. No --force-depends, purge or autoremove.
+            execute(['/usr/bin/dpkg', '--remove', *[change['package'] for change in plan['changes']]])
+        else:
+            execute(apt_command(request, info, False, suggestions))
+    return {'message': ('Seçili uygulama paketleri kaldırıldı; kişisel dosyalar ve bağımlılıklar korunur.'
+                        if request.startswith('remove-app:') else 'İşlem tamamlandı. Çekirdek / firmware güncellendiyse yeniden başlatın.'),
             'changed': len(plan['changes'])}
 
 
@@ -244,6 +351,7 @@ def memory_report(text=None):
         raise MaintenanceError('MemAvailable bilgisi okunamadı; bellek kullanımı tahmin edilmedi.')
     used = (fields['MemTotal'] - fields['MemAvailable']) * 1024
     return {'used_bytes': used, 'used_mb': round(used / 1_000_000, 1),
+            'total_bytes': fields['MemTotal'] * 1024, 'available_bytes': fields['MemAvailable'] * 1024,
             'used_mib': round(used / 1048576, 1), 'target_bytes': 600_000_000,
             'within_target': used <= 600_000_000,
             'method': 'MemTotal − MemAvailable; önbellek boşaltılmadı, zram RAM kazancı diye sayılmadı.',

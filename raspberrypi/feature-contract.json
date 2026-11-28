@@ -1,0 +1,312 @@
+{
+  "schema": 1,
+  "scope": "build-time feature presence and ABI; appearance operations are checked separately, not physical-device proof",
+  "appearance_runtime_schema": 1,
+  "minimum_wallpapers": 20,
+  "minimum_selected_narration": 11,
+  "python_modules": [
+    "hardware",
+    "pi_support",
+    "welcome_model",
+    "profiles",
+    "culture_core",
+    "compat_core",
+    "device_support",
+    "rifki_speech",
+    "resource_policy",
+    "resource_tune",
+    "file_manager",
+    "session_start",
+    "desktop_sessions",
+    "news_core",
+    "effects",
+    "workbench_core",
+    "bridge_core",
+    "bridge_capture",
+    "product_info"
+  ],
+  "architectures": {
+    "armhf": {
+      "cpu": "arm1176",
+      "elf_class": 1,
+      "elf_machine": 40,
+      "os_id": "raspbian",
+      "base_version_id": "12"
+    },
+    "arm64": {
+      "cpu": "cortex-a53",
+      "elf_class": 2,
+      "elf_machine": 183,
+      "os_id": "debian",
+      "base_version_id": "12"
+    }
+  },
+  "features": {
+    "desktop-start-menu": {
+      "packages": [
+        "xfce4",
+        "xfce4-session",
+        "xfce4-whiskermenu-plugin",
+        "lightdm"
+      ],
+      "files": [
+        "usr/share/xsessions/oguzdows.desktop",
+        "usr/lib/oguzdows/session.sh",
+        "etc/skel/.config/xfce4/xfconf/xfce-perchannel-xml/xfce4-panel.xml",
+        "usr/lib/oguzdows/resource_policy.py",
+        "usr/lib/oguzdows/resource_tune.py",
+        "usr/lib/oguzdows/file_manager.py",
+        "usr/share/oguzdows/ui/shell.css",
+        "usr/share/oguzdows/ui/window-geometry.css",
+        "etc/oguzdows/resources.conf",
+        "etc/systemd/system/zramswap.service.d/10-oguzdows-resources.conf",
+        "usr/share/applications/oguzdows-browser.desktop",
+        "usr/share/applications/oguzdows-files.desktop",
+        "usr/share/applications/oguzdows-terminal.desktop",
+        "usr/lib/oguzdows/session_start.py",
+        "usr/lib/oguzdows/pi-display-setup.py",
+        "usr/lib/oguzdows/welcome_start.py",
+        "usr/lib/oguzdows/desktop_sessions.py",
+        "usr/lib/oguzdows/desktops.py",
+        "usr/local/bin/oguzdows-desktops"
+      ]
+    },
+    "welcome-rifki-narration": {
+      "packages": [
+        "python3-gi",
+        "gir1.2-gtk-3.0",
+        "alsa-utils"
+      ],
+      "files": [
+        "usr/local/bin/oguzdows-welcome",
+        "usr/local/bin/oguzdows-narrate",
+        "usr/lib/oguzdows/welcome.py",
+        "usr/lib/oguzdows/welcome_model.py",
+        "usr/lib/oguzdows/rifki.py",
+        "usr/lib/oguzdows/rifki_speech.py",
+        "usr/lib/oguzdows/narration.py",
+        "usr/share/oguzdows/rifki/speech.json"
+      ]
+    },
+    "independent-light-dark-and-xp": {
+      "packages": [
+        "xfce4-settings",
+        "gtk2-engines-murrine"
+      ],
+      "files": [
+        "usr/lib/oguzdows/profiles.py",
+        "usr/share/themes/OguzDows/xfwm4/themerc",
+        "usr/share/themes/OguzDowsLight/xfwm4/themerc",
+        "usr/share/themes/OguzDowsXP/xfwm4/themerc",
+        "usr/share/themes/OguzDowsXPDark/xfwm4/themerc",
+        "usr/share/themes/OguzDowsMac/xfwm4/themerc",
+        "usr/share/themes/OguzDowsMacDark/xfwm4/themerc",
+        "usr/share/themes/OguzDowsGnome/xfwm4/themerc",
+        "usr/share/themes/OguzDowsGnomeDark/xfwm4/themerc",
+        "usr/share/themes/OguzDowsEleven/xfwm4/themerc",
+        "usr/share/themes/OguzDowsElevenDark/xfwm4/themerc",
+        "usr/share/themes/OguzDowsAero/xfwm4/themerc",
+        "usr/share/themes/OguzDowsAeroDark/xfwm4/themerc"
+      ]
+    },
+    "cultural-wallpapers-and-tools": {
+      "packages": [
+        "python3-pil"
+      ],
+      "files": [
+        "usr/share/oguzdows/wallpapers.json",
+        "usr/lib/oguzdows/wallpapers.py",
+        "usr/lib/oguzdows/culture.py",
+        "usr/lib/oguzdows/culture_core.py",
+        "usr/local/bin/oguzdows-imece"
+      ]
+    },
+    "native-store": {
+      "packages": [
+        "python3-apt",
+        "libjson-glib-1.0-0"
+      ],
+      "files": [
+        "usr/local/bin/oguzdows-store",
+        "usr/lib/oguzdows/oguzdows-store-native",
+        "usr/lib/oguzdows/store_service.py",
+        "usr/lib/oguzdows/app_catalog.py",
+        "usr/local/sbin/oguzdows-maintenance",
+        "usr/share/polkit-1/actions/org.oguzdows.maintenance.policy",
+        "usr/share/oguzdows/store-icons.json",
+        "usr/share/icons/hicolor/64x64/apps/oguzdows-app-firefox.png",
+        "usr/share/icons/hicolor/64x64/apps/oguzdows-app-thunderbird.png",
+        "usr/share/icons/hicolor/64x64/apps/oguzdows-app-transmission.png",
+        "usr/share/icons/hicolor/64x64/apps/oguzdows-app-filezilla.png",
+        "usr/share/icons/hicolor/64x64/apps/oguzdows-app-remmina.png",
+        "usr/share/icons/hicolor/64x64/apps/oguzdows-app-libreoffice.png",
+        "usr/share/icons/hicolor/64x64/apps/oguzdows-app-evince.png",
+        "usr/share/icons/hicolor/64x64/apps/oguzdows-app-xournalpp.png",
+        "usr/share/icons/hicolor/64x64/apps/oguzdows-app-gimp.png",
+        "usr/share/icons/hicolor/64x64/apps/oguzdows-app-inkscape.png",
+        "usr/share/icons/hicolor/64x64/apps/oguzdows-app-krita.png",
+        "usr/share/icons/hicolor/64x64/apps/oguzdows-app-blender.png",
+        "usr/share/icons/hicolor/64x64/apps/oguzdows-app-vlc.png",
+        "usr/share/icons/hicolor/64x64/apps/oguzdows-app-audacity.png",
+        "usr/share/icons/hicolor/64x64/apps/oguzdows-app-kdenlive.png",
+        "usr/share/icons/hicolor/64x64/apps/oguzdows-app-obs.png",
+        "usr/share/icons/hicolor/64x64/apps/oguzdows-app-handbrake.png",
+        "usr/share/icons/hicolor/64x64/apps/oguzdows-app-geany.png",
+        "usr/share/icons/hicolor/64x64/apps/oguzdows-app-builder.png",
+        "usr/share/icons/hicolor/64x64/apps/oguzdows-app-gitg.png",
+        "usr/share/icons/hicolor/64x64/apps/oguzdows-app-supertuxkart.png",
+        "usr/share/icons/hicolor/64x64/apps/oguzdows-app-supertux.png",
+        "usr/share/icons/hicolor/64x64/apps/oguzdows-app-aisleriot.png",
+        "usr/share/icons/hicolor/64x64/apps/oguzdows-app-keepassxc.png",
+        "usr/share/icons/hicolor/64x64/apps/oguzdows-app-baobab.png",
+        "usr/share/icons/hicolor/64x64/apps/oguzdows-app-bleachbit.png",
+        "usr/share/icons/hicolor/64x64/apps/oguzdows-app-wine.png",
+        "usr/lib/oguzdows/store_core.py",
+        "usr/lib/oguzdows/store.py",
+        "usr/lib/oguzdows/store_lifecycle.py",
+        "usr/share/applications/oguzdows-software.desktop"
+      ]
+    },
+    "device-and-file-inspection": {
+      "packages": [
+        "shared-mime-info"
+      ],
+      "files": [
+        "usr/local/bin/oguzdows-device",
+        "usr/local/bin/oguzdows-open",
+        "usr/lib/oguzdows/devices.py",
+        "usr/lib/oguzdows/device_support.py",
+        "usr/lib/oguzdows/compatibility.py",
+        "usr/lib/oguzdows/compat_core.py"
+      ]
+    },
+    "web-office-media": {
+      "packages": [
+        "firefox-esr",
+        "firefox-esr-l10n-tr",
+        "netsurf-gtk",
+        "libreoffice-writer",
+        "libreoffice-calc",
+        "libreoffice-impress",
+        "libreoffice-l10n-tr",
+        "vlc"
+      ],
+      "files": [
+        "usr/local/bin/oguzdows-browser",
+        "usr/lib/oguzdows/browser.py",
+        "usr/share/oguzdows/start.html",
+        "usr/share/oguzdows/firefox-policies.json"
+      ]
+    },
+    "network-bluetooth-audio": {
+      "packages": [
+        "network-manager",
+        "network-manager-gnome",
+        "bluez",
+        "blueman",
+        "pi-bluetooth",
+        "pulseaudio",
+        "pavucontrol",
+        "firmware-brcm80211",
+        "wireless-regdb"
+      ],
+      "files": []
+    },
+    "pi-kms-camera-gpio": {
+      "packages": [
+        "raspi-config",
+        "raspi-utils",
+        "raspberrypi-sys-mods",
+        "rpicam-apps-lite",
+        "python3-gpiozero",
+        "python3-rpi-lgpio",
+        "python3-spidev",
+        "python3-smbus2",
+        "python3-libgpiod",
+        "libgl1-mesa-dri",
+        "mesa-vulkan-drivers"
+      ],
+      "files": [
+        "boot/firmware/config.txt",
+        "usr/lib/oguzdows/pi-firstboot.py",
+        "usr/lib/oguzdows/pi-tune.py"
+      ]
+    },
+    "lightweight-news": {
+      "packages": [
+        "libjson-glib-1.0-0"
+      ],
+      "files": [
+        "usr/local/bin/oguzdows-news",
+        "usr/share/applications/oguzdows-news.desktop",
+        "usr/lib/oguzdows/oguzdows-news-native",
+        "usr/lib/oguzdows/news_core.py",
+        "usr/lib/oguzdows/news_service.py",
+        "usr/share/oguzdows/news-sources.json",
+        "usr/share/icons/hicolor/64x64/apps/oguzdows-news.png"
+      ]
+    },
+    "original-icons-and-budgeted-transitions": {
+      "packages": [
+        "picom"
+      ],
+      "files": [
+        "usr/lib/oguzdows/effects.py",
+        "usr/lib/oguzdows/ui_theme.py",
+        "usr/share/oguzdows/ui/modern.css",
+        "etc/xdg/autostart/oguzdows-effects.desktop",
+        "usr/share/oguzdows/picom.conf",
+        "usr/share/oguzdows/own-app-icons.json",
+        "usr/share/themes/OguzDows/gtk-3.0/dock.css",
+        "usr/share/icons/hicolor/64x64/apps/oguzdows-store.png",
+        "usr/share/icons/hicolor/64x64/apps/oguzdows-news.png",
+        "usr/share/icons/hicolor/64x64/apps/oguzdows-welcome.png",
+        "usr/share/icons/hicolor/64x64/apps/oguzdows-update.png",
+        "usr/share/icons/hicolor/64x64/apps/oguzdows-device.png",
+        "usr/share/icons/hicolor/64x64/apps/oguzdows-compatibility.png",
+        "usr/share/icons/hicolor/64x64/apps/oguzdows-imece.png",
+        "usr/share/icons/hicolor/64x64/apps/oguzdows-install.png",
+        "usr/share/icons/hicolor/64x64/apps/oguzdows-rifki.png",
+        "usr/share/icons/hicolor/64x64/apps/oguzdows-desktops.png",
+        "usr/share/icons/hicolor/64x64/apps/oguzdows-drivers.png",
+        "usr/share/icons/hicolor/64x64/apps/oguzdows-wallpapers.png",
+        "usr/share/icons/hicolor/64x64/apps/oguzdows-browser.png",
+        "usr/share/icons/hicolor/64x64/apps/oguzdows-files.png",
+        "usr/share/icons/hicolor/64x64/apps/oguzdows-terminal.png"
+      ]
+    },
+    "offline-workbench": {
+      "packages": [
+        "python3",
+        "python3-gi",
+        "python3-pil"
+      ],
+      "files": [
+        "usr/lib/oguzdows/workbench.py",
+        "usr/lib/oguzdows/workbench_core.py",
+        "usr/local/bin/oguzdows-workbench",
+        "usr/share/applications/oguzdows-workbench.desktop",
+        "usr/share/icons/hicolor/64x64/apps/oguzdows-workbench.png"
+      ]
+    },
+    "pc-phone-arm-bridge": {
+      "packages": [
+        "python3",
+        "python3-gi",
+        "gir1.2-gtk-3.0",
+        "openssl",
+        "iproute2"
+      ],
+      "files": [
+        "usr/lib/oguzdows/bridge.py",
+        "usr/lib/oguzdows/bridge_core.py",
+        "usr/lib/oguzdows/bridge_capture.py",
+        "usr/lib/oguzdows/product_info.py",
+        "usr/share/oguzdows/product.json",
+        "usr/share/doc/oguzdows/AKINCI-BAGLANTI.md",
+        "usr/local/bin/oguzdows-bridge",
+        "usr/share/applications/oguzdows-bridge.desktop"
+      ]
+    }
+  }
+}

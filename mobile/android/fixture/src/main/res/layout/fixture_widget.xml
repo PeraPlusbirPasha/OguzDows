@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TextView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/widget_text" android:layout_width="match_parent" android:layout_height="match_parent"
+    android:text="Widget hazır · gerçek RemoteViews" android:textSize="18sp" android:gravity="center"
+    android:textColor="#24483F" android:background="#DDECE4" android:padding="16dp" />

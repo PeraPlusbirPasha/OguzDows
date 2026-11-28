@@ -1,0 +1,134 @@
+# OğuzDows Mobile · ürün, mimari ve kabul kapıları
+
+Bu belge **2.0 Akıncı (0.4 temelli) Kotlin/Compose bağlı native launcher + korunan günlük modüller + tarayıcı laboratuvarı** mimarisini anlatır. Altı mobil düzen, sistem rehberi, gerçek Ayarlar/tam ekran hareketler, kilit eşlikçisi ve izinli yerel köprü/yansıtma, [24-vaka / 20-JVM emülatör kabulünü geçti](VERIFICATION.md). [Bağlı kabuk protokolü ve sınırları](CONNECTED.md). Bulut ağırlıklı konuşan Rıfkı, koşullu wake-word, zengin sistem yardımcı yüzeyi ve arayan profilleri [sonraki aşamalardır](ROADMAP.md); bu sürümde bitmiş sayılmaz.
+
+## 1. Ürün ve kapsam
+
+**OğuzDows Mobile — “Cebinde, senden bir dünya.”** Türkçe kimlik, nazar boncuğu güç simgesi, Rıfkı kedi rehberi, kültür koleksiyonu, Atölye, Mağaza ve Haber aynı dokunmatik deneyimde buluşur.
+
+Günlük UI’da ürün adı OğuzDows’tur. **Android/AOSP teknik kimliği, izin ekranları, güvenlik uyarıları, gerçek sürüm bilgisi ve üçüncü taraf lisansları gizlenmez.** PC/Pi’nin Debian/ISO kimliği telefona taklit edilmez.
+
+Üç farklı çıktı birbirine karıştırılmaz:
+
+1. **Tarayıcı laboratuvarı:** etkileşimli ve yerel verili tasarım; SIM/APK kurulum yetkisi yok.
+2. **`2.0.0-akinci` APK (versionCode20):** native HOME/çekmece/kalıcılık/widget/yerel kedi ve Telefon/SMS/Mağaza; ayrıca altı mobil düzen, gerçek Ayarlar/rehber, tam ekran paneller, kilit eşlikçisi, yerel TLS dosya/izinli ekran paylaşımı. [24/24 emülatör ve 20/20 JVM kabulü](VERIFICATION.md); normal uygulama/kullanıcı seçili roller, root/platform imzası değil. 0.4/0.3/0.2 kabul kayıtları tarihsel kanıttır.
+3. **Cihaz özel işletim sistemi:** henüz yok. Boot/vendor/ROM/OTA/GSI ve tüm uygulamalarla uyumluluk bir APK üretildi diye tamamlanmış sayılmaz. Evrensel telefon ISO’su vaat edilmez.
+
+Kullanıcının seçtiği ilk kabul hedefi **emülatörde, telefonun içinde OğuzDows’tan arama/SMS**’tir; eşleştirilmiş telefona webden uzaktan kumanda değildir. Fiziksel model/kod adı ve bootloader politikası henüz bilinmiyor.
+
+## 2. Görsel dil ve etkileşim
+
+- Deniz yeşili/bakır/mürdüm vurgu, sıcak açık yüzeyler ve gece mavisi; ortak konfor/kompakt ve azaltılmış hareket tercihleri.
+- Nazar boncuğu güç/pil kimliğidir; erişilebilir metin ve yüzde bulunur. Webde pil/saat örnektir; APK sistem değerlerini okur. Normal uygulama kilit/kapatma başarısı uydurmaz; fiziksel menü/pil ayarını açıklar.
+- Rıfkı mevcut bir gözü mavi/bir gözü kehribar kedidir; başka şirketin asistanı, gizli çalışan model veya insan operatör gibi sunulmaz.
+- 20 ürün içi giriş. Native HOME: iki kısayol sayfası + widget sayfası, yatay kaydırma/noktalar, arama/dock düğmesiyle çekmece ve üst başlıktan aşağı denetim merkezi. 0.4 native aşağı denetim/yukarı çekmece hareketleri tam ekran yüzey açar; gerçek Ayarlar’a geçer. Webin geniş birleşik araması native kurulu uygulama/modül aramasıyla aynı motor değildir. Formlar/slider/normal sayfa kaydırması hareket çalmaz.
+- Küçük ekranda çerçeve/yan sütunlar kaybolur; APK’da tüm boyutlarda laboratuvar çerçevesi kaldırılır. Insets/cutout/IME platformdan uygulanır.
+- Cam etkisi native’te sınırlı tint/çizgi/gradyandır; tam ekran canlı blur yoktur. Basış geri bildirimi transform/renk ve yerel ripple ile sınırlıdır. Sürekli boşta kedi/duvar kâğıdı animasyonu yok; native hafif profil kedi baş eğmesini kapatır. Web uygulama/sistem `prefers-reduced-motion` geçişlerini izler. Gerçek büyük font/ekran okuyucu ve native hareket matrisi ayrı kapıdır.
+- Kendi arayüzünün açık/koyu tercihi yerel Mağaza, APK inceleme, uygulama listesi ve Rıfkı oturumunda da okunur. Başka üreticinin uygulamasının teması zorla değiştirilmez.
+
+## 3. Yüzey ve yetki haritası
+
+| Yüzey | Tarayıcı | Yerel APK |
+| --- | --- | --- |
+| Telefon | Güvenli `tel:` aktarımı, bağlı çağrı taklidi yok | Kullanıcı seçili Telefon rolü + izin + yerel ücret onayı → Telecom/InCallService ve OğuzDows görüşme UI’sı |
+| Mesajlar | Kalıcı taslak + güvenli `sms:` aktarımı | Kullanıcı seçili SMS rolü + izin/abonelik + ikinci onay → SmsManager; sistem sağlayıcısından geçmiş/gerçek geri bildirim |
+| Mağaza | 24 yerel marka kartı, istek listesi, resmî kaynak/Play bağlantıları | Ayrıca imzalı canlı F-Droid kataloğu, API/ABI seçimi, hash doğrulaması, görünür sürüm karşılaştırması, onaylı sistem yükleyicisi |
+| Denetim | Gerçek HTML medya sesi ve UI karartması; radyo örnek | AudioManager medya sesi, uygulama pencere parlaklığı; gerçek radyo/DND sistem panelleri |
+| Ana ekran / uygulamalar | 20 ürün içi giriş, web tasarım düzeni | Native HOME + LauncherApps/UserManager, erişilebilir profillerde en çok 1000 gerçek giriş, arama/çalıştırma; bağımsız eski liste ekranı 250 ile sınırlı |
+| Düzen / widget | Sabit tasarım sayfaları; sistem widget’ı değil | Özel kalıcı 12/16 kısayol, iki sayfa + en çok iki gerçek AppWidgetHost RemoteViews alanı, platform bağlama/yapılandırma |
+| Kişiler/takvim | Elle oluşturulan 60 kişi / 80 yerel plan | Aynı arayüz verisi; sistem rehber/takvim izni yok |
+| Haber/kültür | Görsel seçki, üç özgün çevrimdışı metin, okundu/kaydet/TXT | Aynı paketlenmiş içerik; canlı haber/konum bilgisi değil |
+| Dosyalar | Yalnız açık seçilen dosya/görsel | Ayrıca APK için SAF/private-copy akışı; genel depolama izni yok |
+| Güç | Açıkça etiketli tasarım kilidi/kapatma | Fiziksel güç/kilit ve pil ayarı; kapatılmış/kilitlenmiş gibi gösterilmez |
+
+## 4. Yerel güvenlik mimarisi
+
+```text
+LauncherActivity / Compose native HOME
+   ├─ LauncherRepository → LauncherApps + erişilebilir kullanıcı profilleri
+   ├─ LauncherViewModel / LauncherStore → özel, sıralı IO düzen/tema/tercih
+   ├─ LauncherWidgets → AppWidgetHost → sistem bağlama/yapılandırma → RemoteViews
+   ├─ RifkiBehavior → sınırlı yerel bağlam → tipli ve düğmeyle onaylı UI önerisi
+   └─ mevcut native Mağaza veya HomeActivity günlük modül konağı
+
+Çevrimdışı paketlenmiş OğuzDows günlük modülleri
+ https://appassets.androidplatform.net
+          │ tam origin + ana çerçeve bağlı, sınırlandırılmış mesajlar
+          ▼
+ HomeActivity / AndroidX WebMessageListener
+   ├─ açık rol/izin isteği (eski ücretli eylem otomatik tekrarlanmaz)
+   ├─ Telecom → sistemin bağladığı InCallService → yerel görüşme ekranı
+   ├─ SmsManager / korumalı SMS_DELIVER / kalıcı parça günlüğü → sistem SMS sağlayıcısı
+   ├─ kullanıcı onaylı, sabit kaynaklı imzalı depo istemcisi → SQLite katalog
+   ├─ özel APK incelemesi → salt okunur FileProvider → sistem yükleyicisi
+   └─ sınırlı ses/parlaklık/ayar ve yüklü uygulama yolları
+```
+
+Native HOME web köprüsü kullanmaz. Modülden `launcher.home` veya launcher’dan açılmış modülde Geri, native HOME’a döner; webde ayrı bir sahte ana ekran açmaz.
+
+WebView uzak istekleri engeller; CSP, main-frame kontrolü, kapalı dosya erişimi ve izin reddi kullanır. Harici HTTPS site köprüden ayrılmış sistem tarayıcısında ayrı onayla açılır. `addJavascriptInterface`, serbest shell/root/exec veya uzak sayfaya yerel köprü yoktur. İstek ≤16 KiB / kimlik ≤80 karakter; istemcide en çok 12 bekleyen istek ve 180 s süre sınırı. Ücretli eylem otomatik yeniden denenmez.
+
+İzinler açık manifestte tutulur. Mikrofon, sistem rehberi, çağrı günlüğü, tüm dosyalar, sessiz paket yükleme, `WRITE_SETTINGS`/`WRITE_SECURE_SETTINGS` ve platform/root yetkisi yoktur. Ağ izni sabit depoya açık kullanıcı onaylı native erişim içindir; arayüzden model veya analitik bağlantısı açmaz.
+
+### Telefon/SMS doğruluğu
+
+Numara isteğe bağlı `+` ve 3–20 rakamla sınırlıdır; USSD/servis kodu, URI parametresi ve kontrol karakteri reddedilir. Rol/izin onayından, gelen intent’ten veya sayfa yenilenmesinden otomatik çağrı/SMS çıkmaz. Acil numaralar ayrı ön yüklü sistem arayıcısı yoluna gider; emülatörde acil numara denenmez.
+
+Çağrı `requested`, sonra gerçek Telecom durumu; JavaScript zamanlayıcısıyla bağlı gösterilmez. SMS ilk sonucu `queued`; en çok 2000 karakter/30 parça ve 5 saniyelik onay aralığı. Kalıcı parça günlüğü gerçek gönderim/teslim PDU geri bildirimlerini toplar. Kısmi başarısızlık gizlenmez; rapor yoksa teslim doğrulanmadı denir. En çok 50 sağlayıcı mesajı okunur; MMS bildirimi ayrı tutulur, **MMS/RCS uygulanmış değildir**. Deneysel SMS rolünün günlük telefonda mevcut eksiksiz mesajlaşmayı etkileyebileceği seçilmeden önce açıklanır.
+
+## 5. Mağaza: güçlü kaynak, ayrı güven alanları
+
+**F-Droid:** sabit birincil/resmî ayna, TLS + ayrı pinned X.509 JAR imzası, EOF/digest doğrulaması, sınırlı JSON akış ayrıştırma ve atomik SQLite import. Rollback/eski/gelecek timestamp, API/ABI/eski hedef API, `KnownVuln`, dosya boyutu/hash denetimleri vardır. Güven kökü ve değişmez upstream revizyon [android/store-trust.json](android/store-trust.json) içindedir. Keyfi depo/TOFU güveni yoktur; başarısız eşitleme eski doğrulanmış kataloğu korur.
+
+Canlı arama en çok 80 satır; güncelleme filtresi yalnız bu eşleşmelerde görünür yüklü sürümleri karşılaştırır. Bu tüm cihaz için arka plan güncelleyici değildir. 24 web kartı canlı sürüm sonucu sayılmaz. Gerçek kurulu paket simgesi → lisanslı yerel 24 vektör → dürüst harf simgesi; gizli ikon CDN ağı yoktur.
+
+**APK:** tek dosya ≤256 MiB özel kopya; SHA-256, paket/sürüm/minSdk/target/ABI, ilk 40 izin ve ilk imzacı özeti. İmzalı katalogdan geliyorsa paket/sürüm/hash de bağlanır. Kullanıcı incelemesi, kaynak izni ve ayrı sistem yükleyicisi onayı korunur. Ayardan dönüşte otomatik kurulum yoktur. Başarı, sistemin `RESULT_OK` sonucu **ve** yüklü sürüm/ilk imzacı eşleşmesiyle işaretlenir. XAPK/APKS/split ve tam imzacı rotasyon zinciri bu sürümün kabul edilmiş kapsamı değildir. Malware taraması/güvenilir geliştirici sertifikası iddiası yoktur.
+
+**Google:** mevcut lisanslı Play/Google uygulamaları açılabilir, resmî web seçenekleri ayrıdır. GMS/Play dağıtımı AOSP ile aynı hak değildir; lisans/sertifika olmadan paketlenmez. CTS tek başına GMS dağıtım hakkı vermez. Play Integrity, bankacılık/e-Devlet/anti-cheat/DRM/Widevine/satın alma/yedekleme veya bütün uygulamaların çalışması garanti edilmez; kimlik/imza taklidi yapılmaz. microG bu çalışmada uygulanmadı. Google parolası OğuzDows formuyla toplanmaz.
+
+**GNOME Software/Flatpak/APT:** PC’de anlamlıdır; Android APK çalışma zamanı, uygulama ekosistemi veya Google servisleri yerine geçmez. Telefona Debian deposu eklemek çözüm diye sunulmaz.
+
+## 6. Rıfkı: rehber ve model farklıdır
+
+Native `RifkiBehavior`, model/platform kodundan ayrıdır; çağrı/SMS/kurulum yetkisi yoktur. Saat/pil/şarj/çağrı durumu yerelde hesaplanır; kedi sevme/baş eğme ve sağ/sol konum etkileşimi sunar.
+
+Varsayılan Rıfkı deterministik, ağsız yerel rehberdir; yalnız sabit UI eylemini düğmeyle önerir. Genel AI cevabı/typing simülasyonu, gizli komut, gönderildi/kuruldu uydurması yoktur. Sohbet bellektedir; kişiler, pano, ekran, konum veya başka uygulama bağlamı toplanmaz.
+
+Web geliştirme ortamında ayrıca varsayılan kapalı, **sunucuda** yapılandırılan OpenAI-uyumlu metin köprüsü bulunur. Anahtar tarayıcıya/`VITE_*`/Git’e konmaz. Sağlayıcı ve yeni gönderim onayı gösterilir; eski yerel konuşma otomatik taşınmaz. Modelin shell/araç/dosya/kurulum yetkisi yoktur. Gövde/token/süre/eşzamanlılık/hız sınırları vardır; halka açık ücretli üretim için ayrıca kimlik doğrulama, kota, TLS, kötüye kullanım ve sağlayıcı saklama politikası incelemesi gerekir. Canlı inference bu çalışmada doğrulanmadı.
+
+APK bu uzak modeli bağlamaz; `/api/rifki/status` kapalı cevap verir. Kullanıcı isterse `ROLE_ASSISTANT` seçer. Sistem imza izniyle korunan VoiceInteractionService/session ve zorunlu recognition adresi vardır; ses açmadan kullanılamıyor cevabı verir. Ekran/assist/screenshot bağlamı kapatılmıştır; mikrofon/hotword izni yoktur. Seçili yardımcı servisini platform bağlı tutabilir; bu sürekli inference/dinleme değildir. ASR/TTS ve yardımcı rolünün OEM uçtan uca kabulü ayrı iştir.
+
+## 7. Özellik mirası ve kaynak bütçesi
+
+[feature-parity.json](feature-parity.json), **16 Atölye + 7 Mağaza/Haber/palet işlevini**, kimlik ve günlük telefon yollarını ayrı gösterir. 10 Atölye aracı etkileşimli/çoğunlukla kısmi; diğer 6 tamamlanmış sayılmaz. 20 kültür görseli/11 anlatımın tam portu, İmece/Heybe, dosya ağacında bul/yeniden adlandır/diff ve sistem yedek/OTA henüz yoktur. Altı masaüstü profil kimliğinin mobil düzen aileleri 0.4’te vardır; PC pencere yöneticilerini/oturumlarını telefonda çalıştırmak değildir.
+
+PrintScreen karşılığı platformun ekran görüntüsü kısayoludur; normal uygulama arka planda ekran yakalamaz. OğuzKöprü’nün programatik MediaProjection akışı her başlangıçta gerçek sistem onayı, foreground bildirim ve durdurma ister; salt görüntüdür, uzaktan girdi/ses yetkisi değildir. EXE/Wine, DKMS/GRUB/Calamares, PC ISO/Pi IMG ve GNOME/Plasma/Xfce oturumları mobil yetenek gibi listelenmez.
+
+Native’te yaşam döngüsüyle açılıp kapanan inventory/pil/saat callback’leri, 60 saniye saat güncellemesi, sınırlı tek tarama işçisi ve 3 MiB badged ikon önbelleği; görünürken AppWidgetHost dinlemesi, en çok 200 sağlayıcı, seri IO kısayol yazımı. Canlı blur veya boşta sonsuz animasyon yoktur. 4–6 GB ürün hedefi korunur; 4 GiB emülatörde geçmek gerçek uygulama RAM/FPS/pil ölçümü değildir.
+
+Günlük modüllerde tek React kökü, açılınca oluşturulan sayfalar, dinamik günlük uygulama modülü, yerel font/WebP/vektörler. Dünya saatleri/duvar saati görünürken seyrek güncellenir; gizli feed/analitik/pano/mikrofon taraması yoktur. Web hash’i bir dosya ≤32 MiB; medya ≤32 MiB, geçici altı fotoğraf ≤8 MiB/adet. Kronometre/sayaç zaman damgasıyla kalır; sistem alarmı/arka plan ses garantisi yoktur. Başlangıç JS gzip bütçesi ≤110 KiB; ölçüm [doğrulama kaydında](VERIFICATION.md), telefon RAM/pil/FPS garantisi değildir.
+
+Yerel işçiler sınırlıdır. Katalog ≤48 MiB JAR / ≤256 MiB JSON, ≥384 MiB boş alan, ≤20 bin uygulama ve paket grubu, ≤2000 sürüm/grup; açık arama ≤80 sonuç. APK özel önbelleği ≤3 kopya, yeni seçimde 24 saatlik temizlik, 64 KiB I/O bloğu, ≤100 bin arşiv girdisi. Mağaza satırları geri kullanılır; harf simgesi önbelleği ≤1.5 MiB. Bu sınırlar ANR/pil/termal kanıtı değildir; kötü belge/ağ, iptal, düşük alan ve süreç ölümü ayrıca ölçülmelidir.
+
+## 8. Kanıt ve ilk ROM kapıları
+
+Kaynak sözleşmesi, SDK derlemesi, emülatör sanal radyo/kurulum testi ve gerçek SIM/cihaz kanıtı ayrı tutulur. CI harcanabilir QEMU emülatörü dışında fixture araması/SMS çalıştırmaz; gerçek rol uygunluğunu atlamaz. 8 korunan Telefon/SMS/köprü/yükleyici + 5 native launcher + 4 bağlı kabuk/rehber/kilit + 3 TLS/interop/MediaProjection + 3 depo güvenliği + 1 canlı kaynak = **24 vaka / 15 seçim** ve 20 JVM, bağımsız dosya makbuzları/gerçek JPEG kabulü geçmeden dağıtım paketi hazırlanmaz. Canlı Aegis APK incelemesi **kurmadan iptal**, ayrı etkisiz fixture ise sistem onayıyla gerçek kurulumdur. Bunlar GMS/operatör onayı değildir.
+
+**Güncel bağlı kabuk kabulü:** [`5a44de0` / 46092350348](https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/46092350348), **24/24 native, 20/20 JVM**, bağımsız dosya/TLS ve gerçek MediaProjection/iptal/FGS/JPEG/durdurma, paket/imza geçti. PC/Pi aynı kaynaklı 2.0 ürün ailesindedir; bağlantı rehberi imajlara gömülür. Kabulde ürün ANR/çökmesi yoktu, fakat **2205 ms HWUI beklemesi** vardı; aynı kaynaklı paralel manuel launcher otomasyonu ayrıca başarısız oldu. Kalıcı çözüm veya fiziksel performans iddia edilmez. [Başarısızlık/geçmiş ve gerçek yeni thumbnail](VERIFICATION.md). Önceki [0.4 / 7244164 kabulü](android/evidence/acceptance-7244164.json) değişmeden korunur.
+
+**Tarihsel native launcher kilometre taşı:** [`fb6cad5` / koşu 46065713858](https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/46065713858) tam **17/17** kabulü, **13 JVM** testini ve paket/imza kapısını geçti. Native HOME/inventory/gerçek uygulama açma, diskten düzen/bozuk kaydı koruma, ortak Telefon koyu rengi/Geri geçişi, Rıfkı ve gerçek widget bağlama/yeniden host/kaldırma sınandı. Telefon/SMS/kurulum/depo kapsamı azaltılmadı. [Kurulum ve gerçek ekran](INSTALL.md); artifact burada ağ sınırı nedeniyle indirilemediğinden yerel APK hash/imza doğrulaması iddia edilmez.
+
+Önceki `023a89c` / **12-vaka 0.2 tabanı** ve başarısız 0.2/0.3 koşuları [doğrulama kaydında](VERIFICATION.md) korunur. Soğuk intent yalnız `ui.ready` sonrasında bir kez taslak olur; framework action/data’sı değiştirilmez. Başarısız 0.3 koşularındaki HWUI ANR izi bütün nedenleri kanıtlamaz; ayrı bir koşu ürün kurulmadan stok Pixel Launcher’ın ANR’ını yakaladı. Test hazırlığındaki dar stok kurtarma istisnası [yerel kılavuzda](android/README.md) açıklanır; ürün ANR’ı kabul dışıdır. Başarılı koşuda bu istisna kullanılmadı.
+
+Son telefon imajı için:
+
+1. Tam marka/model/kod adı, SoC/ABI, mevcut yazılım/vendor dalı ve bootloader politikası.
+2. Kullanıcının yedeği, garanti/DRM etkileri ve doğrulanmış stok geri dönüş yolu; otomatik unlock/flash/relock yok.
+3. Dağıtılabilir device/kernel/vendor ağaçları ve firmware lisansları; GSI/Treble uygunluğu ayrıca incelenir.
+4. SELinux enforcing, şifreleme, AVB/Verified Boot, güvenli imza anahtarları, OTA/anti-rollback/kurtarma. Anahtarlar Git/chat’e konmaz.
+5. Tam donanımda boot/dokunma/ekran/GPU/kamera/ses/SIM/arama/SMS/acil arama/Wi-Fi/Bluetooth/GPS/NFC/biyometri.
+6. Uyku/uyanma, şarj/termal, düşük bellek, ölçülmüş pil/RAM/FPS, büyük font/ekran okuyucu ve rol/izin geri alma.
+7. API/OEM/çoklu SIM/çoklu çağrı/lock-screen/bildirim/DTMF, bozuk belge, kurulum iptal/hata/update/signature/split/process-death testleri.
+8. CTS/VTS/CDD ve uygulanacaksa GMS lisans/sertifika; Rıfkı sağlayıcı/gizlilik/onay/saklama ve yetki sınırı incelemesi.
+
+Bu kapılar geçilmeden hiçbir telefon “destekleniyor” listesine eklenmez. PC/Pi v1.2 kanıtları mobil boot/modem/ROM kanıtı olarak kullanılmaz; mevcut yayınlar ve PR birleştirme yetkisi bu çalışmadan bağımsızdır.

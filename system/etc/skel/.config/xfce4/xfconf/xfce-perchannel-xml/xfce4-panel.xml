@@ -4,10 +4,12 @@
   <property name="panels" type="array">
     <value type="int" value="1"/>
     <property name="panel-1" type="empty">
-      <property name="position" type="string" value="p=6;x=0;y=0"/>
-      <property name="length" type="uint" value="100"/>
+      <property name="position" type="string" value="p=10;x=0;y=0"/>
+      <property name="length" type="double" value="100"/>
       <property name="position-locked" type="bool" value="true"/>
-      <property name="size" type="uint" value="38"/>
+      <property name="size" type="uint" value="36"/>
+      <property name="icon-size" type="uint" value="22"/>
+      <property name="nrows" type="uint" value="1"/>
       <property name="background-style" type="uint" value="0"/>
       <property name="enter-opacity" type="uint" value="100"/>
       <property name="leave-opacity" type="uint" value="100"/>
@@ -24,9 +26,9 @@
   </property>
   <property name="plugins" type="empty">
     <property name="plugin-1" type="string" value="whiskermenu">
-      <property name="button-title" type="string" value="OğuzDows"/>
+      <property name="button-title" type="string" value="Başlat"/>
       <property name="custom-menu-file" type="string" value="/etc/xdg/menus/oguzdows-applications.menu"/>
-      <property name="button-icon" type="string" value="oguzdows"/>
+      <property name="button-icon" type="string" value="oguzdows-start"/>
       <property name="show-button-title" type="bool" value="true"/>
       <property name="show-button-icon" type="bool" value="true"/>
     </property>
@@ -39,12 +41,18 @@
       <property name="expand" type="bool" value="true"/>
       <property name="style" type="uint" value="0"/>
     </property>
-    <property name="plugin-4" type="string" value="systray"/>
+    <property name="plugin-4" type="string" value="systray">
+      <property name="icon-size" type="int" value="20"/>
+      <property name="single-row" type="bool" value="true"/>
+      <property name="square-icons" type="bool" value="false"/>
+      <property name="symbolic-icons" type="bool" value="true"/>
+    </property>
     <property name="plugin-5" type="string" value="pulseaudio"/>
     <property name="plugin-6" type="string" value="power-manager-plugin"/>
     <property name="plugin-7" type="string" value="clock">
       <property name="mode" type="uint" value="2"/>
       <property name="digital-layout" type="uint" value="3"/>
+      <property name="digital-time-font" type="string" value="Inter 9"/>
       <property name="digital-time-format" type="string" value="%d %B %A  ·  %H:%M"/>
     </property>
   </property>

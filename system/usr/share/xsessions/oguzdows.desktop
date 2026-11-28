@@ -1,7 +1,7 @@
 [Desktop Entry]
 Type=Application
 Name=OğuzDows
-Comment=Ay Yıldız masaüstü oturumu
-Exec=startxfce4
-TryExec=startxfce4
+Comment=Akıncı masaüstü oturumu
+Exec=/usr/bin/python3 -I /usr/lib/oguzdows/session_start.py
+TryExec=/usr/bin/startxfce4
 DesktopNames=XFCE

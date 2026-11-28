@@ -1,0 +1,221 @@
+"""Karşılayıcı ve bağımsız Masaüstü Merkezi'nin ortak yerel GTK bileşenleri."""
+from __future__ import annotations
+
+import logging
+import subprocess
+import threading
+
+import gi
+gi.require_version('Gtk', '3.0')
+gi.require_version('Gdk', '3.0')
+from gi.repository import Gdk, GLib, Gtk, Pango
+
+import desktop_preferences as preferences
+import desktop_runtime as runtime
+import desktop_state as state
+
+
+def note(text, title=False):
+    label = Gtk.Label(label=text, xalign=0, wrap=True)
+    label.set_max_width_chars(78)
+    label.get_style_context().add_class('title' if title else 'subtitle')
+    return label
+
+
+class PreferencesPanel(Gtk.Box):
+    def __init__(self, parent=None, allowed=lambda: True, on_busy=lambda _busy: None, *, blocked_reason=None):
+        super().__init__(orientation=Gtk.Orientation.VERTICAL, spacing=12)
+        self.parent_window, self.allowed, self.on_busy = parent, allowed, on_busy
+        self.blocked_reason, self.gate_message = blocked_reason, None
+        self.busy, self.closed = False, False
+        self.connect('destroy', lambda *_: setattr(self, 'closed', True))
+        if parent is not None:
+            # Gtk.ScrolledWindow Python tarafında çocuk referansını tutabilir;
+            # üst pencere yok edildikten sonra yeni işçi başlatmak yine yasak.
+            parent.connect('destroy', lambda *_: setattr(self, 'closed', True))
+        self.pack_start(note('Aero · ortak tercihler', True), False, False, 0)
+        self.pack_start(note('Xfce, GNOME ve Plasma arasında renk / tema / duvar kâğıdı seçimi ortak; her kabuğun paneli, widget düzeni ve kısayolları kendi yerinde kalır. Yeni efektler kendiliğinden açılmaz.'), False, False, 0)
+        try:
+            value = state.load()
+            error = ''
+        except (OSError, ValueError) as failure:
+            value, error = state.DEFAULTS, str(failure)
+        self.profile = None
+        self.reload_profile = None
+        if runtime.current() == 'xfce':
+            import profiles
+            self.profile = self.combo('Masaüstü düzeni', {key: item['name'] for key, item in profiles.PROFILES.items()}, profiles.selection()[0])
+            self.reload_profile = Gtk.CheckButton(label='Düzen değişirse paneli şimdi yenile · açık uygulamalar kapanmaz')
+            self.reload_profile.get_child().set_line_wrap(True)
+            self.pack_start(self.reload_profile, False, False, 0)
+            self.pack_start(note('Windows 11 esintisi: tek alt görev çubuğu. macOS esintisi: üst uygulama / yerler menüsü + altta büyüyen Dock. Bu gerçek bir macOS global uygulama menüsü değildir.'), False, False, 0)
+        self.appearance = self.combo('Açık / koyu tema', {'light': 'Açık', 'dark': 'Koyu'}, value['appearance'])
+        self.effects = self.combo('Efekt düzeyi', {'off': 'Kapalı · en hafif', 'glass': 'Hafif cam', 'aero': 'Aero · gelişmiş seçenekler'}, value['effects'])
+        self.motion = self.combo('Hareket', {'reduced': 'Azaltılmış · animasyon yok', 'smooth': 'Kısa / yerel geçişler', 'spring': 'Yay · desteklenen kompozitörde'}, value['motion'])
+        self.blur = Gtk.CheckButton(label='Gerçek arka plan bulanıklığını açıkça etkinleştir (GPU gerektirir)')
+        self.blur.set_active(value['blur']); self.blur.get_child().set_line_wrap(True)
+        self.pack_start(self.blur, False, False, 0)
+        self.snap = Gtk.CheckButton(label='Deneysel geometri / Aero Snap animasyonu · sürüklemeyi de etkileyebilir')
+        self.snap.set_active(value['snap_animation']); self.snap.get_child().set_line_wrap(True)
+        self.pack_start(self.snap, False, False, 0)
+        self.source = self.combo('Otomatik vurgu', {'theme': 'Elle seçtiğim renk · otomatik kapalı', 'wallpaper': 'Her duvar kâğıdında otomatik · Xfce dahil'}, value['accent_source'])
+        row = Gtk.Box(spacing=10)
+        row.pack_start(note('Vurgu rengi'), True, True, 0)
+        self.color = Gtk.ColorButton()
+        color = Gdk.RGBA(); color.parse(value['accent']); self.color.set_rgba(color)
+        self.color.set_use_alpha(False); self.color.set_title('OğuzDows vurgu rengi')
+        row.pack_end(self.color, False, False, 0); self.pack_start(row, False, False, 0)
+        self.feedback = Gtk.CheckButton(label='Başarılı başlatmada kısa sesli geri bildirim · varsayılan kapalı')
+        self.feedback.get_child().set_line_wrap(True); self.feedback.set_active(value['feedback'])
+        self.pack_start(self.feedback, False, False, 0)
+        self.pack_start(note('Gerçek blur: Xfce/Picom 9+ hızlandırılmış GLX; GNOME Shell 43/44 veya 45–48 uzantısı; Plasma/KWin. GNOME uygulama çerçeveleri evrensel olarak blur almaz; Plasma’da kurulu Aurorae için özgün cam kenarlar üretilir; CSD uygulamalar kendi blur bölgesini bildirmelidir. Üst çubuk yazıları ve kapatma düğmeleri opaktır. Picom yayı 12+ ister. 2 GiB ve altı / ARMv6 / nomodeset / bilinmeyen GPU statik kalır. Wayland’ın zorunlu kompozitörü kapatılmaz.'), False, False, 0)
+        row = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=8)
+        self.apply_button = Gtk.Button(label='Ortak tercihleri uygula')
+        self.apply_button.get_style_context().add_class('suggested-action')
+        self.apply_button.connect('clicked', self.apply)
+        self.restore_button = Gtk.Button(label='Bu masaüstünün önceki ayarlarını geri al…')
+        self.restore_button.connect('clicked', self.restore)
+        for button in (self.apply_button, self.restore_button):
+            button.get_child().set_line_wrap(True)
+            button.get_child().set_max_width_chars(32)
+        row.pack_start(self.apply_button, True, True, 0); row.pack_start(self.restore_button, True, True, 0)
+        self.pack_start(row, False, False, 0)
+        self.status = note(error or 'Henüz değişiklik yapılmadı. Donanım / fiziksel animasyon doğrulaması bu pencereden iddia edilmez.')
+        self.pack_start(self.status, False, False, 0)
+        self.load_error = error
+        self.refresh_gate()
+
+    def refresh_gate(self):
+        """Yalnız olaylarda çağrılır; boşta anket / zamanlayıcı yoktur."""
+        if self.closed:
+            return
+        allowed = self.allowed()
+        self.apply_button.set_sensitive(not self.busy and allowed and not self.load_error)
+        self.restore_button.set_sensitive(not self.busy and allowed)
+        if not self.busy and not allowed:
+            self.gate_message = (self.blocked_reason() if self.blocked_reason else
+                'Başka bir görünüm / kurulum işlemi bitmeden yeni efekt uygulanmaz.')
+            self.status.set_text(self.gate_message)
+        elif not self.busy and self.gate_message:
+            if self.status.get_text() == self.gate_message:
+                self.status.set_text(self.load_error or 'Önceki işlem bitti; seçili tercihleri şimdi uygulayabilirsin.')
+            self.gate_message = None
+
+    def combo(self, title, choices, selected):
+        row = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=5)
+        row.pack_start(note(title), False, False, 0)
+        combo = Gtk.ComboBoxText()
+        for identifier, label in choices.items():
+            combo.append(identifier, label)
+        combo.set_active_id(selected)
+        for cell in combo.get_cells():
+            cell.set_property('ellipsize', Pango.EllipsizeMode.END)
+            cell.set_property('max-width-chars', 23)
+        row.pack_end(combo, False, False, 0)
+        self.pack_start(row, False, False, 0)
+        return combo
+
+    def finished(self, message):
+        self.busy = False
+        try:
+            self.on_busy(False)
+        except Exception:
+            logging.exception('Masaüstü görünüm kilidi geri bildirimi başarısız')
+        if not self.closed:
+            self.status.set_text(message)
+            self.refresh_gate()
+        return GLib.SOURCE_REMOVE
+
+    def work(self, operation):
+        # Aynı Uygula henüz bitmediyse ikinci işçi açma; devam eden isteği
+        # "başka işlem" sanıp asıl ilerleme / hata mesajını da ezme.
+        if self.closed or self.busy:
+            return
+        if not self.allowed():
+            self.refresh_gate()
+            return
+        self.busy = True
+        self.apply_button.set_sensitive(False); self.restore_button.set_sensitive(False)
+        self.status.set_text('Yalnız bu hesabın masaüstü ayarları uygulanıyor…')
+        def run():
+            try:
+                result = operation()
+                message = result['message'] + ('\n' + '\n'.join(result['notes']) if result.get('notes') else '')
+                if result.get('preserved_external_changes'):
+                    message += '\nSonradan değiştirdiğin kişisel anahtarlar korunarak atlandı: ' + ', '.join(result['preserved_external_changes'])
+            except Exception as error:
+                # Beklenmeyen bir arka uç / biçim hatası da busy'yi sonsuza
+                # kilitlemez. Hata gizlenmez; konsolda iz, panelde açık uyarı.
+                logging.exception('Masaüstü tercih işlemi tamamlanamadı')
+                message = 'İşlem tamamlanamadı: ' + str(error)
+            GLib.idle_add(self.finished, message)
+        try:
+            self.on_busy(True)
+            threading.Thread(target=run, daemon=True).start()
+        except Exception as error:
+            logging.exception('Masaüstü tercih işçisi başlatılamadı')
+            self.finished('İşlem tamamlanamadı: ' + str(error))
+
+    def apply(self, *_):
+        rgba = self.color.get_rgba()
+        color = '#' + ''.join(f'{round(component * 255):02x}' for component in (rgba.red, rgba.green, rgba.blue))
+        changes = {'appearance': self.appearance.get_active_id(), 'effects': self.effects.get_active_id(),
+            'motion': self.motion.get_active_id(), 'blur': self.blur.get_active(),
+            'snap_animation': self.snap.get_active(), 'accent': color,
+            'accent_source': self.source.get_active_id(), 'feedback': self.feedback.get_active()}
+        profile = None
+        if self.profile is not None:
+            import profiles
+            selected = self.profile.get_active_id()
+            if selected != profiles.selection()[0]:
+                profile = selected
+        refresh = profile is not None and self.reload_profile.get_active()
+        def operation():
+            result = preferences.update_and_apply(changes, profile=profile)
+            if refresh:
+                import profiles
+                profiles.reload_panels()
+                result['message'] += ' Panel yenilendi.'
+            elif profile:
+                result['message'] += ' Yeni panel düzeni sonraki girişte yüklenir; ayrıca paneli yenileyebilirsiniz.'
+            return result
+        self.work(operation)
+
+    def restore(self, *_):
+        if self.busy or not self.allowed():
+            return
+        dialog = Gtk.MessageDialog(transient_for=self.parent_window, modal=True,
+            message_type=Gtk.MessageType.QUESTION, buttons=Gtk.ButtonsType.OK_CANCEL,
+            text='Bu masaüstünün yedekli ayarlarına dönülsün mü?')
+        dialog.format_secondary_text('GNOME / Plasma: yalnız bizim son değerimiz hâlâ duruyorsa geri alınır; sonradan yaptığın kişisel değişiklik ezilmez. Xfce: mevcut tipli ilk görünüm yedeği kullanılır. Diğer oturumların panelleri ve uygulamalar kapanmaz.')
+        dialog.set_default_response(Gtk.ResponseType.CANCEL)
+        accepted = dialog.run() == Gtk.ResponseType.OK
+        dialog.destroy()
+        if accepted:
+            self.work(preferences.restore)
+
+
+def control_grid(parent, status=None):
+    grid = Gtk.FlowBox()
+    grid.set_selection_mode(Gtk.SelectionMode.NONE)
+    grid.set_min_children_per_line(1); grid.set_max_children_per_line(3)
+    grid.set_column_spacing(8); grid.set_row_spacing(8)
+    for action, title in runtime.ACTIONS.items():
+        button = Gtk.Button(label=title)
+        button.get_child().set_line_wrap(True)
+        button.get_child().set_max_width_chars(24)
+        def clicked(_button, identifier=action):
+            try:
+                runtime.native_control(identifier)
+                if status:
+                    status.set_text(runtime.ACTIONS[identifier] + ' · yerel araç başlatma isteği gönderildi.')
+            except (OSError, ValueError, RuntimeError, ImportError, subprocess.SubprocessError) as failure:
+                if status:
+                    status.set_text(str(failure))
+                else:
+                    dialog = Gtk.MessageDialog(transient_for=parent, modal=True, message_type=Gtk.MessageType.INFO,
+                        buttons=Gtk.ButtonsType.CLOSE, text=str(failure))
+                    dialog.run(); dialog.destroy()
+        button.connect('clicked', clicked)
+        grid.add(button)
+    return grid

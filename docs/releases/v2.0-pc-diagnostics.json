@@ -1,0 +1,899 @@
+{
+  "schema_version": 1,
+  "source_revision": "5a44de0dde676d901a32be40d631d481e213439d",
+  "scope": "Read-only runner extraction of actual completed PC artifact JSON summaries; not another boot or local byte audit",
+  "source_run_id": 46092345482,
+  "diagnostic_run": {
+    "id": 46095123772,
+    "html_url": "https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/46095123772",
+    "head_sha": "5a44de0dde676d901a32be40d631d481e213439d",
+    "head_branch": "arena/2d796713-o-uzdows",
+    "event": "workflow_dispatch",
+    "status": "completed",
+    "conclusion": "success"
+  },
+  "job": {
+    "id": 140824612165,
+    "html_url": "https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/46095123772/job/140824612165",
+    "name": "Önceki hedef sistem testinin kanıtları (derleme yapmaz)",
+    "status": "completed",
+    "conclusion": "success"
+  },
+  "reports": [
+    {
+      "title": "Önceki tam Xfce RAM örnekleri",
+      "data": {
+        "build": {
+          "arch": "i386",
+          "suite": "bookworm",
+          "flavour": "686-pae",
+          "uefi": false,
+          "source_revision": "5a44de0dde676d901a32be40d631d481e213439d",
+          "source_dirty": null
+        },
+        "method": "MemTotal − MemAvailable; önbellek boşaltılmadı, zram RAM kazancı diye sayılmadı.",
+        "vm_ram_mib": 512,
+        "target_bytes": 600000000,
+        "settled_seconds": 120,
+        "sample_count": 6,
+        "sample_interval_seconds": 5,
+        "idle_confirmed_by_operator": true,
+        "valid_idle_measurement": true,
+        "invalid_reasons": [],
+        "median_used_bytes": 195563520,
+        "max_used_bytes": 195563520,
+        "median_used_mb": 195.6,
+        "max_used_mb": 195.6,
+        "busy_cpu_percent": 1.24,
+        "target_met": true,
+        "report_sha256": "b7baa492924ec65dae72c4d489814f5a1f47b8701c2a2d925e5ed2d998b38c54",
+        "samples": [
+          {
+            "used_bytes": 195563520,
+            "graphical_xfce": true,
+            "desktop_user": 1000,
+            "desktop_processes": [
+              "xfce4-panel",
+              "xfce4-session",
+              "xfdesktop",
+              "xfwm4"
+            ],
+            "known_foreground_or_package_work": [],
+            "cpu_total_ticks": 34200,
+            "cpu_idle_ticks": 22556
+          },
+          {
+            "used_bytes": 195563520,
+            "graphical_xfce": true,
+            "desktop_user": 1000,
+            "desktop_processes": [
+              "xfce4-panel",
+              "xfce4-session",
+              "xfdesktop",
+              "xfwm4"
+            ],
+            "known_foreground_or_package_work": [],
+            "cpu_total_ticks": 35215,
+            "cpu_idle_ticks": 23560
+          },
+          {
+            "used_bytes": 195563520,
+            "graphical_xfce": true,
+            "desktop_user": 1000,
+            "desktop_processes": [
+              "xfce4-panel",
+              "xfce4-session",
+              "xfdesktop",
+              "xfwm4"
+            ],
+            "known_foreground_or_package_work": [],
+            "cpu_total_ticks": 36232,
+            "cpu_idle_ticks": 24563
+          },
+          {
+            "used_bytes": 195563520,
+            "graphical_xfce": true,
+            "desktop_user": 1000,
+            "desktop_processes": [
+              "xfce4-panel",
+              "xfce4-session",
+              "xfdesktop",
+              "xfwm4"
+            ],
+            "known_foreground_or_package_work": [],
+            "cpu_total_ticks": 37247,
+            "cpu_idle_ticks": 25567
+          },
+          {
+            "used_bytes": 195563520,
+            "graphical_xfce": true,
+            "desktop_user": 1000,
+            "desktop_processes": [
+              "xfce4-panel",
+              "xfce4-session",
+              "xfdesktop",
+              "xfwm4"
+            ],
+            "known_foreground_or_package_work": [],
+            "cpu_total_ticks": 38265,
+            "cpu_idle_ticks": 26571
+          },
+          {
+            "used_bytes": 195563520,
+            "graphical_xfce": true,
+            "desktop_user": 1000,
+            "desktop_processes": [
+              "xfce4-panel",
+              "xfce4-session",
+              "xfdesktop",
+              "xfwm4"
+            ],
+            "known_foreground_or_package_work": [],
+            "cpu_total_ticks": 39282,
+            "cpu_idle_ticks": 27575
+          }
+        ],
+        "zram": [
+          {
+            "device": "zram0",
+            "original_data_bytes": 4096,
+            "compressed_data_bytes": 65,
+            "allocated_ram_bytes": 4096
+          }
+        ]
+      }
+    },
+    {
+      "title": "Önceki tam Xfce RAM örnekleri",
+      "data": {
+        "build": {
+          "arch": "i386",
+          "suite": "bookworm",
+          "flavour": "686-pae",
+          "uefi": false,
+          "source_revision": "5a44de0dde676d901a32be40d631d481e213439d",
+          "source_dirty": null
+        },
+        "method": "MemTotal − MemAvailable; önbellek boşaltılmadı, zram RAM kazancı diye sayılmadı.",
+        "vm_ram_mib": 1024,
+        "target_bytes": 600000000,
+        "settled_seconds": 120,
+        "sample_count": 6,
+        "sample_interval_seconds": 5,
+        "idle_confirmed_by_operator": true,
+        "valid_idle_measurement": true,
+        "invalid_reasons": [],
+        "median_used_bytes": 407121920,
+        "max_used_bytes": 407121920,
+        "median_used_mb": 407.1,
+        "max_used_mb": 407.1,
+        "busy_cpu_percent": 1.18,
+        "target_met": true,
+        "report_sha256": "8a368398e1f57701241be2b64abc14d12ea0bbce073e750b9ef69b0233900d22",
+        "samples": [
+          {
+            "used_bytes": 402927616,
+            "graphical_xfce": true,
+            "desktop_user": 1000,
+            "desktop_processes": [
+              "xfce4-panel",
+              "xfce4-session",
+              "xfdesktop",
+              "xfwm4"
+            ],
+            "known_foreground_or_package_work": [],
+            "cpu_total_ticks": 34568,
+            "cpu_idle_ticks": 22649
+          },
+          {
+            "used_bytes": 407121920,
+            "graphical_xfce": true,
+            "desktop_user": 1000,
+            "desktop_processes": [
+              "xfce4-panel",
+              "xfce4-session",
+              "xfdesktop",
+              "xfwm4"
+            ],
+            "known_foreground_or_package_work": [],
+            "cpu_total_ticks": 35584,
+            "cpu_idle_ticks": 23652
+          },
+          {
+            "used_bytes": 407121920,
+            "graphical_xfce": true,
+            "desktop_user": 1000,
+            "desktop_processes": [
+              "xfce4-panel",
+              "xfce4-session",
+              "xfdesktop",
+              "xfwm4"
+            ],
+            "known_foreground_or_package_work": [],
+            "cpu_total_ticks": 36601,
+            "cpu_idle_ticks": 24657
+          },
+          {
+            "used_bytes": 407121920,
+            "graphical_xfce": true,
+            "desktop_user": 1000,
+            "desktop_processes": [
+              "xfce4-panel",
+              "xfce4-session",
+              "xfdesktop",
+              "xfwm4"
+            ],
+            "known_foreground_or_package_work": [],
+            "cpu_total_ticks": 37615,
+            "cpu_idle_ticks": 25660
+          },
+          {
+            "used_bytes": 407121920,
+            "graphical_xfce": true,
+            "desktop_user": 1000,
+            "desktop_processes": [
+              "xfce4-panel",
+              "xfce4-session",
+              "xfdesktop",
+              "xfwm4"
+            ],
+            "known_foreground_or_package_work": [],
+            "cpu_total_ticks": 38630,
+            "cpu_idle_ticks": 26663
+          },
+          {
+            "used_bytes": 407121920,
+            "graphical_xfce": true,
+            "desktop_user": 1000,
+            "desktop_processes": [
+              "xfce4-panel",
+              "xfce4-session",
+              "xfdesktop",
+              "xfwm4"
+            ],
+            "known_foreground_or_package_work": [],
+            "cpu_total_ticks": 39645,
+            "cpu_idle_ticks": 27666
+          }
+        ],
+        "zram": [
+          {
+            "device": "zram0",
+            "original_data_bytes": 4096,
+            "compressed_data_bytes": 65,
+            "allocated_ram_bytes": 4096
+          }
+        ]
+      }
+    },
+    {
+      "title": "Önceki tam Xfce RAM örnekleri",
+      "data": {
+        "build": {
+          "arch": "i386",
+          "suite": "bookworm",
+          "flavour": "686-pae",
+          "uefi": false,
+          "source_revision": "5a44de0dde676d901a32be40d631d481e213439d",
+          "source_dirty": null
+        },
+        "method": "MemTotal − MemAvailable; önbellek boşaltılmadı, zram RAM kazancı diye sayılmadı.",
+        "vm_ram_mib": 2048,
+        "target_bytes": 600000000,
+        "settled_seconds": 120,
+        "sample_count": 6,
+        "sample_interval_seconds": 5,
+        "idle_confirmed_by_operator": true,
+        "valid_idle_measurement": true,
+        "invalid_reasons": [],
+        "median_used_bytes": 476854272,
+        "max_used_bytes": 479838208,
+        "median_used_mb": 476.9,
+        "max_used_mb": 479.8,
+        "busy_cpu_percent": 1.53,
+        "target_met": true,
+        "report_sha256": "c0e687fe946335a91e69736445452468ce2b8b3e5c38e9222e08b0eace9e6893",
+        "samples": [
+          {
+            "used_bytes": 477741056,
+            "graphical_xfce": true,
+            "desktop_user": 1000,
+            "desktop_processes": [
+              "xfce4-panel",
+              "xfce4-session",
+              "xfdesktop",
+              "xfwm4"
+            ],
+            "known_foreground_or_package_work": [],
+            "cpu_total_ticks": 34943,
+            "cpu_idle_ticks": 22642
+          },
+          {
+            "used_bytes": 479838208,
+            "graphical_xfce": true,
+            "desktop_user": 1000,
+            "desktop_processes": [
+              "xfce4-panel",
+              "xfce4-session",
+              "xfdesktop",
+              "xfwm4"
+            ],
+            "known_foreground_or_package_work": [],
+            "cpu_total_ticks": 35964,
+            "cpu_idle_ticks": 23644
+          },
+          {
+            "used_bytes": 479838208,
+            "graphical_xfce": true,
+            "desktop_user": 1000,
+            "desktop_processes": [
+              "xfce4-panel",
+              "xfce4-session",
+              "xfdesktop",
+              "xfwm4"
+            ],
+            "known_foreground_or_package_work": [],
+            "cpu_total_ticks": 36983,
+            "cpu_idle_ticks": 24648
+          },
+          {
+            "used_bytes": 475967488,
+            "graphical_xfce": true,
+            "desktop_user": 1000,
+            "desktop_processes": [
+              "xfce4-panel",
+              "xfce4-session",
+              "xfdesktop",
+              "xfwm4"
+            ],
+            "known_foreground_or_package_work": [],
+            "cpu_total_ticks": 38001,
+            "cpu_idle_ticks": 25650
+          },
+          {
+            "used_bytes": 475967488,
+            "graphical_xfce": true,
+            "desktop_user": 1000,
+            "desktop_processes": [
+              "xfce4-panel",
+              "xfce4-session",
+              "xfdesktop",
+              "xfwm4"
+            ],
+            "known_foreground_or_package_work": [],
+            "cpu_total_ticks": 39016,
+            "cpu_idle_ticks": 26652
+          },
+          {
+            "used_bytes": 475967488,
+            "graphical_xfce": true,
+            "desktop_user": 1000,
+            "desktop_processes": [
+              "xfce4-panel",
+              "xfce4-session",
+              "xfdesktop",
+              "xfwm4"
+            ],
+            "known_foreground_or_package_work": [],
+            "cpu_total_ticks": 40033,
+            "cpu_idle_ticks": 27654
+          }
+        ],
+        "zram": [
+          {
+            "device": "zram0",
+            "original_data_bytes": 4096,
+            "compressed_data_bytes": 64,
+            "allocated_ram_bytes": 4096
+          }
+        ]
+      }
+    },
+    {
+      "title": "Önceki tam Xfce RAM örnekleri",
+      "data": {
+        "build": {
+          "arch": "amd64",
+          "suite": "trixie",
+          "flavour": "amd64",
+          "uefi": true,
+          "source_revision": "5a44de0dde676d901a32be40d631d481e213439d",
+          "source_dirty": null
+        },
+        "method": "MemTotal − MemAvailable; önbellek boşaltılmadı, zram RAM kazancı diye sayılmadı.",
+        "vm_ram_mib": 512,
+        "target_bytes": 600000000,
+        "settled_seconds": 120,
+        "sample_count": 6,
+        "sample_interval_seconds": 5,
+        "idle_confirmed_by_operator": true,
+        "valid_idle_measurement": true,
+        "invalid_reasons": [],
+        "median_used_bytes": 297041920,
+        "max_used_bytes": 297107456,
+        "median_used_mb": 297.0,
+        "max_used_mb": 297.1,
+        "busy_cpu_percent": 1.79,
+        "target_met": true,
+        "report_sha256": "2ea0f92b9f21ae60d91dc2cdbe574900c5b13213f4a4151ca34415a36a8b690c",
+        "samples": [
+          {
+            "used_bytes": 297041920,
+            "graphical_xfce": true,
+            "desktop_user": 1000,
+            "desktop_processes": [
+              "xfce4-panel",
+              "xfce4-session",
+              "xfdesktop",
+              "xfwm4"
+            ],
+            "known_foreground_or_package_work": [],
+            "cpu_total_ticks": 30987,
+            "cpu_idle_ticks": 20346
+          },
+          {
+            "used_bytes": 297041920,
+            "graphical_xfce": true,
+            "desktop_user": 1000,
+            "desktop_processes": [
+              "xfce4-panel",
+              "xfce4-session",
+              "xfdesktop",
+              "xfwm4"
+            ],
+            "known_foreground_or_package_work": [],
+            "cpu_total_ticks": 32010,
+            "cpu_idle_ticks": 21354
+          },
+          {
+            "used_bytes": 297041920,
+            "graphical_xfce": true,
+            "desktop_user": 1000,
+            "desktop_processes": [
+              "xfce4-panel",
+              "xfce4-session",
+              "xfdesktop",
+              "xfwm4"
+            ],
+            "known_foreground_or_package_work": [],
+            "cpu_total_ticks": 33045,
+            "cpu_idle_ticks": 22368
+          },
+          {
+            "used_bytes": 297041920,
+            "graphical_xfce": true,
+            "desktop_user": 1000,
+            "desktop_processes": [
+              "xfce4-panel",
+              "xfce4-session",
+              "xfdesktop",
+              "xfwm4"
+            ],
+            "known_foreground_or_package_work": [],
+            "cpu_total_ticks": 34081,
+            "cpu_idle_ticks": 23382
+          },
+          {
+            "used_bytes": 297041920,
+            "graphical_xfce": true,
+            "desktop_user": 1000,
+            "desktop_processes": [
+              "xfce4-panel",
+              "xfce4-session",
+              "xfdesktop",
+              "xfwm4"
+            ],
+            "known_foreground_or_package_work": [],
+            "cpu_total_ticks": 35107,
+            "cpu_idle_ticks": 24389
+          },
+          {
+            "used_bytes": 297107456,
+            "graphical_xfce": true,
+            "desktop_user": 1000,
+            "desktop_processes": [
+              "xfce4-panel",
+              "xfce4-session",
+              "xfdesktop",
+              "xfwm4"
+            ],
+            "known_foreground_or_package_work": [],
+            "cpu_total_ticks": 36130,
+            "cpu_idle_ticks": 25397
+          }
+        ],
+        "zram": [
+          {
+            "device": "zram0",
+            "original_data_bytes": 36155392,
+            "compressed_data_bytes": 10366144,
+            "allocated_ram_bytes": 12791808
+          }
+        ]
+      }
+    },
+    {
+      "title": "Önceki tam Xfce RAM örnekleri",
+      "data": {
+        "build": {
+          "arch": "amd64",
+          "suite": "trixie",
+          "flavour": "amd64",
+          "uefi": true,
+          "source_revision": "5a44de0dde676d901a32be40d631d481e213439d",
+          "source_dirty": null
+        },
+        "method": "MemTotal − MemAvailable; önbellek boşaltılmadı, zram RAM kazancı diye sayılmadı.",
+        "vm_ram_mib": 1024,
+        "target_bytes": 600000000,
+        "settled_seconds": 120,
+        "sample_count": 6,
+        "sample_interval_seconds": 5,
+        "idle_confirmed_by_operator": true,
+        "valid_idle_measurement": true,
+        "invalid_reasons": [],
+        "median_used_bytes": 490221568,
+        "max_used_bytes": 490221568,
+        "median_used_mb": 490.2,
+        "max_used_mb": 490.2,
+        "busy_cpu_percent": 1.41,
+        "target_met": true,
+        "report_sha256": "ef57fb6acff21da21cddb61f4201c2d6e1cea2ab9d33b772f7c2b7ae7497e8fe",
+        "samples": [
+          {
+            "used_bytes": 490221568,
+            "graphical_xfce": true,
+            "desktop_user": 1000,
+            "desktop_processes": [
+              "xfce4-panel",
+              "xfce4-session",
+              "xfdesktop",
+              "xfwm4"
+            ],
+            "known_foreground_or_package_work": [],
+            "cpu_total_ticks": 30894,
+            "cpu_idle_ticks": 20871
+          },
+          {
+            "used_bytes": 490221568,
+            "graphical_xfce": true,
+            "desktop_user": 1000,
+            "desktop_processes": [
+              "xfce4-panel",
+              "xfce4-session",
+              "xfdesktop",
+              "xfwm4"
+            ],
+            "known_foreground_or_package_work": [],
+            "cpu_total_ticks": 31914,
+            "cpu_idle_ticks": 21877
+          },
+          {
+            "used_bytes": 490221568,
+            "graphical_xfce": true,
+            "desktop_user": 1000,
+            "desktop_processes": [
+              "xfce4-panel",
+              "xfce4-session",
+              "xfdesktop",
+              "xfwm4"
+            ],
+            "known_foreground_or_package_work": [],
+            "cpu_total_ticks": 32936,
+            "cpu_idle_ticks": 22885
+          },
+          {
+            "used_bytes": 490221568,
+            "graphical_xfce": true,
+            "desktop_user": 1000,
+            "desktop_processes": [
+              "xfce4-panel",
+              "xfce4-session",
+              "xfdesktop",
+              "xfwm4"
+            ],
+            "known_foreground_or_package_work": [],
+            "cpu_total_ticks": 33956,
+            "cpu_idle_ticks": 23892
+          },
+          {
+            "used_bytes": 490221568,
+            "graphical_xfce": true,
+            "desktop_user": 1000,
+            "desktop_processes": [
+              "xfce4-panel",
+              "xfce4-session",
+              "xfdesktop",
+              "xfwm4"
+            ],
+            "known_foreground_or_package_work": [],
+            "cpu_total_ticks": 34983,
+            "cpu_idle_ticks": 24901
+          },
+          {
+            "used_bytes": 490221568,
+            "graphical_xfce": true,
+            "desktop_user": 1000,
+            "desktop_processes": [
+              "xfce4-panel",
+              "xfce4-session",
+              "xfdesktop",
+              "xfwm4"
+            ],
+            "known_foreground_or_package_work": [],
+            "cpu_total_ticks": 36004,
+            "cpu_idle_ticks": 25909
+          }
+        ],
+        "zram": [
+          {
+            "device": "zram0",
+            "original_data_bytes": 4096,
+            "compressed_data_bytes": 65,
+            "allocated_ram_bytes": 20480
+          }
+        ]
+      }
+    },
+    {
+      "title": "Önceki tam Xfce RAM örnekleri",
+      "data": {
+        "build": {
+          "arch": "amd64",
+          "suite": "trixie",
+          "flavour": "amd64",
+          "uefi": true,
+          "source_revision": "5a44de0dde676d901a32be40d631d481e213439d",
+          "source_dirty": null
+        },
+        "method": "MemTotal − MemAvailable; önbellek boşaltılmadı, zram RAM kazancı diye sayılmadı.",
+        "vm_ram_mib": 2048,
+        "target_bytes": 600000000,
+        "settled_seconds": 120,
+        "sample_count": 6,
+        "sample_interval_seconds": 5,
+        "idle_confirmed_by_operator": true,
+        "valid_idle_measurement": true,
+        "invalid_reasons": [],
+        "median_used_bytes": 501686272,
+        "max_used_bytes": 501686272,
+        "median_used_mb": 501.7,
+        "max_used_mb": 501.7,
+        "busy_cpu_percent": 1.69,
+        "target_met": true,
+        "report_sha256": "8f02bb5a3ca4f6fc027625552280dd88e1ce9446ba81221a8481fa02f319010f",
+        "samples": [
+          {
+            "used_bytes": 501686272,
+            "graphical_xfce": true,
+            "desktop_user": 1000,
+            "desktop_processes": [
+              "xfce4-panel",
+              "xfce4-session",
+              "xfdesktop",
+              "xfwm4"
+            ],
+            "known_foreground_or_package_work": [],
+            "cpu_total_ticks": 30962,
+            "cpu_idle_ticks": 20732
+          },
+          {
+            "used_bytes": 501686272,
+            "graphical_xfce": true,
+            "desktop_user": 1000,
+            "desktop_processes": [
+              "xfce4-panel",
+              "xfce4-session",
+              "xfdesktop",
+              "xfwm4"
+            ],
+            "known_foreground_or_package_work": [],
+            "cpu_total_ticks": 31986,
+            "cpu_idle_ticks": 21741
+          },
+          {
+            "used_bytes": 501686272,
+            "graphical_xfce": true,
+            "desktop_user": 1000,
+            "desktop_processes": [
+              "xfce4-panel",
+              "xfce4-session",
+              "xfdesktop",
+              "xfwm4"
+            ],
+            "known_foreground_or_package_work": [],
+            "cpu_total_ticks": 33019,
+            "cpu_idle_ticks": 22753
+          },
+          {
+            "used_bytes": 501686272,
+            "graphical_xfce": true,
+            "desktop_user": 1000,
+            "desktop_processes": [
+              "xfce4-panel",
+              "xfce4-session",
+              "xfdesktop",
+              "xfwm4"
+            ],
+            "known_foreground_or_package_work": [],
+            "cpu_total_ticks": 34045,
+            "cpu_idle_ticks": 23763
+          },
+          {
+            "used_bytes": 501686272,
+            "graphical_xfce": true,
+            "desktop_user": 1000,
+            "desktop_processes": [
+              "xfce4-panel",
+              "xfce4-session",
+              "xfdesktop",
+              "xfwm4"
+            ],
+            "known_foreground_or_package_work": [],
+            "cpu_total_ticks": 35072,
+            "cpu_idle_ticks": 24774
+          },
+          {
+            "used_bytes": 501686272,
+            "graphical_xfce": true,
+            "desktop_user": 1000,
+            "desktop_processes": [
+              "xfce4-panel",
+              "xfce4-session",
+              "xfdesktop",
+              "xfwm4"
+            ],
+            "known_foreground_or_package_work": [],
+            "cpu_total_ticks": 36100,
+            "cpu_idle_ticks": 25783
+          }
+        ],
+        "zram": [
+          {
+            "device": "zram0",
+            "original_data_bytes": 4096,
+            "compressed_data_bytes": 64,
+            "allocated_ram_bytes": 20480
+          }
+        ]
+      }
+    },
+    {
+      "title": "Önceki hedef sistem kanıtı",
+      "data": {
+        "arch": "i386",
+        "source_revision": "5a44de0dde676d901a32be40d631d481e213439d",
+        "build": {
+          "arch": "i386",
+          "suite": "bookworm",
+          "flavour": "686-pae",
+          "uefi": false,
+          "source_revision": "5a44de0dde676d901a32be40d631d481e213439d",
+          "source_dirty": null
+        },
+        "modes": [
+          "bios"
+        ],
+        "initramfs": {
+          "6.1.0-57-686-pae": {
+            "device": "66309",
+            "inode": "524314",
+            "mtime_ns": "1795829950506918303",
+            "size": "97195187"
+          }
+        },
+        "desktop_idle": {
+          "valid_idle_measurement": true,
+          "median_used_mb": 476.9,
+          "max_used_mb": 479.8,
+          "target_met": true,
+          "invalid_reasons": [],
+          "vm_ram_mib": 2048
+        },
+        "low_ram": [
+          {
+            "valid_idle_measurement": true,
+            "median_used_mb": 195.6,
+            "max_used_mb": 195.6,
+            "target_met": true,
+            "invalid_reasons": [],
+            "vm_ram_mib": 512,
+            "low_ram_budget": {
+              "passed": true,
+              "minimum_available_bytes": 51442074,
+              "observed_min_available_bytes": 318857216,
+              "policy": "Geçerli tam Xfce boşta ölçümü + en çok 600 MB kullanım + en az max(32 MiB, MemTotal / 10) kullanılabilir RAM; aktif uygulama gecikmesi garantisi değil.",
+              "fail_reasons": []
+            }
+          },
+          {
+            "valid_idle_measurement": true,
+            "median_used_mb": 407.1,
+            "max_used_mb": 407.1,
+            "target_met": true,
+            "invalid_reasons": [],
+            "vm_ram_mib": 1024,
+            "low_ram_budget": {
+              "passed": true,
+              "minimum_available_bytes": 104581940,
+              "observed_min_available_bytes": 638697472,
+              "policy": "Geçerli tam Xfce boşta ölçümü + en çok 600 MB kullanım + en az max(32 MiB, MemTotal / 10) kullanılabilir RAM; aktif uygulama gecikmesi garantisi değil.",
+              "fail_reasons": []
+            }
+          }
+        ],
+        "error_tail": "",
+        "report_sha256": "7c4fc760edff813cf812bc7346b718e1ddd4eb80eed0cb07115bac2c6802aa4e"
+      }
+    },
+    {
+      "title": "Önceki hedef sistem kanıtı",
+      "data": {
+        "arch": "amd64",
+        "source_revision": "5a44de0dde676d901a32be40d631d481e213439d",
+        "build": {
+          "arch": "amd64",
+          "suite": "trixie",
+          "flavour": "amd64",
+          "uefi": true,
+          "source_revision": "5a44de0dde676d901a32be40d631d481e213439d",
+          "source_dirty": null
+        },
+        "modes": [
+          "bios",
+          "efi"
+        ],
+        "initramfs": {
+          "6.12.118+deb13-amd64": {
+            "device": "66308",
+            "inode": "262148",
+            "mtime_ns": "1795829837608181424",
+            "size": "152128604"
+          }
+        },
+        "desktop_idle": {
+          "valid_idle_measurement": true,
+          "median_used_mb": 501.7,
+          "max_used_mb": 501.7,
+          "target_met": true,
+          "invalid_reasons": [],
+          "vm_ram_mib": 2048
+        },
+        "low_ram": [
+          {
+            "valid_idle_measurement": true,
+            "median_used_mb": 297.0,
+            "max_used_mb": 297.1,
+            "target_met": true,
+            "invalid_reasons": [],
+            "vm_ram_mib": 512,
+            "low_ram_budget": {
+              "passed": true,
+              "minimum_available_bytes": 48636314,
+              "observed_min_available_bytes": 189255680,
+              "policy": "Geçerli tam Xfce boşta ölçümü + en çok 600 MB kullanım + en az max(32 MiB, MemTotal / 10) kullanılabilir RAM; aktif uygulama gecikmesi garantisi değil.",
+              "fail_reasons": []
+            }
+          },
+          {
+            "valid_idle_measurement": true,
+            "median_used_mb": 490.2,
+            "max_used_mb": 490.2,
+            "target_met": true,
+            "invalid_reasons": [],
+            "vm_ram_mib": 1024,
+            "low_ram_budget": {
+              "passed": true,
+              "minimum_available_bytes": 101405901,
+              "observed_min_available_bytes": 523837440,
+              "policy": "Geçerli tam Xfce boşta ölçümü + en çok 600 MB kullanım + en az max(32 MiB, MemTotal / 10) kullanılabilir RAM; aktif uygulama gecikmesi garantisi değil.",
+              "fail_reasons": []
+            }
+          }
+        ],
+        "error_tail": "",
+        "report_sha256": "6a9215886a5421c7ce27ed7ea2998a8d01246d582d17851738482629ee9b634b"
+      }
+    }
+  ]
+}

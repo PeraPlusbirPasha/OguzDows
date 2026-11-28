@@ -1,0 +1,102 @@
+{
+  "source_sha": "8257892342dd346516eddf03ec34e21ab2407fda",
+  "sdk": "35",
+  "abi": "x86_64",
+  "image_fingerprint": "google/sdk_gphone64_x86_64/emu64xa:15/AE3A.240806.043/12960925:userdebug/dev-keys",
+  "emulator_only": true,
+  "physical_sim_tested": false,
+  "emergency_calls_tested": false,
+  "gms_certification_tested": false,
+  "mms_rcs_supported": false,
+  "tests": [
+    {
+      "name": "NativeDeviceTest.bundledBridgeRolesValidationAndIsolation",
+      "passed": false,
+      "test_cases": 0,
+      "seconds": 71.31,
+      "failure": "INSTRUMENTATION_STATUS: stack=java.lang.AssertionError: Timed out: visible bundled page committed"
+    },
+    {
+      "name": "NativeDeviceTest.paidActionsRequireFinalNativeConsent",
+      "passed": false,
+      "test_cases": 0,
+      "seconds": 64.12,
+      "failure": "INSTRUMENTATION_STATUS: stack=java.lang.AssertionError: Timed out: visible bundled page committed"
+    },
+    {
+      "name": "NativeDeviceTest.systemVolumeBrightnessAndNativeThemeAreReal",
+      "passed": false,
+      "test_cases": 0,
+      "seconds": 63.68,
+      "failure": "INSTRUMENTATION_STATUS: stack=java.lang.AssertionError: Timed out: visible bundled page committed"
+    },
+    {
+      "name": "NativeDeviceTest.incomingSmsUsesTheRealProviderAndRichInbox",
+      "passed": false,
+      "test_cases": 0,
+      "error": "Instrumentation did not signal radio-fixture readiness"
+    },
+    {
+      "name": "NativeDeviceTest.outgoingSmsWaitsForActualSentCallback",
+      "passed": false,
+      "test_cases": 0,
+      "seconds": 63.79,
+      "failure": "INSTRUMENTATION_STATUS: stack=java.lang.AssertionError: Timed out: visible bundled page committed"
+    },
+    {
+      "name": "NativeDeviceTest.outgoingCallUsesTelecomAndOurInCallService",
+      "passed": false,
+      "test_cases": 0,
+      "seconds": 63.59,
+      "failure": "INSTRUMENTATION_STATUS: stack=java.lang.AssertionError: Timed out: visible bundled page committed"
+    },
+    {
+      "name": "NativeDeviceTest.incomingCallCanBeAnsweredMutedAndEndedInOurUi",
+      "passed": false,
+      "test_cases": 0,
+      "seconds": 23.73,
+      "failure": "INSTRUMENTATION_STATUS: stack=java.lang.AssertionError: Button not found: Yanıtla; visible native buttons=[null, Close app, Wait]"
+    },
+    {
+      "name": "NativeDeviceTest.localApkReviewCancelAndSystemInstall",
+      "passed": false,
+      "test_cases": 0,
+      "seconds": 65.66,
+      "failure": "INSTRUMENTATION_STATUS: stack=java.lang.AssertionError: Timed out: visible bundled page committed"
+    },
+    {
+      "name": "LauncherDeviceTest.suite",
+      "passed": false,
+      "test_cases": 0,
+      "seconds": 140.88,
+      "failure": "INSTRUMENTATION_STATUS: stack=java.lang.AssertionError: Native node not found: launcher-root; current package=android"
+    },
+    {
+      "name": "RepositorySecurityTest.suite",
+      "passed": true,
+      "test_cases": 3,
+      "seconds": 0.7
+    },
+    {
+      "name": "LiveRepositoryTest.suite",
+      "passed": false,
+      "test_cases": 0,
+      "seconds": 34.43,
+      "failure": "INSTRUMENTATION_STATUS: stack=java.lang.AssertionError: native live Store screen"
+    }
+  ],
+  "live_repository": {
+    "apps": 5057,
+    "compatible": 5016,
+    "timestamp": 1795648445236,
+    "synced": 1795809343633,
+    "source": "https://f-droid.org/repo"
+  },
+  "passed": false,
+  "github": {
+    "run_url": "https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/46058514509",
+    "job_id": 140706799041,
+    "job_url": "https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/46058514509/job/140706799041",
+    "scope": "Failed native launcher acceptance; no distribution package. SDK success is not a runtime pass."
+  }
+}

@@ -11,6 +11,8 @@ firmware-libertas
 pi-bluetooth
 raspi-utils
 raspi-config
+# Pi araçları gerçek taban kod adını görür; ürün sürümü ayrı metadata'dadır.
+lsb-release
 raspberrypi-sys-mods
 wireless-regdb
 mesa-vulkan-drivers

@@ -1,9 +1,9 @@
 [Desktop Entry]
 Type=Application
 Name=OğuzDows Mağaza
-Comment=GNOME Yazılımlar · Sistem ve Flatpak uygulamaları
+Comment=OğuzDows yerel uygulama mağazası
 Exec=/usr/local/bin/oguzdows-store
-Icon=org.gnome.Software
+Icon=oguzdows
 Terminal=false
 NoDisplay=true
 Categories=System;PackageManager;

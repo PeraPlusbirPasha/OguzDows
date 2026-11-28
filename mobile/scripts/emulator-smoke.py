@@ -1,0 +1,360 @@
+#!/usr/bin/env python3
+"""Destructive ONLY to a disposable emulator: install, select roles, inject virtual radio, test.
+
+Never runs against a physical serial or ro.kernel.qemu != 1. No real carrier/SIM/emergency call.
+Run inside android-emulator-runner after building both APKs and generating test assets.
+"""
+import json
+from pathlib import Path
+import re
+import subprocess
+import time
+import xml.etree.ElementTree as ET
+
+import bridge_fixture
+from acceptance import SELECTIONS, validate_emulator
+from android_diagnostics import anr_threads, main_stall
+from emulator_preflight import snapshot as preflight_snapshot
+
+ROOT = Path(__file__).resolve().parents[2]
+OUT = ROOT / 'test-results/mobile/emulator'
+PACKAGE = 'org.oguzdows.mobile'
+COMPONENT = f'{PACKAGE}.test/androidx.test.runner.AndroidJUnitRunner'
+
+
+def annotation(level, title, text):
+    detail = text.replace('%', '%25').replace('\r', '%0D').replace('\n', '%0A')[:3500]
+    print(f'::{level} title={title}::{detail}', flush=True)
+
+
+def evidence_notice(evidence):
+    # Preserve the full report in evidence.json. Bound only verbose failure text in the
+    # checks summary so GitHub cannot truncate it into invalid JSON on a failed run.
+    summary = json.loads(json.dumps(evidence))
+    for item in summary.get('tests', []):
+        item.pop('visible_ui', None)
+        item.pop('main_thread_stall', None)  # Complete process-scoped sample has its own notice/artifact.
+        for key in ('failure', 'error'):
+            if key in item:
+                item[key] = item[key][:100]
+    # Independent hashes have separate notices and remain in evidence.json.
+    for key in ('device_bridge', 'native_device_bridge'):
+        summary.get(key, {}).pop('file_sha256', None)
+    detail = json.dumps(summary, ensure_ascii=False, separators=(',', ':'))
+    if len(detail.encode('utf-8')) > 3400:
+        for item in summary.get('tests', []):
+            item.pop('failure', None); item.pop('error', None)
+        detail = json.dumps(summary, ensure_ascii=False, separators=(',', ':'))
+    if len(detail.encode('utf-8')) > 3400:
+        for item in summary.get('tests', []): item.pop('seconds', None)
+        summary.pop('image_fingerprint', None)
+        detail = json.dumps(summary, ensure_ascii=False, separators=(',', ':'))
+    if len(detail.encode('utf-8')) > 3400:
+        raise RuntimeError('Emulator summary exceeded its bounded notice; no success inferred.')
+    annotation('notice', 'Mobile emulator evidence', detail)
+
+
+def main():
+    OUT.mkdir(parents=True, exist_ok=True)
+    serials = [line.split()[0] for line in subprocess.check_output(['adb', 'devices'], text=True).splitlines()[1:]
+               if line.endswith('\tdevice')]
+    candidates = [serial for serial in serials if serial.startswith('emulator-')]
+    if len(candidates) != 1:
+        raise SystemExit('Exactly one disposable emulator is required; physical targets are never used.')
+    serial = candidates[0]
+
+    def adb(*args, check=True, timeout=90):
+        result = subprocess.run(['adb', '-s', serial, *args], text=True, stdout=subprocess.PIPE,
+                                stderr=subprocess.STDOUT, timeout=timeout, check=False)
+        if check and result.returncode:
+            raise RuntimeError(f'adb {args[0]} failed: {result.stdout[-5000:]}')
+        return result.stdout
+
+    if adb('shell', 'getprop', 'ro.kernel.qemu').strip() != '1':
+        raise SystemExit('REFUSED: this target is not a QEMU Android emulator.')
+    previews = []
+    failure_previews = []
+    evidence = {'source_sha': subprocess.check_output(['git', 'rev-parse', 'HEAD'], cwd=ROOT, text=True).strip(),
+                'sdk': adb('shell', 'getprop', 'ro.build.version.sdk').strip(),
+                'abi': adb('shell', 'getprop', 'ro.product.cpu.abi').strip(),
+                'image_fingerprint': adb('shell', 'getprop', 'ro.build.fingerprint').strip(),
+                'emulator_only': True, 'physical_sim_tested': False, 'emergency_calls_tested': False,
+                'gms_certification_tested': False, 'mms_rcs_supported': False, 'tests': []}
+    # Headless SwiftShader diagnostics selected GL explicitly after a real render-thread ANR.
+    adb('shell', 'setprop', 'debug.hwui.renderer', 'skiagl')
+    adb('shell', 'input', 'keyevent', '82')
+    adb('shell', 'settings', 'put', 'global', 'window_animation_scale', '0')
+    adb('shell', 'settings', 'put', 'global', 'transition_animation_scale', '0')
+    adb('shell', 'settings', 'put', 'global', 'animator_duration_scale', '0')
+    def ui_diagnostic(label):
+        path = '/sdcard/oguzdows-ui-diagnostic.xml'
+        adb('shell', 'uiautomator', 'dump', path, check=False, timeout=30)
+        raw = adb('shell', 'cat', path, check=False)
+        (OUT / f'{label}-ui.xml').write_text(raw)
+        try:
+            nodes = list(ET.fromstring(raw).iter('node'))
+        except ET.ParseError:
+            return [], raw[:500]
+        labels = [node.get('text', '') for node in nodes if node.get('text')]
+        return labels, ' | '.join(dict.fromkeys(labels))[:1200]
+
+    # The old API35 Google image was observed showing "Pixel Launcher isn't responding"
+    # BEFORE the target APK was installed (run 46065058564). Only this identified stock
+    # launcher failure may be closed during disposable-AVD setup, never a product ANR.
+    boot_labels, boot_ui = ui_diagnostic('boot')
+    if any('close app' in text.lower() for text in boot_labels) and any(text.lower() == 'wait' for text in boot_labels):
+        stock_pixel_anr = any("pixel launcher isn't responding" in text.lower() for text in boot_labels)
+        stock_package = 'com.google.android.apps.nexuslauncher'
+        stock_installed = adb('shell', 'pm', 'path', stock_package, check=False).startswith('package:')
+        if stock_pixel_anr and stock_installed:
+            nodes = ET.fromstring((OUT / 'boot-ui.xml').read_text()).iter('node')
+            close = next((node for node in nodes if node.get('text', '').lower() == 'close app'), None)
+            bounds = re.fullmatch(r'\[(\d+),(\d+)\]\[(\d+),(\d+)\]', close.get('bounds', '') if close is not None else '')
+            if bounds is None:
+                raise RuntimeError('Identified stock Pixel boot ANR, but its real close button is not accessible')
+            left, top, right, bottom = map(int, bounds.groups())
+            adb('shell', 'input', 'tap', str((left + right) // 2), str((top + bottom) // 2))
+            adb('shell', 'am', 'force-stop', stock_package)
+            evidence['stock_boot_recovery'] = {'package': stock_package, 'dialog': boot_ui,
+                'action': 'Close identified stock Pixel Launcher boot ANR and stop it before installing/selecting the target HOME.',
+                'product_anr_waived': False}
+            annotation('notice', 'Stock Pixel boot recovery, not a product pass', boot_ui)
+        else:
+            evidence.update(passed=False, infrastructure_boot_dialog=boot_ui)
+            (OUT / 'evidence.json').write_text(json.dumps(evidence, indent=2))
+            annotation('error', 'Emulator boot health', boot_ui)
+            evidence_notice(evidence)
+            return 1
+    # The CI uses CPU-only SwiftShader, not a phone GPU. Keep the same ~411dp UI at
+    # 720x1600 / 280dpi instead of pushing 2.6 million software-rendered pixels/frame.
+    # This does not waive product ANRs or count as physical-device performance evidence.
+    adb('shell', 'wm', 'size', '720x1600')
+    adb('shell', 'wm', 'density', '280')
+    evidence['display'] = {'pixels': '720x1600', 'density': 280, 'gpu': 'headless SwiftShader'}
+    adb('uninstall', 'org.oguzdows.fixture', check=False)
+    adb('install', '-r', '-t', str(ROOT / 'mobile/android/app/build/outputs/apk/debug/app-debug.apk'))
+    adb('install', '-r', '-t', str(ROOT / 'mobile/android/app/build/outputs/apk/androidTest/debug/app-debug-androidTest.apk'))
+    for role in ('HOME', 'DIALER', 'SMS'):
+        adb('shell', 'cmd', 'role', 'add-role-holder', '--user', '0', f'android.app.role.{role}', PACKAGE)
+        holders = adb('shell', 'cmd', 'role', 'get-role-holders', '--user', '0', f'android.app.role.{role}')
+        if PACKAGE not in holders:
+            raise RuntimeError(f'{role}: app did not qualify for the real platform role')
+    permissions = ['CALL_PHONE', 'READ_PHONE_STATE', 'SEND_SMS', 'RECEIVE_SMS', 'READ_SMS', 'RECEIVE_MMS', 'RECEIVE_WAP_PUSH']
+    if int(evidence['sdk']) >= 33:
+        permissions.append('POST_NOTIFICATIONS')
+    for permission in permissions:
+        adb('shell', 'pm', 'grant', PACKAGE, 'android.permission.' + permission)
+    # This is equivalent to approving this source in a throwaway emulator, not a production bypass.
+    adb('shell', 'appops', 'set', PACKAGE, 'REQUEST_INSTALL_PACKAGES', 'allow')
+    # This guarded AVD fixture needs virtual Wi-Fi for real F-Droid and the runner
+    # peer. Do not treat a LOADED SIM property as an assigned SMS line/default route.
+    # No SMS/data subscription is selected or manufactured; the app must still use
+    # the OS-selected default and every paid action still needs final native consent.
+    adb('shell', 'svc', 'wifi', 'enable')
+    sim_deadline = time.monotonic() + 90
+    while True:
+        connectivity = adb('shell', 'dumpsys', 'connectivity')
+        preflight = preflight_snapshot(adb('shell', 'getprop', 'gsm.sim.state'),
+                                       adb('shell', 'settings', 'get', 'global', 'multi_sim_sms'), connectivity)
+        if preflight['ready']:
+            evidence['preflight'] = preflight
+            annotation('notice', 'Mobile emulator preflight', json.dumps(preflight, separators=(',', ':')))
+            break
+        if time.monotonic() >= sim_deadline:
+            evidence.update(passed=False, preflight=preflight, setup_failure='QEMU SIM / OS-selected SMS subscription / default network not ready; no device acceptance inferred.')
+            (OUT / 'preflight-connectivity.txt').write_text(connectivity)
+            (OUT / 'evidence.json').write_text(json.dumps(evidence, indent=2))
+            annotation('error', 'Mobile emulator preflight', json.dumps(preflight, separators=(',', ':')))
+            evidence_notice(evidence)
+            return 1
+        time.sleep(0.5)
+    # ActivityScenario owns the first visible launch. Do not cold-launch a WebView only
+    # to have am instrument immediately tear that process down during focus delivery.
+
+    def run_test(name, klass='NativeDeviceTest', fixture=None, timeout=180):
+        started = time.monotonic()
+        selection = f'{PACKAGE}.{klass}' + (f'#{name}' if name else '')
+        if fixture == 'device-bridge': bridge_fixture.clean(adb)
+        marker = {'incoming-call': 'incoming-ready', 'incoming-sms': 'incoming-sms-ready'}.get(fixture)
+        marker_path = f'/sdcard/Android/data/{PACKAGE}/files/{marker}' if marker else None
+        if marker_path:
+            adb('shell', 'rm', '-f', marker_path)
+        command = ['adb', '-s', serial, 'shell', 'am', 'instrument', '-w', '-r', '-e', 'class', selection, COMPONENT]
+        process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True)
+        try:
+            if marker_path:
+                deadline = time.monotonic() + 90
+                while time.monotonic() < deadline and process.poll() is None:
+                    if adb('shell', f'if test -f {marker_path}; then echo ready; fi', check=False).strip() == 'ready':
+                        break
+                    time.sleep(0.25)
+                else:
+                    raise RuntimeError('Instrumentation did not signal radio-fixture readiness')
+                if fixture == 'incoming-call':
+                    output = adb('emu', 'gsm', 'call', '15555215554')
+                else:
+                    output = adb('emu', 'sms', 'send', '15555215554', 'OguzDows_emulator_inbound')
+                if 'OK' not in output:
+                    raise RuntimeError('Virtual modem injection failed: ' + output)
+            if fixture == 'device-bridge':
+                evidence['device_bridge'] = bridge_fixture.exercise(adb, process)
+                annotation('notice', 'Mobile runner peer evidence', json.dumps(evidence['device_bridge'], separators=(',', ':')))
+            output, _ = process.communicate(timeout=timeout)
+            (OUT / f'{klass}-{name or "suite"}.txt').write_text(output)
+            observed_stall = main_stall(output, PACKAGE)
+            if observed_stall:
+                annotation('notice', 'Mobile observed main-thread stall (not an ANR waiver)', json.dumps(observed_stall, separators=(',', ':')))
+            diagnostic_sent = False
+            for line in output.splitlines():
+                if 'DEVICE_UI_DIAGNOSTIC ' in line and not diagnostic_sent:
+                    annotation('notice', 'Native UI diagnosis ' + klass, line.split('DEVICE_UI_DIAGNOSTIC ', 1)[1])
+                    diagnostic_sent = True
+                if 'DEVICE_UI_PREVIEW ' in line:
+                    preview = re.fullmatch(r'([a-zA-Z0-9-]{1,80}) ([A-Za-z0-9+/=]{1,28000})', line.split('DEVICE_UI_PREVIEW ', 1)[1].strip())
+                    if preview:
+                        if not failure_previews: failure_previews.append(preview.groups())
+            match = re.search(r'OK \((\d+) tests?\)', output)
+            cases = int(match.group(1)) if match else 0
+            expected = SELECTIONS[f'{klass}.{name or "suite"}']
+            passed = process.returncode == 0 and cases == expected and 'FAILURES!!!' not in output and 'INSTRUMENTATION_FAILED' not in output
+            record = {'name': f'{klass}.{name or "suite"}', 'passed': passed, 'test_cases': cases,
+                      'seconds': round(time.monotonic() - started, 2)}
+            if observed_stall:
+                record['main_thread_stall'] = observed_stall
+            evidence['tests'].append(record)
+            print(('PASS ' if passed else 'FAIL ') + record['name'], flush=True)
+            if not passed:
+                print(output[-16000:], flush=True)
+                concise = [line for line in output.splitlines()
+                           if 'DEVICE_UI_PREVIEW ' not in line and 'NATIVE_LAUNCHER_PREVIEW ' not in line
+                           and (not line.startswith(('\tat ', '    at ')) or 'at org.oguzdows.mobile.' in line)]
+                failures = [line for line in concise if 'AssertionError' in line or 'Exception:' in line]
+                if failures: record['failure'] = failures[0][-400:]
+                annotation('error', 'Emulator ' + record['name'], '\n'.join(concise)[-3000:])
+                # A system ANR dialog can cover every later test without producing an ANR
+                # instrumentation result. Capture the real trace, not a blind retry/time increase.
+                labels, visible_ui = ui_diagnostic('failure-' + klass + '-' + (name or 'suite'))
+                record['visible_ui'] = visible_ui[:160]
+                tasks = adb('shell', 'dumpsys', 'activity', 'activities', check=False)
+                (OUT / f'{klass}-{name or "suite"}-activities.txt').write_text(tasks)
+                events = adb('logcat', '-b', 'events', '-d', '-s', 'am_anr', check=False)
+                has_anr_dialog = (any('close app' in text.lower() for text in labels)
+                                  and any(text.lower() == 'wait' for text in labels))
+                if PACKAGE in events or has_anr_dialog or 'keyDispatchingTimedOut' in output or 'Input dispatching timed out' in output:
+                    anr = adb('shell', 'dumpsys', 'activity', 'lastanr', check=False)
+                    dropbox = adb('shell', 'dumpsys', 'dropbox', '--print', 'data_app_anr', check=False)
+                    dropbox += adb('shell', 'dumpsys', 'dropbox', '--print', 'system_app_anr', check=False)
+                    annotation('error', 'Emulator ANR dialog identity', visible_ui or events[:1200])
+                    (OUT / f'{klass}-{name or "suite"}-anr.txt').write_text(events + '\n' + anr + '\n' + dropbox)
+                    # A stock boot ANR may precede or follow ours in the concatenated
+                    # DropBox output. Never call its first "main" the product's stack.
+                    scoped = anr_threads(dropbox, PACKAGE)
+                    annotation('error', 'Emulator ANR event and focus', (events[-1200:] + '\n' + anr[:1400]))
+                    if scoped:
+                        for thread, stack in scoped['threads'].items():
+                            annotation('error', f'Emulator product ANR {thread} pid {scoped["pid"]}', stack)
+                    else:
+                        annotation('error', 'Emulator product ANR trace unavailable', 'No exact product Cmd line in DropBox; do not attribute another process stack. Full diagnostic remains in the artifact.')
+                    evidence['passed'] = False
+                    product_timeout = PACKAGE in output and ('keyDispatchingTimedOut' in output or 'Input dispatching timed out' in output)
+                    evidence['product_anr_detected'] = True if PACKAGE in events or product_timeout else None
+                    evidence_notice(evidence)
+                    raise SystemExit('ANR: abort incomplete acceptance; no package. Inspect the process-scoped trace.')
+            if klass == 'LauncherDeviceTest' and passed:
+                # Bounded visual diagnostic from a disposable emulator, not personal device data.
+                # Chunk below the checks-message cap; full-resolution screenshots stay in the artifact.
+                for line in output.splitlines():
+                    if 'NATIVE_LAUNCHER_PREVIEW ' not in line:
+                        continue
+                    encoded = line.split('NATIVE_LAUNCHER_PREVIEW ', 1)[1].strip()
+                    if not re.fullmatch(r'[A-Za-z0-9+/=]{1,28000}', encoded):
+                        continue
+                    previews.append(encoded)
+            if klass == 'BridgeDeviceTest':
+                for line in output.splitlines():
+                    if 'BRIDGE_CAPTURE_EVIDENCE ' in line:
+                        evidence['screen_capture'] = json.loads(line.split('BRIDGE_CAPTURE_EVIDENCE ', 1)[1])
+                        annotation('notice', 'Mobile real capture evidence', json.dumps(evidence['screen_capture'], separators=(',', ':')))
+                    if 'BRIDGE_INTEROP_EVIDENCE ' in line:
+                        evidence['native_device_bridge'] = json.loads(line.split('BRIDGE_INTEROP_EVIDENCE ', 1)[1])
+                        annotation('notice', 'Mobile native peer evidence', json.dumps(evidence['native_device_bridge'], separators=(',', ':')))
+            if klass == 'LiveRepositoryTest':
+                for line in output.splitlines():
+                    if 'LIVE_REPO_EVIDENCE ' in line:
+                        try: evidence['live_repository'] = json.loads(line.split('LIVE_REPO_EVIDENCE ', 1)[1])
+                        except json.JSONDecodeError: pass
+                    if line.startswith('APK_REVIEW '): evidence['live_apk_review'] = line
+        except Exception as error:
+            process.kill(); output, _ = process.communicate(timeout=15)
+            (OUT / f'{klass}-{name or "suite"}.txt').write_text(output + '\n' + str(error))
+            evidence['tests'].append({'name': f'{klass}.{name or "suite"}', 'passed': False, 'test_cases': 0, 'error': str(error)})
+            print(f'FAIL {klass}.{name}: {error}\n{output[-10000:]}', flush=True)
+            annotation('error', f'Emulator {klass}.{name or "suite"}', str(error) + '\n' + output[-2500:])
+        finally:
+            # Only known virtual fixture calls are cleared, and only after the emulator guard above.
+            for number in ('5551234', '15555215554'):
+                adb('emu', 'gsm', 'cancel', number, check=False)
+            (OUT / 'evidence.json').write_text(json.dumps(evidence, indent=2))
+
+    run_test('bundledBridgeRolesValidationAndIsolation')
+    run_test('paidActionsRequireFinalNativeConsent')
+    run_test('systemVolumeBrightnessAndNativeThemeAreReal')
+    run_test('incomingSmsUsesTheRealProviderAndRichInbox', fixture='incoming-sms')
+    run_test('outgoingSmsWaitsForActualSentCallback')
+    run_test('outgoingCallUsesTelecomAndOurInCallService')
+    run_test('incomingCallCanBeAnsweredMutedAndEndedInOurUi', fixture='incoming-call')
+    run_test('localApkReviewCancelAndSystemInstall')
+    # Assert HOME is still genuinely held after communications/installer acceptance.
+    # Selecting it at setup also prevents the broken stock Pixel launcher from returning.
+    if PACKAGE not in adb('shell', 'cmd', 'role', 'get-role-holders', '--user', '0', 'android.app.role.HOME'):
+        raise RuntimeError('HOME: app did not qualify for the real platform role')
+    run_test('', klass='LauncherDeviceTest', timeout=300)
+    # Roles can themselves grant contacts on some systems. Explicitly revoke only in this
+    # guarded disposable emulator to exercise the denied screen before the real permission UI.
+    for permission in ('READ_CONTACTS', 'WRITE_CONTACTS'):
+        adb('shell', 'pm', 'revoke', PACKAGE, 'android.permission.' + permission)
+    run_test('', klass='ConnectedDeviceTest', timeout=300)
+    run_test('nativeTls', klass='BridgeDeviceTest')
+    run_test('pcArmInterop', klass='BridgeDeviceTest', fixture='device-bridge', timeout=240)
+    run_test('systemProjection', klass='BridgeDeviceTest', timeout=240)
+    for permission in ('READ_CONTACTS', 'WRITE_CONTACTS'):
+        adb('shell', 'pm', 'revoke', PACKAGE, 'android.permission.' + permission)
+    run_test('', klass='RepositorySecurityTest')
+    run_test('', klass='LiveRepositoryTest', timeout=480)
+    adb('pull', f'/sdcard/Android/data/{PACKAGE}/files/evidence', str(OUT / 'screenshots'), check=False)
+    # Dedicated emulator contains only fixture data, but keep the diagnostic narrowly scoped to app crashes.
+    crash = adb('logcat', '-b', 'crash', '-d', '-t', '300', check=False)
+    (OUT / 'crash-buffer.txt').write_text(crash)
+    events = adb('logcat', '-b', 'events', '-d', '-s', 'am_anr', check=False)
+    (OUT / 'anr-events.txt').write_text(events)
+    evidence['product_anr_detected'] = re.search(r'(?<![\w.])' + re.escape(PACKAGE) + r'(?=[,\s\]])', events) is not None
+    evidence['product_crash_detected'] = re.search(r'Process: ' + re.escape(PACKAGE) + r'(?=[,\s])', crash) is not None
+    if evidence['product_crash_detected']:
+        annotation('error', 'Mobile product crash', crash[-3000:])
+    frame_file = OUT / 'connected-real-mediaprojection.jpg'
+    adb('pull', f'/sdcard/Android/data/{PACKAGE}/files/evidence/connected-real-mediaprojection.jpg', str(frame_file), check=False)
+    evidence['passed'] = False
+    try:
+        validate_emulator(evidence, evidence['source_sha'], frame_file.read_bytes() if frame_file.is_file() else None)
+        evidence['passed'] = True
+    except ValueError as error:
+        evidence['acceptance_failure'] = str(error)
+        annotation('error', 'Mobile complete acceptance refused', str(error))
+    (OUT / 'evidence.json').write_text(json.dumps(evidence, indent=2))
+    print(json.dumps(evidence, indent=2))
+    evidence_notice(evidence)
+    # Optional pixels come LAST, so the per-step checks notice limit cannot hide
+    # mandatory counts / independent hashes / actual capture evidence.
+    if evidence['passed'] and previews:
+        encoded = previews[-1]
+        (OUT / 'native-launcher-preview.b64').write_text(encoded + '\n')
+    elif failure_previews:
+        label, encoded = failure_previews[0]
+        pieces = [encoded[i:i + 3400] for i in range(0, len(encoded), 3400)]
+        for index, piece in enumerate(pieces):
+            annotation('notice', f'Native failed UI {label} {index+1:02}/{len(pieces):02}', piece)
+    return 0 if evidence['passed'] else 1
+
+
+if __name__ == '__main__':
+    raise SystemExit(main())

@@ -1,0 +1,907 @@
+{
+  "schema_version": 1,
+  "source_revision": "5a44de0dde676d901a32be40d631d481e213439d",
+  "product_version": "2.0",
+  "codename": "Akıncı",
+  "full_image_bytes_downloaded_or_independently_hashed_by_this_metadata_collector": false,
+  "publication_byte_audit_required": true,
+  "physical_pc_or_pi_boot_verified": false,
+  "images": {
+    "amd64": {
+      "job": {
+        "id": 140818253682,
+        "name": "ISO · amd64",
+        "html_url": "https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/46092345482/job/140818253682",
+        "status": "completed",
+        "conclusion": "success"
+      },
+      "target": {
+        "arch": "amd64",
+        "source_revision": "5a44de0dde676d901a32be40d631d481e213439d",
+        "build": {
+          "arch": "amd64",
+          "suite": "trixie",
+          "flavour": "amd64",
+          "uefi": true,
+          "source_revision": "5a44de0dde676d901a32be40d631d481e213439d",
+          "source_dirty": null
+        },
+        "modes": [
+          "bios",
+          "efi"
+        ],
+        "initramfs": {
+          "6.12.118+deb13-amd64": {
+            "device": "66308",
+            "inode": "262148",
+            "mtime_ns": "1795829837608181424",
+            "size": "152128604"
+          }
+        },
+        "desktop_idle": {
+          "valid_idle_measurement": true,
+          "median_used_mb": 501.7,
+          "max_used_mb": 501.7,
+          "target_met": true,
+          "invalid_reasons": [],
+          "vm_ram_mib": 2048
+        },
+        "low_ram": [
+          {
+            "valid_idle_measurement": true,
+            "median_used_mb": 297.0,
+            "max_used_mb": 297.1,
+            "target_met": true,
+            "invalid_reasons": [],
+            "vm_ram_mib": 512,
+            "low_ram_budget": {
+              "passed": true,
+              "minimum_available_bytes": 48636314,
+              "observed_min_available_bytes": 189255680,
+              "policy": "Geçerli tam Xfce boşta ölçümü + en çok 600 MB kullanım + en az max(32 MiB, MemTotal / 10) kullanılabilir RAM; aktif uygulama gecikmesi garantisi değil.",
+              "fail_reasons": []
+            }
+          },
+          {
+            "valid_idle_measurement": true,
+            "median_used_mb": 490.2,
+            "max_used_mb": 490.2,
+            "target_met": true,
+            "invalid_reasons": [],
+            "vm_ram_mib": 1024,
+            "low_ram_budget": {
+              "passed": true,
+              "minimum_available_bytes": 101405901,
+              "observed_min_available_bytes": 523837440,
+              "policy": "Geçerli tam Xfce boşta ölçümü + en çok 600 MB kullanım + en az max(32 MiB, MemTotal / 10) kullanılabilir RAM; aktif uygulama gecikmesi garantisi değil.",
+              "fail_reasons": []
+            }
+          }
+        ],
+        "error_tail": "",
+        "report_sha256": "6a9215886a5421c7ce27ed7ea2998a8d01246d582d17851738482629ee9b634b"
+      },
+      "target_origin": "https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/46095123772",
+      "target_origin_scope": "Read-only runner extraction of actual completed PC artifact JSON summaries; not another boot or local byte audit",
+      "ram_vm_not_physical": [
+        {
+          "valid_idle_measurement": true,
+          "median_used_mb": 297.0,
+          "max_used_mb": 297.1,
+          "target_met": true,
+          "invalid_reasons": [],
+          "vm_ram_mib": 512,
+          "low_ram_budget": {
+            "passed": true,
+            "minimum_available_bytes": 48636314,
+            "observed_min_available_bytes": 189255680,
+            "policy": "Geçerli tam Xfce boşta ölçümü + en çok 600 MB kullanım + en az max(32 MiB, MemTotal / 10) kullanılabilir RAM; aktif uygulama gecikmesi garantisi değil.",
+            "fail_reasons": []
+          }
+        },
+        {
+          "valid_idle_measurement": true,
+          "median_used_mb": 490.2,
+          "max_used_mb": 490.2,
+          "target_met": true,
+          "invalid_reasons": [],
+          "vm_ram_mib": 1024,
+          "low_ram_budget": {
+            "passed": true,
+            "minimum_available_bytes": 101405901,
+            "observed_min_available_bytes": 523837440,
+            "policy": "Geçerli tam Xfce boşta ölçümü + en çok 600 MB kullanım + en az max(32 MiB, MemTotal / 10) kullanılabilir RAM; aktif uygulama gecikmesi garantisi değil.",
+            "fail_reasons": []
+          }
+        },
+        {
+          "valid_idle_measurement": true,
+          "median_used_mb": 501.7,
+          "max_used_mb": 501.7,
+          "target_met": true,
+          "invalid_reasons": [],
+          "vm_ram_mib": 2048
+        }
+      ],
+      "exact_source_sha256": {
+        "usr/share/oguzdows/compositor/blur-still.conf": "d79cd2959579933a2b758a4bf18a06c94d64d920fe451557a96281ad5612298d",
+        "usr/share/oguzdows/compositor/blur.conf": "69ae6f0576c275e2fe8af100519340016e0171f63ba15ae8814087818fc93899",
+        "usr/share/oguzdows/compositor/blur9-still.conf": "7e003c30560ed587be83aa8aecd812e36627d7e99d902d7c18a33ecd9e8c6ebb",
+        "usr/share/oguzdows/compositor/blur9.conf": "2c32f4b9fd25046b5ee13ebc4806b35ee180e8f5083abcfae53f57ebb5f9f15d",
+        "usr/share/oguzdows/compositor/full-snap.conf": "c3cb6543b739354f6f82971ba275f7d8622fd4848d4225d50dcd9c7a9fa3ed5e",
+        "usr/share/oguzdows/compositor/full.conf": "8d125c5c1399a088d349192641f9a744bc2b92b62586b301ba252225faeefeaa",
+        "usr/share/oguzdows/compositor/motion.conf": "4fd38440ab99d0179c6b676e798e07de91182344d0b0c5bbc518d8206a2ac3be",
+        "usr/share/oguzdows/compositor/snap.conf": "0710299bc5a54037b82c8f325d1d48a217e969ae64b242a88bdd0a5020a2f2e5",
+        "usr/share/oguzdows/compositor/still.conf": "77ae109a7664a2be9dfc59de440ff22c29033293bd455e31579d55af56f5961a",
+        "usr/share/oguzdows/picom.conf": "f202423a33930a324c51650cb0b6cc483395c158a7a300bf4ecf0ad6cea3b2b1",
+        "usr/share/oguzdows/native/tasks.c": "56f3cfa2af822314c41ee934740db3bc06ada659391d4eb63b4148c110849da3",
+        "usr/share/oguzdows/native/accent-watch.c": "60d6014872ffc70baf1d7048fde8d08dbd06819bae34fe68477dc47cc563993b",
+        "usr/share/oguzdows/scripts/build-panel.sh": "b7685ae4391c09ae9113783831d1e00c1ffc0c583872a239af3c1d5f7c8fab27",
+        "usr/lib/oguzdows/render-assets.py": "9ae9895d5d3cc4277c525cfff9cc20c9bd7ec8f5e4fd30d078d9c91fa1e030f5",
+        "usr/share/doc/oguzdows/AKINCI-BAGLANTI.md": "6dd397a7ffd586ade2569146de6deee6edb6ca728d2fddbcf522f000fdacb155",
+        "usr/share/themes/OguzDows/gtk-3.0/gtk.css": "c30aacdae8100d10cd1953d0345d4336fbfb1f464982dd87665b966d263ad925",
+        "usr/share/themes/OguzDowsLight/gtk-3.0/gtk.css": "3282e908cd1992d007cc3ffc9ff6947d4df46ad3fc0b230e3adc174db3006937",
+        "usr/share/themes/OguzDowsEleven/gtk-3.0/gtk.css": "d920621a683911146b4fd50dc7562c816cdb1a62cdded8e870cf0d47dd8d702d",
+        "usr/share/themes/OguzDowsElevenDark/gtk-3.0/gtk.css": "c1bf7f8a95e7b331506f1e9557415f0213038d92c6b964702f14f1c54bd61748",
+        "usr/share/themes/OguzDowsMac/gtk-3.0/gtk.css": "59bd7a8f0d61fccf3fd0d20c49f478fd20ae7c19ad423449c95e76ee367ed99d",
+        "usr/share/themes/OguzDowsMacDark/gtk-3.0/gtk.css": "569f7203be6dabfeba4dda7e7be95309952d0ec5ea96ff0e6063ead4c9ee92ce",
+        "usr/lib/oguzdows/bridge.py": "cba1365b1205f79b200ae4b11711a2de8678551fe2aa0a2a13e3cf2fab6e4f88",
+        "usr/lib/oguzdows/bridge_core.py": "e7277812e41be2d01b029763485b8d37c86fa60913e1fe29408b2254d9bb4799",
+        "usr/lib/oguzdows/bridge_capture.py": "c3b0b1ac3b2e8c167a190b3c6b29ce3602459af95f17c61602ddc03f06ed2ca6",
+        "usr/lib/oguzdows/product_info.py": "200db3dcd0314afb42c3a066b720a31d9df83735de0255c9f264d9beb332afc8",
+        "usr/share/oguzdows/product.json": "4f08c11c72bdb393b0d7ee3bc9f255451ff0173be47c2c8b1c70924566877a57",
+        "usr/local/bin/oguzdows-bridge": "8700716903c9d901695cf2b7f6cf43850d42110b257b47e961a0aa3fe1264538",
+        "usr/share/applications/oguzdows-bridge.desktop": "117b188c01894e39eabfd8dc3e48a9105e6521fe97f5c47d837ff5f6c34534c1",
+        "usr/lib/oguzdows/session.sh": "bc87d32a423ed86b546c97b4b59472f578bb7e1384ec4098d66e87177376995a",
+        "usr/lib/oguzdows/wallpapers.py": "9de5cb15a770b94e1d030525b57232703ecb40826599f99534cb9d734d678165",
+        "usr/local/bin/oguzdows-accent": "59ea1c92cf4998679e2ba83d7bc3e568b6095b93989c791159a2bf30abd08283",
+        "usr/share/oguzdows/ui/window-geometry.css": "10e150ed85c84e22bbd38c01767ee6e81888a847b487a74449cfbced7ba8ac03",
+        "usr/share/xfce4/panel/plugins/oguzdows-tasks.desktop": "3c03c9c7a1a1214a58d49eca3c0aa440ca70de3751b1a523e3772923419e6832",
+        "usr/lib/oguzdows/accent.py": "43127ffa49c3c70ff51c5ab9d620abc71ad684f50b4bfa7121bb7d06d9e4e7b1",
+        "usr/lib/oguzdows/profiles.py": "ddc6400660222179deb0820a28ed1452752c03823f5086e55048fd1ee17c1b3b",
+        "usr/lib/oguzdows/desktop_material.py": "f89fa06bb13924572a3fae98243dada97afb24d1cf64a52a32f44b3cbc778205",
+        "usr/lib/oguzdows/desktop_preferences.py": "de34fefff96d73cd52da645e8a510316277f62f6cea7ffc5f995caddac625fd5",
+        "usr/lib/oguzdows/desktop_state.py": "396ae87e6f0b34d9667c7469a51012fb0724b0a7fa70cf5166294293277963c4",
+        "usr/lib/oguzdows/desktop_ui.py": "367aae91fc661813fe62d9b43d0c4b7599e7981d1838936bd833baca006e043c",
+        "usr/lib/oguzdows/file_manager.py": "d962bb0f18a975e35fd344ad7775a18c33c0b8a9f848d4310f628a2b0386274f",
+        "usr/lib/oguzdows/resource_policy.py": "b7f4aa6b39188f6f0c41a0e5b2e360c6be7a8b9468cb5de5fec691921a989d21",
+        "usr/lib/oguzdows/desktop_appearance.py": "142506fa56e06fdacc14ecb969da8562260f86480626a38fba5a5a9801bcb56a",
+        "usr/lib/oguzdows/desktop_shortcuts.py": "5f2f07f053289eff904ad9409f16bf3d79b1ca910ebcdec681aad1a9874dc280",
+        "usr/lib/oguzdows/screenshot.py": "4ab048e6b066f964312327923bf764d23e19886b8e42a9e13855067e7d409b65",
+        "usr/share/oguzdows/ui/shell.css": "310ed0641bc05a362f25304ed578132bd9945ad9f84944f5a61497e087364f47",
+        "usr/share/oguzdows/ui/modern.css": "f3c64d678ddb199b122f6e1bae1ccce65e8ca55a79777f1db3561a379def36f3",
+        "usr/lib/oguzdows/ui_theme.py": "663e4966446ff6de6b27e9afb0fa829af4e0d2b21608ab59356043612c41ce6b",
+        "usr/lib/oguzdows/news_core.py": "e75d1cbc6fa5e9b0791f2489e9d6fb75d12930b3fb737c49d6e68593bf92a7f5",
+        "usr/lib/oguzdows/news_service.py": "3cffb66ee39f0070e6f46266428e1cc61a9556305dc3836bcb5871e046381eb4",
+        "usr/lib/oguzdows/store_service.py": "5f3bf0885c601166a28dcd82755bf0337e4d99f984f1a17f1875a0a755315404",
+        "usr/lib/oguzdows/app_catalog.py": "2659cceee8f77d84f9de4254b2ec5efaa83c7d708ca20ef9d1ad09703fa18d8b",
+        "usr/lib/oguzdows/maintenance.py": "dae4807f6dadf2605813db6d3dcfc15565bc66af4b23bff778b448be6beed6ac",
+        "usr/local/sbin/oguzdows-maintenance": "e52e47b6657a2c647cd3f05b008b869014ad48d5b392d32c929995ffdb6323a8",
+        "usr/lib/oguzdows/welcome.py": "1392e651d815ae4dd54e370e52383ab3e3c8d6ec0dbffe6643b1e04eac93bed9",
+        "usr/lib/oguzdows/desktop_center.py": "f33ac18367ca22ca1f270ad075ccefa258ebe8022632c3d08d95f8c2f3238aba",
+        "usr/lib/oguzdows/workbench.py": "472c850ce135dbc9f3f7e4a6d795666cc0b53c6cb4476ddb2aa4117adf231c63",
+        "usr/lib/oguzdows/workbench_core.py": "b3be90cc2d0cf41355a3c453500cbae5ca01053703923b6206a29928f68b8cbe",
+        "usr/local/bin/oguzdows-workbench": "a752e177c79286aa2008fb6283db6ab895bbdf9740a3e5e5d298a8c9e954a5d3",
+        "usr/share/applications/oguzdows-workbench.desktop": "76e8528387c79d3a973127c43faa2150d6f21423efac4cfb1d2c24513709dcf3",
+        "usr/lib/oguzdows/store_core.py": "4f9e026c2aa252627cab721d1fff5ad7b06ee3d778043fe8ac70d57746e7247d",
+        "usr/lib/oguzdows/store.py": "948cd40ebd58e69e01abcf2bcebf65ebc11070342f7f9b11fc7842e6fb28a739",
+        "usr/lib/oguzdows/store_lifecycle.py": "1d28b5300b4d205716dca24e3b11a6163387f57753ecf7d7aeb3704e43500207",
+        "usr/share/applications/oguzdows-software.desktop": "7b2e0c104d5c4bdcf987a79a019df5e370c35a28333ca0e363b88cf85bc45e90",
+        "usr/share/oguzdows/native/ui.c": "1398b2f8f3c0b46a9a5518e48cf9d9daad37e1f056360f7048c09eaa6ad6a932",
+        "usr/share/oguzdows/native/ui.h": "368021125ba8c526e61ad56588cc05d152a70c33c72eb812d3596fa2f5948e31",
+        "usr/share/oguzdows/native/news.c": "4856f77e647a5a7bfd30fbe934bc320a69357ea5de240e1115a3a0939a7955f2",
+        "usr/share/oguzdows/native/store.c": "db9967d4e472498d2ef3cce6a28da505e7e50accab49645906e17c5101b9243f",
+        "usr/share/oguzdows/native/hub.c": "2c6a97a25d2b700d7046c834485721fdb4cf4aaf25466f6321deaf45f48fbf0f",
+        "usr/share/oguzdows/native/monitor.c": "75adf38745755d628484c5059937c09fe76ce73041d387f6f4a8362d2ddb8b8e"
+      },
+      "artifact": {
+        "id": 15243266470,
+        "name": "OguzDows-amd64",
+        "size_in_bytes": 1776648569,
+        "digest": "sha256:6f8bca7ea58b5042339503ab1ba2e1b6448816d7546dfeb4d21901905235ea99",
+        "expires_at": "2026-12-05T01:47:24Z"
+      },
+      "evidence_artifact": {
+        "id": 15243196560,
+        "name": "OguzDows-ISO-hedef-test-amd64",
+        "size_in_bytes": 83430,
+        "digest": "sha256:821b51dd288f762c3cdfcdf6a36328c7e881dde2b78dd86fd864ba436079d140",
+        "expires_at": "2026-12-05T01:47:23Z"
+      }
+    },
+    "i386": {
+      "job": {
+        "id": 140818253699,
+        "name": "ISO · i386",
+        "html_url": "https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/46092345482/job/140818253699",
+        "status": "completed",
+        "conclusion": "success"
+      },
+      "target": {
+        "arch": "i386",
+        "source_revision": "5a44de0dde676d901a32be40d631d481e213439d",
+        "build": {
+          "arch": "i386",
+          "suite": "bookworm",
+          "flavour": "686-pae",
+          "uefi": false,
+          "source_revision": "5a44de0dde676d901a32be40d631d481e213439d",
+          "source_dirty": null
+        },
+        "modes": [
+          "bios"
+        ],
+        "initramfs": {
+          "6.1.0-57-686-pae": {
+            "device": "66309",
+            "inode": "524314",
+            "mtime_ns": "1795829950506918303",
+            "size": "97195187"
+          }
+        },
+        "desktop_idle": {
+          "valid_idle_measurement": true,
+          "median_used_mb": 476.9,
+          "max_used_mb": 479.8,
+          "target_met": true,
+          "invalid_reasons": [],
+          "vm_ram_mib": 2048
+        },
+        "low_ram": [
+          {
+            "valid_idle_measurement": true,
+            "median_used_mb": 195.6,
+            "max_used_mb": 195.6,
+            "target_met": true,
+            "invalid_reasons": [],
+            "vm_ram_mib": 512,
+            "low_ram_budget": {
+              "passed": true,
+              "minimum_available_bytes": 51442074,
+              "observed_min_available_bytes": 318857216,
+              "policy": "Geçerli tam Xfce boşta ölçümü + en çok 600 MB kullanım + en az max(32 MiB, MemTotal / 10) kullanılabilir RAM; aktif uygulama gecikmesi garantisi değil.",
+              "fail_reasons": []
+            }
+          },
+          {
+            "valid_idle_measurement": true,
+            "median_used_mb": 407.1,
+            "max_used_mb": 407.1,
+            "target_met": true,
+            "invalid_reasons": [],
+            "vm_ram_mib": 1024,
+            "low_ram_budget": {
+              "passed": true,
+              "minimum_available_bytes": 104581940,
+              "observed_min_available_bytes": 638697472,
+              "policy": "Geçerli tam Xfce boşta ölçümü + en çok 600 MB kullanım + en az max(32 MiB, MemTotal / 10) kullanılabilir RAM; aktif uygulama gecikmesi garantisi değil.",
+              "fail_reasons": []
+            }
+          }
+        ],
+        "error_tail": "",
+        "report_sha256": "7c4fc760edff813cf812bc7346b718e1ddd4eb80eed0cb07115bac2c6802aa4e"
+      },
+      "target_origin": "https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/46095123772",
+      "target_origin_scope": "Read-only runner extraction of actual completed PC artifact JSON summaries; not another boot or local byte audit",
+      "ram_vm_not_physical": [
+        {
+          "valid_idle_measurement": true,
+          "median_used_mb": 195.6,
+          "max_used_mb": 195.6,
+          "target_met": true,
+          "invalid_reasons": [],
+          "vm_ram_mib": 512,
+          "low_ram_budget": {
+            "passed": true,
+            "minimum_available_bytes": 51442074,
+            "observed_min_available_bytes": 318857216,
+            "policy": "Geçerli tam Xfce boşta ölçümü + en çok 600 MB kullanım + en az max(32 MiB, MemTotal / 10) kullanılabilir RAM; aktif uygulama gecikmesi garantisi değil.",
+            "fail_reasons": []
+          }
+        },
+        {
+          "valid_idle_measurement": true,
+          "median_used_mb": 407.1,
+          "max_used_mb": 407.1,
+          "target_met": true,
+          "invalid_reasons": [],
+          "vm_ram_mib": 1024,
+          "low_ram_budget": {
+            "passed": true,
+            "minimum_available_bytes": 104581940,
+            "observed_min_available_bytes": 638697472,
+            "policy": "Geçerli tam Xfce boşta ölçümü + en çok 600 MB kullanım + en az max(32 MiB, MemTotal / 10) kullanılabilir RAM; aktif uygulama gecikmesi garantisi değil.",
+            "fail_reasons": []
+          }
+        },
+        {
+          "valid_idle_measurement": true,
+          "median_used_mb": 476.9,
+          "max_used_mb": 479.8,
+          "target_met": true,
+          "invalid_reasons": [],
+          "vm_ram_mib": 2048
+        }
+      ],
+      "exact_source_sha256": {
+        "usr/share/oguzdows/compositor/blur-still.conf": "d79cd2959579933a2b758a4bf18a06c94d64d920fe451557a96281ad5612298d",
+        "usr/share/oguzdows/compositor/blur.conf": "69ae6f0576c275e2fe8af100519340016e0171f63ba15ae8814087818fc93899",
+        "usr/share/oguzdows/compositor/blur9-still.conf": "7e003c30560ed587be83aa8aecd812e36627d7e99d902d7c18a33ecd9e8c6ebb",
+        "usr/share/oguzdows/compositor/blur9.conf": "2c32f4b9fd25046b5ee13ebc4806b35ee180e8f5083abcfae53f57ebb5f9f15d",
+        "usr/share/oguzdows/compositor/full-snap.conf": "c3cb6543b739354f6f82971ba275f7d8622fd4848d4225d50dcd9c7a9fa3ed5e",
+        "usr/share/oguzdows/compositor/full.conf": "8d125c5c1399a088d349192641f9a744bc2b92b62586b301ba252225faeefeaa",
+        "usr/share/oguzdows/compositor/motion.conf": "4fd38440ab99d0179c6b676e798e07de91182344d0b0c5bbc518d8206a2ac3be",
+        "usr/share/oguzdows/compositor/snap.conf": "0710299bc5a54037b82c8f325d1d48a217e969ae64b242a88bdd0a5020a2f2e5",
+        "usr/share/oguzdows/compositor/still.conf": "77ae109a7664a2be9dfc59de440ff22c29033293bd455e31579d55af56f5961a",
+        "usr/share/oguzdows/picom.conf": "f202423a33930a324c51650cb0b6cc483395c158a7a300bf4ecf0ad6cea3b2b1",
+        "usr/share/oguzdows/native/tasks.c": "56f3cfa2af822314c41ee934740db3bc06ada659391d4eb63b4148c110849da3",
+        "usr/share/oguzdows/native/accent-watch.c": "60d6014872ffc70baf1d7048fde8d08dbd06819bae34fe68477dc47cc563993b",
+        "usr/share/oguzdows/scripts/build-panel.sh": "b7685ae4391c09ae9113783831d1e00c1ffc0c583872a239af3c1d5f7c8fab27",
+        "usr/lib/oguzdows/render-assets.py": "9ae9895d5d3cc4277c525cfff9cc20c9bd7ec8f5e4fd30d078d9c91fa1e030f5",
+        "usr/share/doc/oguzdows/AKINCI-BAGLANTI.md": "6dd397a7ffd586ade2569146de6deee6edb6ca728d2fddbcf522f000fdacb155",
+        "usr/share/themes/OguzDows/gtk-3.0/gtk.css": "c30aacdae8100d10cd1953d0345d4336fbfb1f464982dd87665b966d263ad925",
+        "usr/share/themes/OguzDowsLight/gtk-3.0/gtk.css": "3282e908cd1992d007cc3ffc9ff6947d4df46ad3fc0b230e3adc174db3006937",
+        "usr/share/themes/OguzDowsEleven/gtk-3.0/gtk.css": "d920621a683911146b4fd50dc7562c816cdb1a62cdded8e870cf0d47dd8d702d",
+        "usr/share/themes/OguzDowsElevenDark/gtk-3.0/gtk.css": "c1bf7f8a95e7b331506f1e9557415f0213038d92c6b964702f14f1c54bd61748",
+        "usr/share/themes/OguzDowsMac/gtk-3.0/gtk.css": "59bd7a8f0d61fccf3fd0d20c49f478fd20ae7c19ad423449c95e76ee367ed99d",
+        "usr/share/themes/OguzDowsMacDark/gtk-3.0/gtk.css": "569f7203be6dabfeba4dda7e7be95309952d0ec5ea96ff0e6063ead4c9ee92ce",
+        "usr/lib/oguzdows/bridge.py": "cba1365b1205f79b200ae4b11711a2de8678551fe2aa0a2a13e3cf2fab6e4f88",
+        "usr/lib/oguzdows/bridge_core.py": "e7277812e41be2d01b029763485b8d37c86fa60913e1fe29408b2254d9bb4799",
+        "usr/lib/oguzdows/bridge_capture.py": "c3b0b1ac3b2e8c167a190b3c6b29ce3602459af95f17c61602ddc03f06ed2ca6",
+        "usr/lib/oguzdows/product_info.py": "200db3dcd0314afb42c3a066b720a31d9df83735de0255c9f264d9beb332afc8",
+        "usr/share/oguzdows/product.json": "4f08c11c72bdb393b0d7ee3bc9f255451ff0173be47c2c8b1c70924566877a57",
+        "usr/local/bin/oguzdows-bridge": "8700716903c9d901695cf2b7f6cf43850d42110b257b47e961a0aa3fe1264538",
+        "usr/share/applications/oguzdows-bridge.desktop": "117b188c01894e39eabfd8dc3e48a9105e6521fe97f5c47d837ff5f6c34534c1",
+        "usr/lib/oguzdows/session.sh": "bc87d32a423ed86b546c97b4b59472f578bb7e1384ec4098d66e87177376995a",
+        "usr/lib/oguzdows/wallpapers.py": "9de5cb15a770b94e1d030525b57232703ecb40826599f99534cb9d734d678165",
+        "usr/local/bin/oguzdows-accent": "59ea1c92cf4998679e2ba83d7bc3e568b6095b93989c791159a2bf30abd08283",
+        "usr/share/oguzdows/ui/window-geometry.css": "10e150ed85c84e22bbd38c01767ee6e81888a847b487a74449cfbced7ba8ac03",
+        "usr/share/xfce4/panel/plugins/oguzdows-tasks.desktop": "3c03c9c7a1a1214a58d49eca3c0aa440ca70de3751b1a523e3772923419e6832",
+        "usr/lib/oguzdows/accent.py": "43127ffa49c3c70ff51c5ab9d620abc71ad684f50b4bfa7121bb7d06d9e4e7b1",
+        "usr/lib/oguzdows/profiles.py": "ddc6400660222179deb0820a28ed1452752c03823f5086e55048fd1ee17c1b3b",
+        "usr/lib/oguzdows/desktop_material.py": "f89fa06bb13924572a3fae98243dada97afb24d1cf64a52a32f44b3cbc778205",
+        "usr/lib/oguzdows/desktop_preferences.py": "de34fefff96d73cd52da645e8a510316277f62f6cea7ffc5f995caddac625fd5",
+        "usr/lib/oguzdows/desktop_state.py": "396ae87e6f0b34d9667c7469a51012fb0724b0a7fa70cf5166294293277963c4",
+        "usr/lib/oguzdows/desktop_ui.py": "367aae91fc661813fe62d9b43d0c4b7599e7981d1838936bd833baca006e043c",
+        "usr/lib/oguzdows/file_manager.py": "d962bb0f18a975e35fd344ad7775a18c33c0b8a9f848d4310f628a2b0386274f",
+        "usr/lib/oguzdows/resource_policy.py": "b7f4aa6b39188f6f0c41a0e5b2e360c6be7a8b9468cb5de5fec691921a989d21",
+        "usr/lib/oguzdows/desktop_appearance.py": "142506fa56e06fdacc14ecb969da8562260f86480626a38fba5a5a9801bcb56a",
+        "usr/lib/oguzdows/desktop_shortcuts.py": "5f2f07f053289eff904ad9409f16bf3d79b1ca910ebcdec681aad1a9874dc280",
+        "usr/lib/oguzdows/screenshot.py": "4ab048e6b066f964312327923bf764d23e19886b8e42a9e13855067e7d409b65",
+        "usr/share/oguzdows/ui/shell.css": "310ed0641bc05a362f25304ed578132bd9945ad9f84944f5a61497e087364f47",
+        "usr/share/oguzdows/ui/modern.css": "f3c64d678ddb199b122f6e1bae1ccce65e8ca55a79777f1db3561a379def36f3",
+        "usr/lib/oguzdows/ui_theme.py": "663e4966446ff6de6b27e9afb0fa829af4e0d2b21608ab59356043612c41ce6b",
+        "usr/lib/oguzdows/news_core.py": "e75d1cbc6fa5e9b0791f2489e9d6fb75d12930b3fb737c49d6e68593bf92a7f5",
+        "usr/lib/oguzdows/news_service.py": "3cffb66ee39f0070e6f46266428e1cc61a9556305dc3836bcb5871e046381eb4",
+        "usr/lib/oguzdows/store_service.py": "5f3bf0885c601166a28dcd82755bf0337e4d99f984f1a17f1875a0a755315404",
+        "usr/lib/oguzdows/app_catalog.py": "2659cceee8f77d84f9de4254b2ec5efaa83c7d708ca20ef9d1ad09703fa18d8b",
+        "usr/lib/oguzdows/maintenance.py": "dae4807f6dadf2605813db6d3dcfc15565bc66af4b23bff778b448be6beed6ac",
+        "usr/local/sbin/oguzdows-maintenance": "e52e47b6657a2c647cd3f05b008b869014ad48d5b392d32c929995ffdb6323a8",
+        "usr/lib/oguzdows/welcome.py": "1392e651d815ae4dd54e370e52383ab3e3c8d6ec0dbffe6643b1e04eac93bed9",
+        "usr/lib/oguzdows/desktop_center.py": "f33ac18367ca22ca1f270ad075ccefa258ebe8022632c3d08d95f8c2f3238aba",
+        "usr/lib/oguzdows/workbench.py": "472c850ce135dbc9f3f7e4a6d795666cc0b53c6cb4476ddb2aa4117adf231c63",
+        "usr/lib/oguzdows/workbench_core.py": "b3be90cc2d0cf41355a3c453500cbae5ca01053703923b6206a29928f68b8cbe",
+        "usr/local/bin/oguzdows-workbench": "a752e177c79286aa2008fb6283db6ab895bbdf9740a3e5e5d298a8c9e954a5d3",
+        "usr/share/applications/oguzdows-workbench.desktop": "76e8528387c79d3a973127c43faa2150d6f21423efac4cfb1d2c24513709dcf3",
+        "usr/lib/oguzdows/store_core.py": "4f9e026c2aa252627cab721d1fff5ad7b06ee3d778043fe8ac70d57746e7247d",
+        "usr/lib/oguzdows/store.py": "948cd40ebd58e69e01abcf2bcebf65ebc11070342f7f9b11fc7842e6fb28a739",
+        "usr/lib/oguzdows/store_lifecycle.py": "1d28b5300b4d205716dca24e3b11a6163387f57753ecf7d7aeb3704e43500207",
+        "usr/share/applications/oguzdows-software.desktop": "7b2e0c104d5c4bdcf987a79a019df5e370c35a28333ca0e363b88cf85bc45e90",
+        "usr/share/oguzdows/native/ui.c": "1398b2f8f3c0b46a9a5518e48cf9d9daad37e1f056360f7048c09eaa6ad6a932",
+        "usr/share/oguzdows/native/ui.h": "368021125ba8c526e61ad56588cc05d152a70c33c72eb812d3596fa2f5948e31",
+        "usr/share/oguzdows/native/news.c": "4856f77e647a5a7bfd30fbe934bc320a69357ea5de240e1115a3a0939a7955f2",
+        "usr/share/oguzdows/native/store.c": "db9967d4e472498d2ef3cce6a28da505e7e50accab49645906e17c5101b9243f",
+        "usr/share/oguzdows/native/hub.c": "2c6a97a25d2b700d7046c834485721fdb4cf4aaf25466f6321deaf45f48fbf0f",
+        "usr/share/oguzdows/native/monitor.c": "75adf38745755d628484c5059937c09fe76ce73041d387f6f4a8362d2ddb8b8e"
+      },
+      "artifact": {
+        "id": 15243351786,
+        "name": "OguzDows-i386",
+        "size_in_bytes": 1456767348,
+        "digest": "sha256:16c41c5ebfde473a4f645d832965c858e2caab6843562322c0a53ea8512b10e7",
+        "expires_at": "2026-12-05T01:49:43Z"
+      },
+      "evidence_artifact": {
+        "id": 15243361617,
+        "name": "OguzDows-ISO-hedef-test-i386",
+        "size_in_bytes": 36564,
+        "digest": "sha256:428f5ca3d4d39a034a97bb66c4d0df273e984835664c523d01fe338818f033f9",
+        "expires_at": "2026-12-05T01:49:41Z"
+      }
+    },
+    "armhf": {
+      "job": {
+        "id": 140816565160,
+        "name": "Pi SD/USB imajı · armhf",
+        "html_url": "https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/46092347693/job/140816565160",
+        "status": "completed",
+        "conclusion": "success"
+      },
+      "minimum_cpu_user_qemu_not_physical_boot": {
+        "scope": "ARM-qemu-user-with-host-Xvfb",
+        "physical_boot": false,
+        "hardware_gpu": false,
+        "performance_measurement": false,
+        "errors": [],
+        "arch": "armhf",
+        "minimum_cpu": "arm1176",
+        "gui": {
+          "gtk_window": true,
+          "gtk_version": [
+            3,
+            24,
+            38
+          ],
+          "xfce_version": "xfce4-session 4.18.1 (Xfce 4.18)",
+          "native_store_version": "OğuzDows Mağaza · GTK 3.24.38",
+          "native_news_version": "OğuzDows Haber · GTK 3.24.38"
+        },
+        "feature_presence": {
+          "groups": [
+            "desktop-start-menu",
+            "welcome-rifki-narration",
+            "independent-light-dark-and-xp",
+            "cultural-wallpapers-and-tools",
+            "native-store",
+            "device-and-file-inspection",
+            "web-office-media",
+            "network-bluetooth-audio",
+            "pi-kms-camera-gpio",
+            "lightweight-news",
+            "original-icons-and-budgeted-transitions",
+            "offline-workbench",
+            "pc-phone-arm-bridge"
+          ],
+          "asset_hashes": 69,
+          "wallpapers": 20,
+          "selected_narration": 11,
+          "speech_contexts": 25
+        },
+        "full_session": {
+          "scope": "non-root-Xfce-on-host-Xvfb",
+          "uid": 65534,
+          "lightdm_pam": false,
+          "physical_boot": false,
+          "performance_measurement": false,
+          "errors": [],
+          "xfwm4": true,
+          "xfce4-panel": true,
+          "xfdesktop": true,
+          "x11_window_manager": "Xfwm4",
+          "stable_samples": 5,
+          "panel_configuration": "Value is an array with 1 items:\n\n1",
+          "startup_profile": "full",
+          "news": {
+            "native_process_alive": true,
+            "worker_exited": true,
+            "cached_fixture_preserved": true,
+            "network_tested": false,
+            "performance_measurement": false,
+            "window_pixels_verified": false
+          },
+          "browser": {
+            "program": "netsurf-gtk",
+            "local_start_page_alive": true,
+            "network_tested": false,
+            "modern_sites_verified": false
+          }
+        },
+        "packages_checked": 128
+      },
+      "private_GUI_process_cleanup_host_report": {
+        "scope": "exact-private-chroot-and-HOME-with-pidfd",
+        "remaining": [],
+        "processes": [
+          {
+            "pid": 172389,
+            "start_ticks": 255618,
+            "name": "xfsettingsd",
+            "signal": "SIGTERM"
+          },
+          {
+            "pid": 172409,
+            "start_ticks": 255712,
+            "name": "xfce4-panel",
+            "signal": "SIGTERM"
+          },
+          {
+            "pid": 172476,
+            "start_ticks": 255839,
+            "name": "xfdesktop",
+            "signal": "SIGTERM"
+          },
+          {
+            "pid": 172409,
+            "start_ticks": 255712,
+            "name": "xfce4-panel",
+            "signal": "SIGKILL"
+          }
+        ],
+        "passed": true
+      },
+      "expected_source_asset_hashes": {
+        "usr/share/backgrounds/oguzdows/bogaz-sabahi.jpg": "652d0a2c7370905f2fb0b5645377ff6b874c8cdb629aea5d9c038b8146bc690e",
+        "usr/share/backgrounds/oguzdows/kackar-sisi.jpg": "7d5ae41d7ecf9790033a60b2e25da34318ff2e8d091bb49e9e801d47755de0d4",
+        "usr/share/backgrounds/oguzdows/kapadokya-isigi.jpg": "7e732d5c25359bdefca5cb078d646afff6f32571e8bde3605fd8278ae4ef81a4",
+        "usr/share/backgrounds/oguzdows/oludeniz-kiyisi.jpg": "ce472256b99a54ae0f4f20e2fb239a46e504ed21b692d948fedccdb6d72dab02",
+        "usr/share/backgrounds/oguzdows/tuz-golu-aksami.jpg": "a282898b52c9950e7cdb9c9714afc46b86133e8be049ee4c5b945f4ecdb42fd6",
+        "usr/share/backgrounds/oguzdows/ani-kisi.jpg": "93cff2d2ad3b684ae1b419c143f2a1684ee48671839046d0c3444dc689fb08fa",
+        "usr/share/backgrounds/oguzdows/istanbul-kedisi.jpg": "4ab5e8855c4384166476e52680a3630e2904db4a48ff229676c56c946bc19362",
+        "usr/share/backgrounds/oguzdows/van-kedisi.jpg": "9106ed56fbfb37a2ec0066ab976ff1fbca647e6633c623a8f4b8dad012041b4a",
+        "usr/share/backgrounds/oguzdows/cay-simit.jpg": "07ff185c45a35c3d5b77b53406270f22070195fd0d03091a7556612c9f569cac",
+        "usr/share/backgrounds/oguzdows/halay.jpg": "05e8460d97724e2d98b38b87df89aed3a2d0090ad78d19f8caf33d40164de52b",
+        "usr/share/backgrounds/oguzdows/horon.jpg": "6ed465844d3295adf24ff9328b807d2e44e7cb187a06dd54498fe2445d4d6346",
+        "usr/share/backgrounds/oguzdows/zeybek.jpg": "eb864e61c843460df02f9f29c231be8592e27559ccf5455fcaa1eaef725e3c35",
+        "usr/share/backgrounds/oguzdows/kilim.jpg": "257c932e7d32368109773b9d0d968bb8c700fa6e18da7deac7cb6fe0dfe03d95",
+        "usr/share/backgrounds/oguzdows/ebru.jpg": "305f0af9177decf6579c49609e33f410d1068b30070782ae700585da5caed1ad",
+        "usr/share/backgrounds/oguzdows/lale.jpg": "f1ab7ea913af08f6ed93911b66f5fa5df1cf20bd8ed98cd05970b010e5f5f772",
+        "usr/share/backgrounds/oguzdows/nazar.jpg": "671dac5dc39c60a39448d74be5c92017b5863e2cd4f66189128e65d6362b35ad",
+        "usr/share/backgrounds/oguzdows/vapur.jpg": "beb419d3097b3fbecdf0c32af375ca17662f0f3395bd42b12bf9b958eaf9b989",
+        "usr/share/backgrounds/oguzdows/safranbolu.jpg": "4a445fe8ef92ebffd04e6ebc65766247decabde296242277fb1ccdbe102f10de",
+        "usr/share/backgrounds/oguzdows/pamukkale-teraslari.jpg": "a908161489538fa4c422587cba8665f8fe73bfe042ea5cd286226c5976ff0043",
+        "usr/share/backgrounds/oguzdows/anadolu-gecesi.jpg": "42f9f813088961db0e5c5b529bda2f1eb0a7c94eef4dfdd7fad605d0edaef220",
+        "usr/share/oguzdows/rifki/panel-live.wav": "f596de08aceb35d95bb1c730124c479ed23b6819fbaa0d71010ce050f7f571e9",
+        "usr/share/oguzdows/rifki/panel-installed.wav": "e102ce3bf15adc2cf9f0a7f272861854a3b8bd40107659e9f8cacfeb8471da47",
+        "usr/share/oguzdows/rifki/panel-appearance.wav": "7674c81eecc28e63f41b727605e905a692a9685b5e7eaa120ce71baaaa7a06db",
+        "usr/share/oguzdows/rifki/panel-applications.wav": "f24bba4fae507ae6ce3207de36bbab4bfad2c737b8ad924efdcea720dce8d71d",
+        "usr/share/oguzdows/rifki/panel-support.wav": "1ec4c243aa0a5c36460bf39724e805567022248967cd14c5002f733f561a7e14",
+        "usr/share/oguzdows/rifki/panel-wallpapers-v11.wav": "e39e18591559cebbf4d95cff8d2b71f0e2f48bb63ac752e2e04b58ab884dbe66",
+        "usr/share/oguzdows/rifki/panel-hardware-pi.wav": "e67b6e344722ee57565cf86beb2239e0ad98eaf1603eece2807d8b5a94babd01",
+        "usr/share/oguzdows/rifki/panel-store.wav": "254f312a69f2d2e5db1925a682f7218abd0abd309bbc764c5a65c697b118fbae",
+        "usr/share/oguzdows/rifki/panel-compatibility.wav": "bb7757c288c1c637b4ab95268a8f110f19b52be08108236891666906ab33260b",
+        "usr/share/oguzdows/rifki/panel-news.wav": "05465c3c6a9c70841354b8bf6303a912468d2ca41ed614564e429afa836c107d",
+        "usr/share/oguzdows/rifki/panel-culture.wav": "a74f7d560c008748f28845bd0d3614d9ceb5e47212af3a01afba2efb4819842e",
+        "usr/lib/oguzdows/file_manager.py": "d962bb0f18a975e35fd344ad7775a18c33c0b8a9f848d4310f628a2b0386274f",
+        "usr/lib/oguzdows/resource_policy.py": "b7f4aa6b39188f6f0c41a0e5b2e360c6be7a8b9468cb5de5fec691921a989d21",
+        "usr/lib/oguzdows/desktop_material.py": "f89fa06bb13924572a3fae98243dada97afb24d1cf64a52a32f44b3cbc778205",
+        "usr/lib/oguzdows/desktop_preferences.py": "de34fefff96d73cd52da645e8a510316277f62f6cea7ffc5f995caddac625fd5",
+        "usr/lib/oguzdows/session.sh": "bc87d32a423ed86b546c97b4b59472f578bb7e1384ec4098d66e87177376995a",
+        "usr/lib/oguzdows/render-assets.py": "9ae9895d5d3cc4277c525cfff9cc20c9bd7ec8f5e4fd30d078d9c91fa1e030f5",
+        "usr/lib/oguzdows/workbench.py": "472c850ce135dbc9f3f7e4a6d795666cc0b53c6cb4476ddb2aa4117adf231c63",
+        "usr/lib/oguzdows/workbench_core.py": "b3be90cc2d0cf41355a3c453500cbae5ca01053703923b6206a29928f68b8cbe",
+        "usr/lib/oguzdows/app_catalog.py": "2659cceee8f77d84f9de4254b2ec5efaa83c7d708ca20ef9d1ad09703fa18d8b",
+        "usr/lib/oguzdows/store_core.py": "4f9e026c2aa252627cab721d1fff5ad7b06ee3d778043fe8ac70d57746e7247d",
+        "usr/lib/oguzdows/store_service.py": "5f3bf0885c601166a28dcd82755bf0337e4d99f984f1a17f1875a0a755315404",
+        "usr/lib/oguzdows/store.py": "948cd40ebd58e69e01abcf2bcebf65ebc11070342f7f9b11fc7842e6fb28a739",
+        "usr/lib/oguzdows/store_lifecycle.py": "1d28b5300b4d205716dca24e3b11a6163387f57753ecf7d7aeb3704e43500207",
+        "usr/lib/oguzdows/maintenance.py": "dae4807f6dadf2605813db6d3dcfc15565bc66af4b23bff778b448be6beed6ac",
+        "usr/lib/oguzdows/bridge.py": "cba1365b1205f79b200ae4b11711a2de8678551fe2aa0a2a13e3cf2fab6e4f88",
+        "usr/lib/oguzdows/bridge_core.py": "e7277812e41be2d01b029763485b8d37c86fa60913e1fe29408b2254d9bb4799",
+        "usr/lib/oguzdows/bridge_capture.py": "c3b0b1ac3b2e8c167a190b3c6b29ce3602459af95f17c61602ddc03f06ed2ca6",
+        "usr/lib/oguzdows/product_info.py": "200db3dcd0314afb42c3a066b720a31d9df83735de0255c9f264d9beb332afc8",
+        "usr/share/oguzdows/ui/modern.css": "f3c64d678ddb199b122f6e1bae1ccce65e8ca55a79777f1db3561a379def36f3",
+        "usr/share/oguzdows/ui/window-geometry.css": "10e150ed85c84e22bbd38c01767ee6e81888a847b487a74449cfbced7ba8ac03",
+        "usr/share/oguzdows/ui/shell.css": "310ed0641bc05a362f25304ed578132bd9945ad9f84944f5a61497e087364f47",
+        "usr/share/oguzdows/product.json": "4f08c11c72bdb393b0d7ee3bc9f255451ff0173be47c2c8b1c70924566877a57",
+        "usr/share/doc/oguzdows/AKINCI-BAGLANTI.md": "6dd397a7ffd586ade2569146de6deee6edb6ca728d2fddbcf522f000fdacb155",
+        "usr/local/bin/oguzdows-bridge": "8700716903c9d901695cf2b7f6cf43850d42110b257b47e961a0aa3fe1264538",
+        "usr/share/applications/oguzdows-bridge.desktop": "117b188c01894e39eabfd8dc3e48a9105e6521fe97f5c47d837ff5f6c34534c1",
+        "usr/share/oguzdows/picom.conf": "f202423a33930a324c51650cb0b6cc483395c158a7a300bf4ecf0ad6cea3b2b1",
+        "usr/local/bin/oguzdows-workbench": "a752e177c79286aa2008fb6283db6ab895bbdf9740a3e5e5d298a8c9e954a5d3",
+        "usr/share/applications/oguzdows-workbench.desktop": "76e8528387c79d3a973127c43faa2150d6f21423efac4cfb1d2c24513709dcf3",
+        "usr/share/applications/oguzdows-software.desktop": "7b2e0c104d5c4bdcf987a79a019df5e370c35a28333ca0e363b88cf85bc45e90",
+        "usr/share/oguzdows/compositor/blur-still.conf": "d79cd2959579933a2b758a4bf18a06c94d64d920fe451557a96281ad5612298d",
+        "usr/share/oguzdows/compositor/blur.conf": "69ae6f0576c275e2fe8af100519340016e0171f63ba15ae8814087818fc93899",
+        "usr/share/oguzdows/compositor/blur9-still.conf": "7e003c30560ed587be83aa8aecd812e36627d7e99d902d7c18a33ecd9e8c6ebb",
+        "usr/share/oguzdows/compositor/blur9.conf": "2c32f4b9fd25046b5ee13ebc4806b35ee180e8f5083abcfae53f57ebb5f9f15d",
+        "usr/share/oguzdows/compositor/full-snap.conf": "c3cb6543b739354f6f82971ba275f7d8622fd4848d4225d50dcd9c7a9fa3ed5e",
+        "usr/share/oguzdows/compositor/full.conf": "8d125c5c1399a088d349192641f9a744bc2b92b62586b301ba252225faeefeaa",
+        "usr/share/oguzdows/compositor/motion.conf": "4fd38440ab99d0179c6b676e798e07de91182344d0b0c5bbc518d8206a2ac3be",
+        "usr/share/oguzdows/compositor/snap.conf": "0710299bc5a54037b82c8f325d1d48a217e969ae64b242a88bdd0a5020a2f2e5",
+        "usr/share/oguzdows/compositor/still.conf": "77ae109a7664a2be9dfc59de440ff22c29033293bd455e31579d55af56f5961a"
+      },
+      "artifact": {
+        "id": 15244451008,
+        "name": "OguzDows-rpi-armhf",
+        "size_in_bytes": 984284066,
+        "digest": "sha256:738fd37d809bfd641f8ecf746c761938d0629cae39f75237a8c4005fbcf4d3e5",
+        "expires_at": "2026-12-05T02:24:10Z"
+      },
+      "evidence_artifact": {
+        "id": 15244097326,
+        "name": "OguzDows-Pi-gunluk-armhf",
+        "size_in_bytes": 136621,
+        "digest": "sha256:f3dba66e2f4b2d9c65f16a1de80456a377eea8206bc0bd8925714e5efc10c222",
+        "expires_at": "2026-12-05T02:24:17Z"
+      }
+    },
+    "arm64": {
+      "job": {
+        "id": 140816565214,
+        "name": "Pi SD/USB imajı · arm64",
+        "html_url": "https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/46092347693/job/140816565214",
+        "status": "completed",
+        "conclusion": "success"
+      },
+      "minimum_cpu_user_qemu_not_physical_boot": {
+        "scope": "ARM-qemu-user-with-host-Xvfb",
+        "physical_boot": false,
+        "hardware_gpu": false,
+        "performance_measurement": false,
+        "errors": [],
+        "arch": "arm64",
+        "minimum_cpu": "cortex-a53",
+        "gui": {
+          "gtk_window": true,
+          "gtk_version": [
+            3,
+            24,
+            38
+          ],
+          "xfce_version": "xfce4-session 4.18.1 (Xfce 4.18)",
+          "native_store_version": "OğuzDows Mağaza · GTK 3.24.38",
+          "native_news_version": "OğuzDows Haber · GTK 3.24.38"
+        },
+        "feature_presence": {
+          "groups": [
+            "desktop-start-menu",
+            "welcome-rifki-narration",
+            "independent-light-dark-and-xp",
+            "cultural-wallpapers-and-tools",
+            "native-store",
+            "device-and-file-inspection",
+            "web-office-media",
+            "network-bluetooth-audio",
+            "pi-kms-camera-gpio",
+            "lightweight-news",
+            "original-icons-and-budgeted-transitions",
+            "offline-workbench",
+            "pc-phone-arm-bridge"
+          ],
+          "asset_hashes": 69,
+          "wallpapers": 20,
+          "selected_narration": 11,
+          "speech_contexts": 25
+        },
+        "full_session": {
+          "scope": "non-root-Xfce-on-host-Xvfb",
+          "uid": 65534,
+          "lightdm_pam": false,
+          "physical_boot": false,
+          "performance_measurement": false,
+          "errors": [],
+          "xfwm4": true,
+          "xfce4-panel": true,
+          "xfdesktop": true,
+          "x11_window_manager": "Xfwm4",
+          "stable_samples": 5,
+          "panel_configuration": "Value is an array with 1 items:\n\n1",
+          "startup_profile": "full",
+          "news": {
+            "native_process_alive": true,
+            "worker_exited": true,
+            "cached_fixture_preserved": true,
+            "network_tested": false,
+            "performance_measurement": false,
+            "window_pixels_verified": false
+          }
+        },
+        "packages_checked": 132
+      },
+      "private_GUI_process_cleanup_host_report": {
+        "scope": "exact-private-chroot-and-HOME-with-pidfd",
+        "remaining": [],
+        "processes": [
+          {
+            "pid": 139263,
+            "start_ticks": 194123,
+            "name": "xfsettingsd",
+            "signal": "SIGTERM"
+          },
+          {
+            "pid": 140153,
+            "start_ticks": 195531,
+            "name": "panel-5-pulseau",
+            "signal": "SIGTERM"
+          }
+        ],
+        "passed": true
+      },
+      "expected_source_asset_hashes": {
+        "usr/share/backgrounds/oguzdows/bogaz-sabahi.jpg": "652d0a2c7370905f2fb0b5645377ff6b874c8cdb629aea5d9c038b8146bc690e",
+        "usr/share/backgrounds/oguzdows/kackar-sisi.jpg": "7d5ae41d7ecf9790033a60b2e25da34318ff2e8d091bb49e9e801d47755de0d4",
+        "usr/share/backgrounds/oguzdows/kapadokya-isigi.jpg": "7e732d5c25359bdefca5cb078d646afff6f32571e8bde3605fd8278ae4ef81a4",
+        "usr/share/backgrounds/oguzdows/oludeniz-kiyisi.jpg": "ce472256b99a54ae0f4f20e2fb239a46e504ed21b692d948fedccdb6d72dab02",
+        "usr/share/backgrounds/oguzdows/tuz-golu-aksami.jpg": "a282898b52c9950e7cdb9c9714afc46b86133e8be049ee4c5b945f4ecdb42fd6",
+        "usr/share/backgrounds/oguzdows/ani-kisi.jpg": "93cff2d2ad3b684ae1b419c143f2a1684ee48671839046d0c3444dc689fb08fa",
+        "usr/share/backgrounds/oguzdows/istanbul-kedisi.jpg": "4ab5e8855c4384166476e52680a3630e2904db4a48ff229676c56c946bc19362",
+        "usr/share/backgrounds/oguzdows/van-kedisi.jpg": "9106ed56fbfb37a2ec0066ab976ff1fbca647e6633c623a8f4b8dad012041b4a",
+        "usr/share/backgrounds/oguzdows/cay-simit.jpg": "07ff185c45a35c3d5b77b53406270f22070195fd0d03091a7556612c9f569cac",
+        "usr/share/backgrounds/oguzdows/halay.jpg": "05e8460d97724e2d98b38b87df89aed3a2d0090ad78d19f8caf33d40164de52b",
+        "usr/share/backgrounds/oguzdows/horon.jpg": "6ed465844d3295adf24ff9328b807d2e44e7cb187a06dd54498fe2445d4d6346",
+        "usr/share/backgrounds/oguzdows/zeybek.jpg": "eb864e61c843460df02f9f29c231be8592e27559ccf5455fcaa1eaef725e3c35",
+        "usr/share/backgrounds/oguzdows/kilim.jpg": "257c932e7d32368109773b9d0d968bb8c700fa6e18da7deac7cb6fe0dfe03d95",
+        "usr/share/backgrounds/oguzdows/ebru.jpg": "305f0af9177decf6579c49609e33f410d1068b30070782ae700585da5caed1ad",
+        "usr/share/backgrounds/oguzdows/lale.jpg": "f1ab7ea913af08f6ed93911b66f5fa5df1cf20bd8ed98cd05970b010e5f5f772",
+        "usr/share/backgrounds/oguzdows/nazar.jpg": "671dac5dc39c60a39448d74be5c92017b5863e2cd4f66189128e65d6362b35ad",
+        "usr/share/backgrounds/oguzdows/vapur.jpg": "beb419d3097b3fbecdf0c32af375ca17662f0f3395bd42b12bf9b958eaf9b989",
+        "usr/share/backgrounds/oguzdows/safranbolu.jpg": "4a445fe8ef92ebffd04e6ebc65766247decabde296242277fb1ccdbe102f10de",
+        "usr/share/backgrounds/oguzdows/pamukkale-teraslari.jpg": "a908161489538fa4c422587cba8665f8fe73bfe042ea5cd286226c5976ff0043",
+        "usr/share/backgrounds/oguzdows/anadolu-gecesi.jpg": "42f9f813088961db0e5c5b529bda2f1eb0a7c94eef4dfdd7fad605d0edaef220",
+        "usr/share/oguzdows/rifki/panel-live.wav": "f596de08aceb35d95bb1c730124c479ed23b6819fbaa0d71010ce050f7f571e9",
+        "usr/share/oguzdows/rifki/panel-installed.wav": "e102ce3bf15adc2cf9f0a7f272861854a3b8bd40107659e9f8cacfeb8471da47",
+        "usr/share/oguzdows/rifki/panel-appearance.wav": "7674c81eecc28e63f41b727605e905a692a9685b5e7eaa120ce71baaaa7a06db",
+        "usr/share/oguzdows/rifki/panel-applications.wav": "f24bba4fae507ae6ce3207de36bbab4bfad2c737b8ad924efdcea720dce8d71d",
+        "usr/share/oguzdows/rifki/panel-support.wav": "1ec4c243aa0a5c36460bf39724e805567022248967cd14c5002f733f561a7e14",
+        "usr/share/oguzdows/rifki/panel-wallpapers-v11.wav": "e39e18591559cebbf4d95cff8d2b71f0e2f48bb63ac752e2e04b58ab884dbe66",
+        "usr/share/oguzdows/rifki/panel-hardware-pi.wav": "e67b6e344722ee57565cf86beb2239e0ad98eaf1603eece2807d8b5a94babd01",
+        "usr/share/oguzdows/rifki/panel-store.wav": "254f312a69f2d2e5db1925a682f7218abd0abd309bbc764c5a65c697b118fbae",
+        "usr/share/oguzdows/rifki/panel-compatibility.wav": "bb7757c288c1c637b4ab95268a8f110f19b52be08108236891666906ab33260b",
+        "usr/share/oguzdows/rifki/panel-news.wav": "05465c3c6a9c70841354b8bf6303a912468d2ca41ed614564e429afa836c107d",
+        "usr/share/oguzdows/rifki/panel-culture.wav": "a74f7d560c008748f28845bd0d3614d9ceb5e47212af3a01afba2efb4819842e",
+        "usr/lib/oguzdows/file_manager.py": "d962bb0f18a975e35fd344ad7775a18c33c0b8a9f848d4310f628a2b0386274f",
+        "usr/lib/oguzdows/resource_policy.py": "b7f4aa6b39188f6f0c41a0e5b2e360c6be7a8b9468cb5de5fec691921a989d21",
+        "usr/lib/oguzdows/desktop_material.py": "f89fa06bb13924572a3fae98243dada97afb24d1cf64a52a32f44b3cbc778205",
+        "usr/lib/oguzdows/desktop_preferences.py": "de34fefff96d73cd52da645e8a510316277f62f6cea7ffc5f995caddac625fd5",
+        "usr/lib/oguzdows/session.sh": "bc87d32a423ed86b546c97b4b59472f578bb7e1384ec4098d66e87177376995a",
+        "usr/lib/oguzdows/render-assets.py": "9ae9895d5d3cc4277c525cfff9cc20c9bd7ec8f5e4fd30d078d9c91fa1e030f5",
+        "usr/lib/oguzdows/workbench.py": "472c850ce135dbc9f3f7e4a6d795666cc0b53c6cb4476ddb2aa4117adf231c63",
+        "usr/lib/oguzdows/workbench_core.py": "b3be90cc2d0cf41355a3c453500cbae5ca01053703923b6206a29928f68b8cbe",
+        "usr/lib/oguzdows/app_catalog.py": "2659cceee8f77d84f9de4254b2ec5efaa83c7d708ca20ef9d1ad09703fa18d8b",
+        "usr/lib/oguzdows/store_core.py": "4f9e026c2aa252627cab721d1fff5ad7b06ee3d778043fe8ac70d57746e7247d",
+        "usr/lib/oguzdows/store_service.py": "5f3bf0885c601166a28dcd82755bf0337e4d99f984f1a17f1875a0a755315404",
+        "usr/lib/oguzdows/store.py": "948cd40ebd58e69e01abcf2bcebf65ebc11070342f7f9b11fc7842e6fb28a739",
+        "usr/lib/oguzdows/store_lifecycle.py": "1d28b5300b4d205716dca24e3b11a6163387f57753ecf7d7aeb3704e43500207",
+        "usr/lib/oguzdows/maintenance.py": "dae4807f6dadf2605813db6d3dcfc15565bc66af4b23bff778b448be6beed6ac",
+        "usr/lib/oguzdows/bridge.py": "cba1365b1205f79b200ae4b11711a2de8678551fe2aa0a2a13e3cf2fab6e4f88",
+        "usr/lib/oguzdows/bridge_core.py": "e7277812e41be2d01b029763485b8d37c86fa60913e1fe29408b2254d9bb4799",
+        "usr/lib/oguzdows/bridge_capture.py": "c3b0b1ac3b2e8c167a190b3c6b29ce3602459af95f17c61602ddc03f06ed2ca6",
+        "usr/lib/oguzdows/product_info.py": "200db3dcd0314afb42c3a066b720a31d9df83735de0255c9f264d9beb332afc8",
+        "usr/share/oguzdows/ui/modern.css": "f3c64d678ddb199b122f6e1bae1ccce65e8ca55a79777f1db3561a379def36f3",
+        "usr/share/oguzdows/ui/window-geometry.css": "10e150ed85c84e22bbd38c01767ee6e81888a847b487a74449cfbced7ba8ac03",
+        "usr/share/oguzdows/ui/shell.css": "310ed0641bc05a362f25304ed578132bd9945ad9f84944f5a61497e087364f47",
+        "usr/share/oguzdows/product.json": "4f08c11c72bdb393b0d7ee3bc9f255451ff0173be47c2c8b1c70924566877a57",
+        "usr/share/doc/oguzdows/AKINCI-BAGLANTI.md": "6dd397a7ffd586ade2569146de6deee6edb6ca728d2fddbcf522f000fdacb155",
+        "usr/local/bin/oguzdows-bridge": "8700716903c9d901695cf2b7f6cf43850d42110b257b47e961a0aa3fe1264538",
+        "usr/share/applications/oguzdows-bridge.desktop": "117b188c01894e39eabfd8dc3e48a9105e6521fe97f5c47d837ff5f6c34534c1",
+        "usr/share/oguzdows/picom.conf": "f202423a33930a324c51650cb0b6cc483395c158a7a300bf4ecf0ad6cea3b2b1",
+        "usr/local/bin/oguzdows-workbench": "a752e177c79286aa2008fb6283db6ab895bbdf9740a3e5e5d298a8c9e954a5d3",
+        "usr/share/applications/oguzdows-workbench.desktop": "76e8528387c79d3a973127c43faa2150d6f21423efac4cfb1d2c24513709dcf3",
+        "usr/share/applications/oguzdows-software.desktop": "7b2e0c104d5c4bdcf987a79a019df5e370c35a28333ca0e363b88cf85bc45e90",
+        "usr/share/oguzdows/compositor/blur-still.conf": "d79cd2959579933a2b758a4bf18a06c94d64d920fe451557a96281ad5612298d",
+        "usr/share/oguzdows/compositor/blur.conf": "69ae6f0576c275e2fe8af100519340016e0171f63ba15ae8814087818fc93899",
+        "usr/share/oguzdows/compositor/blur9-still.conf": "7e003c30560ed587be83aa8aecd812e36627d7e99d902d7c18a33ecd9e8c6ebb",
+        "usr/share/oguzdows/compositor/blur9.conf": "2c32f4b9fd25046b5ee13ebc4806b35ee180e8f5083abcfae53f57ebb5f9f15d",
+        "usr/share/oguzdows/compositor/full-snap.conf": "c3cb6543b739354f6f82971ba275f7d8622fd4848d4225d50dcd9c7a9fa3ed5e",
+        "usr/share/oguzdows/compositor/full.conf": "8d125c5c1399a088d349192641f9a744bc2b92b62586b301ba252225faeefeaa",
+        "usr/share/oguzdows/compositor/motion.conf": "4fd38440ab99d0179c6b676e798e07de91182344d0b0c5bbc518d8206a2ac3be",
+        "usr/share/oguzdows/compositor/snap.conf": "0710299bc5a54037b82c8f325d1d48a217e969ae64b242a88bdd0a5020a2f2e5",
+        "usr/share/oguzdows/compositor/still.conf": "77ae109a7664a2be9dfc59de440ff22c29033293bd455e31579d55af56f5961a"
+      },
+      "artifact": {
+        "id": 15243452251,
+        "name": "OguzDows-rpi-arm64",
+        "size_in_bytes": 943761725,
+        "digest": "sha256:62b038d506f43b7e3baccd996db57709c8fa0afbc6aa31b02146bd51b6f81cbe",
+        "expires_at": "2026-12-05T02:05:57Z"
+      },
+      "evidence_artifact": {
+        "id": 15242389663,
+        "name": "OguzDows-Pi-gunluk-arm64",
+        "size_in_bytes": 137426,
+        "digest": "sha256:fe9a7805add703d93e9aee79698777dfe25b06851dd099f8680054c582ae7493",
+        "expires_at": "2026-12-05T02:06:04Z"
+      }
+    }
+  },
+  "runs": {
+    "pc": {
+      "run": {
+        "id": 46092345482,
+        "html_url": "https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/46092345482",
+        "head_sha": "5a44de0dde676d901a32be40d631d481e213439d",
+        "head_branch": "arena/2d796713-o-uzdows",
+        "event": "workflow_dispatch",
+        "status": "completed",
+        "conclusion": "success",
+        "run_attempt": 1,
+        "created_at": "2026-11-28T01:17:25Z",
+        "updated_at": "2026-11-28T01:50:01Z"
+      },
+      "jobs": [
+        {
+          "id": 140816388246,
+          "name": "Firmware → GRUB · trixie",
+          "html_url": "https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/46092345482/job/140816388246",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "id": 140816388406,
+          "name": "Yapılandırma ve GTK · bookworm",
+          "html_url": "https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/46092345482/job/140816388406",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "id": 140816388445,
+          "name": "Yapılandırma ve GTK · trixie",
+          "html_url": "https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/46092345482/job/140816388445",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "id": 140816388485,
+          "name": "Firmware → GRUB · bookworm",
+          "html_url": "https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/46092345482/job/140816388485",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "id": 140816389207,
+          "name": "Doğrulanmış PC / Pi / mobil → Release taslağı (derlemez)",
+          "html_url": "https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/46092345482/job/140816389207",
+          "status": "completed",
+          "conclusion": "skipped"
+        },
+        {
+          "id": 140816389254,
+          "name": "Önceki hedef sistem testinin kanıtları (derleme yapmaz)",
+          "html_url": "https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/46092345482/job/140816389254",
+          "status": "completed",
+          "conclusion": "skipped"
+        },
+        {
+          "id": 140816389406,
+          "name": "Raspberry Pi",
+          "html_url": "https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/46092345482/job/140816389406",
+          "status": "completed",
+          "conclusion": "skipped"
+        },
+        {
+          "id": 140818253682,
+          "name": "ISO · amd64",
+          "html_url": "https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/46092345482/job/140818253682",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "id": 140818253699,
+          "name": "ISO · i386",
+          "html_url": "https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/46092345482/job/140818253699",
+          "status": "completed",
+          "conclusion": "success"
+        }
+      ]
+    },
+    "pi": {
+      "run": {
+        "id": 46092347693,
+        "html_url": "https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/46092347693",
+        "head_sha": "5a44de0dde676d901a32be40d631d481e213439d",
+        "head_branch": "arena/2d796713-o-uzdows",
+        "event": "workflow_dispatch",
+        "status": "completed",
+        "conclusion": "success",
+        "run_attempt": 1,
+        "created_at": "2026-11-28T01:17:26Z",
+        "updated_at": "2026-11-28T02:24:20Z"
+      },
+      "jobs": [
+        {
+          "id": 140815921552,
+          "name": "Pi yapılandırma ve güvenlik testleri",
+          "html_url": "https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/46092347693/job/140815921552",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "id": 140816565160,
+          "name": "Pi SD/USB imajı · armhf",
+          "html_url": "https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/46092347693/job/140816565160",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "id": 140816565214,
+          "name": "Pi SD/USB imajı · arm64",
+          "html_url": "https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/46092347693/job/140816565214",
+          "status": "completed",
+          "conclusion": "success"
+        }
+      ]
+    }
+  },
+  "complete": true
+}

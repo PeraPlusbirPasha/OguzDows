@@ -8,6 +8,7 @@ import subprocess
 from pathlib import Path
 
 from pi_support import current_policy, is_pi, model as pi_model, peripheral_summary
+from resource_policy import policy as resource_budget
 
 # Broadcom STA'nın desteklediği PCI kimlikleri. Diğer Broadcom aygıtları için
 # b43 / brcmsmac / brcmfmac yerleşik sürücüleri korunur.
@@ -41,7 +42,10 @@ def memory_kib(meminfo: str | None = None) -> int:
 
 def light_profile(cmdline: str, memory: int) -> bool:
     args = cmdline.split()
-    return "oguzdows.profile=light" in args or "nomodeset" in args or 0 < memory <= 2097152
+    requested = next((arg.partition("=")[2] for arg in args if arg.startswith("oguzdows.profile=")), "auto")
+    if requested not in ("auto", "mini", "light", "full"):
+        requested = "auto"
+    return not resource_budget(memory, requested=requested, nomodeset="nomodeset" in args)["compositing"]
 
 
 INTEL_LEGACY_IDS = frozenset({"1043", "4220", "4221", "4223", "4224"})

@@ -1,0 +1,168 @@
+{
+  "source_sha": "266e623a32557001c73b270665fe6fda73eb9981",
+  "sdk": "35",
+  "abi": "x86_64",
+  "image_fingerprint": "google/sdk_gphone64_x86_64/emu64xa:15/AE3A.240806.043/12960925:userdebug/dev-keys",
+  "emulator_only": true,
+  "physical_sim_tested": false,
+  "emergency_calls_tested": false,
+  "gms_certification_tested": false,
+  "mms_rcs_supported": false,
+  "tests": [
+    {
+      "name": "NativeDeviceTest.bundledBridgeRolesValidationAndIsolation",
+      "passed": true,
+      "test_cases": 1,
+      "seconds": 26.84
+    },
+    {
+      "name": "NativeDeviceTest.paidActionsRequireFinalNativeConsent",
+      "passed": true,
+      "test_cases": 1,
+      "seconds": 16.47
+    },
+    {
+      "name": "NativeDeviceTest.systemVolumeBrightnessAndNativeThemeAreReal",
+      "passed": true,
+      "test_cases": 1,
+      "seconds": 16.62
+    },
+    {
+      "name": "NativeDeviceTest.incomingSmsUsesTheRealProviderAndRichInbox",
+      "passed": true,
+      "test_cases": 1,
+      "seconds": 16.93
+    },
+    {
+      "name": "NativeDeviceTest.outgoingSmsWaitsForActualSentCallback",
+      "passed": true,
+      "test_cases": 1,
+      "seconds": 15.18
+    },
+    {
+      "name": "NativeDeviceTest.outgoingCallUsesTelecomAndOurInCallService",
+      "passed": true,
+      "test_cases": 1,
+      "seconds": 16.45
+    },
+    {
+      "name": "NativeDeviceTest.incomingCallCanBeAnsweredMutedAndEndedInOurUi",
+      "passed": true,
+      "test_cases": 1,
+      "seconds": 9.94
+    },
+    {
+      "name": "NativeDeviceTest.localApkReviewCancelAndSystemInstall",
+      "passed": true,
+      "test_cases": 1,
+      "seconds": 14.84
+    },
+    {
+      "name": "LauncherDeviceTest.suite",
+      "passed": true,
+      "test_cases": 5,
+      "seconds": 70.88
+    },
+    {
+      "name": "ConnectedDeviceTest.suite",
+      "passed": false,
+      "test_cases": 0,
+      "seconds": 90.82,
+      "failure": "INSTRUMENTATION_STATUS: stack=java.lang.AssertionError: Activity never becomes requested state \"[RES"
+    },
+    {
+      "name": "BridgeDeviceTest.nativeTls",
+      "passed": true,
+      "test_cases": 1,
+      "seconds": 2.14
+    },
+    {
+      "name": "BridgeDeviceTest.pcArmInterop",
+      "passed": true,
+      "test_cases": 1,
+      "seconds": 6.67
+    },
+    {
+      "name": "BridgeDeviceTest.systemProjection",
+      "passed": true,
+      "test_cases": 1,
+      "seconds": 16.71
+    },
+    {
+      "name": "RepositorySecurityTest.suite",
+      "passed": true,
+      "test_cases": 3,
+      "seconds": 0.52
+    },
+    {
+      "name": "LiveRepositoryTest.suite",
+      "passed": true,
+      "test_cases": 1,
+      "seconds": 14.88
+    }
+  ],
+  "display": {
+    "pixels": "720x1600",
+    "density": 280,
+    "gpu": "headless SwiftShader"
+  },
+  "device_bridge": {
+    "protocol": 1,
+    "native_host_python_client": true,
+    "python_host_native_client": true,
+    "files_verified": 4,
+    "pinned_tls": true,
+    "sha256_verified": true,
+    "file_sha256": {
+      "native-to-desktop.txt": "c2743e81b8bd3ddfedd38da55dcc6afef4c2d9c54b36312f48a82a9911232b24",
+      "desktop-upload.txt": "cebff615107908970303b57c61d791ef236fd1eb07fbbed88684770ce36742a4",
+      "desktop-to-native.txt": "627cb1d79773668746e6deaa21767b42f6f271d110da55706b31468e5e5df4f4",
+      "native-upload.txt": "1e5694ab01903b1de93f650f49971180bbad69294784a96635d28d8c18e0d749"
+    },
+    "transport": "QEMU virtual Ethernet + adb forward",
+    "physical_devices": false
+  },
+  "native_device_bridge": {
+    "protocol": 1,
+    "native_host_python_client": true,
+    "python_host_native_client": true,
+    "pinned_tls": true,
+    "sha256_verified": true,
+    "files_verified": 4,
+    "file_sha256": {
+      "native-to-desktop.txt": "c2743e81b8bd3ddfedd38da55dcc6afef4c2d9c54b36312f48a82a9911232b24",
+      "desktop-upload.txt": "cebff615107908970303b57c61d791ef236fd1eb07fbbed88684770ce36742a4",
+      "desktop-to-native.txt": "627cb1d79773668746e6deaa21767b42f6f271d110da55706b31468e5e5df4f4",
+      "native-upload.txt": "1e5694ab01903b1de93f650f49971180bbad69294784a96635d28d8c18e0d749"
+    },
+    "physical_devices": false
+  },
+  "screen_capture": {
+    "stop_tested": true,
+    "media_projection_consent": true,
+    "cancel_tested": true,
+    "foreground_service": true,
+    "frame_bytes": 12258,
+    "sha256": "f34c28fcf365fc2bcddb42e5be27de4201f0e126db62bdde2bb9742ca966968b",
+    "fixture_only": true,
+    "remote_input": false
+  },
+  "live_repository": {
+    "apps": 5057,
+    "compatible": 5016,
+    "timestamp": 1795648445236,
+    "synced": 1795821579743,
+    "source": "https://f-droid.org/repo"
+  },
+  "live_apk_review": "APK_REVIEW com.beemdevelopment.aegis code=82 sha256=0eecec45de0da3ff1358004b51e2960d9178551643a6ed44f6496ea9ec999c19 bytes=6869856 installed=false",
+  "product_anr_detected": false,
+  "product_crash_detected": false,
+  "passed": false,
+  "acceptance_failure": "Acceptance refused: failed / empty / skipped / wrong native case count: ConnectedDeviceTest.suite",
+  "github": {
+    "run_url": "https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/46080969683",
+    "job_id": 140779598287,
+    "job_url": "https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/46080969683/job/140779598287",
+    "scope": "Checks summary plus two independent hash notices and actual capture receipt. Connected suite had three passing cases and one ActivityScenario lifecycle failure at recreate; its failed suite count remains zero as the harness reports. No full 24-case acceptance or package. JPEG exists in CI artifact, not retrieved or visually inspected in this workspace."
+  }
+}

@@ -1,4 +1,4 @@
-button-title=OğuzDows
+button-title=Başlat
 button-icon=oguzdows
 show-button-title=true
 show-button-icon=true
@@ -7,3 +7,6 @@ custom-menu-file=/etc/xdg/menus/oguzdows-applications.menu
 favorites=oguzdows-welcome.desktop,oguzdows-drivers.desktop,firefox-esr.desktop,thunar.desktop,libreoffice-writer.desktop,xfce4-terminal.desktop
 launcher-show-name=true
 launcher-show-description=false
+view-mode=0
+position-categories-alternate=true
+position-search-alternate=true

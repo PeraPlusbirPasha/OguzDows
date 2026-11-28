@@ -1,0 +1,10 @@
+[Desktop Entry]
+Type=X-GNOME-Metatheme
+Name=OğuzDows · Windows 11 esintisi · Koyu
+Comment=Opak okunaklı başlıklar, kaynak bütçeli Xfce düzeni
+
+[X-GNOME-Metatheme]
+GtkTheme=OguzDowsElevenDark
+MetacityTheme=OguzDowsElevenDark
+IconTheme=OguzDows
+CursorTheme=OguzDowsTespih

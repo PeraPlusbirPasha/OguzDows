@@ -7,7 +7,8 @@ Kullanım: ./build-pi.sh armhf|arm64 [--configure-only]
   armhf  ARMv6 uyumlu kullanıcı alanı: Zero / 1 / 2 / 3 / 4 (Pi 5 değil)
   arm64  Zero 2 W / Pi 2 rev1.2 / 3 / 4 / 5
   --configure-only  Root, ağ ve derleme araçları olmadan dosyaları hazırla.
-Gerçek derleme root + 4 KiB sayfalı Linux, loop/mount ve QEMU gerektirir.
+Gerçek derleme root + Linux, loop/mount ve QEMU gerektirir.
+armhf derleme hostu 4 KiB sayfalı olmalı; arm64 bu koşulla kısıtlanmaz.
 EOF
 }
 if [ "$#" -eq 1 ] && [[ "$1" == --help || "$1" == -h ]]; then usage; exit 0; fi
@@ -26,7 +27,7 @@ if [ -e "$WORK" ]; then
 fi
 if ! "$CONFIGURE_ONLY"; then
     [ "$(id -u)" -eq 0 ] || { echo 'Gerçek Pi derlemesi için sudo gerekli.' >&2; exit 1; }
-    for command in python3 curl tar sha256sum debootstrap arch-test losetup sfdisk mount udevadm xz; do
+    for command in python3 curl tar sha256sum debootstrap arch-test losetup sfdisk mount udevadm xz xvfb-run xauth; do
         command -v "$command" >/dev/null || { echo "Derleme aracı eksik: $command" >&2; exit 1; }
     done
     if [ "$ARCH" = armhf ] && [ "$(getconf PAGESIZE)" != 4096 ]; then
@@ -54,6 +55,12 @@ PY
     printf '%s  %s\n' "${SOURCE[1]}" "$ARCHIVE" | sha256sum --check --strict
     mkdir "$WORK/pi-gen"
     tar -xzf "$ARCHIVE" --strip-components=1 --no-same-owner -C "$WORK/pi-gen"
+    # Güncel sürüme portta boot / kernel / kaynak mimarisi sessizce değişmesin.
+    python3 "$ROOT/scripts/audit-pi-upstream.py" --arch "$ARCH" --source "$WORK/pi-gen" \
+        --output "$WORK/pi-upstream-audit.json"
+    # Denetlenen upstream farkı ayrı before/after SHA-256 raporuna kaydedilir.
+    python3 "$ROOT/scripts/prepare-pi-apt.py" --arch "$ARCH" --source "$WORK/pi-gen" \
+        --output "$WORK/pi-apt-adaptation.json"
     cp -a "$WORK/configuration/stage-oguzdows" "$WORK/pi-gen/"
     cp "$WORK/configuration/config" "$WORK/pi-gen/config"
     # Yalnızca OğuzDows masaüstü son aşaması dışa aktarılır; boş Lite imajı yok.

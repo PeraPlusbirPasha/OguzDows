@@ -95,19 +95,23 @@ class Avatar(Gtk.Image):
 
 
 class Companion(Gtk.ApplicationWindow):
-    def __init__(self,app,callbacks,reduced=False,installing=False):
+    def __init__(self,app,callbacks,reduced=False,installing=False,speaker=None):
         super().__init__(application=app)
+        import ui_theme
+        ui_theme.setup(self)
         self.callbacks=callbacks
         self.installing=bool(installing)
         self.current_page='welcome'
         self.last_panel=''
+        self.page_words={}
         self.last_message=''
         self.last_cue=None
         self.status_data={}
         self.last_stage=None
-        self.speaker=Speaker(GLib.idle_add,self.voice_error)
+        self.owns_speaker = speaker is None
+        self.speaker = Speaker(GLib.idle_add, self.voice_error) if speaker is None else speaker
         self.set_title('Rıfkı · Hafif yardımcı')
-        self.set_icon_name('oguzdows')
+        self.set_icon_name('oguzdows-rifki')
         self.set_default_size(354,min(570,self.get_screen().get_height()-80))
         self.get_style_context().add_class('oguzdows-window')
         self.get_style_context().add_class('rifki-window')
@@ -151,7 +155,7 @@ class Companion(Gtk.ApplicationWindow):
         self.action_name=None
         body.pack_start(self.action,False,False,0)
         speech_buttons=Gtk.Box(spacing=6)
-        for title,callback in (('Son mesajı dinle',lambda *_:self.speaker.speak(self.last_message,self.last_cue)),('Sesi durdur',lambda *_:self.speaker.stop())):
+        for title,callback in (('Son mesajı dinle',self.repeat),('Sesi durdur',lambda *_:self.speaker.stop())):
             button=Gtk.Button(label=title)
             button.connect('clicked',callback)
             speech_buttons.pack_start(button,True,True,0)
@@ -167,8 +171,8 @@ class Companion(Gtk.ApplicationWindow):
         self.sound.connect('toggled',lambda b:self.speaker.set_enabled(b.get_active()))
         body.pack_start(self.sound,False,False,0)
         self.narration=Gtk.CheckButton(label='Rehber panel açıklamalarını anlat')
-        self.narration.set_active(self.speaker.options.get('narration',True) is not False)
-        self.narration.connect('toggled',lambda b:self.speaker.save_option('narration',b.get_active()))
+        self.narration.set_active(self.speaker.options.get('welcome_narration', True) is not False)
+        self.narration.connect('toggled', self.narration_changed)
         body.pack_start(self.narration,False,False,0)
         self.motion=Gtk.CheckButton(label='Yalnızca konuşurken hafif ağız hareketi')
         # Önceki pet/auto tercihleri veya RAM miktarı ağır yolu geri açamaz.
@@ -192,7 +196,7 @@ class Companion(Gtk.ApplicationWindow):
         scroll.set_policy(Gtk.PolicyType.NEVER,Gtk.PolicyType.AUTOMATIC)
         scroll.add(body)
         self.add(scroll)
-        self.connect('destroy',lambda *_:self.speaker.close())
+        self.connect('destroy',lambda *_:self.speaker.close() if self.owns_speaker else self.speaker.stop())
         self.say(HELLO)
 
     def voice_error(self,text):
@@ -201,6 +205,21 @@ class Companion(Gtk.ApplicationWindow):
     def motion_changed(self,button):
         self.avatar.allow_motion=button.get_active()
         self.avatar.sync()
+
+    def narration_changed(self, button):
+        value = button.get_active()
+        self.speaker.save_option('welcome_narration', value)
+        callback = self.callbacks.get('narration')
+        if callback:
+            callback(value)
+        if not value:
+            self.speaker.stop()
+
+    def repeat(self, *_):
+        if self.installing:
+            self.voice_error('Kurulum sürerken ses duraklatıldı; açıklama yazılı kalır.')
+            return
+        self.speaker.speak(self.last_message, self.last_cue)
 
     def greet(self):
         self.say(HELLO)
@@ -240,7 +259,10 @@ class Companion(Gtk.ApplicationWindow):
             cue=self.result_cue(self.status_data)
         self.say(answer['text'],cue)
         self.action_name=answer['action']
-        names={'boot-report':'Salt-okunur açılış raporu','network':'Ağ bağlantıları','drivers':'Donanım sekmesi','wallpapers':'Duvar kâğıtları','install':'Kurulum ekranı'}
+        names={'boot-report':'Salt-okunur açılış raporu','network':'Ağ bağlantıları','drivers':'Donanım sekmesi',
+               'wallpapers':'Duvar kâğıtları','install':'Karşılayıcı', 'styles':'Tasarım ve tema',
+               'store':'OğuzDows Mağaza', 'updates':'Güncelleme / cihaz rehberi',
+               'compatibility':'EXE / APK inceleme ekranı', 'culture':'İmece araçları', 'devices':'Cihaz Merkezi'}
         if self.action_name in self.callbacks:
             self.action.set_label(names[self.action_name])
             self.action.show()
@@ -255,7 +277,9 @@ class Companion(Gtk.ApplicationWindow):
 
     def narrate_page(self,name,force=False,text=None):
         self.current_page=name
-        words=text or PANELS.get(name)
+        if text:
+            self.page_words[name]=text
+        words=text or self.page_words.get(name) or PANELS.get(name)
         if not words or (not force and (not self.narration.get_active() or self.last_panel==name)):
             return
         self.last_panel=name

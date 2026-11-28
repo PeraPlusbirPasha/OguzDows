@@ -64,5 +64,177 @@
     "packaged_sha256": "93cff2d2ad3b684ae1b419c143f2a1684ee48671839046d0c3444dc689fb08fa",
     "origin": "AI-generated; not a camera photograph",
     "logo": "bottom-right"
+  },
+  {
+    "file": "istanbul-kedisi.jpg",
+    "source_size": [
+      1376,
+      768
+    ],
+    "source_sha256": "5fa92c185af48a4f980d600ab675a8141f727d1efc1c860c5e6a8fa34e36bd6e",
+    "packaged_sha256": "4ab5e8855c4384166476e52680a3630e2904db4a48ff229676c56c946bc19362",
+    "origin": "AI-generated; not a camera photograph",
+    "logo": "bottom-right",
+    "collection": "1.1"
+  },
+  {
+    "file": "van-kedisi.jpg",
+    "source_size": [
+      1376,
+      768
+    ],
+    "source_sha256": "34b8366c13f1d51f25e389222e5082f385a457e41798e64cbe2da1546b1c0ffd",
+    "packaged_sha256": "9106ed56fbfb37a2ec0066ab976ff1fbca647e6633c623a8f4b8dad012041b4a",
+    "origin": "AI-generated; not a camera photograph",
+    "logo": "bottom-right",
+    "collection": "1.1"
+  },
+  {
+    "file": "cay-simit.jpg",
+    "source_size": [
+      1376,
+      768
+    ],
+    "source_sha256": "94fd9456743f80737f158e07469aca761cb53673507bf8599d38bc54b0b06e0c",
+    "packaged_sha256": "07ff185c45a35c3d5b77b53406270f22070195fd0d03091a7556612c9f569cac",
+    "origin": "AI-generated; not a camera photograph",
+    "logo": "bottom-right",
+    "collection": "1.1"
+  },
+  {
+    "file": "halay.jpg",
+    "source_size": [
+      1376,
+      768
+    ],
+    "source_sha256": "87ddb2591984e039e1cba6710ec265f80990be7f8a86e60ff514193d1b632ceb",
+    "packaged_sha256": "05e8460d97724e2d98b38b87df89aed3a2d0090ad78d19f8caf33d40164de52b",
+    "origin": "AI-generated; not a camera photograph",
+    "logo": "bottom-right",
+    "collection": "1.1"
+  },
+  {
+    "file": "horon.jpg",
+    "source_size": [
+      1376,
+      768
+    ],
+    "source_sha256": "0d7a0536e754e9372c0d30a5beb78cb6a40e4e3d7eac01ad2e24b1edef26c324",
+    "packaged_sha256": "6ed465844d3295adf24ff9328b807d2e44e7cb187a06dd54498fe2445d4d6346",
+    "origin": "AI-generated; not a camera photograph",
+    "logo": "bottom-right",
+    "collection": "1.1"
+  },
+  {
+    "file": "zeybek.jpg",
+    "source_size": [
+      1376,
+      768
+    ],
+    "source_sha256": "877e5db159117eb6458908ea2840e3cf3d51a8aae0331a70c66592c7561bfb3d",
+    "packaged_sha256": "eb864e61c843460df02f9f29c231be8592e27559ccf5455fcaa1eaef725e3c35",
+    "origin": "AI-generated; not a camera photograph",
+    "logo": "bottom-right",
+    "collection": "1.1"
+  },
+  {
+    "file": "kilim.jpg",
+    "source_size": [
+      1376,
+      768
+    ],
+    "source_sha256": "5eef9c4ac037be2bd8b52ffac3d5c5aa81bf5a8f586826ae47082f8fc4caca59",
+    "packaged_sha256": "257c932e7d32368109773b9d0d968bb8c700fa6e18da7deac7cb6fe0dfe03d95",
+    "origin": "AI-generated; not a camera photograph",
+    "logo": "bottom-right",
+    "collection": "1.1"
+  },
+  {
+    "file": "ebru.jpg",
+    "source_size": [
+      1376,
+      768
+    ],
+    "source_sha256": "6ec323c302a5a21372874a2983bd8c29ee3c93516045e9ba042e5a82beea2e76",
+    "packaged_sha256": "305f0af9177decf6579c49609e33f410d1068b30070782ae700585da5caed1ad",
+    "origin": "AI-generated; not a camera photograph",
+    "logo": "bottom-right",
+    "collection": "1.1"
+  },
+  {
+    "file": "lale.jpg",
+    "source_size": [
+      1376,
+      768
+    ],
+    "source_sha256": "7dd1b06b3ab8a3352ad690bb9105a40f72b385bb95396114ae575c056d5f33f9",
+    "packaged_sha256": "f1ab7ea913af08f6ed93911b66f5fa5df1cf20bd8ed98cd05970b010e5f5f772",
+    "origin": "AI-generated; not a camera photograph",
+    "logo": "bottom-right",
+    "collection": "1.1"
+  },
+  {
+    "file": "nazar.jpg",
+    "source_size": [
+      1376,
+      768
+    ],
+    "source_sha256": "e0fc9fb9c52fcd4fbf2141d332d525094c4aecff84bfdcb6babe9c8d87e9231a",
+    "packaged_sha256": "671dac5dc39c60a39448d74be5c92017b5863e2cd4f66189128e65d6362b35ad",
+    "origin": "AI-generated; not a camera photograph",
+    "logo": "bottom-right",
+    "collection": "1.1"
+  },
+  {
+    "file": "vapur.jpg",
+    "source_size": [
+      1920,
+      1080
+    ],
+    "source_sha256": "5c9869828b9c9a71bdc7095881c0eacaf050110a8affd535541dc9f64d01faee",
+    "packaged_sha256": "beb419d3097b3fbecdf0c32af375ca17662f0f3395bd42b12bf9b958eaf9b989",
+    "origin": "Original procedural illustration; scripts/draw-culture-wallpapers.py; not a camera photograph",
+    "logo": "bottom-right",
+    "collection": "1.1",
+    "source_file": "scripts/draw-culture-wallpapers.py"
+  },
+  {
+    "file": "safranbolu.jpg",
+    "source_size": [
+      1920,
+      1080
+    ],
+    "source_sha256": "f9bf8c9ca69b48f7b4f7ffb3b84a4c7c42c5073686e0430b61d68d4695b757e0",
+    "packaged_sha256": "4a445fe8ef92ebffd04e6ebc65766247decabde296242277fb1ccdbe102f10de",
+    "origin": "Original procedural illustration; scripts/draw-culture-wallpapers.py; not a camera photograph",
+    "logo": "bottom-right",
+    "collection": "1.1",
+    "source_file": "scripts/draw-culture-wallpapers.py"
+  },
+  {
+    "file": "pamukkale-teraslari.jpg",
+    "source_size": [
+      1920,
+      1080
+    ],
+    "source_sha256": "d63cb4bf5053a122a4dfca992db57ea812c960e70f8e0beee9221e8750a2ad5d",
+    "packaged_sha256": "a908161489538fa4c422587cba8665f8fe73bfe042ea5cd286226c5976ff0043",
+    "origin": "Original procedural illustration; scripts/draw-culture-wallpapers.py; not a camera photograph",
+    "logo": "bottom-right",
+    "collection": "1.1",
+    "source_file": "scripts/draw-culture-wallpapers.py"
+  },
+  {
+    "file": "anadolu-gecesi.jpg",
+    "source_size": [
+      1920,
+      1080
+    ],
+    "source_sha256": "aac07ce50f51a19699f37576d9a1d2173f2f9a205509c86be175990c9e88a0db",
+    "packaged_sha256": "42f9f813088961db0e5c5b529bda2f1eb0a7c94eef4dfdd7fad605d0edaef220",
+    "origin": "Original procedural illustration; scripts/draw-culture-wallpapers.py; not a camera photograph",
+    "logo": "bottom-right",
+    "collection": "1.1",
+    "source_file": "scripts/draw-culture-wallpapers.py"
   }
 ]

@@ -13,6 +13,7 @@ from types import SimpleNamespace as NS
 from unittest.mock import Mock, patch
 
 from support import ROOT, load
+from xfconf_fixture import Xfconf
 
 profiles = load('profiles_test', 'system/usr/lib/oguzdows/profiles.py')
 culture = load('culture_core_test', 'system/usr/lib/oguzdows/culture_core.py')
@@ -22,8 +23,8 @@ memory = load('memory_probe_test', 'system/usr/lib/oguzdows/memory_probe.py')
 
 
 class ProfileTests(unittest.TestCase):
-    def test_five_profiles_only_change_appearance_and_never_reenable_effects(self):
-        self.assertEqual(set(profiles.PROFILES), {'oguzdows', 'kde', 'gnome', 'xfce', 'mac'})
+    def test_six_profiles_only_change_appearance_and_never_reenable_effects(self):
+        self.assertEqual(set(profiles.PROFILES), {'oguzdows', 'kde', 'gnome', 'xfce', 'mac', 'windows11'})
         for name in profiles.PROFILES:
             values = {(channel, path): value for channel, path, _kind, value in profiles.settings(name)}
             self.assertEqual(values['xfce4-panel', '/panels/panel-1/enter-opacity'], '100')
@@ -34,10 +35,8 @@ class ProfileTests(unittest.TestCase):
             profiles.settings('kde; sudo something')
 
     def test_apply_backs_up_once_and_restore_only_accepts_known_properties(self):
-        calls = []
-        def execute(command):
-            calls.append(command)
-            return subprocess.CompletedProcess(command, 0, 'original-value\n', '')
+        execute = Xfconf(profiles.settings('oguzdows'))
+        calls = execute.calls
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
             profiles.apply('kde', root, execute)
@@ -61,13 +60,14 @@ class ProfileTests(unittest.TestCase):
                 self.assertFalse(calls)
 
     def test_failed_apply_rolls_back_existing_and_new_properties(self):
-        calls = []
+        xfconf = Xfconf(profiles.settings('oguzdows'))
+        xfconf.values.pop(('xfce4-panel', '/panels/panel-1/size'))
+        calls = xfconf.calls
         def execute(command):
-            calls.append(command)
-            if len(command) == 5:
-                return subprocess.CompletedProcess(command, 1 if command[4].endswith('size') else 0, 'original\n', '')
-            failing = command[4].endswith('button_layout') and command[-1] != 'original'
-            return subprocess.CompletedProcess(command, 1 if failing else 0, '', '')
+            if len(command) > 5 and command[4].endswith('button_layout') and command[-1] != 'original':
+                calls.append(command)
+                return subprocess.CompletedProcess(command, 1, '', '')
+            return xfconf(command)
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
             with self.assertRaises(RuntimeError):
@@ -229,7 +229,7 @@ class StoreTests(unittest.TestCase):
         execute = Mock(side_effect=['x86_64', 'flathub\thttps://dl.flathub.org/repo/\tuser'])
         store.setup_flathub(execute)
         self.assertEqual(execute.call_count, 2)
-        for arch in ('i386', 'arm', 'aarch64', 'x86_64\nmalformed'):
+        for arch in ('i386', 'arm', 'x86_64\nmalformed'):
             execute = Mock(return_value=arch)
             with self.assertRaises(ValueError):
                 store.setup_flathub(execute)
@@ -255,7 +255,16 @@ class MemoryTests(unittest.TestCase):
         self.assertTrue(report['valid_idle_measurement'])
         instant = memory.memory_report('MemTotal: 1000000 kB\nMemAvailable: 500000 kB\n')
         self.assertEqual(instant['used_bytes'], 512_000_000)
+        self.assertEqual(instant['total_bytes'], 1_024_000_000)
+        self.assertEqual(instant['available_bytes'], 512_000_000)
         self.assertEqual(instant['measurement'], 'anlık; boşta olduğunuzu tek başına kanıtlamaz')
+        samples = self.samples()
+        for item in samples:
+            item.update(total_bytes=1_024_000_000, available_bytes=524_000_000)
+        measured = memory.summarize(samples, 120, 5, True)
+        self.assertEqual(measured['reported_total_bytes'], 1_024_000_000)
+        self.assertEqual(measured['min_available_bytes'], 524_000_000)
+        self.assertEqual(measured['min_available_mb'], 524.0)
 
     def test_missing_graphics_apps_high_cpu_unsettled_or_no_consent_never_claims_target(self):
         cases = []

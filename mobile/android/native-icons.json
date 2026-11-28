@@ -1,0 +1,290 @@
+[
+  {
+    "id": "firefox",
+    "package": "org.mozilla.firefox",
+    "source_svg": "preview/public/assets/apps/firefox.svg",
+    "source_svg_sha256": "7b3fcc1b72cf32e48f858c9f939ff10040c92ea98ffafb13b7c973eb123fcadc",
+    "vector_sha256": "d1bd157dcdfc30fc38be6129ac2fef44050771c38db44481417c6961e4f90bfd",
+    "license": {
+      "type": "CC0-1.0"
+    },
+    "source": "https://mozilla.design/firefox/logos-usage/",
+    "modification": "Same symbol path/background/colors, adapted to Android VectorDrawable XML."
+  },
+  {
+    "id": "signal",
+    "package": "org.thoughtcrime.securesms",
+    "source_svg": "preview/public/assets/apps/signal.svg",
+    "source_svg_sha256": "fabfb8f6b5e1933a8891446a173ae926d5a602af2a5f6acade6ef08fe2527d52",
+    "vector_sha256": "15cf7304bfdd30601c796e6938f6f0c62f252b32c9b21c78c6b64a7db6034bfa",
+    "license": {
+      "type": "CC0-1.0"
+    },
+    "source": "https://signal.org/brand",
+    "modification": "Same symbol path/background/colors, adapted to Android VectorDrawable XML."
+  },
+  {
+    "id": "vlc",
+    "package": "org.videolan.vlc",
+    "source_svg": "preview/public/assets/apps/vlc.svg",
+    "source_svg_sha256": "734496123b23a3c9de32f876a132480229fd3ae5b9737fbd31783207549ec034",
+    "vector_sha256": "b1d6bdcafd57f2e620a6700d0a502f4bc8d2977640d370fc3b655d9ef6ef6bd5",
+    "license": {
+      "type": "CC0-1.0"
+    },
+    "source": "https://code.videolan.org/videolan/vlc/-/blob/1ce7f686ee17a028d2d79627ae69f22d905f2e23/extras/package/macosx/asset_sources/vlc_app_icon.svg",
+    "modification": "Same symbol path/background/colors, adapted to Android VectorDrawable XML."
+  },
+  {
+    "id": "organicmaps",
+    "package": "app.organicmaps",
+    "source_svg": "preview/public/assets/apps/organicmaps.svg",
+    "source_svg_sha256": "025672db50b21c15735fd5854f395ca88e4ebcb6137c2bc6a9c3d39bb09ed0a3",
+    "vector_sha256": "b02586e01baa5e77a35a22b50b584c6314c3746ae54a77ec39ef3d66ae2b2d9b",
+    "license": {
+      "type": "CC0-1.0"
+    },
+    "source": "https://organicmaps.app",
+    "modification": "Same symbol path/background/colors, adapted to Android VectorDrawable XML."
+  },
+  {
+    "id": "telegram",
+    "package": "org.telegram.messenger",
+    "source_svg": "preview/public/assets/apps/telegram.svg",
+    "source_svg_sha256": "92e8734b53857cf1c197b943d2edfd38b6c836acc3972a2d86c63b018fc51d50",
+    "vector_sha256": "0a5dce43ffc24f8eeffe46c1daea642cdad98f1f50fc19f7f9a079713ed54573",
+    "license": {
+      "type": "CC0-1.0"
+    },
+    "source": "https://telegram.org/tour/screenshots",
+    "modification": "Same symbol path/background/colors, adapted to Android VectorDrawable XML."
+  },
+  {
+    "id": "whatsapp",
+    "package": "com.whatsapp",
+    "source_svg": "preview/public/assets/apps/whatsapp.svg",
+    "source_svg_sha256": "6ad4cbff5618930805df1d3e118550f73826439a9b3584a2d18ecb8788749f4d",
+    "vector_sha256": "3d8fb20e073568a21129bd5d6e5020cf7601f53382e0b1040fbbfd6fd097c838",
+    "license": {
+      "type": "CC0-1.0"
+    },
+    "source": "https://about.meta.com/brand/resources/whatsapp/whatsapp-brand",
+    "modification": "Same symbol path/background/colors, adapted to Android VectorDrawable XML."
+  },
+  {
+    "id": "spotify",
+    "package": "com.spotify.music",
+    "source_svg": "preview/public/assets/apps/spotify.svg",
+    "source_svg_sha256": "9ac663e964586d4d14f2ed906612f14fea38472408867b026db1698419d64cbd",
+    "vector_sha256": "7e20d2d24c83b58360b42f67370f93f71f822de1fc6abdc535079939ebb8cfbc",
+    "license": {
+      "type": "CC0-1.0"
+    },
+    "source": "https://developer.spotify.com/documentation/general/design-and-branding/#using-our-logo",
+    "modification": "Same symbol path/background/colors, adapted to Android VectorDrawable XML."
+  },
+  {
+    "id": "bitwarden",
+    "package": "com.x8bit.bitwarden",
+    "source_svg": "preview/public/assets/apps/bitwarden.svg",
+    "source_svg_sha256": "c30da401110d74163b8e95f89ef20e077329787801b6488d621894477689d454",
+    "vector_sha256": "bf79972554bf66bcbd0de49afa59743967864c4dffca1baeed1f03090b18768e",
+    "license": {
+      "type": "CC0-1.0"
+    },
+    "source": "https://bitwarden.com/brand",
+    "modification": "Same symbol path/background/colors, adapted to Android VectorDrawable XML."
+  },
+  {
+    "id": "protonmail",
+    "package": "ch.protonmail.android",
+    "source_svg": "preview/public/assets/apps/protonmail.svg",
+    "source_svg_sha256": "b651796eae14080b3c1acc8c2f8e058ae3199b7ca50c6174dc85391fa57f6d5f",
+    "vector_sha256": "d0e44912d1f1727c6c97455cdb0bad6a0816534561192218c5395c891b8e60c5",
+    "license": {
+      "type": "CC0-1.0"
+    },
+    "source": "https://proton.me/media/kit",
+    "modification": "Same symbol path/background/colors, adapted to Android VectorDrawable XML."
+  },
+  {
+    "id": "nextcloud",
+    "package": "com.nextcloud.client",
+    "source_svg": "preview/public/assets/apps/nextcloud.svg",
+    "source_svg_sha256": "fe40a93832288b32c71b429bd506623ba457cda2295bc0a1bf09abd203902646",
+    "vector_sha256": "4e79e4bb1b402acb57a4042fa5f9af6f8fd425d12e5f54f6149dbc2185190aab",
+    "license": {
+      "type": "CC0-1.0"
+    },
+    "source": "https://nextcloud.com/press/",
+    "modification": "Same symbol path/background/colors, adapted to Android VectorDrawable XML."
+  },
+  {
+    "id": "joplin",
+    "package": "net.cozic.joplin",
+    "source_svg": "preview/public/assets/apps/joplin.svg",
+    "source_svg_sha256": "a3416d2f2fc3a2e69d54a4d041bfde24c45e40bf169f91a973ff0f0990d66081",
+    "vector_sha256": "1723640d130c395f1ec089d0bdc7895cb2ff2e57f4adbf03347103ae17c9ab8e",
+    "license": {
+      "type": "CC0-1.0"
+    },
+    "source": "https://github.com/laurent22/joplin/blob/45e35576bd8b1bb0ffe958309cc1ab3736cc266b/Assets/JoplinLetter.svg",
+    "modification": "Same symbol path/background/colors, adapted to Android VectorDrawable XML."
+  },
+  {
+    "id": "obsidian",
+    "package": "md.obsidian",
+    "source_svg": "preview/public/assets/apps/obsidian.svg",
+    "source_svg_sha256": "4cc50a837969fa86ad5730a8820e5d0a7eaec7c819a60957ad618e8aca848658",
+    "vector_sha256": "b784ad4a142169ef4cf31afaa0d3664acbcf71bf6cdf095a5f0b9c2f36c0eef0",
+    "license": {
+      "type": "CC0-1.0"
+    },
+    "source": "https://obsidian.md",
+    "modification": "Same symbol path/background/colors, adapted to Android VectorDrawable XML."
+  },
+  {
+    "id": "duckduckgo",
+    "package": "com.duckduckgo.mobile.android",
+    "source_svg": "preview/public/assets/apps/duckduckgo.svg",
+    "source_svg_sha256": "500d7c5424db7e43441892b36858a427d51674e663e360b1909dea59bccfd5d7",
+    "vector_sha256": "50242865287434586ef80c0521301561cd8e8eafe5f0ea2d828a52746153be4f",
+    "license": {
+      "type": "CC0-1.0"
+    },
+    "source": "https://github.com/duckduckgo/duckduckgo-privacy-extension/blob/5c6ac8d6a07421adbfb97ee2ff855dd7655f8d71/shared/img/logo-small-grayscale.svg",
+    "modification": "Same symbol path/background/colors, adapted to Android VectorDrawable XML."
+  },
+  {
+    "id": "brave",
+    "package": "com.brave.browser",
+    "source_svg": "preview/public/assets/apps/brave.svg",
+    "source_svg_sha256": "1f153a49f17b64ef4a28b71f699bbd65863853676caa1de6fd98c58d48ed6c91",
+    "vector_sha256": "dee9a10d621c062dd06c262704ae97bb25fbab55f4b099239ea8cc3108afc50c",
+    "license": {
+      "type": "CC0-1.0"
+    },
+    "source": "https://brave.com/brave-branding-assets",
+    "modification": "Same symbol path/background/colors, adapted to Android VectorDrawable XML."
+  },
+  {
+    "id": "kdeconnect",
+    "package": "org.kde.kdeconnect_tp",
+    "source_svg": "preview/public/assets/apps/kdeconnect.svg",
+    "source_svg_sha256": "aa87cce450c44e8b92ccf1a49da07b96488ef7894acbfb4ac7726e6c9c25bb48",
+    "vector_sha256": "50945e68bd77056ebba5819390b345b447ceec013f610e3ea718824e40264659",
+    "license": {
+      "type": "CC0-1.0"
+    },
+    "source": "https://kde.org/stuff/clipart",
+    "modification": "Same symbol path/background/colors, adapted to Android VectorDrawable XML."
+  },
+  {
+    "id": "wikipedia",
+    "package": "org.wikipedia",
+    "source_svg": "preview/public/assets/apps/wikipedia.svg",
+    "source_svg_sha256": "20d4016539afa25a146dd2c2e0e5cea592e2ceb6e3eea3d9f455fe1915603019",
+    "vector_sha256": "70edfde0078bf3e598900c7b895d2329d398ba237f99d0535378ac83ef3a7b5b",
+    "license": {
+      "type": "CC0-1.0"
+    },
+    "source": "https://commons.wikimedia.org/wiki/File:Wikipedia-logo-v2.svg",
+    "modification": "Same symbol path/background/colors, adapted to Android VectorDrawable XML."
+  },
+  {
+    "id": "antennapod",
+    "package": "de.danoeh.antennapod",
+    "source_svg": "preview/public/assets/apps/antennapod.svg",
+    "source_svg_sha256": "67d220e4577fe65cc1f27190867ae0b2a9c4b86a2e611fdc998f527e95aa387f",
+    "vector_sha256": "c4855dc3c740537cb0c077ac9012da935fbc7765f26404ef47a9840083bdca89",
+    "license": {
+      "type": "CC0-1.0"
+    },
+    "source": "https://github.com/AntennaPod/Branding/blob/115dc180bb562eab4e5edc55eccfbdc11cd56873/Logo/logo-icon-white-out.svg",
+    "modification": "Same symbol path/background/colors, adapted to Android VectorDrawable XML."
+  },
+  {
+    "id": "element",
+    "package": "io.element.android.x",
+    "source_svg": "preview/public/assets/apps/element.svg",
+    "source_svg_sha256": "3ec9f3b2a113ba321d7ec70e70d00c2895627f04d0d5d02b207c9c3ae7b245c3",
+    "vector_sha256": "7ef5f433512a9bb08c37b654ecfdb12091aa24453f3f3ba18d9f3f271ec842c3",
+    "license": {
+      "type": "CC0-1.0"
+    },
+    "source": "https://element.io",
+    "modification": "Same symbol path/background/colors, adapted to Android VectorDrawable XML."
+  },
+  {
+    "id": "aegis",
+    "package": "com.beemdevelopment.aegis",
+    "source_svg": "preview/public/assets/apps/aegis.svg",
+    "source_svg_sha256": "54b542c8e2c1bb3cb29d266b68103630d725ea0884e785cafcd9287fab7dce34",
+    "vector_sha256": "620abee3ae09a41d23d5ceaab3009b635df32805d2459982357d84782b531398",
+    "license": {
+      "type": "CC0-1.0"
+    },
+    "source": "https://getaegis.app/aegis.svg",
+    "modification": "Same symbol path/background/colors, adapted to Android VectorDrawable XML."
+  },
+  {
+    "id": "thunderbird",
+    "package": "net.thunderbird.android",
+    "source_svg": "preview/public/assets/apps/thunderbird.svg",
+    "source_svg_sha256": "631c6321883f5b8b29783b959fa0c5a04a57c9c5fe08ab36eee1a5835e6347cd",
+    "vector_sha256": "86fd9a11625bb2deca3d3758de23dae888802b4e65e6139b3e694948451fcfe8",
+    "license": {
+      "type": "CC0-1.0"
+    },
+    "source": "https://design.thunderbird.net/resources/logo",
+    "modification": "Same symbol path/background/colors, adapted to Android VectorDrawable XML."
+  },
+  {
+    "id": "fdroid",
+    "package": "org.fdroid.fdroid",
+    "source_svg": "preview/public/assets/apps/fdroid.svg",
+    "source_svg_sha256": "529b153e753565004e5cb5bddc13c14d056b30b37708ab7f3797adeecc682329",
+    "vector_sha256": "530d4a1f14066df6479466737111d511a0b3a0e4641e951f1e1242deb3c2ba33",
+    "license": {
+      "type": "CC-BY-SA-3.0"
+    },
+    "source": "https://f-droid.org",
+    "modification": "Same symbol path/background/colors, adapted to Android VectorDrawable XML."
+  },
+  {
+    "id": "newpipe",
+    "package": "org.schabi.newpipe",
+    "source_svg": "preview/public/assets/apps/newpipe.svg",
+    "source_svg_sha256": "dd72adf58c1f54bb0468c0ceeef0f961798fc0d845b1fb590fee2378d75ce258",
+    "vector_sha256": "afa0e10d010f9d82b294b58a8dda2b71bafcaad02dae102104e95ac27c5392eb",
+    "license": {
+      "type": "CC0-1.0"
+    },
+    "source": "https://github.com/TeamNewPipe/NewPipe/blob/f3858e70a3af90b0ad3c6731482924567ec807f9/.idea/icon.svg",
+    "modification": "Same symbol path/background/colors, adapted to Android VectorDrawable XML."
+  },
+  {
+    "id": "osmand",
+    "package": "net.osmand",
+    "source_svg": "preview/public/assets/apps/osmand.svg",
+    "source_svg_sha256": "ea43a18ef6428963ef07a83cc8a505f9834a55c16eed6e631fb88174054023a9",
+    "vector_sha256": "5338e1d8369a29a7398c25b8eefb3d3b87e43aa6c92a4f74945f4766e30ff523",
+    "license": {
+      "type": "CC0-1.0"
+    },
+    "source": "https://github.com/osmandapp/OsmAnd-misc/blob/9ec3bacebf580d0862ded5813a4aa934d0862302/logo/osmand/symbol_osmand.svg",
+    "modification": "Same symbol path/background/colors, adapted to Android VectorDrawable XML."
+  },
+  {
+    "id": "collabora",
+    "package": "com.collabora.libreoffice",
+    "source_svg": "preview/public/assets/apps/collabora.svg",
+    "source_svg_sha256": "9695e055801a776e08a4ecd3ed213ba58dda3d8f4f7c0116a32e6cc9197b4b14",
+    "vector_sha256": "3c857617b9045e2fbf06e6a359f552a9731883f9e443e39a8b07b4132a4334b7",
+    "license": {
+      "type": "CC0-1.0"
+    },
+    "source": "https://www.collaboraonline.com/branding-guidelines",
+    "modification": "Same symbol path/background/colors, adapted to Android VectorDrawable XML."
+  }
+]

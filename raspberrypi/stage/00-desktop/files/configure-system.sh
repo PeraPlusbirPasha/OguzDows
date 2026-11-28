@@ -12,20 +12,43 @@ systemctl disable dphys-swapfile.service
 systemctl mask dphys-swapfile.service
 rm -f /var/swap
 systemctl disable ssh.service
-systemctl disable NetworkManager-wait-online.service
 systemctl enable NetworkManager.service lightdm.service bluetooth.service zramswap.service \
     oguzdows-pi-tune.service oguzdows-pi-firstboot.service
+# NetworkManager'ın Also= kaydı enable sırasında bekleyiciyi geri açar.
+# Ağı kapatma / maskeleme yok; yalnızca masaüstü açılışını ağla bekletme.
+systemctl disable NetworkManager-wait-online.service
 systemctl set-default graphical.target
 printf '/usr/sbin/lightdm\n' > /etc/X11/default-display-manager
+# lightdm.conf, conf.d dosyalarından SONRA okunur. Ana dosyanın olası
+# LXDE-pi / başka greeter varsayılanı ürün drop-in'ini ezemesin.
+python3 /usr/lib/oguzdows/pi-display-setup.py
+/usr/sbin/lightdm --show-config
 if [ -z "$(dpkg-divert --list /usr/lib/os-release)" ]; then
-    dpkg-divert --local --add --rename --divert /usr/lib/os-release.upstream /usr/lib/os-release
+    # Essential paket dosyasını rename ile geçici olarak kaybetme.
+    install -m 0644 /usr/lib/os-release /usr/lib/os-release.upstream
+    dpkg-divert --local --add --no-rename --divert /usr/lib/os-release.upstream /usr/lib/os-release
 fi
-install -m 0644 /usr/share/oguzdows/os-release /usr/lib/os-release
+python3 /usr/lib/oguzdows/pi-identity.py
 ln -sfn ../usr/lib/os-release /etc/os-release
+# distribution paket symlink'i yalnızca hedef chroot içinde izlenir.
+chown root:root /usr/share/oguzdows/firefox-policies.json
+chmod 0644 /usr/share/oguzdows/firefox-policies.json
+# armhf NetSurf imajında olmayan Firefox için politika dizini oluşturma.
+if [ -x /usr/bin/firefox-esr ]; then
+    python3 /usr/lib/oguzdows/pi-firefox-policy.py
+fi
 locale-gen
 update-locale LANG=tr_TR.UTF-8 LANGUAGE=tr:en
 ln -sfn /usr/share/zoneinfo/Europe/Istanbul /etc/localtime
 python3 /usr/lib/oguzdows/render-assets.py --root /
+/usr/lib/oguzdows/seal-app-store.sh
+/usr/share/oguzdows/scripts/build-native.sh /usr/lib/oguzdows/oguzdows-store-native
+/usr/share/oguzdows/scripts/build-news.sh /usr/lib/oguzdows/oguzdows-news-native
+for component in monitor hub; do
+    /usr/share/oguzdows/scripts/build-desktop.sh "$component" "/usr/lib/oguzdows/oguzdows-$component-native"
+done
+glib-compile-schemas --strict /usr/share/glib-2.0/schemas
+update-desktop-database /usr/share/applications
 install -d /usr/share/icons/hicolor/scalable/apps
 install -m 0644 /usr/share/oguzdows/assets/oguzdows.svg /usr/share/icons/hicolor/scalable/apps/oguzdows.svg
 gtk-update-icon-cache -f -t /usr/share/icons/hicolor
@@ -48,3 +71,6 @@ PY
 # Derleme anındaki donanıma göre profil uygulanmaz; gerçek Pi açılışında seçilir.
 install -d -m 0700 /var/lib/oguzdows
 rm -f /var/lib/oguzdows/firstboot.done /var/lib/oguzdows/firstboot.pending.json
+
+# Yerel Xfce görev grubu / Dock ve olay tabanlı renk izleyicisi.
+/usr/share/oguzdows/scripts/build-panel.sh /

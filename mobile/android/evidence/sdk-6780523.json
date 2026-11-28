@@ -1,0 +1,53 @@
+{
+  "source_sha": "67805239e0cb7cf82e70cd6eb35552049a1595bc",
+  "assembled": [
+    {
+      "file": "app/build/outputs/apk/debug/app-debug.apk",
+      "bytes": 24418356,
+      "sha256": "be72acbe109e5d6e75b5a75e40cc048592259a6b2413f76ba2c5313590220b65"
+    },
+    {
+      "file": "app/build/outputs/apk/androidTest/debug/app-debug-androidTest.apk",
+      "bytes": 1065061,
+      "sha256": "af7db6b09328abe608df2283933fdc0af37ad9ac5a04e5a367c361aee20871dc"
+    },
+    {
+      "file": "fixture/build/outputs/apk/debug/fixture-debug.apk",
+      "bytes": 11512,
+      "sha256": "34269d77893b4f81b21f39209d213d3e25fb18d0984544489a0667ecfebe524d"
+    }
+  ],
+  "java_unit_tests": {
+    "tests": 20,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "lint": {
+    "Warning": 47,
+    "Information": 1
+  },
+  "lint_warning_ids": {
+    "ApplySharedPref": 1,
+    "OldTargetApi": 1,
+    "RequiresFeature": 1,
+    "GradleDependency": 11,
+    "SetJavaScriptEnabled": 1,
+    "CustomX509TrustManager": 1,
+    "DataExtractionRules": 1,
+    "VectorPath": 12,
+    "UsableSpace": 5,
+    "IconLocation": 1,
+    "ClickableViewAccessibility": 2,
+    "SetTextI18n": 10
+  },
+  "emulator_passed": null,
+  "physical_sim_tested": false,
+  "gms_certification_tested": false,
+  "github": {
+    "run_url": "https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/46074610850",
+    "job_id": 140759291852,
+    "job_url": "https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/46074610850/job/140759291852",
+    "scope": "Failed 0.4 device acceptance; no package. 20 JVM cases and the 12-case communications/repository baseline passed; launcher/connected/TLS selections failed. Not a physical-device result."
+  }
+}

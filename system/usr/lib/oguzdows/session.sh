@@ -1,29 +1,24 @@
 #!/bin/sh
-# Yalnızca bu oturumun görünümünü ayarlar; ağ isteği ve root yetkisi yoktur.
+# Tek seferlik oturum kararı; ağ, root ve devamlı arka plan işçisi yoktur.
 set -eu
 sleep 1
-set_value() {
-    xfconf-query -c "$1" -p "$2" -s "$4" 2>/dev/null || \
-        xfconf-query -c "$1" -p "$2" -n -t "$3" -s "$4" 2>/dev/null || true
-}
-MEMORY_KB=$(awk '/^MemTotal:/ { print $2 }' /proc/meminfo)
-LIGHT=false
-if [ "${MEMORY_KB:-0}" -le 2097152 ]; then LIGHT=true; fi
-case " $(cat /proc/cmdline) " in
-    *' oguzdows.profile=light '*|*' nomodeset '*) LIGHT=true ;;
-esac
-if [ -f /etc/oguzdows/pi-image.json ]; then
-    # Aynı kaynak kararı zram, donanım raporu ve masaüstünde paylaşılır.
-    PROFILE=$(python3 /usr/lib/oguzdows/pi_support.py --profile)
-    case "$PROFILE" in
-        mini|light) LIGHT=true ;;
-        full) LIGHT=false ;;
-    esac
+if [ "${OGUZDOWS_SESSION_PREPARED:-0}" != 1 ] && ! python3 /usr/lib/oguzdows/profiles.py --session; then
+    echo "OğuzDows kaynak görünümü uygulanamadı; varsayılan opak görünüm korunur." >&2
 fi
-if "$LIGHT"; then
-    set_value xfwm4 /general/use_compositing bool false
-    set_value xsettings /Gtk/EnableAnimations bool false
+# Eksik stok PrintScreen bağları tamamlanır; kişisel ekran aracı korunur.
+if ! /usr/bin/python3 -I /usr/lib/oguzdows/desktop_shortcuts.py --session; then
+    echo "OğuzDows PrintScreen kısayolları tamamlanamadı; klavye ayarları korundu." >&2
 fi
-# Yalnızca ilk girişte uygula; sonraki girişler kullanıcının seçimini korur.
+# Tek seferlik PC/Pi küçük resim bütçesi; kişisel Thunar ayarları korunur.
+if ! /usr/bin/python3 -I /usr/lib/oguzdows/file_manager.py --session; then
+    echo "OğuzDows dosya önizleme bütçesi uygulanamadı; Thunar ayarları korunuyor." >&2
+fi
+# Yalnızca ilk girişte uygula; sonraki girişler duvar kâğıdı seçimini korur.
 python3 /usr/lib/oguzdows/wallpapers.py --initialize
+# Tek sıralı uzlaştırıcı: profil / galeri ile iki autostart yarışıp cam
+# temasını veya kompozitör seçimini karşılıklı geri ezmez.
+if ! /usr/bin/python3 -I /usr/lib/oguzdows/desktop_center.py --effects-session; then
+    echo "OğuzDows ortak tercihleri uzlaştırılamadı; masaüstü oturumu korunuyor." >&2
+fi
+/usr/bin/python3 -I /usr/lib/oguzdows/accent.py --session
 exit 0

@@ -6,20 +6,32 @@ on:
       target:
         description: PC ISO, test/kanıt, release taslağı veya Raspberry Pi imajları
         type: choice
-        options: [pc, pc-tests, pc-diagnostics, pc-release, raspberrypi]
+        options: [pc, pc-tests, pc-diagnostics, pc-release, arm-release, raspberrypi]
         default: pc
       evidence_run:
-        description: pc-diagnostics / pc-release için başarıyla tamamlanmış PC çalışması
+        description: pc-diagnostics için tamamlanmış; pc-release için başarılı PC çalışması
+        type: string
+        default: ""
+      pi_evidence_run:
+        description: pc-release için isteğe bağlı; arm-release için zorunlu başarılı Pi armhf+arm64 çalışması
+        type: string
+        default: ""
+      mobile_evidence_run:
+        description: v2.0 için zorunlu; aynı kaynaklı başarılı mobil APK / tam emülatör kabulü
         type: string
         default: ""
       release_tag:
-        description: pc-release için mevcut taslağın etiketi (ör. v2.0)
+        description: pc-release için mevcut taslağın etiketi (ör. v1.1 veya v2.0)
         type: string
         default: ""
       release_id:
         description: pc-release için mevcut taslağın sayısal GitHub kimliği
         type: string
         default: ""
+      release_audit_only:
+        description: pc-release taslağını yalnız yeniden indir/doğrula; yükleme/değiştirme yok
+        type: boolean
+        default: false
       architecture:
         description: Yalnızca Raspberry Pi hedefi için
         type: choice
@@ -40,10 +52,10 @@ concurrency:
 
 jobs:
   verify:
-    if: github.event.inputs.target != 'raspberrypi' && github.event.inputs.target != 'pc-diagnostics' && github.event.inputs.target != 'pc-release'
+    if: github.event.inputs.target != 'raspberrypi' && github.event.inputs.target != 'pc-diagnostics' && github.event.inputs.target != 'pc-release' && github.event.inputs.target != 'arm-release'
     name: Yapılandırma ve GTK · ${{ matrix.suite }}
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 20
     strategy:
       fail-fast: false
       matrix:
@@ -62,11 +74,23 @@ jobs:
         run: |
           apt-get update
           apt-get install -y --no-install-recommends python3 python3-yaml python3-pil \
-            python3-gi gir1.2-gtk-3.0 shellcheck fonts-inter fonts-noto-core \
+            python3-gi python3-gi-cairo python3-cairo gir1.2-gtk-3.0 shellcheck fonts-inter fonts-noto-core \
             fonts-dejavu-core adwaita-icon-theme xauth xvfb dbus-x11 pciutils usbutils rfkill \
-            calamares x11-utils xfconf xfwm4 libxcursor1 python3-apt python3-xlib \
+            gsettings-desktop-schemas dconf-gsettings-backend xdg-desktop-portal xdg-desktop-portal-gtk gir1.2-gtk-4.0 gir1.2-adw-1 \
+            calamares thunar xfce4-terminal xfce4-screenshooter x11-utils xfconf xfwm4 picom xfce4-panel xfce4-settings xfce4-whiskermenu-plugin \
+            xfce4-pulseaudio-plugin xfce4-power-manager xfce4-power-manager-plugins libxcursor1 python3-apt python3-xlib \
             gpgv ca-certificates flatpak gnome-software gnome-software-plugin-flatpak libglib2.0-bin \
-            librsvg2-common shared-mime-info iso-codes gdb
+            librsvg2-common shared-mime-info iso-codes gdb \
+            build-essential pkg-config libgtk-3-dev libjson-glib-dev libxfce4ui-2-dev libxfce4panel-2.0-dev libxfconf-0-dev libwnck-3-dev gir1.2-flatpak-1.0 \
+            initramfs-tools-core cpio gzip xz-utils
+
+      - name: Yerel görev çubuğu / Dock ve otomatik renk izleyicisini derle
+        run: |
+          python3 scripts/ci-run.py --title 'Native Xfce module and observer ABI' -- sh scripts/build-panel.sh /
+          cp system/usr/share/xfce4/panel/plugins/oguzdows-tasks.desktop /usr/share/xfce4/panel/plugins/
+          mkdir -p /usr/lib/oguzdows
+          cp system/usr/lib/oguzdows/*.py /usr/lib/oguzdows/
+          cp scripts/render-assets.py /usr/lib/oguzdows/render-assets.py
 
       - name: Mağaza varsayılanlarını gerçek şemalarla derle
         run: |
@@ -77,28 +101,178 @@ jobs:
           test "$(gsettings get org.gnome.desktop.interface cursor-theme)" = "'OguzDowsTespih'"
 
       - name: Birim ve yapılandırma testleri
-        run: python3 -m unittest discover -s tests -p 'test_*.py' -v
+        run: |
+          python3 scripts/ci-run.py --title 'Birim ve yapılandırma testleri' -- \
+            python3 -m unittest discover -s tests -p 'test_*.py' -v
 
       - name: Kabuk betiklerini denetle
         run: |
-          shellcheck build.sh hooks/* system/usr/lib/oguzdows/*.sh \
+          shellcheck build.sh hooks/* pc/initramfs-tools/hooks/* system/usr/lib/oguzdows/*.sh \
             system/usr/local/bin/* system/usr/local/sbin/oguzdows-installer
 
       - name: Gerçek GTK arayüzünü aç ve doğrula
         run: |
-          cp -a system/usr/share/themes/OguzDows /usr/share/themes/
+          cp -a system/usr/share/themes/. /usr/share/themes/
           python3 scripts/ci-run.py --title 'Tema görselleri' -- \
             python3 scripts/render-assets.py --root /
+          gtk-update-icon-cache -f -t /usr/share/icons/hicolor
+          cp system/usr/share/oguzdows/picom.conf /usr/share/oguzdows/picom.conf
+          cp -a system/usr/share/oguzdows/compositor /usr/share/oguzdows/
           python3 scripts/ci-run.py --title 'GTK arayüz kontrolü' -- \
             xvfb-run -a -s '-screen 0 1024x768x24' dbus-run-session -- \
             python3 tests/smoke-welcome.py --output test-results
+          python3 scripts/ci-run.py --title 'Canlı karşılayıcı GTK kontrolü' -- \
+            xvfb-run -a -s '-screen 0 1024x768x24' dbus-run-session -- \
+            python3 tests/smoke-welcome.py --live --output test-results/live
 
-      - name: Güncelleyici, onay akışı, beş gerçek xfconf tarzı ve İmece
+      - name: Atölye · 16 gerçek GTK sayfası / özel dosyalar / tek işçi / boşta yük
+        shell: bash
+        run: |
+          for spec in '1024x768 light' '360x800 dark'; do
+            read -r screen appearance <<< "$spec"
+            python3 scripts/ci-run.py --title "Atölye $screen $appearance · ${{ matrix.suite }}" -- \
+              xvfb-run -a -s "-screen 0 ${screen}x24 -nolisten tcp" \
+              python3 tests/smoke-workbench.py --appearance "$appearance" --output "test-results/workbench-$screen"
+          done
+          sh scripts/test-native-files.sh
+
+      - name: Yerel C mağazasını derle ve gerçek GTK ile aç
+        run: |
+          sh scripts/build-native.sh /tmp/oguzdows-store-native
+          sh scripts/build-native.sh /tmp/oguzdows-store-ui-test --test
+          python3 scripts/ci-run.py --title 'Derlenen yerel mağaza' -- \
+            xvfb-run -a -s '-screen 0 1280x900x24' dbus-run-session -- \
+            /tmp/oguzdows-store-ui-test --smoke-test test-results/native-store
+          python3 scripts/ci-run.py --title 'C Store GTK 360x800 (fixture only)' -- \
+            xvfb-run -a -s '-screen 0 360x800x24' dbus-run-session -- \
+            /tmp/oguzdows-store-ui-test --smoke-test test-results/store-360x800
+
+      - name: Yerel hafif haber okuyucusu ve kısa ömürlü RSS işçisi (ağsız fixture)
+        if: ${{ !cancelled() }}
+        run: |
+          sh scripts/build-news.sh /tmp/oguzdows-news-native
+          sh scripts/build-news.sh /tmp/oguzdows-news-ui-test --test
+          /tmp/oguzdows-news-native --version
+          for screen in 1024x768 360x800; do
+            python3 scripts/ci-run.py --title "C Haber GTK $screen (ağsız fixture)" -- \
+              xvfb-run -a -s "-screen 0 ${screen}x24" dbus-run-session -- \
+              /tmp/oguzdows-news-ui-test --smoke-test "test-results/news-$screen"
+          done
+
+      - name: Ortak native materyal, canlı tercih olayı ve sınırlı GTK geçişi
+        run: |
+          python3 scripts/ci-run.py --title 'Native material · GTK CSS / transition / reduced motion' -- \
+            xvfb-run -a -s '-screen 0 1024x768x24' dbus-run-session -- \
+            python3 tests/smoke-material.py --output test-results/material
+          python3 scripts/ci-run.py --title 'Explicit live RSS health (offline is reported honestly)' -- \
+            python3 tests/smoke-news-live.py --output test-results/news-live.json
+
+      - name: Gerçek mağaza yükle/kaldır · yalnız tek kullanımlık amd64/trixie container
+        if: matrix.suite == 'trixie'
+        run: |
+          python3 scripts/ci-run.py --title 'Real guarded Store package transaction (disposable container only)' -- \
+            python3 tests/smoke-store-transaction.py --disposable-container --output test-results/store-transaction
+
+      - name: Tek kompozitör, kısa geçiş ve düşük RAM koruması (özel normal kullanıcı)
+        run: |
+          python3 scripts/ci-run.py --title 'Gerçek Picom / Xfwm sahipliği' -- \
+            xvfb-run -a -s '-screen 0 1024x768x24 -nolisten tcp' -- \
+            python3 tests/smoke-effects.py --output test-results/effects
+
+      - name: Gerçek Thunar çerçeve maskesi, CSD durumları ve HiDPI geometrisi
+        run: |
+          for scale in 1 2; do
+            width=$((1024 * scale))
+            height=$((768 * scale))
+            python3 scripts/ci-run.py --title "Real Thunar / GTK state geometry · scale $scale" -- \
+              xvfb-run -a -s "-screen 0 ${width}x${height}x24 -nolisten tcp" \
+              python3 tests/smoke-window-geometry.py --scale "$scale" --output "test-results/window-geometry-$scale"
+          done
+
+      - name: Özel geometri ekranı · yalnız test hatasında
+        if: ${{ failure() }}
+        run: python3 scripts/ci-preview.py test-results/window-geometry-1/geometry-failure.png
+
+      - name: Gerçek kullanıcıda uygulama başlatma ve kısa ömürlü işçi (paket fixture)
+        run: |
+          python3 scripts/ci-run.py --title 'Gio kullanıcı başlatma ve JSON boru ayrımı' -- \
+            python3 tests/smoke-store-launch.py --output test-results/store-launch
+
+      - name: EXE / APK onay arayüzü ve deneysel telefon karşılayıcısı
+        run: |
+          for component in compatibility devices; do
+            python3 scripts/ci-run.py --title "Uyumluluk GTK $component" -- \
+              xvfb-run -a -s '-screen 0 1024x768x24' dbus-run-session -- \
+              python3 tests/smoke-compatibility.py --component "$component" --output test-results
+          done
+          for component in compatibility devices; do
+            python3 scripts/ci-run.py --title "360px telefon $component (host)" -- \
+              xvfb-run -a -s '-screen 0 360x800x24' dbus-run-session -- \
+              python3 tests/smoke-compatibility.py --phone --component "$component" --output "test-results/phone-$component"
+          done
+          python3 scripts/ci-run.py --title 'Dar telefon karşılayıcısı (host)' -- \
+            xvfb-run -a -s '-screen 0 480x900x24' dbus-run-session -- \
+            python3 tests/smoke-welcome.py --phone --output test-results/phone
+          python3 scripts/ci-run.py --title '360px telefon karşılayıcısı (host)' -- \
+            xvfb-run -a -s '-screen 0 360x800x24' dbus-run-session -- \
+            python3 tests/smoke-welcome.py --phone --output test-results/phone-narrow
+          python3 scripts/ci-run.py --title 'Dar C mağaza (host)' -- \
+            xvfb-run -a -s '-screen 0 480x900x24' dbus-run-session -- \
+            /tmp/oguzdows-store-ui-test --smoke-test test-results/phone-store
+          python3 scripts/ci-run.py --title '360px C mağaza (host)' -- \
+            xvfb-run -a -s '-screen 0 360x800x24' dbus-run-session -- \
+            /tmp/oguzdows-store-ui-test --smoke-test test-results/phone-store-narrow
+          for device in arm64-uefi pinephone pinephone-pro rockpro64; do
+            python3 scripts/configure-arm.py --device "$device" --output "/tmp/oguzdows-$device"
+          done
+
+      - name: Güncelleyici, onay akışı, altı gerçek xfconf düzeni ve İmece
         run: |
           for component in updater culture store; do
             python3 scripts/ci-run.py --title "Bakım GTK $component" -- \
               xvfb-run -a -s '-screen 0 1024x768x24' dbus-run-session -- \
               python3 tests/smoke-maintenance-ui.py --component "$component" --output test-results
+          done
+
+      - name: Hafif başlangıç ve gerçek oturum seçicisi (host, paketler taklit)
+        run: |
+          for component in light desktops; do
+            python3 scripts/ci-run.py --title "Oturum GTK $component" -- \
+              xvfb-run -a -s '-screen 0 1024x768x24' dbus-run-session -- \
+              python3 tests/smoke-session-ui.py --component "$component" --output test-results
+          done
+
+      - name: Açık GTK3 / libadwaita uygulamalarında koyu-açık senkronu, gerçek Print ve Başlat
+        if: ${{ !cancelled() }}
+        run: |
+          install -m755 system/usr/local/bin/oguzdows-screenshot /usr/local/bin/oguzdows-screenshot
+          install -Dm644 system/etc/xdg/xdg-desktop-portal/xfce-portals.conf /etc/xdg/xdg-desktop-portal/xfce-portals.conf
+          sh scripts/build-desktop.sh hub /tmp/oguzdows-hub-polish
+          install -m755 /tmp/oguzdows-hub-polish /usr/lib/oguzdows/oguzdows-hub-native
+          install -m755 system/usr/local/bin/oguzdows-hub /usr/local/bin/oguzdows-hub
+          install -m755 system/usr/local/bin/oguzdows-desktop /usr/local/bin/oguzdows-desktop
+          cp system/usr/share/applications/oguzdows-hub.desktop system/usr/share/applications/oguzdows-desktop.desktop /usr/share/applications/
+          python3 scripts/ci-run.py --title 'Real application themes / PrintScreen / Start' -- \
+            xvfb-run -a -s '-screen 0 1024x768x24 -nolisten tcp' \
+            python3 tests/smoke-desktop-polish.py --hub /tmp/oguzdows-hub-polish --output test-results/desktop-polish
+
+      - name: Duvar kâğıdı olayı → native izleyici → GTK / Xfwm / gerçek Thunar
+        run: |
+          python3 scripts/ci-run.py --title 'Real native wallpaper accent / manual stop / Thunar' -- \
+            xvfb-run -a -s '-screen 0 1024x768x24 -nolisten tcp' \
+            python3 tests/smoke-accent.py --output test-results/accent
+
+      - name: Gerçek Xfce üst çubuk ve iskele geometrisi (özel host oturumu)
+        run: |
+          for app in browser files store terminal; do
+            cp "system/usr/share/applications/oguzdows-$app.desktop" /usr/share/applications/
+          done
+          # Real packaged launchers, never invoked by this geometry test.
+          cp system/usr/local/bin/oguzdows-browser system/usr/local/bin/oguzdows-store /usr/local/bin/
+          for screen in 1024x768 1280x900 1920x1080; do
+            python3 scripts/ci-run.py --title "Altı gerçek Xfce panel düzeni $screen" -- \
+              xvfb-run -a -s "-screen 0 ${screen}x24 -nolisten tcp" dbus-run-session -- \
+              python3 tests/smoke-profiles.py --output "test-results/profiles-$screen"
           done
 
       - name: Gerçek mağaza küçültme, açık tam çıkış ve D-Bus süreç ömrü
@@ -122,6 +296,15 @@ jobs:
               python3 tests/smoke-lightweight.py --component "$component" --output test-results
           done
 
+      - name: Doğal panel kayıtları ve kurulum D-Bus ses kapısı
+        run: |
+          python3 scripts/ci-run.py --title 'Doğal kayıt GTK ve D-Bus' -- \
+            xvfb-run -a -s '-screen 0 1024x768x24' dbus-run-session -- \
+            python3 tests/smoke-narration.py --output test-results
+          python3 scripts/ci-run.py --title '360px anlatım GTK ve D-Bus (host)' -- \
+            xvfb-run -a -s '-screen 0 360x800x24' dbus-run-session -- \
+            python3 tests/smoke-narration.py --phone --output test-results/phone-narration
+
       - name: Gerçek kurucuyu disk işlemi yapmadan aç
         run: |
           python3 scripts/configure.py --arch '${{ matrix.suite == 'trixie' && 'amd64' || 'i386' }}' --output /tmp/oguzdows-smoke
@@ -131,21 +314,56 @@ jobs:
             xvfb-run -a -s '-screen 0 1024x768x24' dbus-run-session -- \
             python3 tests/smoke-installer.py --config /etc/calamares --output test-results
 
+      # Each preview can use seven notices; keep them in separate steps so
+      # GitHub's ten-annotations-per-step cap cannot truncate either image.
+      - name: Atölye · gerçek açık masaüstü önizleme
+        if: ${{ !cancelled() }}
+        run: python3 scripts/ci-preview.py test-results/workbench-1024x768/workbench-home.png
+
+      - name: Atölye · gerçek koyu kompakt önizleme
+        if: ${{ !cancelled() }}
+        run: python3 scripts/ci-preview.py test-results/workbench-360x800/workbench-home.png
+
+      - name: Mağaza · masaüstü görsel önizleme
+        if: ${{ !cancelled() && matrix.suite == 'trixie' }}
+        run: python3 scripts/ci-preview.py test-results/native-store/store-native.png
+
+      - name: Mağaza · kompakt görsel önizleme
+        if: ${{ !cancelled() && matrix.suite == 'bookworm' }}
+        run: python3 scripts/ci-preview.py test-results/native-store/store-native-compact.png
+
+      - name: Haber · küçültülmüş okuyucu görsel önizleme
+        if: ${{ !cancelled() && matrix.suite == 'bookworm' }}
+        run: python3 scripts/ci-preview.py test-results/news-1024x768/news-compact.png
+
+      - name: Thunar · Xrender koyu görünüm ve bağlam menüsü önizlemesi
+        if: ${{ !cancelled() && matrix.suite == 'trixie' }}
+        run: python3 scripts/ci-preview.py test-results/window-geometry-1/xrender-thunar-dark-menu.png
+
+      - name: Gerçek Windows görev çubuğu · kırpılmış panel önizleme
+        if: ${{ !cancelled() && matrix.suite == 'trixie' }}
+        run: python3 scripts/ci-preview.py test-results/profiles-1024x768/panels-windows11-three-windows.png --bottom 72
+
+      - name: Gerçek Mac Dock · kırpılmış panel önizleme
+        if: ${{ !cancelled() && matrix.suite == 'bookworm' }}
+        run: python3 scripts/ci-preview.py test-results/profiles-1024x768/panels-mac.png --bottom 96
+
       - name: Arayüz ekran görüntüleri
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: OguzDows-arayuz-${{ matrix.suite }}
           path: |
-            test-results/*.png
-            test-results/*.log
-            test-results/*.json
+            test-results/**/*.png
+            test-results/**/previews/*.webp
+            test-results/**/*.log
+            test-results/**/*.json
           if-no-files-found: warn
           retention-days: 7
 
   installed-boot:
     name: Firmware → GRUB · ${{ matrix.suite }}
-    if: github.event.inputs.target != 'raspberrypi' && github.event.inputs.target != 'pc-diagnostics' && github.event.inputs.target != 'pc-release'
+    if: github.event.inputs.target != 'raspberrypi' && github.event.inputs.target != 'pc-diagnostics' && github.event.inputs.target != 'pc-release' && github.event.inputs.target != 'arm-release'
     runs-on: ubuntu-latest
     timeout-minutes: 15
     strategy:
@@ -192,7 +410,7 @@ jobs:
   build:
     name: ISO · ${{ matrix.arch }}
     needs: [verify, installed-boot]
-    if: github.event_name != 'pull_request' && github.event.inputs.target != 'raspberrypi' && github.event.inputs.target != 'pc-tests' && github.event.inputs.target != 'pc-diagnostics' && github.event.inputs.target != 'pc-release'
+    if: github.event_name != 'pull_request' && github.event.inputs.target != 'raspberrypi' && github.event.inputs.target != 'pc-tests' && github.event.inputs.target != 'pc-diagnostics' && github.event.inputs.target != 'pc-release' && github.event.inputs.target != 'arm-release'
     runs-on: ubuntu-latest
     timeout-minutes: 120
     strategy:
@@ -232,7 +450,7 @@ jobs:
         run: |
           python3 scripts/ci-run.py --title 'ISO hedef OS ${{ matrix.arch }}' -- \
             python3 tests/smoke-iso-target.py --iso 'OguzDows-${{ matrix.arch }}.iso' \
-            --arch '${{ matrix.arch }}' --expected-revision "$GITHUB_SHA" --graphical-idle \
+            --arch '${{ matrix.arch }}' --expected-revision "$GITHUB_SHA" --graphical-idle --low-ram-checks \
             --output 'test-results/iso-target-${{ matrix.arch }}'
 
       - name: Hedef sistem açılış kanıtları
@@ -291,12 +509,27 @@ jobs:
               raise SystemExit('İstenen çalışmada hedef sistem test raporu bulunamadı.')
           for path in reports:
               data = json.loads(path.read_text())
-              selected = {k: data.get(k) for k in ('arch', 'source_revision', 'build', 'modes', 'error')}
-              text = json.dumps(selected, ensure_ascii=False)
-              print('::notice title=Önceki hedef sistem kanıtı::' + text[-3500:].replace('%', '%25'))
-          for path in sorted(Path('target-evidence').rglob('desktop-idle.json')):
+              selected = {k: data.get(k) for k in ('arch', 'source_revision', 'build', 'modes', 'initramfs', 'desktop_idle', 'low_ram')}
+              selected['error_tail'] = str(data.get('error', ''))[-1400:]
+              selected['report_sha256'] = hashlib.sha256(path.read_bytes()).hexdigest()
+              text = json.dumps(selected, ensure_ascii=False, separators=(',', ':'))
+              if len(text) > 3500:
+                  raise SystemExit('Hedef kanıtı kontrol notu sınırını aştı; kesilmiş JSON yayımlanmadı.')
+              print('::notice title=Önceki hedef sistem kanıtı::' + text.replace('%', '%25'))
+          for path in sorted(Path('target-evidence').rglob('*.serial.log')):
+              lines = [line for line in path.read_text(errors='replace').splitlines()
+                  if any(term in line for term in ('Memory:', 'RAMDISK:', 'unpack rootfs',
+                      'Freeing initrd memory', 'Kernel panic - not syncing', 'Out of memory and no killable processes'))]
+              selected = {'log': str(path.relative_to('target-evidence')), 'boot_memory_lines': lines[:12]}
+              text = json.dumps(selected, ensure_ascii=False, separators=(',', ':'))
+              if len(text) > 3500:
+                  raise SystemExit('UART bellek kanıtı kontrol notu sınırını aştı.')
+              # Two target + six RAM notices fit the ten-notice step budget.
+              # UART details remain in the logs and original evidence artifact.
+              print('Önceki erken açılış belleği: ' + text)
+          for path in sorted([*Path('target-evidence').rglob('desktop-idle.json'), *Path('target-evidence').rglob('low-ram-idle.json')]):
               data = json.loads(path.read_text())
-              selected = {k: data.get(k) for k in ('build', 'method', 'target_bytes', 'settled_seconds',
+              selected = {k: data.get(k) for k in ('build', 'method', 'vm_ram_mib', 'target_bytes', 'settled_seconds',
                   'sample_count', 'sample_interval_seconds', 'idle_confirmed_by_operator',
                   'valid_idle_measurement', 'invalid_reasons', 'median_used_bytes', 'max_used_bytes',
                   'median_used_mb', 'max_used_mb', 'busy_cpu_percent', 'target_met')}
@@ -312,11 +545,59 @@ jobs:
               print('::notice title=Önceki tam Xfce RAM örnekleri::' + text.replace('%', '%25'))
           PY
 
+  mobile-diagnostics:
+    name: Özgün APK kimliklerini salt okunur incele (derlemez)
+    if: github.event_name == 'workflow_dispatch' && github.event.inputs.target == 'pc-diagnostics' && github.event.inputs.mobile_evidence_run != ''
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
+      actions: read
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          github-token: ${{ github.token }}
+          run-id: ${{ inputs.mobile_evidence_run }}
+          name: oguzdows-mobile-emulator-${{ inputs.mobile_evidence_run }}
+          path: mobile-evidence
+      - name: Yalnız veri okuyucuları ile paket / sürüm / instrumentation / imzacı
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends aapt apksigner
+          python3 - <<'PY'
+          import hashlib, json, re, subprocess
+          from pathlib import Path
+          root = Path('mobile-evidence')
+          package, = root.rglob('release-package.json')
+          receipt = json.loads(package.read_text())
+          for item in receipt['files']:
+              assert re.fullmatch(r'[A-Za-z0-9_.-]+\.apk', item['file'])
+              path, = root.rglob(item['file'])
+              assert not path.is_symlink() and path.is_file() and path.resolve().is_relative_to(root.resolve())
+              content = path.read_bytes()
+              digest = hashlib.sha256(content).hexdigest()
+              assert len(content) == item['bytes'] and digest == item['sha256']
+              def command(*args): return subprocess.check_output(args, text=True)
+              badging = command('aapt', 'dump', 'badging', str(path)).splitlines()
+              xml = command('aapt', 'dump', 'xmltree', str(path), 'AndroidManifest.xml').splitlines()
+              instrumentation = [xml[i:i+7] for i, line in enumerate(xml) if line.strip().startswith('E: instrumentation ')]
+              signature = command('apksigner', 'verify', '--verbose', '--print-certs', str(path))
+              pins = re.findall(r'^Signer #1 certificate SHA-256 digest: ([a-f0-9]{64})$', signature, re.MULTILINE)
+              assert len(pins) == 1 and receipt['certificate_sha256'][path.name] == pins[0]
+              data = dict(file=path.name, bytes=len(content), sha256=digest, source_sha=receipt['source_sha'],
+                  package_lines=[line for line in badging if line.startswith(('package:', 'instrumentation:'))],
+                  instrumentation_xml=instrumentation, certificate_sha256=pins[0],
+                  read_only=True, installed_or_executed=False)
+              text = json.dumps(data, ensure_ascii=True)
+              assert len(text) <= 3500
+              print('::notice title=Mobile read-only APK identity::' + text.replace('%', '%25'))
+          PY
+
   release:
-    name: Doğrulanmış PC ISO → Release taslağı (derlemez)
+    name: Doğrulanmış PC / Pi / mobil → Release taslağı (derlemez)
     if: github.event_name == 'workflow_dispatch' && github.event.inputs.target == 'pc-release'
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 45
     permissions:
       contents: write
       actions: read
@@ -328,15 +609,143 @@ jobs:
         with:
           persist-credentials: false
           fetch-depth: 0
+      - name: Salt okunur imaj inceleme araçları (imajdan kod çalıştırılmaz)
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends python3-yaml xorriso squashfs-tools xz-utils fdisk e2fsprogs udev aapt apksigner
+      - name: Yayın aracı negatif / bütünlük regresyonları
+        run: |
+          python3 scripts/ci-run.py --title 'Yayın aracı regresyonu' -- \
+            python3 -W error::ResourceWarning -m unittest discover -s tests -p 'test_release*.py' -v
       - name: Kaynak, SHA-256 ve boot/RAM kanıtlarıyla taslağa aktar
         env:
           GH_TOKEN: ${{ github.token }}
           SOURCE_RUN: ${{ inputs.evidence_run }}
+          PI_SOURCE_RUN: ${{ inputs.pi_evidence_run }}
+          MOBILE_SOURCE_RUN: ${{ inputs.mobile_evidence_run }}
+          AUDIT_ONLY: ${{ inputs.release_audit_only }}
           RELEASE_TAG: ${{ inputs.release_tag }}
           RELEASE_ID: ${{ inputs.release_id }}
         run: |
-          python3 scripts/ci-run.py --title 'Release ISO aktarımı' -- \
-            python3 scripts/release-assets.py --run "$SOURCE_RUN" --release-id "$RELEASE_ID" --tag "$RELEASE_TAG"
+          extra=()
+          if [ -n "$PI_SOURCE_RUN" ]; then extra=(--pi-run "$PI_SOURCE_RUN"); fi
+          if [ -n "$MOBILE_SOURCE_RUN" ]; then extra+=(--mobile-run "$MOBILE_SOURCE_RUN"); fi
+          if [ "$AUDIT_ONLY" = true ]; then extra+=(--audit); fi
+          python3 scripts/ci-run.py --title 'Release imaj aktarımı / denetimi' -- \
+            python3 scripts/release-assets.py --run "$SOURCE_RUN" --release-id "$RELEASE_ID" --tag "$RELEASE_TAG" "${extra[@]}"
+
+  arm-release:
+    name: İki yeni ARM imajı → ayrı düzeltme taslağı (derlemez)
+    if: github.event_name == 'workflow_dispatch' && inputs.target == 'arm-release' && inputs.release_audit_only != true
+    runs-on: ubuntu-24.04
+    timeout-minutes: 50
+    permissions:
+      contents: write
+      actions: read
+    concurrency:
+      group: oguzdows-release-${{ github.repository }}-${{ inputs.release_id }}
+      cancel-in-progress: false
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+          fetch-depth: 0
+      - name: Salt okunur ARM imaj inceleme araçları
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends python3-yaml xz-utils fdisk e2fsprogs udev
+      - name: Yayın aracı negatif / bütünlük regresyonları
+        run: |
+          python3 scripts/ci-run.py --title 'ARM yayın aracı regresyonu' -- \
+            python3 -W error::ResourceWarning -m unittest discover -s tests -p 'test_release*.py' -v
+      - name: Kaynak sözleşmesi / gerçek hedef görünüm / iç imaj kimliğiyle taslağa aktar
+        env:
+          GH_TOKEN: ${{ github.token }}
+          SOURCE_RUN: ${{ inputs.pi_evidence_run }}
+          RELEASE_TAG: ${{ inputs.release_tag }}
+          RELEASE_ID: ${{ inputs.release_id }}
+        run: |
+          python3 scripts/ci-run.py --title 'ARM düzeltme aktarımı' -- \
+            python3 scripts/release-arm-refresh.py --run "$SOURCE_RUN" --release-id "$RELEASE_ID" --tag "$RELEASE_TAG"
+
+  arm-release-audit-access:
+    name: ARM taslağı GET-only dosya erişimi (token aktarmaz)
+    if: github.event_name == 'workflow_dispatch' && inputs.target == 'arm-release' && inputs.release_audit_only == true
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    # GitHub requires contents:write even for GET of a private draft. This
+    # helper ONLY GETs metadata/asset redirects; the image auditor stays read-only.
+    permissions:
+      contents: write
+      actions: read
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+          fetch-depth: 0
+      - name: GET yardımcısı bağımlılığı ve negatif regresyonlar
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends python3-yaml
+          python3 scripts/ci-run.py --title 'ARM GET erişimi regresyonu' -- \
+            python3 -W error::ResourceWarning -m unittest discover -s tests -p 'test_release_arm_refresh.py' -v
+      - name: Yalnız 11 dosyaya kısa ömürlü GET URL’leri / üstveri snapshot’ı
+        env:
+          GH_TOKEN: ${{ github.token }}
+          SOURCE_RUN: ${{ inputs.pi_evidence_run }}
+          RELEASE_TAG: ${{ inputs.release_tag }}
+          RELEASE_ID: ${{ inputs.release_id }}
+        run: |
+          python3 scripts/ci-run.py --title 'ARM GET-only taslak erişimi' -- \
+            python3 scripts/release-arm-refresh.py --create-read-grant .cache/arm-read-access/grant.json \
+              --run "$SOURCE_RUN" --release-id "$RELEASE_ID" --tag "$RELEASE_TAG"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ARM-draft-expiring-GET-access
+          path: .cache/arm-read-access/grant.json
+          include-hidden-files: true
+          if-no-files-found: error
+          retention-days: 1
+
+  arm-release-audit:
+    name: ARM taslağı bağımsız yeniden indir / salt okunur doğrula
+    needs: arm-release-audit-access
+    if: github.event_name == 'workflow_dispatch' && inputs.target == 'arm-release' && inputs.release_audit_only == true
+    runs-on: ubuntu-24.04
+    timeout-minutes: 50
+    permissions:
+      contents: read
+      actions: read
+    concurrency:
+      group: oguzdows-release-${{ github.repository }}-${{ inputs.release_id }}
+      cancel-in-progress: false
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+          fetch-depth: 0
+      - name: Salt okunur ARM imaj inceleme araçları
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends python3-yaml xz-utils fdisk e2fsprogs udev
+      - name: Yayın aracı negatif / bütünlük regresyonları
+        run: |
+          python3 scripts/ci-run.py --title 'ARM bağımsız denetim regresyonu' -- \
+            python3 -W error::ResourceWarning -m unittest discover -s tests -p 'test_release*.py' -v
+      - uses: actions/download-artifact@v4
+        with:
+          name: ARM-draft-expiring-GET-access
+          path: .cache/arm-read-access
+      - name: Tüm baytları yeniden indir / SHA-256 / iki imajı yeniden salt okunur incele
+        env:
+          GH_TOKEN: ${{ github.token }}
+          SOURCE_RUN: ${{ inputs.pi_evidence_run }}
+          RELEASE_TAG: ${{ inputs.release_tag }}
+          RELEASE_ID: ${{ inputs.release_id }}
+        run: |
+          python3 scripts/ci-run.py --title 'ARM bağımsız yeniden indirme denetimi' -- \
+            python3 scripts/release-arm-refresh.py --audit --read-grant .cache/arm-read-access/grant.json \
+              --run "$SOURCE_RUN" --release-id "$RELEASE_ID" --tag "$RELEASE_TAG"
 
   raspberrypi:
     name: Raspberry Pi

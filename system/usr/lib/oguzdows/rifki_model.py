@@ -3,6 +3,7 @@ import unicodedata
 
 from install_status import description
 from rifki_dialogue import LIGHT_NOTE, STAGES
+from rifki_narration_texts import TEXTS
 
 
 def normalize(text):
@@ -14,6 +15,18 @@ def reply(text, status=None):
     answer = {'text': '', 'clip': None, 'action': None, 'emotion': 'listening'}
     if any(word in query for word in ('sudo ', 'mkfs', 'grub-install', 'rm -', '/dev/')):
         answer.update(text='Yazdığın komutu çalıştırmam. Yanlış diske yazmak verilerini silebilir. Önce salt-okunur açılış raporunu alalım.', action='boot-report')
+    elif any(word in query for word in ('apk', '.exe', 'wine', 'waydroid', 'uyumluluk')):
+        answer.update(text=TEXTS['compatibility'], action='compatibility')
+    elif any(word in query for word in ('imece', 'heybe', 'yedek', 'hizli yazim', 'cay molasi')):
+        answer.update(text=TEXTS['culture'], action='culture')
+    elif any(word in query for word in ('magaza', 'flathub', 'flatpak', 'uygulama')):
+        answer.update(text=TEXTS['store'], action='store')
+    elif any(word in query for word in ('tema', 'koyu', 'tasarim', 'tarz', 'baslat menusu')):
+        answer.update(text=TEXTS['appearance'], action='styles')
+    elif any(word in query for word in ('guncelle', 'paket plani')):
+        answer.update(text=TEXTS['applications'], action='updates')
+    elif any(word in query for word in ('raspberry', 'pinephone', 'telefon', 'arm64', 'cihaz merkezi')):
+        answer.update(text=TEXTS['compatibility'], action='devices')
     elif any(word in query for word in ('zipla','kuyru','tuy','cay','oyna')):
         answer.update(text=LIGHT_NOTE)
     elif any(word in query for word in ('boot', 'grub', 'bios', 'uefi', 'acilm', 'acilis', 'baslamiyor')):
@@ -33,7 +46,7 @@ def reply(text, status=None):
     elif any(word in query for word in ('surucu', 'driver', 'ekran', 'ses', 'donanim')):
         answer.update(text='Önce donanımın hangi sürücüye bağlandığını okuyalım. Donanım sekmesi algılanan kartları gösterir; ek paketler yalnızca uygun kart ve açık lisans/yönetici onayıyla kurulur.', action='drivers')
     elif any(word in query for word in ('duvar', 'wallpaper', 'manzara')):
-        answer.update(text='Altı foto gerçekçi Türkiye manzarası arasından seçim yapabilirsin. Görseller yapay zekâ üretimidir; gerçek çekim değildir. Her birinin sağ alt köşesinde OğuzDows logosu var. Seçimini galeriden değiştirebilirsin.', action='wallpapers', emotion='happy')
+        answer.update(text=TEXTS['wallpapers'], action='wallpapers', emotion='happy')
     elif any(word in query for word in ('pil', 'sarj', 'nazar')):
         answer.update(text='Nazar boncuğu pil doldukça aşağıdan yukarı görünür. Tam dolunca bütünü görünür. Şimşek şarj olmayı, uyarı işareti düşük pili belirtir; güç yöneticisinin kritik pil koruması değişmez.')
     elif any(word in query for word in ('kur', 'yukle', 'install')):

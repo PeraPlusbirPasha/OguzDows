@@ -1,0 +1,10 @@
+[Desktop Entry]
+Type=Application
+Name=GNOME Yazılımlar · OğuzDows
+Comment=İstek üzerine gelişmiş paket merkezi; otomatik indirme yok
+Exec=/usr/local/bin/oguzdows-store --advanced
+Icon=org.gnome.Software
+Terminal=false
+NoDisplay=true
+Categories=System;PackageManager;
+StartupNotify=true

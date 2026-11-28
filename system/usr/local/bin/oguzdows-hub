@@ -1,0 +1,3 @@
+#!/bin/sh
+# Tarayıcı / Electron / Python izleyicisi yerine gerçek GAppInfo başlatıcısı.
+exec /usr/lib/oguzdows/oguzdows-hub-native "$@"

@@ -1,0 +1,66 @@
+{
+  "source_sha": "2da79b282fea2f781678a819dd1731c0007ad7a0",
+  "github": {
+    "run_url": "https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/46076879137",
+    "job_id": 140766579352,
+    "job_url": "https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/46076879137/job/140766579352"
+  },
+  "passed": false,
+  "complete_emulator_report_available": false,
+  "scope": "Partial failure annotations only; do not infer a 24-case result. The checks per-step notice cap omitted the final summary. No package.",
+  "native_peer_receipt": {
+    "protocol": 1,
+    "native_host_python_client": true,
+    "python_host_native_client": true,
+    "pinned_tls": true,
+    "sha256_verified": true,
+    "files_verified": 4,
+    "file_sha256": {
+      "native-to-desktop.txt": "c2743e81b8bd3ddfedd38da55dcc6afef4c2d9c54b36312f48a82a9911232b24",
+      "desktop-upload.txt": "cebff615107908970303b57c61d791ef236fd1eb07fbbed88684770ce36742a4",
+      "desktop-to-native.txt": "627cb1d79773668746e6deaa21767b42f6f271d110da55706b31468e5e5df4f4",
+      "native-upload.txt": "1e5694ab01903b1de93f650f49971180bbad69294784a96635d28d8c18e0d749"
+    },
+    "physical_devices": false
+  },
+  "native_interop_instrumentation_ok_observed": true,
+  "runner_interop_failed": true,
+  "runner_interop_error": "Native instrumentation exited before native final protocol assertions",
+  "ui_at_failure": {
+    "missing": "launcher-search-open",
+    "package": "android",
+    "resumed": [
+      "LauncherActivity:720x1600"
+    ],
+    "labels": [
+      "OğuzDows · 1",
+      "Telefon",
+      "Mesajlar",
+      "Kişiler",
+      "Mağaza",
+      "Tarayıcı",
+      "Müzik",
+      "Galeri",
+      "Ayarlar",
+      "RIFKI  /  KEYİFLİ",
+      "Telefon besleniyor. Benim mama işi ne oldu?",
+      "Uygulamalar",
+      "Viewing full screen",
+      "To exit, swipe down from the top of your screen",
+      "Got it"
+    ],
+    "resource_ids": [
+      "android:id/content",
+      "launcher-root",
+      "launcher-pages",
+      "launcher-layout-label",
+      "launcher-rifki",
+      "android:id/immersive_cling_icon",
+      "android:id/immersive_cling_title",
+      "android:id/immersive_cling_description",
+      "android:id/ok"
+    ]
+  },
+  "screen_capture_accepted": false,
+  "physical_devices_tested": false
+}

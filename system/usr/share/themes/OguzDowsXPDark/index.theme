@@ -1,0 +1,10 @@
+[Desktop Entry]
+Type=X-GNOME-Metatheme
+Name=OğuzDows · Klasik Başlat Koyu
+Comment=Özgün OğuzDows renkleri, opak ve okunaklı panel
+
+[X-GNOME-Metatheme]
+GtkTheme=OguzDowsXPDark
+MetacityTheme=OguzDowsXPDark
+IconTheme=OguzDows
+CursorTheme=OguzDowsTespih

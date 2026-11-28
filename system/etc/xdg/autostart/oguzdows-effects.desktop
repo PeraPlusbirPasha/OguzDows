@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Application
+Name=OğuzDows isteğe bağlı pencere geçişleri
+Exec=/usr/bin/python3 -I /usr/lib/oguzdows/desktop_center.py --effects-session
+OnlyShowIn=XFCE;
+NoDisplay=true
+X-GNOME-Autostart-enabled=true
+# Tek giriş noktası session.sh; eski ayrı autostart kimliği devre dışıdır.
+Hidden=true

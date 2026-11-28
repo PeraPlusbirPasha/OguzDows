@@ -1,0 +1,33 @@
+{
+  "schema": 1,
+  "origin": "Original OğuzDows procedural drawings; not publisher or elementary/Apple/Microsoft logos",
+  "source": "scripts/render-assets.py: own_app_icon",
+  "sizes": [
+    16,
+    24,
+    32,
+    48,
+    64,
+    96,
+    128,
+    256
+  ],
+  "icons": {
+    "store": "Turkuaz alışveriş çantası",
+    "news": "Katlanmış gazete ve mavi haber sütunları",
+    "welcome": "Açık rehber ve pusula",
+    "update": "Dairesel güncelleme okları",
+    "device": "Ekran ve işlemci",
+    "compatibility": "Birleşen iki yapboz parçası",
+    "imece": "Çay bardağı ve tabağı",
+    "install": "Diske yerleşen aşağı ok",
+    "rifki": "Kedi yüzü",
+    "desktops": "Üst üste masaüstü pencereleri",
+    "drivers": "İşlemci ve anahtar",
+    "wallpapers": "Dağ, güneş ve manzara",
+    "browser": "Küre ve yörünge",
+    "files": "Açık klasör",
+    "terminal": "Komut balonu",
+    "workbench": "Açık çalışma defteri, görev işareti ve araçlar"
+  }
+}

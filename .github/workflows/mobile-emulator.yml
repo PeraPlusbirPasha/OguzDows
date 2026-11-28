@@ -1,0 +1,103 @@
+name: OğuzDows Mobile · APK ve emülatör
+
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - 'mobile/android/**'
+      - '!mobile/android/**/*.md'
+      - 'mobile/preview/src/**'
+      - 'mobile/preview/public/**'
+      - 'mobile/preview/tests/**'
+      - 'mobile/preview/package*.json'
+      - 'mobile/preview/vite.config.ts'
+      - 'mobile/preview/tsconfig.json'
+      - 'mobile/scripts/**'
+      - 'system/usr/lib/oguzdows/bridge*.py'
+      - 'system/usr/share/oguzdows/product.json'
+      - 'tests/test_bridge.py'
+      - 'mobile/tests/**'
+      - '.github/workflows/mobile-emulator.yml'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: oguzdows-mobile-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  apk:
+    name: API 35 · APK / yerel telefon-SMS / imzalı mağaza
+    runs-on: ubuntu-24.04
+    timeout-minutes: 50
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: mobile/preview/package-lock.json
+      - uses: actions/setup-java@b6effb05e454b25005698d916606bdc6ffcbf961 # v5
+        with:
+          distribution: temurin
+          java-version: '21' # SDK tooling JVM; application source/bytecode target is Java 17.
+      - uses: gradle/actions/setup-gradle@ed408507eac070d1f99cc633dbcf757c94c7933a # v4
+        with:
+          cache-read-only: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name != github.repository }}
+      - name: Paketlenmiş arayüz · birim testleri · bağımlılık denetimi
+        working-directory: mobile/preview
+        run: |
+          npm ci
+          npm test
+          npm run test:native
+          npm run build
+          npm run format:check
+          npm audit --audit-level=moderate
+          python3 -W error::ResourceWarning -m unittest discover -s ../../tests -p 'test_bridge.py' -v
+      - name: SDK ve gerçek APK / test APK'sı · lint · Java testleri
+        working-directory: mobile/android
+        run: |
+          python3 ../scripts/ci-command.py -- "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" 'platforms;android-35' 'build-tools;35.0.0'
+          python3 ../scripts/ci-command.py -- ./gradlew --no-daemon --max-workers=2 :fixture:assembleDebug
+          python3 ../scripts/generate-test-fixtures.py
+          python3 ../scripts/ci-command.py -- ./gradlew --no-daemon --max-workers=2 :app:assembleDebug :app:assembleDebugAndroidTest :app:testDebugUnitTest :app:lintDebug
+          python3 ../scripts/report-build.py
+      - name: Emülatör hızlandırma ön koşulu
+        run: |
+          test -c /dev/kvm
+          sudo chmod a+rw /dev/kvm
+      - name: Gerçek sanal radyo / SMS sağlayıcısı / sistem yükleyicisi / canlı F-Droid
+        uses: ReactiveCircus/android-emulator-runner@1dcd0090116d15e7c562f8db72807de5e036a4ed # v2.34.0; includes its runtime dependencies
+        with:
+          api-level: 35
+          target: google_apis
+          arch: x86_64
+          profile: pixel_6
+          cores: 2
+          ram-size: 4096M
+          heap-size: 256M
+          disk-size: 4096M
+          disable-animations: true
+          disable-spellchecker: true
+          # The product target is 4–6 GiB. Keep one consistent headless GL path after an
+          # observed HWUI frame-wait ANR; this is not a physical-device graphics/performance test.
+          emulator-options: -no-window -gpu swiftshader_indirect -feature -Vulkan -no-snapshot -noaudio -no-boot-anim -camera-back none -camera-front none
+          script: python3 mobile/scripts/ci-command.py -- python3 mobile/scripts/emulator-smoke.py
+      - name: Yalnız tüm native testler geçince dağıtım paketini hazırla
+        run: |
+          python3 mobile/scripts/acceptance.py
+          python3 mobile/scripts/package-mobile.py
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        if: always()
+        with:
+          name: oguzdows-mobile-emulator-${{ github.run_id }}
+          path: |
+            test-results/mobile/
+            mobile/android/app/build/reports/
+            mobile/android/app/build/test-results/
+          if-no-files-found: warn
+          retention-days: 14

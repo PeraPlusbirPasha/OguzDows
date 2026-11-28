@@ -1,0 +1,52 @@
+{
+  "source_sha": "5433564a139d38468eca073b22b4e2d62b2afe8d",
+  "assembled": [
+    {
+      "file": "app/build/outputs/apk/debug/app-debug.apk",
+      "bytes": 23991680,
+      "sha256": "3f67970d29d330609e65db17ffc1f0c9bd1ad4d96275683d78da747c6c9dd2ad"
+    },
+    {
+      "file": "app/build/outputs/apk/androidTest/debug/app-debug-androidTest.apk",
+      "bytes": 1026805,
+      "sha256": "83b6766a92c5e603223ec3ffccc3b2c573f4e0800bfbf0b81c4f54a2ac594b0b"
+    },
+    {
+      "file": "fixture/build/outputs/apk/debug/fixture-debug.apk",
+      "bytes": 11512,
+      "sha256": "6c8c55b2e19dbde9c081fcc609003f254e1d00dff3fcfccfc50206b2e9952f0c"
+    }
+  ],
+  "java_unit_tests": {
+    "tests": 13,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "lint": {
+    "Warning": 43,
+    "Information": 1
+  },
+  "lint_warning_ids": {
+    "ApplySharedPref": 1,
+    "OldTargetApi": 1,
+    "RequiresFeature": 1,
+    "GradleDependency": 11,
+    "SetJavaScriptEnabled": 1,
+    "DataExtractionRules": 1,
+    "VectorPath": 12,
+    "UsableSpace": 2,
+    "IconLocation": 1,
+    "ClickableViewAccessibility": 2,
+    "SetTextI18n": 10
+  },
+  "emulator_passed": null,
+  "physical_sim_tested": false,
+  "gms_certification_tested": false,
+  "github": {
+    "run_url": "https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/46065058564",
+    "job_id": 140728286209,
+    "job_url": "https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/46065058564/job/140728286209",
+    "scope": "Failed acceptance; no distribution package. A blocked or zero-test run is not a launcher acceptance."
+  }
+}

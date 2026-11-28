@@ -1,0 +1,2135 @@
+{
+  "schema_version": 1,
+  "scope": "same-source-selected-host-GTK-shells-portable-ABI-and-consented-LAN-not-image-or-physical-boot",
+  "source_revision": "5a44de0dde676d901a32be40d631d481e213439d",
+  "product_version": "2.0",
+  "codename": "Akıncı",
+  "conclusion": "success",
+  "successful_job_count": 16,
+  "workbench_gtk_reports": 8,
+  "real_signed_apt_bootstrap_reports": 3,
+  "own_32bit_abi_reports": 2,
+  "bridge_gtk_reports": 4,
+  "real_application_theme_printscreen_reports": 2,
+  "physical_boot_verified": false,
+  "physical_gpu_verified": false,
+  "pi_performance_measured": false,
+  "new_iso_or_img_verified_by_this_host_report": false,
+  "interactive_polkit_tested": false,
+  "flathub_application_download_tested": false,
+  "origin": "Read-only GitHub run/job/check annotations; no synthetic report promoted into runtime proof",
+  "local_tests": {
+    "ran": 741,
+    "passed": 732,
+    "skipped": 9,
+    "resource_warning_fatal": true,
+    "mobile_source_contracts": 34,
+    "javascript_tests": 31,
+    "chromium_browser_tests": 33,
+    "browser_seconds": 118.064238978,
+    "npm_audit_vulnerabilities": 0,
+    "source_revision": "5a44de0dde676d901a32be40d631d481e213439d",
+    "freshly_rerun_for_source": true,
+    "scope": "Local source/packaging/browser regressions; postbuild changes limited to documentation/tests/release tooling, never native APK or image acceptance",
+    "root_seconds": 32.976,
+    "npm_audit_scope": "all production and development dependencies",
+    "documentation_entry_link_regression_updated_for_2_0": true,
+    "native_or_image_acceptance_relaxed": false,
+    "release_packaging_tests": 47,
+    "capture_mirror_regression": "Required canonical evidence.json sibling; only two fixed diagnostic layouts allowed, all regular bounded copies SHA-256 identical; missing/divergent/unexpected/symlink rejected",
+    "root_test_log_sha256": "4af4ec98e50b3e4c8f19333adfba3a439480298bcf46d12ef67521f601e889e6",
+    "instrumentation_manifest_regression": "Only the test package may omit versions; require one exact AndroidJUnitRunner and target application; main versionCode20/name, APK hashes, signatures and complete native acceptance remain required"
+  },
+  "runs": {
+    "pc": {
+      "run": {
+        "id": 46092345482,
+        "html_url": "https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/46092345482",
+        "head_sha": "5a44de0dde676d901a32be40d631d481e213439d",
+        "head_branch": "arena/2d796713-o-uzdows",
+        "event": "workflow_dispatch",
+        "status": "completed",
+        "conclusion": "success",
+        "run_attempt": 1,
+        "created_at": "2026-11-28T01:17:25Z",
+        "updated_at": "2026-11-28T01:50:01Z"
+      },
+      "selected_jobs_only": true,
+      "jobs": [
+        {
+          "id": 140816388246,
+          "name": "Firmware → GRUB · trixie",
+          "html_url": "https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/46092345482/job/140816388246",
+          "status": "completed",
+          "conclusion": "success",
+          "all_required_steps_succeeded": true
+        },
+        {
+          "id": 140816388406,
+          "name": "Yapılandırma ve GTK · bookworm",
+          "html_url": "https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/46092345482/job/140816388406",
+          "status": "completed",
+          "conclusion": "success",
+          "all_required_steps_succeeded": true
+        },
+        {
+          "id": 140816388445,
+          "name": "Yapılandırma ve GTK · trixie",
+          "html_url": "https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/46092345482/job/140816388445",
+          "status": "completed",
+          "conclusion": "success",
+          "all_required_steps_succeeded": true
+        },
+        {
+          "id": 140816388485,
+          "name": "Firmware → GRUB · bookworm",
+          "html_url": "https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/46092345482/job/140816388485",
+          "status": "completed",
+          "conclusion": "success",
+          "all_required_steps_succeeded": true
+        }
+      ],
+      "reports": [
+        {
+          "job_id": 140816388445,
+          "title": "Atölye real GTK",
+          "data": {
+            "scope": "private-nonroot-real-GTK-real-files",
+            "tools_built": [
+              "tasks",
+              "notes",
+              "snippets",
+              "folders",
+              "find",
+              "rename",
+              "checksum",
+              "image",
+              "diff",
+              "json",
+              "calculator",
+              "units",
+              "colors",
+              "clocks",
+              "text",
+              "startup"
+            ],
+            "tools_count": 16,
+            "real_widget_actions": true,
+            "library_roundtrip": true,
+            "clipboard_explicit_copy": true,
+            "rename_preview_apply_undo": true,
+            "real_image_export": true,
+            "startup_user_only_restore": true,
+            "single_worker_not_gtk_thread": true,
+            "clock_stops_on_page_leave": true,
+            "appearance": "dark",
+            "screen": [
+              360,
+              800
+            ],
+            "window": [
+              336,
+              730
+            ],
+            "idle_sample_ms": 800,
+            "idle_cpu_ms": 26.68,
+            "peak_rss_kib": 136700,
+            "physical_arm_or_gpu_verified": false,
+            "not_a_hardware_performance_benchmark": true
+          },
+          "run_id": 46092345482,
+          "run_url": "https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/46092345482",
+          "job_url": "https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/46092345482/job/140816388445"
+        },
+        {
+          "job_id": 140816388445,
+          "title": "Atölye real GTK",
+          "data": {
+            "scope": "private-nonroot-real-GTK-real-files",
+            "tools_built": [
+              "tasks",
+              "notes",
+              "snippets",
+              "folders",
+              "find",
+              "rename",
+              "checksum",
+              "image",
+              "diff",
+              "json",
+              "calculator",
+              "units",
+              "colors",
+              "clocks",
+              "text",
+              "startup"
+            ],
+            "tools_count": 16,
+            "real_widget_actions": true,
+            "library_roundtrip": true,
+            "clipboard_explicit_copy": true,
+            "rename_preview_apply_undo": true,
+            "real_image_export": true,
+            "startup_user_only_restore": true,
+            "single_worker_not_gtk_thread": true,
+            "clock_stops_on_page_leave": true,
+            "appearance": "light",
+            "screen": [
+              1024,
+              768
+            ],
+            "window": [
+              1000,
+              720
+            ],
+            "idle_sample_ms": 800,
+            "idle_cpu_ms": 2.11,
+            "peak_rss_kib": 142148,
+            "physical_arm_or_gpu_verified": false,
+            "not_a_hardware_performance_benchmark": true
+          },
+          "run_id": 46092345482,
+          "run_url": "https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/46092345482",
+          "job_url": "https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/46092345482/job/140816388445"
+        },
+        {
+          "job_id": 140816388406,
+          "title": "Atölye real GTK",
+          "data": {
+            "scope": "private-nonroot-real-GTK-real-files",
+            "tools_built": [
+              "tasks",
+              "notes",
+              "snippets",
+              "folders",
+              "find",
+              "rename",
+              "checksum",
+              "image",
+              "diff",
+              "json",
+              "calculator",
+              "units",
+              "colors",
+              "clocks",
+              "text",
+              "startup"
+            ],
+            "tools_count": 16,
+            "real_widget_actions": true,
+            "library_roundtrip": true,
+            "clipboard_explicit_copy": true,
+            "rename_preview_apply_undo": true,
+            "real_image_export": true,
+            "startup_user_only_restore": true,
+            "single_worker_not_gtk_thread": true,
+            "clock_stops_on_page_leave": true,
+            "appearance": "dark",
+            "screen": [
+              360,
+              800
+            ],
+            "window": [
+              336,
+              730
+            ],
+            "idle_sample_ms": 800,
+            "idle_cpu_ms": 2.02,
+            "peak_rss_kib": 135240,
+            "physical_arm_or_gpu_verified": false,
+            "not_a_hardware_performance_benchmark": true
+          },
+          "run_id": 46092345482,
+          "run_url": "https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/46092345482",
+          "job_url": "https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/46092345482/job/140816388406"
+        },
+        {
+          "job_id": 140816388406,
+          "title": "Atölye real GTK",
+          "data": {
+            "scope": "private-nonroot-real-GTK-real-files",
+            "tools_built": [
+              "tasks",
+              "notes",
+              "snippets",
+              "folders",
+              "find",
+              "rename",
+              "checksum",
+              "image",
+              "diff",
+              "json",
+              "calculator",
+              "units",
+              "colors",
+              "clocks",
+              "text",
+              "startup"
+            ],
+            "tools_count": 16,
+            "real_widget_actions": true,
+            "library_roundtrip": true,
+            "clipboard_explicit_copy": true,
+            "rename_preview_apply_undo": true,
+            "real_image_export": true,
+            "startup_user_only_restore": true,
+            "single_worker_not_gtk_thread": true,
+            "clock_stops_on_page_leave": true,
+            "appearance": "light",
+            "screen": [
+              1024,
+              768
+            ],
+            "window": [
+              1000,
+              720
+            ],
+            "idle_sample_ms": 800,
+            "idle_cpu_ms": 3.18,
+            "peak_rss_kib": 141356,
+            "physical_arm_or_gpu_verified": false,
+            "not_a_hardware_performance_benchmark": true
+          },
+          "run_id": 46092345482,
+          "run_url": "https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/46092345482",
+          "job_url": "https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/46092345482/job/140816388406"
+        },
+        {
+          "job_id": 140816388445,
+          "title": "Application themes PrintScreen and Start",
+          "data": {
+            "scope": "private-nonroot-Xvfb-real-Xfce-GTK3-libadwaita",
+            "physical_gpu_verified": false,
+            "performance_benchmark": false,
+            "already_open_standard_gtk3_dark_light_dark": true,
+            "already_open_standard_libadwaita_dark_light_dark": true,
+            "portal_color_scheme_dark_light_dark": [
+              1,
+              2,
+              1
+            ],
+            "color_scheme_transport": {
+              "dark": true,
+              "system_supports_color_schemes": true
+            },
+            "real_thunar_opened": true,
+            "real_Print_key_to_native_capture_dialog": true,
+            "custom_shortcut_preserved_and_migration_idempotent": true,
+            "real_start_toggle": true,
+            "real_start_escape": true
+          },
+          "run_id": 46092345482,
+          "run_url": "https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/46092345482",
+          "job_url": "https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/46092345482/job/140816388445"
+        },
+        {
+          "job_id": 140816388406,
+          "title": "Application themes PrintScreen and Start",
+          "data": {
+            "scope": "private-nonroot-Xvfb-real-Xfce-GTK3-libadwaita",
+            "physical_gpu_verified": false,
+            "performance_benchmark": false,
+            "already_open_standard_gtk3_dark_light_dark": true,
+            "already_open_standard_libadwaita_dark_light_dark": true,
+            "portal_color_scheme_dark_light_dark": [
+              1,
+              2,
+              1
+            ],
+            "color_scheme_transport": {
+              "dark": true,
+              "system_supports_color_schemes": true
+            },
+            "real_thunar_opened": true,
+            "real_Print_key_to_native_capture_dialog": true,
+            "custom_shortcut_preserved_and_migration_idempotent": true,
+            "real_start_toggle": true,
+            "real_start_escape": true
+          },
+          "run_id": 46092345482,
+          "run_url": "https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/46092345482",
+          "job_url": "https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/46092345482/job/140816388406"
+        },
+        {
+          "job_id": 140816388445,
+          "title": "Real Thunar and window geometry",
+          "data": {
+            "passed": true,
+            "scope": "nonroot-Xvfb-real-Thunar-XShape-GTK-CSD",
+            "gtk_scale": 2,
+            "themes": [
+              "OguzDows",
+              "OguzDowsLight",
+              "OguzDowsXP",
+              "OguzDowsXPDark",
+              "OguzDowsEleven",
+              "OguzDowsElevenDark",
+              "OguzDowsMac",
+              "OguzDowsMacDark",
+              "OguzDowsGnome",
+              "OguzDowsGnomeDark",
+              "OguzDowsAero",
+              "OguzDowsAeroDark",
+              "OguzDowsAeroGlass",
+              "OguzDowsAeroGlassDark",
+              "OguzDowsElevenUser-f2aebccd65c88375",
+              "OguzDowsElevenDarkUser-fa22a3ba67ca5f8b",
+              "OguzDowsMacUser-07188281c22effac",
+              "OguzDowsMacDarkUser-0034fb16163bde4d"
+            ],
+            "csd": [
+              {
+                "engine": "none",
+                "native_application_priority_square_state_styles": true
+              },
+              {
+                "engine": "xrender",
+                "native_application_priority_square_state_styles": true
+              }
+            ],
+            "physical_gpu": false,
+            "physical_pi_boot": false,
+            "performance_measurement": false,
+            "picom_recipe_parser": {
+              "version": "v12.5",
+              "recipes": [
+                "picom.conf",
+                "still.conf",
+                "blur.conf",
+                "blur-still.conf",
+                "motion.conf",
+                "full.conf",
+                "snap.conf",
+                "full-snap.conf"
+              ],
+              "diagnostics_backend_override": "xrender",
+              "ci_only_no_vsync": true,
+              "glx_rendering_verified": false
+            },
+            "real_xfconf_uint64_budget_idempotence_and_personal_restore": true,
+            "complete_frame_masks_checked": 84,
+            "real_view_cases": 12
+          },
+          "run_id": 46092345482,
+          "run_url": "https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/46092345482",
+          "job_url": "https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/46092345482/job/140816388445"
+        },
+        {
+          "job_id": 140816388445,
+          "title": "Real Thunar and window geometry",
+          "data": {
+            "passed": true,
+            "scope": "nonroot-Xvfb-real-Thunar-XShape-GTK-CSD",
+            "gtk_scale": 1,
+            "themes": [
+              "OguzDows",
+              "OguzDowsLight",
+              "OguzDowsXP",
+              "OguzDowsXPDark",
+              "OguzDowsEleven",
+              "OguzDowsElevenDark",
+              "OguzDowsMac",
+              "OguzDowsMacDark",
+              "OguzDowsGnome",
+              "OguzDowsGnomeDark",
+              "OguzDowsAero",
+              "OguzDowsAeroDark",
+              "OguzDowsAeroGlass",
+              "OguzDowsAeroGlassDark",
+              "OguzDowsElevenUser-f2aebccd65c88375",
+              "OguzDowsElevenDarkUser-fa22a3ba67ca5f8b",
+              "OguzDowsMacUser-07188281c22effac",
+              "OguzDowsMacDarkUser-0034fb16163bde4d"
+            ],
+            "csd": [
+              {
+                "engine": "none",
+                "native_application_priority_square_state_styles": true
+              },
+              {
+                "engine": "xrender",
+                "native_application_priority_square_state_styles": true
+              }
+            ],
+            "physical_gpu": false,
+            "physical_pi_boot": false,
+            "performance_measurement": false,
+            "picom_recipe_parser": {
+              "version": "v12.5",
+              "recipes": [
+                "picom.conf",
+                "still.conf",
+                "blur.conf",
+                "blur-still.conf",
+                "motion.conf",
+                "full.conf",
+                "snap.conf",
+                "full-snap.conf"
+              ],
+              "diagnostics_backend_override": "xrender",
+              "ci_only_no_vsync": true,
+              "glx_rendering_verified": false
+            },
+            "real_xfconf_uint64_budget_idempotence_and_personal_restore": true,
+            "complete_frame_masks_checked": 84,
+            "real_view_cases": 12
+          },
+          "run_id": 46092345482,
+          "run_url": "https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/46092345482",
+          "job_url": "https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/46092345482/job/140816388445"
+        },
+        {
+          "job_id": 140816388406,
+          "title": "Real Thunar and window geometry",
+          "data": {
+            "passed": true,
+            "scope": "nonroot-Xvfb-real-Thunar-XShape-GTK-CSD",
+            "gtk_scale": 2,
+            "themes": [
+              "OguzDows",
+              "OguzDowsLight",
+              "OguzDowsXP",
+              "OguzDowsXPDark",
+              "OguzDowsEleven",
+              "OguzDowsElevenDark",
+              "OguzDowsMac",
+              "OguzDowsMacDark",
+              "OguzDowsGnome",
+              "OguzDowsGnomeDark",
+              "OguzDowsAero",
+              "OguzDowsAeroDark",
+              "OguzDowsAeroGlass",
+              "OguzDowsAeroGlassDark",
+              "OguzDowsElevenUser-f2aebccd65c88375",
+              "OguzDowsElevenDarkUser-fa22a3ba67ca5f8b",
+              "OguzDowsMacUser-07188281c22effac",
+              "OguzDowsMacDarkUser-0034fb16163bde4d"
+            ],
+            "csd": [
+              {
+                "engine": "none",
+                "native_application_priority_square_state_styles": true
+              },
+              {
+                "engine": "xrender",
+                "native_application_priority_square_state_styles": true
+              }
+            ],
+            "physical_gpu": false,
+            "physical_pi_boot": false,
+            "performance_measurement": false,
+            "picom_recipe_parser": {
+              "version": "v9.1",
+              "recipes": [
+                "picom.conf",
+                "still.conf",
+                "blur9.conf",
+                "blur9-still.conf"
+              ],
+              "diagnostics_backend_override": "xrender",
+              "ci_only_no_vsync": true,
+              "glx_rendering_verified": false
+            },
+            "real_xfconf_uint64_budget_idempotence_and_personal_restore": true,
+            "complete_frame_masks_checked": 84,
+            "real_view_cases": 12
+          },
+          "run_id": 46092345482,
+          "run_url": "https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/46092345482",
+          "job_url": "https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/46092345482/job/140816388406"
+        },
+        {
+          "job_id": 140816388406,
+          "title": "Real Thunar and window geometry",
+          "data": {
+            "passed": true,
+            "scope": "nonroot-Xvfb-real-Thunar-XShape-GTK-CSD",
+            "gtk_scale": 1,
+            "themes": [
+              "OguzDows",
+              "OguzDowsLight",
+              "OguzDowsXP",
+              "OguzDowsXPDark",
+              "OguzDowsEleven",
+              "OguzDowsElevenDark",
+              "OguzDowsMac",
+              "OguzDowsMacDark",
+              "OguzDowsGnome",
+              "OguzDowsGnomeDark",
+              "OguzDowsAero",
+              "OguzDowsAeroDark",
+              "OguzDowsAeroGlass",
+              "OguzDowsAeroGlassDark",
+              "OguzDowsElevenUser-f2aebccd65c88375",
+              "OguzDowsElevenDarkUser-fa22a3ba67ca5f8b",
+              "OguzDowsMacUser-07188281c22effac",
+              "OguzDowsMacDarkUser-0034fb16163bde4d"
+            ],
+            "csd": [
+              {
+                "engine": "none",
+                "native_application_priority_square_state_styles": true
+              },
+              {
+                "engine": "xrender",
+                "native_application_priority_square_state_styles": true
+              }
+            ],
+            "physical_gpu": false,
+            "physical_pi_boot": false,
+            "performance_measurement": false,
+            "picom_recipe_parser": {
+              "version": "v9.1",
+              "recipes": [
+                "picom.conf",
+                "still.conf",
+                "blur9.conf",
+                "blur9-still.conf"
+              ],
+              "diagnostics_backend_override": "xrender",
+              "ci_only_no_vsync": true,
+              "glx_rendering_verified": false
+            },
+            "real_xfconf_uint64_budget_idempotence_and_personal_restore": true,
+            "complete_frame_masks_checked": 84,
+            "real_view_cases": 12
+          },
+          "run_id": 46092345482,
+          "run_url": "https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/46092345482",
+          "job_url": "https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/46092345482/job/140816388406"
+        },
+        {
+          "job_id": 140816388445,
+          "title": "Native automatic wallpaper accent",
+          "data": {
+            "scope": "private-normal-user-real-xfconf-GTK-Xfwm-native-observer",
+            "physical_gpu_verified": false,
+            "singleton_remote_activation": true,
+            "external_wallpaper_updates_GTK_and_Xfwm": true,
+            "windows_theme": "OguzDowsElevenUser-4b068d6bc617851c",
+            "lock_preserved_then_event_retried": true,
+            "mac_theme": "OguzDowsMacUser-c35d670b592b43f4",
+            "mac_left_controls": true,
+            "thunar_real_SSD_frame_extents": [
+              1,
+              1,
+              32,
+              1
+            ],
+            "manual_colour_stops_observer_and_survives_wallpaper": true,
+            "palettes": [
+              "#3078ac",
+              "#318142",
+              "#bb6038"
+            ]
+          },
+          "run_id": 46092345482,
+          "run_url": "https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/46092345482",
+          "job_url": "https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/46092345482/job/140816388445"
+        },
+        {
+          "job_id": 140816388406,
+          "title": "Native automatic wallpaper accent",
+          "data": {
+            "scope": "private-normal-user-real-xfconf-GTK-Xfwm-native-observer",
+            "physical_gpu_verified": false,
+            "singleton_remote_activation": true,
+            "external_wallpaper_updates_GTK_and_Xfwm": true,
+            "windows_theme": "OguzDowsElevenUser-4b068d6bc617851c",
+            "lock_preserved_then_event_retried": true,
+            "mac_theme": "OguzDowsMacUser-c35d670b592b43f4",
+            "mac_left_controls": true,
+            "thunar_real_SSD_frame_extents": [
+              1,
+              1,
+              32,
+              1
+            ],
+            "manual_colour_stops_observer_and_survives_wallpaper": true,
+            "palettes": [
+              "#3078ac",
+              "#318142",
+              "#bb6038"
+            ]
+          },
+          "run_id": 46092345482,
+          "run_url": "https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/46092345482",
+          "job_url": "https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/46092345482/job/140816388406"
+        }
+      ]
+    },
+    "pi": {
+      "run": {
+        "id": 46092347693,
+        "html_url": "https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/46092347693",
+        "head_sha": "5a44de0dde676d901a32be40d631d481e213439d",
+        "head_branch": "arena/2d796713-o-uzdows",
+        "event": "workflow_dispatch",
+        "status": "completed",
+        "conclusion": "success",
+        "run_attempt": 1,
+        "created_at": "2026-11-28T01:17:26Z",
+        "updated_at": "2026-11-28T02:24:20Z"
+      },
+      "selected_jobs_only": true,
+      "jobs": [
+        {
+          "id": 140815921552,
+          "name": "Pi yapılandırma ve güvenlik testleri",
+          "html_url": "https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/46092347693/job/140815921552",
+          "status": "completed",
+          "conclusion": "success",
+          "all_required_steps_succeeded": true
+        }
+      ],
+      "reports": [
+        {
+          "job_id": 140815921552,
+          "title": "Real Thunar and window geometry",
+          "data": {
+            "passed": true,
+            "scope": "nonroot-Xvfb-real-Thunar-XShape-GTK-CSD",
+            "gtk_scale": 1,
+            "themes": [
+              "OguzDows",
+              "OguzDowsLight",
+              "OguzDowsXP",
+              "OguzDowsXPDark",
+              "OguzDowsEleven",
+              "OguzDowsElevenDark",
+              "OguzDowsMac",
+              "OguzDowsMacDark",
+              "OguzDowsGnome",
+              "OguzDowsGnomeDark",
+              "OguzDowsAero",
+              "OguzDowsAeroDark",
+              "OguzDowsAeroGlass",
+              "OguzDowsAeroGlassDark",
+              "OguzDowsElevenUser-f2aebccd65c88375",
+              "OguzDowsElevenDarkUser-fa22a3ba67ca5f8b",
+              "OguzDowsMacUser-07188281c22effac",
+              "OguzDowsMacDarkUser-0034fb16163bde4d"
+            ],
+            "csd": [
+              {
+                "engine": "none",
+                "native_application_priority_square_state_styles": true
+              },
+              {
+                "engine": "xrender",
+                "native_application_priority_square_state_styles": true
+              }
+            ],
+            "physical_gpu": false,
+            "physical_pi_boot": false,
+            "performance_measurement": false,
+            "picom_recipe_parser": {
+              "version": "v10",
+              "recipes": [
+                "picom.conf",
+                "still.conf",
+                "blur.conf",
+                "blur-still.conf"
+              ],
+              "diagnostics_backend_override": "xrender",
+              "ci_only_no_vsync": true,
+              "glx_rendering_verified": false
+            },
+            "real_xfconf_uint64_budget_idempotence_and_personal_restore": true,
+            "complete_frame_masks_checked": 84,
+            "real_view_cases": 12
+          },
+          "run_id": 46092347693,
+          "run_url": "https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/46092347693",
+          "job_url": "https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/46092347693/job/140815921552"
+        }
+      ]
+    },
+    "portable": {
+      "run": {
+        "id": 46092354844,
+        "html_url": "https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/46092354844",
+        "head_sha": "5a44de0dde676d901a32be40d631d481e213439d",
+        "head_branch": "arena/2d796713-o-uzdows",
+        "event": "workflow_dispatch",
+        "status": "completed",
+        "conclusion": "success",
+        "run_attempt": 1,
+        "created_at": "2026-11-28T01:17:32Z",
+        "updated_at": "2026-11-28T01:27:04Z"
+      },
+      "selected_jobs_only": true,
+      "jobs": [
+        {
+          "id": 140816917100,
+          "name": "ARM64 gerçek GTK / kurulum · trixie (kart değil)",
+          "html_url": "https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/46092354844/job/140816917100",
+          "status": "completed",
+          "conclusion": "success",
+          "all_required_steps_succeeded": true
+        },
+        {
+          "id": 140816917191,
+          "name": "ARM64 gerçek GTK / kurulum · bookworm (kart değil)",
+          "html_url": "https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/46092354844/job/140816917191",
+          "status": "completed",
+          "conclusion": "success",
+          "all_required_steps_succeeded": true
+        },
+        {
+          "id": 140816917233,
+          "name": "Gerçek 32 bit kullanıcı ABI · armhf / bookworm (QEMU)",
+          "html_url": "https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/46092354844/job/140816917233",
+          "status": "completed",
+          "conclusion": "success",
+          "all_required_steps_succeeded": true
+        },
+        {
+          "id": 140816917251,
+          "name": "amd64 / trixie · gerçek Flatpak + GNOME Yazılımlar kurulumu",
+          "html_url": "https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/46092354844/job/140816917251",
+          "status": "completed",
+          "conclusion": "success",
+          "all_required_steps_succeeded": true
+        },
+        {
+          "id": 140816917283,
+          "name": "Gerçek 32 bit kullanıcı ABI · i386 / bookworm (QEMU)",
+          "html_url": "https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/46092354844/job/140816917283",
+          "status": "completed",
+          "conclusion": "success",
+          "all_required_steps_succeeded": true
+        }
+      ],
+      "reports": [
+        {
+          "job_id": 140816917100,
+          "title": "Atölye real GTK",
+          "data": {
+            "scope": "private-nonroot-real-GTK-real-files",
+            "tools_built": [
+              "tasks",
+              "notes",
+              "snippets",
+              "folders",
+              "find",
+              "rename",
+              "checksum",
+              "image",
+              "diff",
+              "json",
+              "calculator",
+              "units",
+              "colors",
+              "clocks",
+              "text",
+              "startup"
+            ],
+            "tools_count": 16,
+            "real_widget_actions": true,
+            "library_roundtrip": true,
+            "clipboard_explicit_copy": true,
+            "rename_preview_apply_undo": true,
+            "real_image_export": true,
+            "startup_user_only_restore": true,
+            "single_worker_not_gtk_thread": true,
+            "clock_stops_on_page_leave": true,
+            "appearance": "dark",
+            "screen": [
+              360,
+              800
+            ],
+            "window": [
+              345,
+              730
+            ],
+            "idle_sample_ms": 800,
+            "idle_cpu_ms": 2.09,
+            "peak_rss_kib": 127156,
+            "physical_arm_or_gpu_verified": false,
+            "not_a_hardware_performance_benchmark": true
+          },
+          "run_id": 46092354844,
+          "run_url": "https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/46092354844",
+          "job_url": "https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/46092354844/job/140816917100"
+        },
+        {
+          "job_id": 140816917100,
+          "title": "Atölye real GTK",
+          "data": {
+            "scope": "private-nonroot-real-GTK-real-files",
+            "tools_built": [
+              "tasks",
+              "notes",
+              "snippets",
+              "folders",
+              "find",
+              "rename",
+              "checksum",
+              "image",
+              "diff",
+              "json",
+              "calculator",
+              "units",
+              "colors",
+              "clocks",
+              "text",
+              "startup"
+            ],
+            "tools_count": 16,
+            "real_widget_actions": true,
+            "library_roundtrip": true,
+            "clipboard_explicit_copy": true,
+            "rename_preview_apply_undo": true,
+            "real_image_export": true,
+            "startup_user_only_restore": true,
+            "single_worker_not_gtk_thread": true,
+            "clock_stops_on_page_leave": true,
+            "appearance": "light",
+            "screen": [
+              1024,
+              768
+            ],
+            "window": [
+              1000,
+              720
+            ],
+            "idle_sample_ms": 800,
+            "idle_cpu_ms": 22.26,
+            "peak_rss_kib": 134188,
+            "physical_arm_or_gpu_verified": false,
+            "not_a_hardware_performance_benchmark": true
+          },
+          "run_id": 46092354844,
+          "run_url": "https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/46092354844",
+          "job_url": "https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/46092354844/job/140816917100"
+        },
+        {
+          "job_id": 140816917191,
+          "title": "Atölye real GTK",
+          "data": {
+            "scope": "private-nonroot-real-GTK-real-files",
+            "tools_built": [
+              "tasks",
+              "notes",
+              "snippets",
+              "folders",
+              "find",
+              "rename",
+              "checksum",
+              "image",
+              "diff",
+              "json",
+              "calculator",
+              "units",
+              "colors",
+              "clocks",
+              "text",
+              "startup"
+            ],
+            "tools_count": 16,
+            "real_widget_actions": true,
+            "library_roundtrip": true,
+            "clipboard_explicit_copy": true,
+            "rename_preview_apply_undo": true,
+            "real_image_export": true,
+            "startup_user_only_restore": true,
+            "single_worker_not_gtk_thread": true,
+            "clock_stops_on_page_leave": true,
+            "appearance": "dark",
+            "screen": [
+              360,
+              800
+            ],
+            "window": [
+              345,
+              730
+            ],
+            "idle_sample_ms": 800,
+            "idle_cpu_ms": 2.08,
+            "peak_rss_kib": 126292,
+            "physical_arm_or_gpu_verified": false,
+            "not_a_hardware_performance_benchmark": true
+          },
+          "run_id": 46092354844,
+          "run_url": "https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/46092354844",
+          "job_url": "https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/46092354844/job/140816917191"
+        },
+        {
+          "job_id": 140816917191,
+          "title": "Atölye real GTK",
+          "data": {
+            "scope": "private-nonroot-real-GTK-real-files",
+            "tools_built": [
+              "tasks",
+              "notes",
+              "snippets",
+              "folders",
+              "find",
+              "rename",
+              "checksum",
+              "image",
+              "diff",
+              "json",
+              "calculator",
+              "units",
+              "colors",
+              "clocks",
+              "text",
+              "startup"
+            ],
+            "tools_count": 16,
+            "real_widget_actions": true,
+            "library_roundtrip": true,
+            "clipboard_explicit_copy": true,
+            "rename_preview_apply_undo": true,
+            "real_image_export": true,
+            "startup_user_only_restore": true,
+            "single_worker_not_gtk_thread": true,
+            "clock_stops_on_page_leave": true,
+            "appearance": "light",
+            "screen": [
+              1024,
+              768
+            ],
+            "window": [
+              1000,
+              720
+            ],
+            "idle_sample_ms": 800,
+            "idle_cpu_ms": 2.7,
+            "peak_rss_kib": 133028,
+            "physical_arm_or_gpu_verified": false,
+            "not_a_hardware_performance_benchmark": true
+          },
+          "run_id": 46092354844,
+          "run_url": "https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/46092354844",
+          "job_url": "https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/46092354844/job/140816917191"
+        },
+        {
+          "job_id": 140816917100,
+          "title": "Real Flatpak and GNOME Software bootstrap",
+          "data": {
+            "scope": "real-signed-APT-bootstrap-in-disposable-container",
+            "arch": "arm64",
+            "suite": "trixie",
+            "platform": "arm",
+            "source_revision": "5a44de0dde676d901a32be40d631d481e213439d",
+            "device_profile": "arm64-uefi",
+            "bundles": {
+              "flatpak-support": {
+                "real_approved_install": true,
+                "packages": [
+                  "ca-certificates",
+                  "flatpak",
+                  "gir1.2-flatpak-1.0",
+                  "xdg-desktop-portal",
+                  "xdg-desktop-portal-gtk"
+                ],
+                "resolved_changes": 109,
+                "after_plan_empty": true,
+                "wrong_token_refused": true,
+                "message": "İşlem tamamlandı. Çekirdek / firmware güncellendiyse yeniden başlatın."
+              },
+              "software-center": {
+                "real_approved_install": true,
+                "packages": [
+                  "flatpak",
+                  "gir1.2-flatpak-1.0",
+                  "gnome-software",
+                  "gnome-software-plugin-flatpak",
+                  "iso-codes",
+                  "packagekit",
+                  "python3-xlib"
+                ],
+                "resolved_changes": 17,
+                "after_plan_empty": true,
+                "wrong_token_refused": true,
+                "message": "İşlem tamamlandı. Çekirdek / firmware güncellendiyse yeniden başlatın."
+              }
+            },
+            "actual_dpkg_arch": "arm64",
+            "actual_flatpak_arch": "aarch64",
+            "libflatpak_gi_loads": true,
+            "iso639_language_data": true,
+            "real_store_refresh": true,
+            "physical_device": false,
+            "interactive_polkit_tested": false,
+            "flathub_download_tested": false,
+            "source_hashes": {
+              "helper": "e52e47b6657a2c647cd3f05b008b869014ad48d5b392d32c929995ffdb6323a8",
+              "maintenance.py": "dae4807f6dadf2605813db6d3dcfc15565bc66af4b23bff778b448be6beed6ac",
+              "app_catalog.py": "2659cceee8f77d84f9de4254b2ec5efaa83c7d708ca20ef9d1ad09703fa18d8b",
+              "hardware.py": "5bdb6c9ac224d50da5911af464dd74fbf17426a30631a4f74fe3f80925034d4c",
+              "pi_support.py": "00610ddad164dbd77d594569a0d19a559e6cf9779c45a3c6652143cbc862c7fb",
+              "resource_policy.py": "b7f4aa6b39188f6f0c41a0e5b2e360c6be7a8b9468cb5de5fec691921a989d21"
+            }
+          },
+          "run_id": 46092354844,
+          "run_url": "https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/46092354844",
+          "job_url": "https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/46092354844/job/140816917100"
+        },
+        {
+          "job_id": 140816917191,
+          "title": "Real Flatpak and GNOME Software bootstrap",
+          "data": {
+            "scope": "real-signed-APT-bootstrap-in-disposable-container",
+            "arch": "arm64",
+            "suite": "bookworm",
+            "platform": "raspberrypi",
+            "source_revision": "5a44de0dde676d901a32be40d631d481e213439d",
+            "bundles": {
+              "flatpak-support": {
+                "real_approved_install": true,
+                "packages": [
+                  "ca-certificates",
+                  "flatpak",
+                  "gir1.2-flatpak-1.0",
+                  "xdg-desktop-portal",
+                  "xdg-desktop-portal-gtk"
+                ],
+                "resolved_changes": 48,
+                "after_plan_empty": true,
+                "wrong_token_refused": true,
+                "message": "İşlem tamamlandı. Çekirdek / firmware güncellendiyse yeniden başlatın."
+              },
+              "software-center": {
+                "real_approved_install": true,
+                "packages": [
+                  "flatpak",
+                  "gir1.2-flatpak-1.0",
+                  "gnome-software",
+                  "gnome-software-plugin-flatpak",
+                  "iso-codes",
+                  "packagekit",
+                  "python3-xlib"
+                ],
+                "resolved_changes": 74,
+                "after_plan_empty": true,
+                "wrong_token_refused": true,
+                "message": "İşlem tamamlandı. Çekirdek / firmware güncellendiyse yeniden başlatın."
+              }
+            },
+            "actual_dpkg_arch": "arm64",
+            "actual_flatpak_arch": "aarch64",
+            "libflatpak_gi_loads": true,
+            "iso639_language_data": true,
+            "real_store_refresh": true,
+            "physical_device": false,
+            "interactive_polkit_tested": false,
+            "flathub_download_tested": false,
+            "source_hashes": {
+              "helper": "e52e47b6657a2c647cd3f05b008b869014ad48d5b392d32c929995ffdb6323a8",
+              "maintenance.py": "dae4807f6dadf2605813db6d3dcfc15565bc66af4b23bff778b448be6beed6ac",
+              "app_catalog.py": "2659cceee8f77d84f9de4254b2ec5efaa83c7d708ca20ef9d1ad09703fa18d8b",
+              "hardware.py": "5bdb6c9ac224d50da5911af464dd74fbf17426a30631a4f74fe3f80925034d4c",
+              "pi_support.py": "00610ddad164dbd77d594569a0d19a559e6cf9779c45a3c6652143cbc862c7fb",
+              "resource_policy.py": "b7f4aa6b39188f6f0c41a0e5b2e360c6be7a8b9468cb5de5fec691921a989d21"
+            }
+          },
+          "run_id": 46092354844,
+          "run_url": "https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/46092354844",
+          "job_url": "https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/46092354844/job/140816917191"
+        },
+        {
+          "job_id": 140816917251,
+          "title": "Real Flatpak and GNOME Software bootstrap",
+          "data": {
+            "scope": "real-signed-APT-bootstrap-in-disposable-container",
+            "arch": "amd64",
+            "suite": "trixie",
+            "platform": "pc",
+            "source_revision": "5a44de0dde676d901a32be40d631d481e213439d",
+            "bundles": {
+              "flatpak-support": {
+                "real_approved_install": true,
+                "packages": [
+                  "ca-certificates",
+                  "flatpak",
+                  "gir1.2-flatpak-1.0",
+                  "xdg-desktop-portal",
+                  "xdg-desktop-portal-gtk"
+                ],
+                "resolved_changes": 214,
+                "after_plan_empty": true,
+                "wrong_token_refused": true,
+                "message": "İşlem tamamlandı. Çekirdek / firmware güncellendiyse yeniden başlatın."
+              },
+              "software-center": {
+                "real_approved_install": true,
+                "packages": [
+                  "flatpak",
+                  "gir1.2-flatpak-1.0",
+                  "gnome-software",
+                  "gnome-software-plugin-flatpak",
+                  "iso-codes",
+                  "packagekit",
+                  "python3-xlib"
+                ],
+                "resolved_changes": 22,
+                "after_plan_empty": true,
+                "wrong_token_refused": true,
+                "message": "İşlem tamamlandı. Çekirdek / firmware güncellendiyse yeniden başlatın."
+              }
+            },
+            "actual_dpkg_arch": "amd64",
+            "actual_flatpak_arch": "x86_64",
+            "libflatpak_gi_loads": true,
+            "iso639_language_data": true,
+            "real_store_refresh": true,
+            "physical_device": false,
+            "interactive_polkit_tested": false,
+            "flathub_download_tested": false,
+            "source_hashes": {
+              "helper": "e52e47b6657a2c647cd3f05b008b869014ad48d5b392d32c929995ffdb6323a8",
+              "maintenance.py": "dae4807f6dadf2605813db6d3dcfc15565bc66af4b23bff778b448be6beed6ac",
+              "app_catalog.py": "2659cceee8f77d84f9de4254b2ec5efaa83c7d708ca20ef9d1ad09703fa18d8b",
+              "hardware.py": "5bdb6c9ac224d50da5911af464dd74fbf17426a30631a4f74fe3f80925034d4c",
+              "pi_support.py": "00610ddad164dbd77d594569a0d19a559e6cf9779c45a3c6652143cbc862c7fb",
+              "resource_policy.py": "b7f4aa6b39188f6f0c41a0e5b2e360c6be7a8b9468cb5de5fec691921a989d21"
+            }
+          },
+          "run_id": 46092354844,
+          "run_url": "https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/46092354844",
+          "job_url": "https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/46092354844/job/140816917251"
+        },
+        {
+          "job_id": 140816917233,
+          "title": "Portable target ABI and tools",
+          "data": {
+            "schema": 1,
+            "scope": "target-user-QEMU-core-and-C-ABI-not-GUI-or-physical",
+            "arch": "armhf",
+            "suite": "bookworm",
+            "qemu_cpu_for_core_and_abi_probes": "cortex-a7",
+            "source_revision": "5a44de0dde676d901a32be40d631d481e213439d",
+            "pointer_bits": 32,
+            "core_and_bootstrap_tests_passed": true,
+            "native_versions": {
+              "store": "OğuzDows Mağaza · GTK 3.24.38",
+              "news": "OğuzDows Haber · GTK 3.24.38",
+              "hub": "OğuzDows Başlat · native 1",
+              "monitor": "OğuzDows Sistem İzleyici · native 1"
+            },
+            "source_hashes": {
+              "system/usr/lib/oguzdows/workbench.py": "472c850ce135dbc9f3f7e4a6d795666cc0b53c6cb4476ddb2aa4117adf231c63",
+              "system/usr/lib/oguzdows/workbench_core.py": "b3be90cc2d0cf41355a3c453500cbae5ca01053703923b6206a29928f68b8cbe",
+              "system/usr/lib/oguzdows/store_core.py": "4f9e026c2aa252627cab721d1fff5ad7b06ee3d778043fe8ac70d57746e7247d",
+              "system/usr/lib/oguzdows/store_service.py": "5f3bf0885c601166a28dcd82755bf0337e4d99f984f1a17f1875a0a755315404",
+              "native/store.c": "db9967d4e472498d2ef3cce6a28da505e7e50accab49645906e17c5101b9243f",
+              "native/news.c": "4856f77e647a5a7bfd30fbe934bc320a69357ea5de240e1115a3a0939a7955f2",
+              "native/hub.c": "2c6a97a25d2b700d7046c834485721fdb4cf4aaf25466f6321deaf45f48fbf0f",
+              "native/ui.c": "1398b2f8f3c0b46a9a5518e48cf9d9daad37e1f056360f7048c09eaa6ad6a932"
+            },
+            "physical_device": false,
+            "gpu_or_performance_benchmark": false,
+            "armv6_tested": false
+          },
+          "run_id": 46092354844,
+          "run_url": "https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/46092354844",
+          "job_url": "https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/46092354844/job/140816917233"
+        },
+        {
+          "job_id": 140816917283,
+          "title": "Portable target ABI and tools",
+          "data": {
+            "schema": 1,
+            "scope": "target-user-QEMU-core-and-C-ABI-not-GUI-or-physical",
+            "arch": "i386",
+            "suite": "bookworm",
+            "qemu_cpu_for_core_and_abi_probes": "pentium3",
+            "source_revision": "5a44de0dde676d901a32be40d631d481e213439d",
+            "pointer_bits": 32,
+            "core_and_bootstrap_tests_passed": true,
+            "native_versions": {
+              "store": "OğuzDows Mağaza · GTK 3.24.38",
+              "news": "OğuzDows Haber · GTK 3.24.38",
+              "hub": "OğuzDows Başlat · native 1",
+              "monitor": "OğuzDows Sistem İzleyici · native 1"
+            },
+            "source_hashes": {
+              "system/usr/lib/oguzdows/workbench.py": "472c850ce135dbc9f3f7e4a6d795666cc0b53c6cb4476ddb2aa4117adf231c63",
+              "system/usr/lib/oguzdows/workbench_core.py": "b3be90cc2d0cf41355a3c453500cbae5ca01053703923b6206a29928f68b8cbe",
+              "system/usr/lib/oguzdows/store_core.py": "4f9e026c2aa252627cab721d1fff5ad7b06ee3d778043fe8ac70d57746e7247d",
+              "system/usr/lib/oguzdows/store_service.py": "5f3bf0885c601166a28dcd82755bf0337e4d99f984f1a17f1875a0a755315404",
+              "native/store.c": "db9967d4e472498d2ef3cce6a28da505e7e50accab49645906e17c5101b9243f",
+              "native/news.c": "4856f77e647a5a7bfd30fbe934bc320a69357ea5de240e1115a3a0939a7955f2",
+              "native/hub.c": "2c6a97a25d2b700d7046c834485721fdb4cf4aaf25466f6321deaf45f48fbf0f",
+              "native/ui.c": "1398b2f8f3c0b46a9a5518e48cf9d9daad37e1f056360f7048c09eaa6ad6a932"
+            },
+            "physical_device": false,
+            "gpu_or_performance_benchmark": false,
+            "armv6_tested": false
+          },
+          "run_id": 46092354844,
+          "run_url": "https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/46092354844",
+          "job_url": "https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/46092354844/job/140816917283"
+        }
+      ]
+    },
+    "desktop": {
+      "run": {
+        "id": 46092352015,
+        "html_url": "https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/46092352015",
+        "head_sha": "5a44de0dde676d901a32be40d631d481e213439d",
+        "head_branch": "arena/2d796713-o-uzdows",
+        "event": "workflow_dispatch",
+        "status": "completed",
+        "conclusion": "success",
+        "run_attempt": 1,
+        "created_at": "2026-11-28T01:17:30Z",
+        "updated_at": "2026-11-28T01:20:53Z"
+      },
+      "selected_jobs_only": true,
+      "jobs": [
+        {
+          "id": 140815935058,
+          "name": "Gerçek kabuk · kde · bookworm",
+          "html_url": "https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/46092352015/job/140815935058",
+          "status": "completed",
+          "conclusion": "success",
+          "all_required_steps_succeeded": true
+        },
+        {
+          "id": 140815935253,
+          "name": "Gerçek kabuk · gnome · trixie",
+          "html_url": "https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/46092352015/job/140815935253",
+          "status": "completed",
+          "conclusion": "success",
+          "all_required_steps_succeeded": true
+        },
+        {
+          "id": 140815935257,
+          "name": "Gerçek kabuk · gnome · bookworm",
+          "html_url": "https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/46092352015/job/140815935257",
+          "status": "completed",
+          "conclusion": "success",
+          "all_required_steps_succeeded": true
+        },
+        {
+          "id": 140815935273,
+          "name": "Yerel C · GTK · ayar API'leri · bookworm",
+          "html_url": "https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/46092352015/job/140815935273",
+          "status": "completed",
+          "conclusion": "success",
+          "all_required_steps_succeeded": true
+        },
+        {
+          "id": 140815935293,
+          "name": "Yerel C · GTK · ayar API'leri · trixie",
+          "html_url": "https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/46092352015/job/140815935293",
+          "status": "completed",
+          "conclusion": "success",
+          "all_required_steps_succeeded": true
+        },
+        {
+          "id": 140815935341,
+          "name": "Gerçek kabuk · kde · trixie",
+          "html_url": "https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/46092352015/job/140815935341",
+          "status": "completed",
+          "conclusion": "success",
+          "all_required_steps_succeeded": true
+        }
+      ],
+      "reports": [
+        {
+          "job_id": 140815935273,
+          "title": "OğuzKöprü real GTK",
+          "data": {
+            "scope": "private nonroot GTK + loopback TLS + Xvfb pixels",
+            "real_gtk_buttons": true,
+            "no_network_on_open": true,
+            "peer_code_approval": true,
+            "selected_file_sha256": true,
+            "recipient_approved_upload": true,
+            "production_unknown_lock_denied": true,
+            "capture_gate_fixture_only": true,
+            "real_gdk_capture_and_tls_frame": true,
+            "frame_size": [
+              360,
+              800
+            ],
+            "frame_sha256": "3d3a5b0eed8c2de9f9563da51cdc1bde13588508d86e20fc82d6506c860c978b",
+            "screen": [
+              360,
+              800
+            ],
+            "window": [
+              344,
+              760
+            ],
+            "physical_pc_phone_arm_or_wifi_tested": false
+          },
+          "run_id": 46092352015,
+          "run_url": "https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/46092352015",
+          "job_url": "https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/46092352015/job/140815935273"
+        },
+        {
+          "job_id": 140815935273,
+          "title": "OğuzKöprü real GTK",
+          "data": {
+            "scope": "private nonroot GTK + loopback TLS + Xvfb pixels",
+            "real_gtk_buttons": true,
+            "no_network_on_open": true,
+            "peer_code_approval": true,
+            "selected_file_sha256": true,
+            "recipient_approved_upload": true,
+            "production_unknown_lock_denied": true,
+            "capture_gate_fixture_only": true,
+            "real_gdk_capture_and_tls_frame": true,
+            "frame_size": [
+              1024,
+              768
+            ],
+            "frame_sha256": "d655711ab3d8b0d0c2663a55c89977b27a447176883a443144c0b691fea2ec5e",
+            "screen": [
+              1024,
+              768
+            ],
+            "window": [
+              680,
+              744
+            ],
+            "physical_pc_phone_arm_or_wifi_tested": false
+          },
+          "run_id": 46092352015,
+          "run_url": "https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/46092352015",
+          "job_url": "https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/46092352015/job/140815935273"
+        },
+        {
+          "job_id": 140815935293,
+          "title": "OğuzKöprü real GTK",
+          "data": {
+            "scope": "private nonroot GTK + loopback TLS + Xvfb pixels",
+            "real_gtk_buttons": true,
+            "no_network_on_open": true,
+            "peer_code_approval": true,
+            "selected_file_sha256": true,
+            "recipient_approved_upload": true,
+            "production_unknown_lock_denied": true,
+            "capture_gate_fixture_only": true,
+            "real_gdk_capture_and_tls_frame": true,
+            "frame_size": [
+              360,
+              800
+            ],
+            "frame_sha256": "8d31b84cab5f7a8be07938074b6b15693daae95056b2b5869b69258caf3c0163",
+            "screen": [
+              360,
+              800
+            ],
+            "window": [
+              344,
+              760
+            ],
+            "physical_pc_phone_arm_or_wifi_tested": false
+          },
+          "run_id": 46092352015,
+          "run_url": "https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/46092352015",
+          "job_url": "https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/46092352015/job/140815935293"
+        },
+        {
+          "job_id": 140815935293,
+          "title": "OğuzKöprü real GTK",
+          "data": {
+            "scope": "private nonroot GTK + loopback TLS + Xvfb pixels",
+            "real_gtk_buttons": true,
+            "no_network_on_open": true,
+            "peer_code_approval": true,
+            "selected_file_sha256": true,
+            "recipient_approved_upload": true,
+            "production_unknown_lock_denied": true,
+            "capture_gate_fixture_only": true,
+            "real_gdk_capture_and_tls_frame": true,
+            "frame_size": [
+              1024,
+              768
+            ],
+            "frame_sha256": "d024e9a88bfb6d8d6e65f4b47aa99aff85e783b1972bd2e7ad469994eb398745",
+            "screen": [
+              1024,
+              768
+            ],
+            "window": [
+              680,
+              744
+            ],
+            "physical_pc_phone_arm_or_wifi_tested": false
+          },
+          "run_id": 46092352015,
+          "run_url": "https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/46092352015",
+          "job_url": "https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/46092352015/job/140815935293"
+        },
+        {
+          "job_id": 140815935257,
+          "title": "Gerçek yerel kabuk kontrolü",
+          "data": {
+            "scope": "private-nonroot-real-shell-X11-software-GPU",
+            "desktop": "gnome",
+            "system_bus": "private-empty-bus-no-logind-no-hardware-services",
+            "physical_device_verified": false,
+            "wayland_verified": false,
+            "performance_benchmark": false,
+            "resource_budget_simulated": true,
+            "ci_only_software_gpu_animation_override": "separate-one-shot-fixture-extension",
+            "shell": "GNOME Shell 43.9",
+            "apply_notes": [
+              "Diğer uygulamaların özel dekorasyonları / GTK4 libadwaita kuralları ayrı kalabilir."
+            ],
+            "extension_state": {
+              "accent": "#74c8d5",
+              "blur_attached": true,
+              "spring_enabled": true,
+              "spring_transitions_attached": 0,
+              "early_window_hook": true,
+              "spring_curve_api": "not-yet-used",
+              "wrapped_windows": 0,
+              "scope": "GNOME Shell açılır menüleri; opak üst çubuk ve uygulama içerikleri korunur."
+            },
+            "original_frame": [
+              30,
+              92,
+              320,
+              277
+            ],
+            "extension_after_open": {
+              "accent": "#74c8d5",
+              "blur_attached": true,
+              "spring_enabled": true,
+              "spring_transitions_attached": 3,
+              "early_window_hook": true,
+              "spring_curve_api": "native-custom-critical-damping",
+              "wrapped_windows": 1,
+              "scope": "GNOME Shell açılır menüleri; opak üst çubuk ve uygulama içerikleri korunur."
+            },
+            "snap_frame_rectangles": {
+              "restore": [
+                30,
+                92,
+                320,
+                277
+              ],
+              "left": [
+                0,
+                32,
+                512,
+                736
+              ],
+              "right": [
+                512,
+                32,
+                512,
+                736
+              ],
+              "maximize": [
+                0,
+                32,
+                1024,
+                736
+              ]
+            },
+            "snap_repeated_actions_idempotent_and_exact_frame_restored": true,
+            "extension_after_window_transitions": {
+              "accent": "#74c8d5",
+              "blur_attached": true,
+              "spring_enabled": true,
+              "spring_transitions_attached": 27,
+              "early_window_hook": true,
+              "spring_curve_api": "native-custom-critical-damping",
+              "wrapped_windows": 1,
+              "scope": "GNOME Shell açılır menüleri; opak üst çubuk ve uygulama içerikleri korunur."
+            },
+            "low_budget_disables_blur_and_spring": true,
+            "extension_disable_enable_clean": true,
+            "journal_restore_executed": true
+          },
+          "run_id": 46092352015,
+          "run_url": "https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/46092352015",
+          "job_url": "https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/46092352015/job/140815935257"
+        },
+        {
+          "job_id": 140815935058,
+          "title": "Gerçek yerel kabuk kontrolü",
+          "data": {
+            "scope": "private-nonroot-real-shell-X11-software-GPU",
+            "desktop": "kde",
+            "system_bus": "private-empty-bus-no-logind-no-hardware-services",
+            "physical_device_verified": false,
+            "wayland_verified": false,
+            "performance_benchmark": false,
+            "resource_budget_simulated": true,
+            "kconfig_major": 5,
+            "ci_only_software_gpu_animation_override": true,
+            "compositor_before": {
+              "active": true,
+              "compositingNotPossibleReason": "",
+              "compositingPossible": true,
+              "compositingType": "gl2",
+              "openGLIsBroken": false,
+              "platformRequiresCompositing": false,
+              "supportedOpenGLPlatformInterfaces": [
+                "glx",
+                "egl"
+              ]
+            },
+            "apply_notes": [
+              "Diğer uygulamaların özel dekorasyonları / GTK4 libadwaita kuralları ayrı kalabilir."
+            ],
+            "compositor_after": {
+              "active": true,
+              "compositingNotPossibleReason": "",
+              "compositingPossible": true,
+              "compositingType": "gl2",
+              "openGLIsBroken": false,
+              "platformRequiresCompositing": false,
+              "supportedOpenGLPlatformInterfaces": [
+                "glx",
+                "egl"
+              ]
+            },
+            "live_qt_palette": {
+              "before": "#eff0f1",
+              "after": "#2a2e32",
+              "matches_kconfig": true
+            },
+            "panel_ids_preserved": [
+              2
+            ],
+            "real_kwin_effects_loaded": [
+              "blur",
+              "oguzdows-aero"
+            ],
+            "aurorae_selected": "__aurorae__svg__oguzdows-glass-3ea69eb7a026",
+            "original_frame": [
+              346,
+              221,
+              332,
+              281
+            ],
+            "snap_frame_rectangles": {
+              "restore": [
+                346,
+                221,
+                332,
+                281
+              ],
+              "left": [
+                0,
+                0,
+                512,
+                724
+              ],
+              "right": [
+                512,
+                0,
+                512,
+                724
+              ],
+              "maximize": [
+                0,
+                0,
+                1024,
+                724
+              ]
+            },
+            "snap_repeated_actions_idempotent_and_exact_frame_restored": true,
+            "native_kwin_transition_callbacks": {
+              "transition-attached": true,
+              "transition-completed": true,
+              "snap-transition-attached": true
+            },
+            "low_budget_disables_blur_spring_and_restores_decoration": true,
+            "journal_restore_executed": true
+          },
+          "run_id": 46092352015,
+          "run_url": "https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/46092352015",
+          "job_url": "https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/46092352015/job/140815935058"
+        },
+        {
+          "job_id": 140815935253,
+          "title": "Gerçek yerel kabuk kontrolü",
+          "data": {
+            "scope": "private-nonroot-real-shell-X11-software-GPU",
+            "desktop": "gnome",
+            "system_bus": "private-empty-bus-no-logind-no-hardware-services",
+            "physical_device_verified": false,
+            "wayland_verified": false,
+            "performance_benchmark": false,
+            "resource_budget_simulated": true,
+            "ci_only_software_gpu_animation_override": "native-cli",
+            "shell": "GNOME Shell 48.7",
+            "apply_notes": [
+              "Diğer uygulamaların özel dekorasyonları / GTK4 libadwaita kuralları ayrı kalabilir."
+            ],
+            "extension_state": {
+              "accent": "#74c8d5",
+              "blur_attached": true,
+              "spring_enabled": true,
+              "spring_transitions_attached": 0,
+              "early_window_hook": true,
+              "spring_curve_api": "not-yet-used",
+              "wrapped_windows": 0,
+              "scope": "GNOME Shell açılır menüleri; opak üst çubuk ve uygulama içerikleri korunur."
+            },
+            "original_frame": [
+              0,
+              32,
+              320,
+              277
+            ],
+            "extension_after_open": {
+              "accent": "#74c8d5",
+              "blur_attached": true,
+              "spring_enabled": true,
+              "spring_transitions_attached": 3,
+              "early_window_hook": true,
+              "spring_curve_api": "native-custom-critical-damping",
+              "wrapped_windows": 1,
+              "scope": "GNOME Shell açılır menüleri; opak üst çubuk ve uygulama içerikleri korunur."
+            },
+            "snap_frame_rectangles": {
+              "restore": [
+                0,
+                32,
+                320,
+                277
+              ],
+              "left": [
+                0,
+                32,
+                512,
+                736
+              ],
+              "right": [
+                512,
+                32,
+                512,
+                736
+              ],
+              "maximize": [
+                0,
+                32,
+                1024,
+                736
+              ]
+            },
+            "snap_repeated_actions_idempotent_and_exact_frame_restored": true,
+            "extension_after_window_transitions": {
+              "accent": "#74c8d5",
+              "blur_attached": true,
+              "spring_enabled": true,
+              "spring_transitions_attached": 28,
+              "early_window_hook": true,
+              "spring_curve_api": "native-custom-critical-damping",
+              "wrapped_windows": 1,
+              "scope": "GNOME Shell açılır menüleri; opak üst çubuk ve uygulama içerikleri korunur."
+            },
+            "low_budget_disables_blur_and_spring": true,
+            "extension_disable_enable_clean": true,
+            "journal_restore_executed": true
+          },
+          "run_id": 46092352015,
+          "run_url": "https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/46092352015",
+          "job_url": "https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/46092352015/job/140815935253"
+        },
+        {
+          "job_id": 140815935341,
+          "title": "Gerçek yerel kabuk kontrolü",
+          "data": {
+            "scope": "private-nonroot-real-shell-X11-software-GPU",
+            "desktop": "kde",
+            "system_bus": "private-empty-bus-no-logind-no-hardware-services",
+            "physical_device_verified": false,
+            "wayland_verified": false,
+            "performance_benchmark": false,
+            "resource_budget_simulated": true,
+            "kconfig_major": 6,
+            "ci_only_software_gpu_animation_override": true,
+            "compositor_before": {
+              "active": true,
+              "compositingNotPossibleReason": "",
+              "compositingPossible": true,
+              "compositingType": "gl2",
+              "openGLIsBroken": false,
+              "platformRequiresCompositing": false,
+              "supportedOpenGLPlatformInterfaces": [
+                "glx",
+                "egl"
+              ]
+            },
+            "apply_notes": [
+              "Diğer uygulamaların özel dekorasyonları / GTK4 libadwaita kuralları ayrı kalabilir."
+            ],
+            "compositor_after": {
+              "active": true,
+              "compositingNotPossibleReason": "",
+              "compositingPossible": true,
+              "compositingType": "gl2",
+              "openGLIsBroken": false,
+              "platformRequiresCompositing": false,
+              "supportedOpenGLPlatformInterfaces": [
+                "glx",
+                "egl"
+              ]
+            },
+            "live_qt_palette": {
+              "before": "#eff0f1",
+              "after": "#202326",
+              "matches_kconfig": true
+            },
+            "panel_ids_preserved": [
+              2
+            ],
+            "real_kwin_effects_loaded": [
+              "blur",
+              "oguzdows-aero"
+            ],
+            "aurorae_selected": "__aurorae__svg__oguzdows-glass-3ea69eb7a026",
+            "original_frame": [
+              346,
+              224,
+              332,
+              280
+            ],
+            "snap_frame_rectangles": {
+              "restore": [
+                346,
+                224,
+                332,
+                280
+              ],
+              "left": [
+                0,
+                0,
+                512,
+                728
+              ],
+              "right": [
+                512,
+                0,
+                512,
+                728
+              ],
+              "maximize": [
+                0,
+                0,
+                1024,
+                728
+              ]
+            },
+            "snap_repeated_actions_idempotent_and_exact_frame_restored": true,
+            "native_kwin_transition_callbacks": {
+              "transition-attached": true,
+              "transition-completed": true,
+              "snap-transition-attached": true
+            },
+            "low_budget_disables_blur_spring_and_restores_decoration": true,
+            "journal_restore_executed": true
+          },
+          "run_id": 46092352015,
+          "run_url": "https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/46092352015",
+          "job_url": "https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/46092352015/job/140815935341"
+        },
+        {
+          "job_id": 140815935273,
+          "title": "Gerçek yerel GTK ve ayar API sonucu",
+          "data": {
+            "scope": "host-private-nonroot-real-GTK-GSettings-KConfig",
+            "physical_device": false,
+            "compositor_rendering_verified": false,
+            "performance_benchmark": false,
+            "monitor": {
+              "schema": 1,
+              "native": true,
+              "samples": 5,
+              "history_limit": 90,
+              "hidden_sampling_stops": true,
+              "source": "/proc",
+              "window_width": 340,
+              "window_height": 590,
+              "physical_device_verified": false,
+              "surface_including_csd_shadow": [
+                350,
+                661
+              ]
+            },
+            "hub": {
+              "schema": 1,
+              "native": true,
+              "app_count": 5,
+              "unicode_search": true,
+              "fixed_command_palette": true,
+              "shell_input_rejected": true,
+              "no_apps_launched": true,
+              "window_width": 356,
+              "window_height": 640,
+              "physical_device_verified": false,
+              "surface_including_csd_shadow": [
+                356,
+                640
+              ]
+            },
+            "real_gsettings_compare_restore": true,
+            "gnome_extension_not_run": true,
+            "real_kconfig_compare_restore": true,
+            "kconfig_major": 5,
+            "real_gsettings_rollback_after_simulated_file_commit_failure": true,
+            "preferences_gtk_timeout_recovery_and_install_gate": true,
+            "worker_start_unexpected_error_and_destroy_recovery": true,
+            "preferences_fits_screen": 360
+          },
+          "run_id": 46092352015,
+          "run_url": "https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/46092352015",
+          "job_url": "https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/46092352015/job/140815935273"
+        },
+        {
+          "job_id": 140815935273,
+          "title": "Gerçek yerel GTK ve ayar API sonucu",
+          "data": {
+            "scope": "host-private-nonroot-real-GTK-GSettings-KConfig",
+            "physical_device": false,
+            "compositor_rendering_verified": false,
+            "performance_benchmark": false,
+            "monitor": {
+              "schema": 1,
+              "native": true,
+              "samples": 5,
+              "history_limit": 90,
+              "hidden_sampling_stops": true,
+              "source": "/proc",
+              "window_width": 940,
+              "window_height": 590,
+              "physical_device_verified": false,
+              "surface_including_csd_shadow": [
+                950,
+                661
+              ]
+            },
+            "hub": {
+              "schema": 1,
+              "native": true,
+              "app_count": 5,
+              "unicode_search": true,
+              "fixed_command_palette": true,
+              "shell_input_rejected": true,
+              "no_apps_launched": true,
+              "window_width": 660,
+              "window_height": 640,
+              "physical_device_verified": false,
+              "surface_including_csd_shadow": [
+                660,
+                640
+              ]
+            },
+            "real_gsettings_compare_restore": true,
+            "gnome_extension_not_run": true,
+            "real_kconfig_compare_restore": true,
+            "kconfig_major": 5,
+            "real_gsettings_rollback_after_simulated_file_commit_failure": true,
+            "preferences_gtk_timeout_recovery_and_install_gate": true,
+            "worker_start_unexpected_error_and_destroy_recovery": true,
+            "preferences_fits_screen": 1024
+          },
+          "run_id": 46092352015,
+          "run_url": "https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/46092352015",
+          "job_url": "https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/46092352015/job/140815935273"
+        },
+        {
+          "job_id": 140815935293,
+          "title": "Gerçek yerel GTK ve ayar API sonucu",
+          "data": {
+            "scope": "host-private-nonroot-real-GTK-GSettings-KConfig",
+            "physical_device": false,
+            "compositor_rendering_verified": false,
+            "performance_benchmark": false,
+            "monitor": {
+              "schema": 1,
+              "native": true,
+              "samples": 6,
+              "history_limit": 90,
+              "hidden_sampling_stops": true,
+              "source": "/proc",
+              "window_width": 340,
+              "window_height": 590,
+              "physical_device_verified": false,
+              "surface_including_csd_shadow": [
+                350,
+                661
+              ]
+            },
+            "hub": {
+              "schema": 1,
+              "native": true,
+              "app_count": 5,
+              "unicode_search": true,
+              "fixed_command_palette": true,
+              "shell_input_rejected": true,
+              "no_apps_launched": true,
+              "window_width": 356,
+              "window_height": 640,
+              "physical_device_verified": false,
+              "surface_including_csd_shadow": [
+                356,
+                640
+              ]
+            },
+            "real_gsettings_compare_restore": true,
+            "gnome_extension_not_run": true,
+            "real_kconfig_compare_restore": true,
+            "kconfig_major": 6,
+            "real_gsettings_rollback_after_simulated_file_commit_failure": true,
+            "preferences_gtk_timeout_recovery_and_install_gate": true,
+            "worker_start_unexpected_error_and_destroy_recovery": true,
+            "preferences_fits_screen": 360
+          },
+          "run_id": 46092352015,
+          "run_url": "https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/46092352015",
+          "job_url": "https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/46092352015/job/140815935293"
+        },
+        {
+          "job_id": 140815935293,
+          "title": "Gerçek yerel GTK ve ayar API sonucu",
+          "data": {
+            "scope": "host-private-nonroot-real-GTK-GSettings-KConfig",
+            "physical_device": false,
+            "compositor_rendering_verified": false,
+            "performance_benchmark": false,
+            "monitor": {
+              "schema": 1,
+              "native": true,
+              "samples": 5,
+              "history_limit": 90,
+              "hidden_sampling_stops": true,
+              "source": "/proc",
+              "window_width": 940,
+              "window_height": 590,
+              "physical_device_verified": false,
+              "surface_including_csd_shadow": [
+                950,
+                661
+              ]
+            },
+            "hub": {
+              "schema": 1,
+              "native": true,
+              "app_count": 5,
+              "unicode_search": true,
+              "fixed_command_palette": true,
+              "shell_input_rejected": true,
+              "no_apps_launched": true,
+              "window_width": 660,
+              "window_height": 640,
+              "physical_device_verified": false,
+              "surface_including_csd_shadow": [
+                660,
+                640
+              ]
+            },
+            "real_gsettings_compare_restore": true,
+            "gnome_extension_not_run": true,
+            "real_kconfig_compare_restore": true,
+            "kconfig_major": 6,
+            "real_gsettings_rollback_after_simulated_file_commit_failure": true,
+            "preferences_gtk_timeout_recovery_and_install_gate": true,
+            "worker_start_unexpected_error_and_destroy_recovery": true,
+            "preferences_fits_screen": 1024
+          },
+          "run_id": 46092352015,
+          "run_url": "https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/46092352015",
+          "job_url": "https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/46092352015/job/140815935293"
+        },
+        {
+          "job_id": 140815935273,
+          "title": "Gerçek Picom GLX ve ARGB blur sonucu",
+          "data": {
+            "scope": "private-nonroot-Xvfb-real-GLX-software-rendering",
+            "physical_gpu_verified": false,
+            "resource_budget_simulated": true,
+            "production_acceleration_guard_bypassed": false,
+            "recipes_launched_directly_only_by_ci_test": true,
+            "recipes": {
+              "still": {
+                "selection_owned": true,
+                "sample_standard_deviation": 89.5
+              },
+              "blur9-still": {
+                "selection_owned": true,
+                "sample_standard_deviation": 17.727,
+                "actual_background_blur_on_argb_fixture": true
+              },
+              "blur9": {
+                "selection_owned": true,
+                "sample_standard_deviation": 17.727,
+                "actual_background_blur_on_argb_fixture": true
+              }
+            },
+            "picom": "v9.1",
+            "production_probe": {
+              "major": 9,
+              "accelerated": false
+            },
+            "ci_only_vsync_override": true
+          },
+          "run_id": 46092352015,
+          "run_url": "https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/46092352015",
+          "job_url": "https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/46092352015/job/140815935273"
+        },
+        {
+          "job_id": 140815935293,
+          "title": "Gerçek Picom GLX ve ARGB blur sonucu",
+          "data": {
+            "scope": "private-nonroot-Xvfb-real-GLX-software-rendering",
+            "physical_gpu_verified": false,
+            "resource_budget_simulated": true,
+            "production_acceleration_guard_bypassed": false,
+            "recipes_launched_directly_only_by_ci_test": true,
+            "recipes": {
+              "still": {
+                "selection_owned": true,
+                "sample_standard_deviation": 89.5
+              },
+              "blur-still": {
+                "selection_owned": true,
+                "sample_standard_deviation": 9.82,
+                "actual_background_blur_on_argb_fixture": true
+              },
+              "blur": {
+                "selection_owned": true,
+                "sample_standard_deviation": 9.82,
+                "actual_background_blur_on_argb_fixture": true
+              },
+              "motion": {
+                "selection_owned": true,
+                "sample_standard_deviation": 89.5
+              },
+              "full": {
+                "selection_owned": true,
+                "sample_standard_deviation": 9.932,
+                "actual_background_blur_on_argb_fixture": true
+              },
+              "snap": {
+                "selection_owned": true,
+                "sample_standard_deviation": 89.5,
+                "native_ewmh_snap_requests": true
+              },
+              "full-snap": {
+                "selection_owned": true,
+                "sample_standard_deviation": 9.932,
+                "actual_background_blur_on_argb_fixture": true,
+                "native_ewmh_snap_requests": true
+              }
+            },
+            "picom": "v12.5",
+            "production_probe": {
+              "major": 12,
+              "accelerated": false
+            }
+          },
+          "run_id": 46092352015,
+          "run_url": "https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/46092352015",
+          "job_url": "https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/46092352015/job/140815935293"
+        }
+      ]
+    }
+  }
+}

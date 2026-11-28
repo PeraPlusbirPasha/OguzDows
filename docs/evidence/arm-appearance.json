@@ -1,0 +1,157 @@
+{
+  "schema": 1,
+  "scope": "post-release source regression, native ARM64 Xfce settings and visible synthetic wallpaper pixels; not a Pi image or physical-device acceptance",
+  "published_product_source": "5a44de0dde676d901a32be40d631d481e213439d",
+  "published_release_updated_by_this_work": false,
+  "new_pi_images_built_by_this_work": false,
+  "failure": {
+    "source_revision": "e7241704dad104bc14e28f08b084e2f819c63d8b",
+    "run_id": 46139923985,
+    "run_url": "https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/46139923985",
+    "jobs": {
+      "bookworm": 140963378478,
+      "trixie": 140963378237
+    },
+    "assertion": "Stale connector silently swallowed wallpaper change",
+    "wallpapers_sha256": "9de5cb15a770b94e1d030525b57232703ecb40826599f99534cb9d734d678165",
+    "wallpapers_bytes_equal_published_product_source": true,
+    "earlier_assertions_passed": [
+      "dark and light GTK reload",
+      "two ordinary wallpaper choices and real root RGB pixels"
+    ]
+  },
+  "fix_commits": [
+    "7ebe2be160c2f5c1b01d51de685d1fbadebf6164",
+    "13c936890bf6a3cc4f515a79d0a1a7bf84a0ff12"
+  ],
+  "acceptance": {
+    "source_revision": "13c936890bf6a3cc4f515a79d0a1a7bf84a0ff12",
+    "run_id": 46140845761,
+    "run_url": "https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/46140845761",
+    "event": "workflow_dispatch",
+    "conclusion": "success",
+    "results": [
+      {
+        "suite": "bookworm",
+        "job_id": 140966203664,
+        "job_url": "https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/46140845761/job/140966203664",
+        "conclusion": "success",
+        "report": {
+          "scope": "private-nonroot-native-Xfce-Welcome-theme-wallpaper-and-root-pixels",
+          "architecture": "arm64",
+          "source_revision": "13c936890bf6a3cc4f515a79d0a1a7bf84a0ff12",
+          "runtime_sha256": {
+            "desktop_preferences.py": "de34fefff96d73cd52da645e8a510316277f62f6cea7ffc5f995caddac625fd5",
+            "desktop_runtime.py": "5fab52ba8fc78946f7700c48d3d378ea9042780b0088addcbfee5cc6323cfbc4",
+            "desktop_material.py": "f89fa06bb13924572a3fae98243dada97afb24d1cf64a52a32f44b3cbc778205",
+            "wallpapers.py": "ce15075e9bf825264e3eb2ef8d11158c47e99599b8fa7d485d8a4f2315f23057"
+          },
+          "synthetic_image_fixture": true,
+          "physical_pi": false,
+          "physical_gpu": false,
+          "performance_measurement": false,
+          "settings_backend_mocked": false,
+          "errors": [],
+          "profile_themes": {
+            "oguzdows": "OguzDowsXPUser-90ca56597aee5ba1",
+            "kde": "OguzDowsLightUser-17b6e475bb01c1b4",
+            "gnome": "OguzDowsGnomeUser-98c783e59902615e",
+            "xfce": "OguzDowsLightUser-dbf3db51220aa070",
+            "windows11": "OguzDowsElevenUser-d0f25e588c6a3026",
+            "mac": "OguzDowsMacUser-a882356ed63dcc63"
+          },
+          "profile_panel_restart_tested": false,
+          "dark_theme": "OguzDowsXPDarkUser-74557b0580936f13",
+          "light_theme": "OguzDowsXPUser-90ca56597aee5ba1",
+          "welcome_theme_callbacks_and_GTK_reload": true,
+          "fixture-red_root_rgb": [
+            160,
+            30,
+            40
+          ],
+          "fixture-blue_root_rgb": [
+            30,
+            60,
+            160
+          ],
+          "welcome_wallpaper_callbacks_and_real_pixels": true,
+          "stale_connector_does_not_swallow_change": true,
+          "randr_failure_injected": true,
+          "fallback_real_gdk_helper_and_pixels": true,
+          "native_property_count": 5,
+          "shared_revision": 13
+        }
+      },
+      {
+        "suite": "trixie",
+        "job_id": 140966203811,
+        "job_url": "https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/46140845761/job/140966203811",
+        "conclusion": "success",
+        "report": {
+          "scope": "private-nonroot-native-Xfce-Welcome-theme-wallpaper-and-root-pixels",
+          "architecture": "arm64",
+          "source_revision": "13c936890bf6a3cc4f515a79d0a1a7bf84a0ff12",
+          "runtime_sha256": {
+            "desktop_preferences.py": "de34fefff96d73cd52da645e8a510316277f62f6cea7ffc5f995caddac625fd5",
+            "desktop_runtime.py": "5fab52ba8fc78946f7700c48d3d378ea9042780b0088addcbfee5cc6323cfbc4",
+            "desktop_material.py": "f89fa06bb13924572a3fae98243dada97afb24d1cf64a52a32f44b3cbc778205",
+            "wallpapers.py": "ce15075e9bf825264e3eb2ef8d11158c47e99599b8fa7d485d8a4f2315f23057"
+          },
+          "synthetic_image_fixture": true,
+          "physical_pi": false,
+          "physical_gpu": false,
+          "performance_measurement": false,
+          "settings_backend_mocked": false,
+          "errors": [],
+          "profile_themes": {
+            "oguzdows": "OguzDowsXPUser-90ca56597aee5ba1",
+            "kde": "OguzDowsLightUser-17b6e475bb01c1b4",
+            "gnome": "OguzDowsGnomeUser-98c783e59902615e",
+            "xfce": "OguzDowsLightUser-dbf3db51220aa070",
+            "windows11": "OguzDowsElevenUser-d0f25e588c6a3026",
+            "mac": "OguzDowsMacUser-a882356ed63dcc63"
+          },
+          "profile_panel_restart_tested": false,
+          "dark_theme": "OguzDowsXPDarkUser-74557b0580936f13",
+          "light_theme": "OguzDowsXPUser-90ca56597aee5ba1",
+          "welcome_theme_callbacks_and_GTK_reload": true,
+          "fixture-red_root_rgb": [
+            160,
+            30,
+            40
+          ],
+          "fixture-blue_root_rgb": [
+            30,
+            60,
+            160
+          ],
+          "welcome_wallpaper_callbacks_and_real_pixels": true,
+          "stale_connector_does_not_swallow_change": true,
+          "randr_failure_injected": true,
+          "fallback_real_gdk_helper_and_pixels": true,
+          "native_property_count": 5,
+          "shared_revision": 13
+        }
+      }
+    ]
+  },
+  "local_unit_tests": {
+    "scope": "x86_64 host, explicitly mocked native settings where marked by test fixtures; not ARM GUI evidence",
+    "command": ".venv/bin/python -W error::ResourceWarning -m unittest discover -s tests -p test_*.py -v",
+    "total": 764,
+    "passed": 755,
+    "skipped": 9,
+    "wallpaper_tests": 17,
+    "python_pyflakes": "passed",
+    "bash_syntax": "passed",
+    "git_diff_check": "passed"
+  },
+  "not_established": [
+    "The separate cause of theme failure on the reporting user’s device; model, image and session are not known yet.",
+    "Physical Pi boot, GPU/HDMI/KMS, LightDM/PAM, SD or performance.",
+    "ARMv6/armhf GUI transactions; added portable 32-bit cases use explicit native-settings mocks.",
+    "Visible panel restart / native Dock behaviour; profile config and GTK theme reload are tested, panel restart is not.",
+    "A real legacy server without RandR; the primary RandR query fails by deliberate injection in the fallback test.",
+    "Installation or automatic delivery of the source fix to existing v2.0 images."
+  ]
+}

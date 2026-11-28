@@ -1,0 +1,64 @@
+{
+  "schema": 1,
+  "evidence_type": "official source inspection, not released binary-image comparison",
+  "suite": "bookworm",
+  "preserved_boot_settings": [
+    "dtparam=audio=on",
+    "camera_auto_detect=1",
+    "display_auto_detect=1",
+    "auto_initramfs=1",
+    "dtoverlay=vc4-kms-v3d",
+    "disable_fw_kms_setup=1",
+    "arm_boost=1"
+  ],
+  "adaptations": [
+    "stock stage0/stage1/stage2 and export chain retained; explicit hashed post-bootstrap APT transport adaptation",
+    "OğuzDows Xfce instead of stock LXDE/labwc desktop stages",
+    "locked personal first-account flow instead of shared build account / user-rename",
+    "bounded LZ4 zram instead of persistent SD swap",
+    "network asynchronous at desktop startup; Wi-Fi/Bluetooth/audio kept",
+    "host-only Xvfb and private chroot D-Bus for minimum-CPU ARM GTK testing",
+    "bounded APT retries/timeouts; armhf same-archive mirror+file failover with signature/hash checks retained",
+    "shared PC/ARM memory budget; native Xfce top/dock layouts and offline store badges"
+  ],
+  "architectures": {
+    "armhf": {
+      "branch": "bookworm",
+      "commit": "8b71acc79287392a63985ba383c496d5419426b4",
+      "archive_sha256": "6f0e7ad86f6ace638e0601836c64de9434f8c34d438463dca8a96559aff4d256",
+      "files": {
+        "build.sh": "bf0dd956b7fa38517b9a2ebdb88d29d1c3abc1e454ccd5ee658d96c2998b943e",
+        "scripts/common": "cbcb04c8169299405deca784fe37e97744ae30598e695fa270780e3bfa0fff9a",
+        "stage0/prerun.sh": "ac8245a0961aa1bce71830189d78c0469b6f27c8867c7388a2ae3c773cdbcd7b",
+        "stage0/00-configure-apt/files/sources.list": "519177667bead87528a2f889fb88354af994b946e6133984ba7a0cc0845c9236",
+        "stage0/00-configure-apt/files/raspi.list": "7b85f60c0341e7376c025f6705dab04f1e665b2e669c2845356c01f731e2a55e",
+        "stage0/02-firmware/01-packages": "fb02aaa5cd75339bc0bb44accdc136c1fa2738ddd77ba2ecdd0fdcc31d6b65ed",
+        "stage1/00-boot-files/files/config.txt": "ea82a637facdcde1dc82ad343de14da4684673cb07deca9f5e0c15abfb6b2eb7",
+        "stage1/00-boot-files/files/cmdline.txt": "ace45d14188d3a72288412018b9377a7f7160d5e0928b8bfb00f75f3f27b028c",
+        "stage2/01-sys-tweaks/01-run.sh": "fdabda335f1da670951031c78e1c36de59a7d0cee5b06d8e7f80805efbd2e41f",
+        "stage2/02-net-tweaks/01-run.sh": "0d8862bc9d8e5db601e6ce49a666fee5b766fc30e779724429053a928fe94387",
+        "export-image/prerun.sh": "7f2ebf0e2cc6b360c0c53bf1fd40467fe4d5bcdc858217584d2dc3ca01e673fc",
+        "export-image/05-finalise/01-run.sh": "e8aa7792df367fd513f120d37ccbbc34c16bee4c763f49bf778e5a017423f316"
+      }
+    },
+    "arm64": {
+      "branch": "bookworm-arm64",
+      "commit": "3a7eeb9bd49278375b8871b284c1aacf54a31b34",
+      "archive_sha256": "0cc9e00c567e1f05cd409df7c422ff052ada86953544740ec36c0f361b6d85d7",
+      "files": {
+        "build.sh": "dff8a147c5487872fffa81419c648af429df3b6807ce09554812dabc64524957",
+        "scripts/common": "cca4be5f6e2e4f7475dfcfcd553d1889a2029e316f37b937cb37f75c5dfc85bf",
+        "stage0/prerun.sh": "c82188c568eba90c59721bf6f3c0334aded9427c0eeac3e64448fd69e6f2548d",
+        "stage0/00-configure-apt/files/sources.list": "bfbba7ccd0e1caafdd71c813371dcdb3249aa4ac399a36449cec68cf49c67673",
+        "stage0/00-configure-apt/files/raspi.list": "7b85f60c0341e7376c025f6705dab04f1e665b2e669c2845356c01f731e2a55e",
+        "stage0/02-firmware/01-packages": "85c8d25bc3ef33ac2e2456083b4dbaeff9259a456be166481a3bf7c460e0b591",
+        "stage1/00-boot-files/files/config.txt": "4a0bdccd0c324a59bfb16a11d45f34227bfc64e77705553cf5c49b044a0b2a72",
+        "stage1/00-boot-files/files/cmdline.txt": "ace45d14188d3a72288412018b9377a7f7160d5e0928b8bfb00f75f3f27b028c",
+        "stage2/01-sys-tweaks/01-run.sh": "fdabda335f1da670951031c78e1c36de59a7d0cee5b06d8e7f80805efbd2e41f",
+        "stage2/02-net-tweaks/01-run.sh": "0d8862bc9d8e5db601e6ce49a666fee5b766fc30e779724429053a928fe94387",
+        "export-image/prerun.sh": "7f2ebf0e2cc6b360c0c53bf1fd40467fe4d5bcdc858217584d2dc3ca01e673fc",
+        "export-image/05-finalise/01-run.sh": "e8aa7792df367fd513f120d37ccbbc34c16bee4c763f49bf778e5a017423f316"
+      }
+    }
+  }
+}

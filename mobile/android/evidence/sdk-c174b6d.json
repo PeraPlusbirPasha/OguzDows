@@ -1,0 +1,51 @@
+{
+  "source_sha": "c174b6dc25907d8fac06496b2c46cb7780923282",
+  "assembled": [
+    {
+      "file": "app/build/outputs/apk/debug/app-debug.apk",
+      "bytes": 23991640,
+      "sha256": "29c22153fa5917da9566926458f6967d78367361b062f4e7e9efade7c7ee32e6"
+    },
+    {
+      "file": "app/build/outputs/apk/androidTest/debug/app-debug-androidTest.apk",
+      "bytes": 1020993,
+      "sha256": "4844c5fd2cbd4d64dcf2b8dfe9216a5b8c6e626eb7ee74371fb2046cd4603ba6"
+    },
+    {
+      "file": "fixture/build/outputs/apk/debug/fixture-debug.apk",
+      "bytes": 11512,
+      "sha256": "3e8a2761f4b8bd3fca091b72ca1322de0968508628e727f8dd09d548d4a0dfd8"
+    }
+  ],
+  "java_unit_tests": {
+    "tests": 13,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "lint": {
+    "Warning": 43,
+    "Information": 1
+  },
+  "lint_warning_ids": {
+    "ApplySharedPref": 1,
+    "OldTargetApi": 1,
+    "RequiresFeature": 1,
+    "GradleDependency": 11,
+    "SetJavaScriptEnabled": 1,
+    "DataExtractionRules": 1,
+    "VectorPath": 12,
+    "UsableSpace": 2,
+    "IconLocation": 1,
+    "ClickableViewAccessibility": 2,
+    "SetTextI18n": 10
+  },
+  "emulator_passed": null,
+  "physical_sim_tested": false,
+  "gms_certification_tested": false,
+  "github": {
+    "run_url": "https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/46060372246",
+    "job_id": 140712893028,
+    "scope": "SDK passed; runtime did not, no distribution package."
+  }
+}

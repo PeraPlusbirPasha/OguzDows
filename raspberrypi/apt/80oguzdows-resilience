@@ -1,0 +1,9 @@
+// Sınırlı yeniden deneme; imza, tarih ve paket hash denetimleri açık kalır.
+Acquire::Retries "3";
+Acquire::http::Timeout "30";
+Acquire::https::Timeout "30";
+Acquire::http::Pipeline-Depth "0";
+APT::Update::Error-Mode "any";
+APT::Get::AllowUnauthenticated "false";
+Acquire::AllowInsecureRepositories "false";
+Acquire::AllowDowngradeToInsecureRepositories "false";

@@ -1,0 +1,22 @@
+#!/bin/sh
+# İmaj içinde mimariye uygun derle; hazır x86 ikili dosyasını ARM'e kopyalama.
+set -eu
+/usr/lib/oguzdows/seal-app-store.sh
+chown -R root:root /usr/share/oguzdows/native /usr/share/oguzdows/scripts
+chmod -R go-w /usr/share/oguzdows/native /usr/share/oguzdows/scripts
+/usr/share/oguzdows/scripts/build-native.sh /usr/lib/oguzdows/oguzdows-store-native
+chown root:root /usr/lib/oguzdows/oguzdows-store-native
+chmod 0755 /usr/lib/oguzdows/oguzdows-store-native
+update-desktop-database /usr/share/applications
+/usr/share/oguzdows/scripts/build-news.sh /usr/lib/oguzdows/oguzdows-news-native
+chown root:root /usr/lib/oguzdows/oguzdows-news-native
+chmod 0755 /usr/lib/oguzdows/oguzdows-news-native
+
+for component in monitor hub; do
+    /usr/share/oguzdows/scripts/build-desktop.sh "$component" "/usr/lib/oguzdows/oguzdows-$component-native"
+    chown root:root "/usr/lib/oguzdows/oguzdows-$component-native"
+    chmod 0755 "/usr/lib/oguzdows/oguzdows-$component-native"
+done
+
+# Yerel Xfce görev grubu / Dock ve olay tabanlı renk izleyicisi.
+/usr/share/oguzdows/scripts/build-panel.sh /

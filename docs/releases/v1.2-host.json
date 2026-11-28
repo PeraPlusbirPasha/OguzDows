@@ -1,0 +1,3447 @@
+{
+  "schema_version": 1,
+  "scope": "current-source-host-GTK-real-shells-and-target-user-ABI-not-image-or-physical-boot",
+  "source_revision": "dc92fe9e47d8cdc599094281780e274cc49d1470",
+  "product_version": "1.2",
+  "conclusion": "success",
+  "origin": "Pinned successful GitHub Actions runs, jobs and original check annotations; source hashes independently matched to the working source",
+  "successful_job_count": 16,
+  "workbench_gtk_reports": 8,
+  "real_signed_apt_bootstrap_reports": 3,
+  "own_32bit_abi_reports": 2,
+  "synthetic_pr_ci_revisions_are_not_image_revision": true,
+  "physical_boot_verified": false,
+  "physical_gpu_verified": false,
+  "pi_performance_measured": false,
+  "new_iso_or_img_verified_by_this_host_report": false,
+  "interactive_polkit_tested": false,
+  "flathub_application_download_tested": false,
+  "local_tests": {
+    "ran": 701,
+    "skipped": 9,
+    "resource_warning_fatal": true,
+    "seconds": 31.598,
+    "root_chroot_pidfd_probe": {
+      "ran": 10,
+      "skipped": 0,
+      "seconds": 0.373,
+      "physical_pi_test": false
+    }
+  },
+  "runs": {
+    "pc-tests": {
+      "run": {
+        "id": 45984418960,
+        "html_url": "https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/45984418960",
+        "head_sha": "dc92fe9e47d8cdc599094281780e274cc49d1470",
+        "head_branch": "arena/2d796713-o-uzdows",
+        "event": "pull_request",
+        "status": "completed",
+        "conclusion": "success",
+        "run_attempt": 1,
+        "created_at": "2026-11-27T10:42:55Z",
+        "updated_at": "2026-11-27T10:50:04Z"
+      },
+      "jobs": [
+        {
+          "id": 140456251981,
+          "name": "Firmware → GRUB · bookworm",
+          "html_url": "https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/45984418960/job/140456251981",
+          "status": "completed",
+          "conclusion": "success",
+          "all_required_steps_succeeded": true
+        },
+        {
+          "id": 140456252150,
+          "name": "Yapılandırma ve GTK · trixie",
+          "html_url": "https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/45984418960/job/140456252150",
+          "status": "completed",
+          "conclusion": "success",
+          "all_required_steps_succeeded": true
+        },
+        {
+          "id": 140456252278,
+          "name": "Firmware → GRUB · trixie",
+          "html_url": "https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/45984418960/job/140456252278",
+          "status": "completed",
+          "conclusion": "success",
+          "all_required_steps_succeeded": true
+        },
+        {
+          "id": 140456252283,
+          "name": "Yapılandırma ve GTK · bookworm",
+          "html_url": "https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/45984418960/job/140456252283",
+          "status": "completed",
+          "conclusion": "success",
+          "all_required_steps_succeeded": true
+        }
+      ]
+    },
+    "pi-tests": {
+      "run": {
+        "id": 45984418959,
+        "html_url": "https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/45984418959",
+        "head_sha": "dc92fe9e47d8cdc599094281780e274cc49d1470",
+        "head_branch": "arena/2d796713-o-uzdows",
+        "event": "pull_request",
+        "status": "completed",
+        "conclusion": "success",
+        "run_attempt": 1,
+        "created_at": "2026-11-27T10:42:55Z",
+        "updated_at": "2026-11-27T10:45:21Z"
+      },
+      "jobs": [
+        {
+          "id": 140456251261,
+          "name": "Pi yapılandırma ve güvenlik testleri",
+          "html_url": "https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/45984418959/job/140456251261",
+          "status": "completed",
+          "conclusion": "success",
+          "all_required_steps_succeeded": true
+        }
+      ]
+    },
+    "portable-tests": {
+      "run": {
+        "id": 45984418994,
+        "html_url": "https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/45984418994",
+        "head_sha": "dc92fe9e47d8cdc599094281780e274cc49d1470",
+        "head_branch": "arena/2d796713-o-uzdows",
+        "event": "pull_request",
+        "status": "completed",
+        "conclusion": "success",
+        "run_attempt": 1,
+        "created_at": "2026-11-27T10:42:55Z",
+        "updated_at": "2026-11-27T10:49:10Z"
+      },
+      "jobs": [
+        {
+          "id": 140456251370,
+          "name": "amd64 / trixie · gerçek Flatpak + GNOME Yazılımlar kurulumu",
+          "html_url": "https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/45984418994/job/140456251370",
+          "status": "completed",
+          "conclusion": "success",
+          "all_required_steps_succeeded": true
+        },
+        {
+          "id": 140456251603,
+          "name": "ARM64 gerçek GTK / kurulum · bookworm (kart değil)",
+          "html_url": "https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/45984418994/job/140456251603",
+          "status": "completed",
+          "conclusion": "success",
+          "all_required_steps_succeeded": true
+        },
+        {
+          "id": 140456251650,
+          "name": "Gerçek 32 bit kullanıcı ABI · i386 / bookworm (QEMU)",
+          "html_url": "https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/45984418994/job/140456251650",
+          "status": "completed",
+          "conclusion": "success",
+          "all_required_steps_succeeded": true
+        },
+        {
+          "id": 140456251672,
+          "name": "Gerçek 32 bit kullanıcı ABI · armhf / bookworm (QEMU)",
+          "html_url": "https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/45984418994/job/140456251672",
+          "status": "completed",
+          "conclusion": "success",
+          "all_required_steps_succeeded": true
+        },
+        {
+          "id": 140456251713,
+          "name": "ARM64 gerçek GTK / kurulum · trixie (kart değil)",
+          "html_url": "https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/45984418994/job/140456251713",
+          "status": "completed",
+          "conclusion": "success",
+          "all_required_steps_succeeded": true
+        }
+      ]
+    },
+    "desktop-tests": {
+      "run": {
+        "id": 45984418943,
+        "html_url": "https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/45984418943",
+        "head_sha": "dc92fe9e47d8cdc599094281780e274cc49d1470",
+        "head_branch": "arena/2d796713-o-uzdows",
+        "event": "pull_request",
+        "status": "completed",
+        "conclusion": "success",
+        "run_attempt": 1,
+        "created_at": "2026-11-27T10:42:55Z",
+        "updated_at": "2026-11-27T10:46:14Z"
+      },
+      "jobs": [
+        {
+          "id": 140456251147,
+          "name": "Gerçek kabuk · gnome · trixie",
+          "html_url": "https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/45984418943/job/140456251147",
+          "status": "completed",
+          "conclusion": "success",
+          "all_required_steps_succeeded": true
+        },
+        {
+          "id": 140456251281,
+          "name": "Gerçek kabuk · kde · trixie",
+          "html_url": "https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/45984418943/job/140456251281",
+          "status": "completed",
+          "conclusion": "success",
+          "all_required_steps_succeeded": true
+        },
+        {
+          "id": 140456251295,
+          "name": "Gerçek kabuk · gnome · bookworm",
+          "html_url": "https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/45984418943/job/140456251295",
+          "status": "completed",
+          "conclusion": "success",
+          "all_required_steps_succeeded": true
+        },
+        {
+          "id": 140456251296,
+          "name": "Yerel C · GTK · ayar API'leri · bookworm",
+          "html_url": "https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/45984418943/job/140456251296",
+          "status": "completed",
+          "conclusion": "success",
+          "all_required_steps_succeeded": true
+        },
+        {
+          "id": 140456251331,
+          "name": "Yerel C · GTK · ayar API'leri · trixie",
+          "html_url": "https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/45984418943/job/140456251331",
+          "status": "completed",
+          "conclusion": "success",
+          "all_required_steps_succeeded": true
+        },
+        {
+          "id": 140456251415,
+          "name": "Gerçek kabuk · kde · bookworm",
+          "html_url": "https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/45984418943/job/140456251415",
+          "status": "completed",
+          "conclusion": "success",
+          "all_required_steps_succeeded": true
+        }
+      ]
+    }
+  },
+  "reports": [
+    {
+      "run": 45984418960,
+      "job": 140456252150,
+      "job_name": "Yapılandırma ve GTK · trixie",
+      "title": "Gerçek Xfce panel düzenleri",
+      "data": {
+        "scope": "host-real-xfce-panels-private-xvfb",
+        "physical_boot": false,
+        "arm_runtime": false,
+        "performance_test": false,
+        "package_transaction": false,
+        "layouts": [
+          {
+            "profile": "gnome",
+            "variant": "-launcher-import",
+            "windows": [
+              {
+                "x": 0,
+                "y": 0,
+                "width": 1920,
+                "height": 33,
+                "xid": 10485763
+              },
+              {
+                "x": 0,
+                "y": 411,
+                "width": 50,
+                "height": 258,
+                "xid": 10485771
+              }
+            ],
+            "icon_content": null,
+            "launcher_import_readback_verified": true,
+            "xfconf_arrays": true,
+            "all_plugins_preserved": true,
+            "sample_application_stayed_open": true
+          },
+          {
+            "profile": "mac",
+            "variant": "light",
+            "windows": [
+              {
+                "x": 0,
+                "y": 0,
+                "width": 1920,
+                "height": 29,
+                "xid": 10485763
+              },
+              {
+                "x": 807,
+                "y": 1008,
+                "width": 306,
+                "height": 72,
+                "xid": 10485775
+              }
+            ],
+            "icon_content": {
+              "left": 828,
+              "right": 1103,
+              "native_items": 5,
+              "center_error_px": 5.5,
+              "screen_center": 960.0
+            },
+            "launcher_import_readback_verified": false,
+            "xfconf_arrays": true,
+            "all_plugins_preserved": true,
+            "sample_application_stayed_open": true
+          },
+          {
+            "profile": "mac",
+            "variant": "-dark",
+            "windows": [
+              {
+                "x": 0,
+                "y": 0,
+                "width": 1920,
+                "height": 29,
+                "xid": 10485763
+              },
+              {
+                "x": 807,
+                "y": 1008,
+                "width": 306,
+                "height": 72,
+                "xid": 10485775
+              }
+            ],
+            "icon_content": {
+              "left": 828,
+              "right": 1103,
+              "native_items": 5,
+              "center_error_px": 5.5,
+              "screen_center": 960.0
+            },
+            "launcher_import_readback_verified": false,
+            "xfconf_arrays": true,
+            "all_plugins_preserved": true,
+            "sample_application_stayed_open": true
+          },
+          {
+            "profile": "gnome",
+            "variant": "light",
+            "windows": [
+              {
+                "x": 0,
+                "y": 0,
+                "width": 1920,
+                "height": 33,
+                "xid": 10485763
+              },
+              {
+                "x": 0,
+                "y": 411,
+                "width": 50,
+                "height": 258,
+                "xid": 10485771
+              }
+            ],
+            "icon_content": null,
+            "launcher_import_readback_verified": true,
+            "xfconf_arrays": true,
+            "all_plugins_preserved": true,
+            "sample_application_stayed_open": true
+          },
+          {
+            "profile": "oguzdows",
+            "variant": "light",
+            "windows": [
+              {
+                "x": 0,
+                "y": 1041,
+                "width": 1920,
+                "height": 39,
+                "xid": 10485763
+              }
+            ],
+            "icon_content": null,
+            "launcher_import_readback_verified": false,
+            "xfconf_arrays": true,
+            "all_plugins_preserved": true,
+            "sample_application_stayed_open": true
+          },
+          {
+            "profile": "kde",
+            "variant": "light",
+            "windows": [
+              {
+                "x": 0,
+                "y": 1035,
+                "width": 1920,
+                "height": 45,
+                "xid": 10485763
+              }
+            ],
+            "icon_content": null,
+            "launcher_import_readback_verified": false,
+            "xfconf_arrays": true,
+            "all_plugins_preserved": true,
+            "sample_application_stayed_open": true
+          },
+          {
+            "profile": "xfce",
+            "variant": "light",
+            "windows": [
+              {
+                "x": 0,
+                "y": 0,
+                "width": 1920,
+                "height": 31,
+                "xid": 10485763
+              }
+            ],
+            "icon_content": null,
+            "launcher_import_readback_verified": false,
+            "xfconf_arrays": true,
+            "all_plugins_preserved": true,
+            "sample_application_stayed_open": true
+          },
+          {
+            "profile": "windows11",
+            "variant": "light",
+            "windows": [
+              {
+                "x": 0,
+                "y": 1023,
+                "width": 1920,
+                "height": 57,
+                "xid": 10485763
+              }
+            ],
+            "icon_content": {
+              "left": 840,
+              "right": 1090,
+              "native_items": 6,
+              "center_error_px": 5.0,
+              "screen_center": 960.0
+            },
+            "launcher_import_readback_verified": false,
+            "xfconf_arrays": true,
+            "all_plugins_preserved": true,
+            "sample_application_stayed_open": true
+          },
+          {
+            "profile": "windows11",
+            "variant": "-three-windows",
+            "windows": [
+              {
+                "x": 0,
+                "y": 1023,
+                "width": 1920,
+                "height": 57,
+                "xid": 10485763
+              }
+            ],
+            "icon_content": {
+              "left": 796,
+              "right": 1134,
+              "native_items": 8,
+              "center_error_px": 5.0,
+              "screen_center": 960.0
+            },
+            "launcher_import_readback_verified": false,
+            "xfconf_arrays": true,
+            "all_plugins_preserved": true,
+            "sample_application_stayed_open": true
+          },
+          {
+            "profile": "oguzdows",
+            "variant": "-restored",
+            "windows": [
+              {
+                "x": 0,
+                "y": 1043,
+                "width": 1920,
+                "height": 37,
+                "xid": 10485763
+              }
+            ],
+            "icon_content": null,
+            "launcher_import_readback_verified": false,
+            "xfconf_arrays": true,
+            "all_plugins_preserved": true,
+            "sample_application_stayed_open": true
+          }
+        ],
+        "xfce_panel_version": "xfce4-panel 4.20.4 (Xfce 4.20)\n\nCopyright (c) 2004-2025\n\tThe Xfce development team. All rights reserved.\n\nPlease report bugs to <https://gitlab.xfce.org/xfce/xfce4-panel/-/issues>.",
+        "restore_native_readback_verified": true,
+        "restored_panel_geometry_verified": true,
+        "restored": true
+      }
+    },
+    {
+      "run": 45984418960,
+      "job": 140456252150,
+      "job_name": "Yapılandırma ve GTK · trixie",
+      "title": "Gerçek Xfce panel düzenleri",
+      "data": {
+        "scope": "host-real-xfce-panels-private-xvfb",
+        "physical_boot": false,
+        "arm_runtime": false,
+        "performance_test": false,
+        "package_transaction": false,
+        "layouts": [
+          {
+            "profile": "gnome",
+            "variant": "-launcher-import",
+            "windows": [
+              {
+                "x": 0,
+                "y": 0,
+                "width": 1280,
+                "height": 33,
+                "xid": 10485763
+              },
+              {
+                "x": 0,
+                "y": 321,
+                "width": 50,
+                "height": 258,
+                "xid": 10485771
+              }
+            ],
+            "icon_content": null,
+            "launcher_import_readback_verified": true,
+            "xfconf_arrays": true,
+            "all_plugins_preserved": true,
+            "sample_application_stayed_open": true
+          },
+          {
+            "profile": "mac",
+            "variant": "light",
+            "windows": [
+              {
+                "x": 0,
+                "y": 0,
+                "width": 1280,
+                "height": 29,
+                "xid": 10485763
+              },
+              {
+                "x": 487,
+                "y": 828,
+                "width": 306,
+                "height": 72,
+                "xid": 10485775
+              }
+            ],
+            "icon_content": {
+              "left": 508,
+              "right": 783,
+              "native_items": 5,
+              "center_error_px": 5.5,
+              "screen_center": 640.0
+            },
+            "launcher_import_readback_verified": false,
+            "xfconf_arrays": true,
+            "all_plugins_preserved": true,
+            "sample_application_stayed_open": true
+          },
+          {
+            "profile": "mac",
+            "variant": "-dark",
+            "windows": [
+              {
+                "x": 0,
+                "y": 0,
+                "width": 1280,
+                "height": 29,
+                "xid": 10485763
+              },
+              {
+                "x": 487,
+                "y": 828,
+                "width": 306,
+                "height": 72,
+                "xid": 10485775
+              }
+            ],
+            "icon_content": {
+              "left": 508,
+              "right": 783,
+              "native_items": 5,
+              "center_error_px": 5.5,
+              "screen_center": 640.0
+            },
+            "launcher_import_readback_verified": false,
+            "xfconf_arrays": true,
+            "all_plugins_preserved": true,
+            "sample_application_stayed_open": true
+          },
+          {
+            "profile": "gnome",
+            "variant": "light",
+            "windows": [
+              {
+                "x": 0,
+                "y": 0,
+                "width": 1280,
+                "height": 33,
+                "xid": 10485763
+              },
+              {
+                "x": 0,
+                "y": 321,
+                "width": 50,
+                "height": 258,
+                "xid": 10485771
+              }
+            ],
+            "icon_content": null,
+            "launcher_import_readback_verified": true,
+            "xfconf_arrays": true,
+            "all_plugins_preserved": true,
+            "sample_application_stayed_open": true
+          },
+          {
+            "profile": "oguzdows",
+            "variant": "light",
+            "windows": [
+              {
+                "x": 0,
+                "y": 861,
+                "width": 1280,
+                "height": 39,
+                "xid": 10485763
+              }
+            ],
+            "icon_content": null,
+            "launcher_import_readback_verified": false,
+            "xfconf_arrays": true,
+            "all_plugins_preserved": true,
+            "sample_application_stayed_open": true
+          },
+          {
+            "profile": "kde",
+            "variant": "light",
+            "windows": [
+              {
+                "x": 0,
+                "y": 855,
+                "width": 1280,
+                "height": 45,
+                "xid": 10485763
+              }
+            ],
+            "icon_content": null,
+            "launcher_import_readback_verified": false,
+            "xfconf_arrays": true,
+            "all_plugins_preserved": true,
+            "sample_application_stayed_open": true
+          },
+          {
+            "profile": "xfce",
+            "variant": "light",
+            "windows": [
+              {
+                "x": 0,
+                "y": 0,
+                "width": 1280,
+                "height": 31,
+                "xid": 10485763
+              }
+            ],
+            "icon_content": null,
+            "launcher_import_readback_verified": false,
+            "xfconf_arrays": true,
+            "all_plugins_preserved": true,
+            "sample_application_stayed_open": true
+          },
+          {
+            "profile": "windows11",
+            "variant": "light",
+            "windows": [
+              {
+                "x": 0,
+                "y": 843,
+                "width": 1280,
+                "height": 57,
+                "xid": 10485763
+              }
+            ],
+            "icon_content": {
+              "left": 520,
+              "right": 770,
+              "native_items": 6,
+              "center_error_px": 5.0,
+              "screen_center": 640.0
+            },
+            "launcher_import_readback_verified": false,
+            "xfconf_arrays": true,
+            "all_plugins_preserved": true,
+            "sample_application_stayed_open": true
+          },
+          {
+            "profile": "windows11",
+            "variant": "-three-windows",
+            "windows": [
+              {
+                "x": 0,
+                "y": 843,
+                "width": 1280,
+                "height": 57,
+                "xid": 10485763
+              }
+            ],
+            "icon_content": {
+              "left": 476,
+              "right": 814,
+              "native_items": 8,
+              "center_error_px": 5.0,
+              "screen_center": 640.0
+            },
+            "launcher_import_readback_verified": false,
+            "xfconf_arrays": true,
+            "all_plugins_preserved": true,
+            "sample_application_stayed_open": true
+          },
+          {
+            "profile": "oguzdows",
+            "variant": "-restored",
+            "windows": [
+              {
+                "x": 0,
+                "y": 863,
+                "width": 1280,
+                "height": 37,
+                "xid": 10485763
+              }
+            ],
+            "icon_content": null,
+            "launcher_import_readback_verified": false,
+            "xfconf_arrays": true,
+            "all_plugins_preserved": true,
+            "sample_application_stayed_open": true
+          }
+        ],
+        "xfce_panel_version": "xfce4-panel 4.20.4 (Xfce 4.20)\n\nCopyright (c) 2004-2025\n\tThe Xfce development team. All rights reserved.\n\nPlease report bugs to <https://gitlab.xfce.org/xfce/xfce4-panel/-/issues>.",
+        "restore_native_readback_verified": true,
+        "restored_panel_geometry_verified": true,
+        "restored": true
+      }
+    },
+    {
+      "run": 45984418960,
+      "job": 140456252150,
+      "job_name": "Yapılandırma ve GTK · trixie",
+      "title": "Gerçek Xfce panel düzenleri",
+      "data": {
+        "scope": "host-real-xfce-panels-private-xvfb",
+        "physical_boot": false,
+        "arm_runtime": false,
+        "performance_test": false,
+        "package_transaction": false,
+        "layouts": [
+          {
+            "profile": "gnome",
+            "variant": "-launcher-import",
+            "windows": [
+              {
+                "x": 0,
+                "y": 0,
+                "width": 1024,
+                "height": 33,
+                "xid": 10485763
+              },
+              {
+                "x": 0,
+                "y": 255,
+                "width": 50,
+                "height": 258,
+                "xid": 10485771
+              }
+            ],
+            "icon_content": null,
+            "launcher_import_readback_verified": true,
+            "xfconf_arrays": true,
+            "all_plugins_preserved": true,
+            "sample_application_stayed_open": true
+          },
+          {
+            "profile": "mac",
+            "variant": "light",
+            "windows": [
+              {
+                "x": 0,
+                "y": 0,
+                "width": 1024,
+                "height": 29,
+                "xid": 10485763
+              },
+              {
+                "x": 359,
+                "y": 696,
+                "width": 306,
+                "height": 72,
+                "xid": 10485775
+              }
+            ],
+            "icon_content": {
+              "left": 380,
+              "right": 655,
+              "native_items": 5,
+              "center_error_px": 5.5,
+              "screen_center": 512.0
+            },
+            "launcher_import_readback_verified": false,
+            "xfconf_arrays": true,
+            "all_plugins_preserved": true,
+            "sample_application_stayed_open": true
+          },
+          {
+            "profile": "mac",
+            "variant": "-dark",
+            "windows": [
+              {
+                "x": 0,
+                "y": 0,
+                "width": 1024,
+                "height": 29,
+                "xid": 10485763
+              },
+              {
+                "x": 359,
+                "y": 696,
+                "width": 306,
+                "height": 72,
+                "xid": 10485775
+              }
+            ],
+            "icon_content": {
+              "left": 380,
+              "right": 655,
+              "native_items": 5,
+              "center_error_px": 5.5,
+              "screen_center": 512.0
+            },
+            "launcher_import_readback_verified": false,
+            "xfconf_arrays": true,
+            "all_plugins_preserved": true,
+            "sample_application_stayed_open": true
+          },
+          {
+            "profile": "gnome",
+            "variant": "light",
+            "windows": [
+              {
+                "x": 0,
+                "y": 0,
+                "width": 1024,
+                "height": 33,
+                "xid": 10485763
+              },
+              {
+                "x": 0,
+                "y": 255,
+                "width": 50,
+                "height": 258,
+                "xid": 10485771
+              }
+            ],
+            "icon_content": null,
+            "launcher_import_readback_verified": true,
+            "xfconf_arrays": true,
+            "all_plugins_preserved": true,
+            "sample_application_stayed_open": true
+          },
+          {
+            "profile": "oguzdows",
+            "variant": "light",
+            "windows": [
+              {
+                "x": 0,
+                "y": 729,
+                "width": 1024,
+                "height": 39,
+                "xid": 10485763
+              }
+            ],
+            "icon_content": null,
+            "launcher_import_readback_verified": false,
+            "xfconf_arrays": true,
+            "all_plugins_preserved": true,
+            "sample_application_stayed_open": true
+          },
+          {
+            "profile": "kde",
+            "variant": "light",
+            "windows": [
+              {
+                "x": 0,
+                "y": 723,
+                "width": 1024,
+                "height": 45,
+                "xid": 10485763
+              }
+            ],
+            "icon_content": null,
+            "launcher_import_readback_verified": false,
+            "xfconf_arrays": true,
+            "all_plugins_preserved": true,
+            "sample_application_stayed_open": true
+          },
+          {
+            "profile": "xfce",
+            "variant": "light",
+            "windows": [
+              {
+                "x": 0,
+                "y": 0,
+                "width": 1024,
+                "height": 31,
+                "xid": 10485763
+              }
+            ],
+            "icon_content": null,
+            "launcher_import_readback_verified": false,
+            "xfconf_arrays": true,
+            "all_plugins_preserved": true,
+            "sample_application_stayed_open": true
+          },
+          {
+            "profile": "windows11",
+            "variant": "light",
+            "windows": [
+              {
+                "x": 0,
+                "y": 711,
+                "width": 1024,
+                "height": 57,
+                "xid": 10485763
+              }
+            ],
+            "icon_content": {
+              "left": 392,
+              "right": 642,
+              "native_items": 6,
+              "center_error_px": 5.0,
+              "screen_center": 512.0
+            },
+            "launcher_import_readback_verified": false,
+            "xfconf_arrays": true,
+            "all_plugins_preserved": true,
+            "sample_application_stayed_open": true
+          },
+          {
+            "profile": "windows11",
+            "variant": "-three-windows",
+            "windows": [
+              {
+                "x": 0,
+                "y": 711,
+                "width": 1024,
+                "height": 57,
+                "xid": 10485763
+              }
+            ],
+            "icon_content": {
+              "left": 348,
+              "right": 686,
+              "native_items": 8,
+              "center_error_px": 5.0,
+              "screen_center": 512.0
+            },
+            "launcher_import_readback_verified": false,
+            "xfconf_arrays": true,
+            "all_plugins_preserved": true,
+            "sample_application_stayed_open": true
+          },
+          {
+            "profile": "oguzdows",
+            "variant": "-restored",
+            "windows": [
+              {
+                "x": 0,
+                "y": 731,
+                "width": 1024,
+                "height": 37,
+                "xid": 10485763
+              }
+            ],
+            "icon_content": null,
+            "launcher_import_readback_verified": false,
+            "xfconf_arrays": true,
+            "all_plugins_preserved": true,
+            "sample_application_stayed_open": true
+          }
+        ],
+        "xfce_panel_version": "xfce4-panel 4.20.4 (Xfce 4.20)\n\nCopyright (c) 2004-2025\n\tThe Xfce development team. All rights reserved.\n\nPlease report bugs to <https://gitlab.xfce.org/xfce/xfce4-panel/-/issues>.",
+        "restore_native_readback_verified": true,
+        "restored_panel_geometry_verified": true,
+        "restored": true
+      }
+    },
+    {
+      "run": 45984418960,
+      "job": 140456252150,
+      "job_name": "Yapılandırma ve GTK · trixie",
+      "title": "Real Thunar and window geometry",
+      "data": {
+        "passed": true,
+        "scope": "nonroot-Xvfb-real-Thunar-XShape-GTK-CSD",
+        "gtk_scale": 2,
+        "themes": [
+          "OguzDows",
+          "OguzDowsLight",
+          "OguzDowsXP",
+          "OguzDowsXPDark",
+          "OguzDowsEleven",
+          "OguzDowsElevenDark",
+          "OguzDowsMac",
+          "OguzDowsMacDark",
+          "OguzDowsGnome",
+          "OguzDowsGnomeDark",
+          "OguzDowsAero",
+          "OguzDowsAeroDark",
+          "OguzDowsAeroGlass",
+          "OguzDowsAeroGlassDark",
+          "OguzDowsElevenUser-f2aebccd65c88375",
+          "OguzDowsElevenDarkUser-fa22a3ba67ca5f8b",
+          "OguzDowsMacUser-07188281c22effac",
+          "OguzDowsMacDarkUser-0034fb16163bde4d"
+        ],
+        "csd": [
+          {
+            "engine": "none",
+            "native_application_priority_square_state_styles": true
+          },
+          {
+            "engine": "xrender",
+            "native_application_priority_square_state_styles": true
+          }
+        ],
+        "physical_gpu": false,
+        "physical_pi_boot": false,
+        "performance_measurement": false,
+        "picom_recipe_parser": {
+          "version": "v12.5",
+          "recipes": [
+            "picom.conf",
+            "still.conf",
+            "blur.conf",
+            "blur-still.conf",
+            "motion.conf",
+            "full.conf",
+            "snap.conf",
+            "full-snap.conf"
+          ],
+          "diagnostics_backend_override": "xrender",
+          "ci_only_no_vsync": true,
+          "glx_rendering_verified": false
+        },
+        "real_xfconf_uint64_budget_idempotence_and_personal_restore": true,
+        "complete_frame_masks_checked": 84,
+        "real_view_cases": 12
+      }
+    },
+    {
+      "run": 45984418960,
+      "job": 140456252150,
+      "job_name": "Yapılandırma ve GTK · trixie",
+      "title": "Real Thunar and window geometry",
+      "data": {
+        "passed": true,
+        "scope": "nonroot-Xvfb-real-Thunar-XShape-GTK-CSD",
+        "gtk_scale": 1,
+        "themes": [
+          "OguzDows",
+          "OguzDowsLight",
+          "OguzDowsXP",
+          "OguzDowsXPDark",
+          "OguzDowsEleven",
+          "OguzDowsElevenDark",
+          "OguzDowsMac",
+          "OguzDowsMacDark",
+          "OguzDowsGnome",
+          "OguzDowsGnomeDark",
+          "OguzDowsAero",
+          "OguzDowsAeroDark",
+          "OguzDowsAeroGlass",
+          "OguzDowsAeroGlassDark",
+          "OguzDowsElevenUser-f2aebccd65c88375",
+          "OguzDowsElevenDarkUser-fa22a3ba67ca5f8b",
+          "OguzDowsMacUser-07188281c22effac",
+          "OguzDowsMacDarkUser-0034fb16163bde4d"
+        ],
+        "csd": [
+          {
+            "engine": "none",
+            "native_application_priority_square_state_styles": true
+          },
+          {
+            "engine": "xrender",
+            "native_application_priority_square_state_styles": true
+          }
+        ],
+        "physical_gpu": false,
+        "physical_pi_boot": false,
+        "performance_measurement": false,
+        "picom_recipe_parser": {
+          "version": "v12.5",
+          "recipes": [
+            "picom.conf",
+            "still.conf",
+            "blur.conf",
+            "blur-still.conf",
+            "motion.conf",
+            "full.conf",
+            "snap.conf",
+            "full-snap.conf"
+          ],
+          "diagnostics_backend_override": "xrender",
+          "ci_only_no_vsync": true,
+          "glx_rendering_verified": false
+        },
+        "real_xfconf_uint64_budget_idempotence_and_personal_restore": true,
+        "complete_frame_masks_checked": 84,
+        "real_view_cases": 12
+      }
+    },
+    {
+      "run": 45984418960,
+      "job": 140456252150,
+      "job_name": "Yapılandırma ve GTK · trixie",
+      "title": "Native material GTK",
+      "data": {
+        "real_gtk_css": true,
+        "real_stack_transition": true,
+        "duration_ms": 200,
+        "live_preference_monitor": true,
+        "reduced_motion_immediate": true,
+        "mode_caption_controls_preserved": true,
+        "high_contrast_preserved": true,
+        "unconfirmed_blur_opaque": true,
+        "xembed_wrapper_geometry_borderless": true,
+        "xembed_wrapper_themes_tested": [
+          "OguzDows",
+          "OguzDowsLight",
+          "OguzDowsXP",
+          "OguzDowsXPDark",
+          "OguzDowsEleven",
+          "OguzDowsElevenDark",
+          "OguzDowsMac",
+          "OguzDowsMacDark",
+          "OguzDowsGnome",
+          "OguzDowsGnomeDark",
+          "OguzDowsAero",
+          "OguzDowsAeroDark",
+          "OguzDowsAeroGlass",
+          "OguzDowsAeroGlassDark"
+        ],
+        "simulated_resource_policy": true,
+        "physical_gpu": false
+      }
+    },
+    {
+      "run": 45984418960,
+      "job": 140456252150,
+      "job_name": "Yapılandırma ve GTK · trixie",
+      "title": "Atölye real GTK",
+      "data": {
+        "scope": "private-nonroot-real-GTK-real-files",
+        "tools_built": [
+          "tasks",
+          "notes",
+          "snippets",
+          "folders",
+          "find",
+          "rename",
+          "checksum",
+          "image",
+          "diff",
+          "json",
+          "calculator",
+          "units",
+          "colors",
+          "clocks",
+          "text",
+          "startup"
+        ],
+        "tools_count": 16,
+        "real_widget_actions": true,
+        "library_roundtrip": true,
+        "clipboard_explicit_copy": true,
+        "rename_preview_apply_undo": true,
+        "real_image_export": true,
+        "startup_user_only_restore": true,
+        "single_worker_not_gtk_thread": true,
+        "clock_stops_on_page_leave": true,
+        "appearance": "dark",
+        "screen": [
+          360,
+          800
+        ],
+        "window": [
+          336,
+          730
+        ],
+        "idle_sample_ms": 800,
+        "idle_cpu_ms": 26.63,
+        "peak_rss_kib": 136460,
+        "physical_arm_or_gpu_verified": false,
+        "not_a_hardware_performance_benchmark": true
+      }
+    },
+    {
+      "run": 45984418960,
+      "job": 140456252150,
+      "job_name": "Yapılandırma ve GTK · trixie",
+      "title": "Atölye real GTK",
+      "data": {
+        "scope": "private-nonroot-real-GTK-real-files",
+        "tools_built": [
+          "tasks",
+          "notes",
+          "snippets",
+          "folders",
+          "find",
+          "rename",
+          "checksum",
+          "image",
+          "diff",
+          "json",
+          "calculator",
+          "units",
+          "colors",
+          "clocks",
+          "text",
+          "startup"
+        ],
+        "tools_count": 16,
+        "real_widget_actions": true,
+        "library_roundtrip": true,
+        "clipboard_explicit_copy": true,
+        "rename_preview_apply_undo": true,
+        "real_image_export": true,
+        "startup_user_only_restore": true,
+        "single_worker_not_gtk_thread": true,
+        "clock_stops_on_page_leave": true,
+        "appearance": "light",
+        "screen": [
+          1024,
+          768
+        ],
+        "window": [
+          1000,
+          720
+        ],
+        "idle_sample_ms": 800,
+        "idle_cpu_ms": 2.16,
+        "peak_rss_kib": 143664,
+        "physical_arm_or_gpu_verified": false,
+        "not_a_hardware_performance_benchmark": true
+      }
+    },
+    {
+      "run": 45984418960,
+      "job": 140456252283,
+      "job_name": "Yapılandırma ve GTK · bookworm",
+      "title": "Gerçek Xfce panel düzenleri",
+      "data": {
+        "scope": "host-real-xfce-panels-private-xvfb",
+        "physical_boot": false,
+        "arm_runtime": false,
+        "performance_test": false,
+        "package_transaction": false,
+        "layouts": [
+          {
+            "profile": "gnome",
+            "variant": "-launcher-import",
+            "windows": [
+              {
+                "x": 0,
+                "y": 0,
+                "width": 1920,
+                "height": 33,
+                "xid": 10485763
+              },
+              {
+                "x": 0,
+                "y": 411,
+                "width": 50,
+                "height": 258,
+                "xid": 10485771
+              }
+            ],
+            "icon_content": null,
+            "launcher_import_readback_verified": true,
+            "xfconf_arrays": true,
+            "all_plugins_preserved": true,
+            "sample_application_stayed_open": true
+          },
+          {
+            "profile": "mac",
+            "variant": "light",
+            "windows": [
+              {
+                "x": 0,
+                "y": 0,
+                "width": 1920,
+                "height": 29,
+                "xid": 10485763
+              },
+              {
+                "x": 807,
+                "y": 1008,
+                "width": 306,
+                "height": 72,
+                "xid": 10485775
+              }
+            ],
+            "icon_content": {
+              "left": 828,
+              "right": 1103,
+              "native_items": 5,
+              "center_error_px": 5.5,
+              "screen_center": 960.0
+            },
+            "launcher_import_readback_verified": false,
+            "xfconf_arrays": true,
+            "all_plugins_preserved": true,
+            "sample_application_stayed_open": true
+          },
+          {
+            "profile": "mac",
+            "variant": "-dark",
+            "windows": [
+              {
+                "x": 0,
+                "y": 0,
+                "width": 1920,
+                "height": 29,
+                "xid": 10485763
+              },
+              {
+                "x": 807,
+                "y": 1008,
+                "width": 306,
+                "height": 72,
+                "xid": 10485775
+              }
+            ],
+            "icon_content": {
+              "left": 828,
+              "right": 1103,
+              "native_items": 5,
+              "center_error_px": 5.5,
+              "screen_center": 960.0
+            },
+            "launcher_import_readback_verified": false,
+            "xfconf_arrays": true,
+            "all_plugins_preserved": true,
+            "sample_application_stayed_open": true
+          },
+          {
+            "profile": "gnome",
+            "variant": "light",
+            "windows": [
+              {
+                "x": 0,
+                "y": 0,
+                "width": 1920,
+                "height": 33,
+                "xid": 10485763
+              },
+              {
+                "x": 0,
+                "y": 411,
+                "width": 50,
+                "height": 258,
+                "xid": 10485771
+              }
+            ],
+            "icon_content": null,
+            "launcher_import_readback_verified": true,
+            "xfconf_arrays": true,
+            "all_plugins_preserved": true,
+            "sample_application_stayed_open": true
+          },
+          {
+            "profile": "oguzdows",
+            "variant": "light",
+            "windows": [
+              {
+                "x": 0,
+                "y": 1041,
+                "width": 1920,
+                "height": 39,
+                "xid": 10485763
+              }
+            ],
+            "icon_content": null,
+            "launcher_import_readback_verified": false,
+            "xfconf_arrays": true,
+            "all_plugins_preserved": true,
+            "sample_application_stayed_open": true
+          },
+          {
+            "profile": "kde",
+            "variant": "light",
+            "windows": [
+              {
+                "x": 0,
+                "y": 1035,
+                "width": 1920,
+                "height": 45,
+                "xid": 10485763
+              }
+            ],
+            "icon_content": null,
+            "launcher_import_readback_verified": false,
+            "xfconf_arrays": true,
+            "all_plugins_preserved": true,
+            "sample_application_stayed_open": true
+          },
+          {
+            "profile": "xfce",
+            "variant": "light",
+            "windows": [
+              {
+                "x": 0,
+                "y": 0,
+                "width": 1920,
+                "height": 31,
+                "xid": 10485763
+              }
+            ],
+            "icon_content": null,
+            "launcher_import_readback_verified": false,
+            "xfconf_arrays": true,
+            "all_plugins_preserved": true,
+            "sample_application_stayed_open": true
+          },
+          {
+            "profile": "windows11",
+            "variant": "light",
+            "windows": [
+              {
+                "x": 0,
+                "y": 1023,
+                "width": 1920,
+                "height": 57,
+                "xid": 10485763
+              }
+            ],
+            "icon_content": {
+              "left": 840,
+              "right": 1090,
+              "native_items": 6,
+              "center_error_px": 5.0,
+              "screen_center": 960.0
+            },
+            "launcher_import_readback_verified": false,
+            "xfconf_arrays": true,
+            "all_plugins_preserved": true,
+            "sample_application_stayed_open": true
+          },
+          {
+            "profile": "windows11",
+            "variant": "-three-windows",
+            "windows": [
+              {
+                "x": 0,
+                "y": 1023,
+                "width": 1920,
+                "height": 57,
+                "xid": 10485763
+              }
+            ],
+            "icon_content": {
+              "left": 796,
+              "right": 1134,
+              "native_items": 8,
+              "center_error_px": 5.0,
+              "screen_center": 960.0
+            },
+            "launcher_import_readback_verified": false,
+            "xfconf_arrays": true,
+            "all_plugins_preserved": true,
+            "sample_application_stayed_open": true
+          },
+          {
+            "profile": "oguzdows",
+            "variant": "-restored",
+            "windows": [
+              {
+                "x": 0,
+                "y": 1043,
+                "width": 1920,
+                "height": 37,
+                "xid": 10485763
+              }
+            ],
+            "icon_content": null,
+            "launcher_import_readback_verified": false,
+            "xfconf_arrays": true,
+            "all_plugins_preserved": true,
+            "sample_application_stayed_open": true
+          }
+        ],
+        "xfce_panel_version": "xfce4-panel 4.18.2 (Xfce 4.18)\n\nCopyright (c) 2004-2023\n\tThe Xfce development team. All rights reserved.\n\nPlease report bugs to <https://gitlab.xfce.org/xfce/xfce4-panel/-/issues>.",
+        "restore_native_readback_verified": true,
+        "restored_panel_geometry_verified": true,
+        "restored": true
+      }
+    },
+    {
+      "run": 45984418960,
+      "job": 140456252283,
+      "job_name": "Yapılandırma ve GTK · bookworm",
+      "title": "Gerçek Xfce panel düzenleri",
+      "data": {
+        "scope": "host-real-xfce-panels-private-xvfb",
+        "physical_boot": false,
+        "arm_runtime": false,
+        "performance_test": false,
+        "package_transaction": false,
+        "layouts": [
+          {
+            "profile": "gnome",
+            "variant": "-launcher-import",
+            "windows": [
+              {
+                "x": 0,
+                "y": 0,
+                "width": 1280,
+                "height": 33,
+                "xid": 10485763
+              },
+              {
+                "x": 0,
+                "y": 321,
+                "width": 50,
+                "height": 258,
+                "xid": 10485771
+              }
+            ],
+            "icon_content": null,
+            "launcher_import_readback_verified": true,
+            "xfconf_arrays": true,
+            "all_plugins_preserved": true,
+            "sample_application_stayed_open": true
+          },
+          {
+            "profile": "mac",
+            "variant": "light",
+            "windows": [
+              {
+                "x": 0,
+                "y": 0,
+                "width": 1280,
+                "height": 29,
+                "xid": 10485763
+              },
+              {
+                "x": 487,
+                "y": 828,
+                "width": 306,
+                "height": 72,
+                "xid": 10485775
+              }
+            ],
+            "icon_content": {
+              "left": 508,
+              "right": 783,
+              "native_items": 5,
+              "center_error_px": 5.5,
+              "screen_center": 640.0
+            },
+            "launcher_import_readback_verified": false,
+            "xfconf_arrays": true,
+            "all_plugins_preserved": true,
+            "sample_application_stayed_open": true
+          },
+          {
+            "profile": "mac",
+            "variant": "-dark",
+            "windows": [
+              {
+                "x": 0,
+                "y": 0,
+                "width": 1280,
+                "height": 29,
+                "xid": 10485763
+              },
+              {
+                "x": 487,
+                "y": 828,
+                "width": 306,
+                "height": 72,
+                "xid": 10485775
+              }
+            ],
+            "icon_content": {
+              "left": 508,
+              "right": 783,
+              "native_items": 5,
+              "center_error_px": 5.5,
+              "screen_center": 640.0
+            },
+            "launcher_import_readback_verified": false,
+            "xfconf_arrays": true,
+            "all_plugins_preserved": true,
+            "sample_application_stayed_open": true
+          },
+          {
+            "profile": "gnome",
+            "variant": "light",
+            "windows": [
+              {
+                "x": 0,
+                "y": 0,
+                "width": 1280,
+                "height": 33,
+                "xid": 10485763
+              },
+              {
+                "x": 0,
+                "y": 321,
+                "width": 50,
+                "height": 258,
+                "xid": 10485771
+              }
+            ],
+            "icon_content": null,
+            "launcher_import_readback_verified": true,
+            "xfconf_arrays": true,
+            "all_plugins_preserved": true,
+            "sample_application_stayed_open": true
+          },
+          {
+            "profile": "oguzdows",
+            "variant": "light",
+            "windows": [
+              {
+                "x": 0,
+                "y": 861,
+                "width": 1280,
+                "height": 39,
+                "xid": 10485763
+              }
+            ],
+            "icon_content": null,
+            "launcher_import_readback_verified": false,
+            "xfconf_arrays": true,
+            "all_plugins_preserved": true,
+            "sample_application_stayed_open": true
+          },
+          {
+            "profile": "kde",
+            "variant": "light",
+            "windows": [
+              {
+                "x": 0,
+                "y": 855,
+                "width": 1280,
+                "height": 45,
+                "xid": 10485763
+              }
+            ],
+            "icon_content": null,
+            "launcher_import_readback_verified": false,
+            "xfconf_arrays": true,
+            "all_plugins_preserved": true,
+            "sample_application_stayed_open": true
+          },
+          {
+            "profile": "xfce",
+            "variant": "light",
+            "windows": [
+              {
+                "x": 0,
+                "y": 0,
+                "width": 1280,
+                "height": 31,
+                "xid": 10485763
+              }
+            ],
+            "icon_content": null,
+            "launcher_import_readback_verified": false,
+            "xfconf_arrays": true,
+            "all_plugins_preserved": true,
+            "sample_application_stayed_open": true
+          },
+          {
+            "profile": "windows11",
+            "variant": "light",
+            "windows": [
+              {
+                "x": 0,
+                "y": 843,
+                "width": 1280,
+                "height": 57,
+                "xid": 10485763
+              }
+            ],
+            "icon_content": {
+              "left": 520,
+              "right": 770,
+              "native_items": 6,
+              "center_error_px": 5.0,
+              "screen_center": 640.0
+            },
+            "launcher_import_readback_verified": false,
+            "xfconf_arrays": true,
+            "all_plugins_preserved": true,
+            "sample_application_stayed_open": true
+          },
+          {
+            "profile": "windows11",
+            "variant": "-three-windows",
+            "windows": [
+              {
+                "x": 0,
+                "y": 843,
+                "width": 1280,
+                "height": 57,
+                "xid": 10485763
+              }
+            ],
+            "icon_content": {
+              "left": 476,
+              "right": 814,
+              "native_items": 8,
+              "center_error_px": 5.0,
+              "screen_center": 640.0
+            },
+            "launcher_import_readback_verified": false,
+            "xfconf_arrays": true,
+            "all_plugins_preserved": true,
+            "sample_application_stayed_open": true
+          },
+          {
+            "profile": "oguzdows",
+            "variant": "-restored",
+            "windows": [
+              {
+                "x": 0,
+                "y": 863,
+                "width": 1280,
+                "height": 37,
+                "xid": 10485763
+              }
+            ],
+            "icon_content": null,
+            "launcher_import_readback_verified": false,
+            "xfconf_arrays": true,
+            "all_plugins_preserved": true,
+            "sample_application_stayed_open": true
+          }
+        ],
+        "xfce_panel_version": "xfce4-panel 4.18.2 (Xfce 4.18)\n\nCopyright (c) 2004-2023\n\tThe Xfce development team. All rights reserved.\n\nPlease report bugs to <https://gitlab.xfce.org/xfce/xfce4-panel/-/issues>.",
+        "restore_native_readback_verified": true,
+        "restored_panel_geometry_verified": true,
+        "restored": true
+      }
+    },
+    {
+      "run": 45984418960,
+      "job": 140456252283,
+      "job_name": "Yapılandırma ve GTK · bookworm",
+      "title": "Gerçek Xfce panel düzenleri",
+      "data": {
+        "scope": "host-real-xfce-panels-private-xvfb",
+        "physical_boot": false,
+        "arm_runtime": false,
+        "performance_test": false,
+        "package_transaction": false,
+        "layouts": [
+          {
+            "profile": "gnome",
+            "variant": "-launcher-import",
+            "windows": [
+              {
+                "x": 0,
+                "y": 0,
+                "width": 1024,
+                "height": 33,
+                "xid": 10485763
+              },
+              {
+                "x": 0,
+                "y": 255,
+                "width": 50,
+                "height": 258,
+                "xid": 10485771
+              }
+            ],
+            "icon_content": null,
+            "launcher_import_readback_verified": true,
+            "xfconf_arrays": true,
+            "all_plugins_preserved": true,
+            "sample_application_stayed_open": true
+          },
+          {
+            "profile": "mac",
+            "variant": "light",
+            "windows": [
+              {
+                "x": 0,
+                "y": 0,
+                "width": 1024,
+                "height": 29,
+                "xid": 10485763
+              },
+              {
+                "x": 359,
+                "y": 696,
+                "width": 306,
+                "height": 72,
+                "xid": 10485775
+              }
+            ],
+            "icon_content": {
+              "left": 380,
+              "right": 655,
+              "native_items": 5,
+              "center_error_px": 5.5,
+              "screen_center": 512.0
+            },
+            "launcher_import_readback_verified": false,
+            "xfconf_arrays": true,
+            "all_plugins_preserved": true,
+            "sample_application_stayed_open": true
+          },
+          {
+            "profile": "mac",
+            "variant": "-dark",
+            "windows": [
+              {
+                "x": 0,
+                "y": 0,
+                "width": 1024,
+                "height": 29,
+                "xid": 10485763
+              },
+              {
+                "x": 359,
+                "y": 696,
+                "width": 306,
+                "height": 72,
+                "xid": 10485775
+              }
+            ],
+            "icon_content": {
+              "left": 380,
+              "right": 655,
+              "native_items": 5,
+              "center_error_px": 5.5,
+              "screen_center": 512.0
+            },
+            "launcher_import_readback_verified": false,
+            "xfconf_arrays": true,
+            "all_plugins_preserved": true,
+            "sample_application_stayed_open": true
+          },
+          {
+            "profile": "gnome",
+            "variant": "light",
+            "windows": [
+              {
+                "x": 0,
+                "y": 0,
+                "width": 1024,
+                "height": 33,
+                "xid": 10485763
+              },
+              {
+                "x": 0,
+                "y": 255,
+                "width": 50,
+                "height": 258,
+                "xid": 10485771
+              }
+            ],
+            "icon_content": null,
+            "launcher_import_readback_verified": true,
+            "xfconf_arrays": true,
+            "all_plugins_preserved": true,
+            "sample_application_stayed_open": true
+          },
+          {
+            "profile": "oguzdows",
+            "variant": "light",
+            "windows": [
+              {
+                "x": 0,
+                "y": 729,
+                "width": 1024,
+                "height": 39,
+                "xid": 10485763
+              }
+            ],
+            "icon_content": null,
+            "launcher_import_readback_verified": false,
+            "xfconf_arrays": true,
+            "all_plugins_preserved": true,
+            "sample_application_stayed_open": true
+          },
+          {
+            "profile": "kde",
+            "variant": "light",
+            "windows": [
+              {
+                "x": 0,
+                "y": 723,
+                "width": 1024,
+                "height": 45,
+                "xid": 10485763
+              }
+            ],
+            "icon_content": null,
+            "launcher_import_readback_verified": false,
+            "xfconf_arrays": true,
+            "all_plugins_preserved": true,
+            "sample_application_stayed_open": true
+          },
+          {
+            "profile": "xfce",
+            "variant": "light",
+            "windows": [
+              {
+                "x": 0,
+                "y": 0,
+                "width": 1024,
+                "height": 31,
+                "xid": 10485763
+              }
+            ],
+            "icon_content": null,
+            "launcher_import_readback_verified": false,
+            "xfconf_arrays": true,
+            "all_plugins_preserved": true,
+            "sample_application_stayed_open": true
+          },
+          {
+            "profile": "windows11",
+            "variant": "light",
+            "windows": [
+              {
+                "x": 0,
+                "y": 711,
+                "width": 1024,
+                "height": 57,
+                "xid": 10485763
+              }
+            ],
+            "icon_content": {
+              "left": 392,
+              "right": 642,
+              "native_items": 6,
+              "center_error_px": 5.0,
+              "screen_center": 512.0
+            },
+            "launcher_import_readback_verified": false,
+            "xfconf_arrays": true,
+            "all_plugins_preserved": true,
+            "sample_application_stayed_open": true
+          },
+          {
+            "profile": "windows11",
+            "variant": "-three-windows",
+            "windows": [
+              {
+                "x": 0,
+                "y": 711,
+                "width": 1024,
+                "height": 57,
+                "xid": 10485763
+              }
+            ],
+            "icon_content": {
+              "left": 348,
+              "right": 686,
+              "native_items": 8,
+              "center_error_px": 5.0,
+              "screen_center": 512.0
+            },
+            "launcher_import_readback_verified": false,
+            "xfconf_arrays": true,
+            "all_plugins_preserved": true,
+            "sample_application_stayed_open": true
+          },
+          {
+            "profile": "oguzdows",
+            "variant": "-restored",
+            "windows": [
+              {
+                "x": 0,
+                "y": 731,
+                "width": 1024,
+                "height": 37,
+                "xid": 10485763
+              }
+            ],
+            "icon_content": null,
+            "launcher_import_readback_verified": false,
+            "xfconf_arrays": true,
+            "all_plugins_preserved": true,
+            "sample_application_stayed_open": true
+          }
+        ],
+        "xfce_panel_version": "xfce4-panel 4.18.2 (Xfce 4.18)\n\nCopyright (c) 2004-2023\n\tThe Xfce development team. All rights reserved.\n\nPlease report bugs to <https://gitlab.xfce.org/xfce/xfce4-panel/-/issues>.",
+        "restore_native_readback_verified": true,
+        "restored_panel_geometry_verified": true,
+        "restored": true
+      }
+    },
+    {
+      "run": 45984418960,
+      "job": 140456252283,
+      "job_name": "Yapılandırma ve GTK · bookworm",
+      "title": "Real Thunar and window geometry",
+      "data": {
+        "passed": true,
+        "scope": "nonroot-Xvfb-real-Thunar-XShape-GTK-CSD",
+        "gtk_scale": 2,
+        "themes": [
+          "OguzDows",
+          "OguzDowsLight",
+          "OguzDowsXP",
+          "OguzDowsXPDark",
+          "OguzDowsEleven",
+          "OguzDowsElevenDark",
+          "OguzDowsMac",
+          "OguzDowsMacDark",
+          "OguzDowsGnome",
+          "OguzDowsGnomeDark",
+          "OguzDowsAero",
+          "OguzDowsAeroDark",
+          "OguzDowsAeroGlass",
+          "OguzDowsAeroGlassDark",
+          "OguzDowsElevenUser-f2aebccd65c88375",
+          "OguzDowsElevenDarkUser-fa22a3ba67ca5f8b",
+          "OguzDowsMacUser-07188281c22effac",
+          "OguzDowsMacDarkUser-0034fb16163bde4d"
+        ],
+        "csd": [
+          {
+            "engine": "none",
+            "native_application_priority_square_state_styles": true
+          },
+          {
+            "engine": "xrender",
+            "native_application_priority_square_state_styles": true
+          }
+        ],
+        "physical_gpu": false,
+        "physical_pi_boot": false,
+        "performance_measurement": false,
+        "picom_recipe_parser": {
+          "version": "v9.1",
+          "recipes": [
+            "picom.conf",
+            "still.conf",
+            "blur9.conf",
+            "blur9-still.conf"
+          ],
+          "diagnostics_backend_override": "xrender",
+          "ci_only_no_vsync": true,
+          "glx_rendering_verified": false
+        },
+        "real_xfconf_uint64_budget_idempotence_and_personal_restore": true,
+        "complete_frame_masks_checked": 84,
+        "real_view_cases": 12
+      }
+    },
+    {
+      "run": 45984418960,
+      "job": 140456252283,
+      "job_name": "Yapılandırma ve GTK · bookworm",
+      "title": "Real Thunar and window geometry",
+      "data": {
+        "passed": true,
+        "scope": "nonroot-Xvfb-real-Thunar-XShape-GTK-CSD",
+        "gtk_scale": 1,
+        "themes": [
+          "OguzDows",
+          "OguzDowsLight",
+          "OguzDowsXP",
+          "OguzDowsXPDark",
+          "OguzDowsEleven",
+          "OguzDowsElevenDark",
+          "OguzDowsMac",
+          "OguzDowsMacDark",
+          "OguzDowsGnome",
+          "OguzDowsGnomeDark",
+          "OguzDowsAero",
+          "OguzDowsAeroDark",
+          "OguzDowsAeroGlass",
+          "OguzDowsAeroGlassDark",
+          "OguzDowsElevenUser-f2aebccd65c88375",
+          "OguzDowsElevenDarkUser-fa22a3ba67ca5f8b",
+          "OguzDowsMacUser-07188281c22effac",
+          "OguzDowsMacDarkUser-0034fb16163bde4d"
+        ],
+        "csd": [
+          {
+            "engine": "none",
+            "native_application_priority_square_state_styles": true
+          },
+          {
+            "engine": "xrender",
+            "native_application_priority_square_state_styles": true
+          }
+        ],
+        "physical_gpu": false,
+        "physical_pi_boot": false,
+        "performance_measurement": false,
+        "picom_recipe_parser": {
+          "version": "v9.1",
+          "recipes": [
+            "picom.conf",
+            "still.conf",
+            "blur9.conf",
+            "blur9-still.conf"
+          ],
+          "diagnostics_backend_override": "xrender",
+          "ci_only_no_vsync": true,
+          "glx_rendering_verified": false
+        },
+        "real_xfconf_uint64_budget_idempotence_and_personal_restore": true,
+        "complete_frame_masks_checked": 84,
+        "real_view_cases": 12
+      }
+    },
+    {
+      "run": 45984418960,
+      "job": 140456252283,
+      "job_name": "Yapılandırma ve GTK · bookworm",
+      "title": "Native material GTK",
+      "data": {
+        "real_gtk_css": true,
+        "real_stack_transition": true,
+        "duration_ms": 200,
+        "live_preference_monitor": true,
+        "reduced_motion_immediate": true,
+        "mode_caption_controls_preserved": true,
+        "high_contrast_preserved": true,
+        "unconfirmed_blur_opaque": true,
+        "xembed_wrapper_geometry_borderless": true,
+        "xembed_wrapper_themes_tested": [
+          "OguzDows",
+          "OguzDowsLight",
+          "OguzDowsXP",
+          "OguzDowsXPDark",
+          "OguzDowsEleven",
+          "OguzDowsElevenDark",
+          "OguzDowsMac",
+          "OguzDowsMacDark",
+          "OguzDowsGnome",
+          "OguzDowsGnomeDark",
+          "OguzDowsAero",
+          "OguzDowsAeroDark",
+          "OguzDowsAeroGlass",
+          "OguzDowsAeroGlassDark"
+        ],
+        "simulated_resource_policy": true,
+        "physical_gpu": false
+      }
+    },
+    {
+      "run": 45984418960,
+      "job": 140456252283,
+      "job_name": "Yapılandırma ve GTK · bookworm",
+      "title": "Atölye real GTK",
+      "data": {
+        "scope": "private-nonroot-real-GTK-real-files",
+        "tools_built": [
+          "tasks",
+          "notes",
+          "snippets",
+          "folders",
+          "find",
+          "rename",
+          "checksum",
+          "image",
+          "diff",
+          "json",
+          "calculator",
+          "units",
+          "colors",
+          "clocks",
+          "text",
+          "startup"
+        ],
+        "tools_count": 16,
+        "real_widget_actions": true,
+        "library_roundtrip": true,
+        "clipboard_explicit_copy": true,
+        "rename_preview_apply_undo": true,
+        "real_image_export": true,
+        "startup_user_only_restore": true,
+        "single_worker_not_gtk_thread": true,
+        "clock_stops_on_page_leave": true,
+        "appearance": "dark",
+        "screen": [
+          360,
+          800
+        ],
+        "window": [
+          336,
+          730
+        ],
+        "idle_sample_ms": 800,
+        "idle_cpu_ms": 2.07,
+        "peak_rss_kib": 135576,
+        "physical_arm_or_gpu_verified": false,
+        "not_a_hardware_performance_benchmark": true
+      }
+    },
+    {
+      "run": 45984418960,
+      "job": 140456252283,
+      "job_name": "Yapılandırma ve GTK · bookworm",
+      "title": "Atölye real GTK",
+      "data": {
+        "scope": "private-nonroot-real-GTK-real-files",
+        "tools_built": [
+          "tasks",
+          "notes",
+          "snippets",
+          "folders",
+          "find",
+          "rename",
+          "checksum",
+          "image",
+          "diff",
+          "json",
+          "calculator",
+          "units",
+          "colors",
+          "clocks",
+          "text",
+          "startup"
+        ],
+        "tools_count": 16,
+        "real_widget_actions": true,
+        "library_roundtrip": true,
+        "clipboard_explicit_copy": true,
+        "rename_preview_apply_undo": true,
+        "real_image_export": true,
+        "startup_user_only_restore": true,
+        "single_worker_not_gtk_thread": true,
+        "clock_stops_on_page_leave": true,
+        "appearance": "light",
+        "screen": [
+          1024,
+          768
+        ],
+        "window": [
+          1000,
+          720
+        ],
+        "idle_sample_ms": 800,
+        "idle_cpu_ms": 2.75,
+        "peak_rss_kib": 141412,
+        "physical_arm_or_gpu_verified": false,
+        "not_a_hardware_performance_benchmark": true
+      }
+    },
+    {
+      "run": 45984418959,
+      "job": 140456251261,
+      "job_name": "Pi yapılandırma ve güvenlik testleri",
+      "title": "Pi ABI / GTK / özellik varlığı",
+      "data": {
+        "scope": "host-gui-only",
+        "physical_boot": false,
+        "hardware_gpu": false,
+        "performance_measurement": false,
+        "errors": [],
+        "arch": null,
+        "minimum_cpu": null,
+        "gui": {
+          "gtk_window": true,
+          "gtk_version": [
+            3,
+            24,
+            41
+          ],
+          "xfce_version": "xfce4-session 4.18.3 (Xfce 4.18)",
+          "native_store_version": "OğuzDows Mağaza · GTK 3.24.41"
+        },
+        "feature_presence": null,
+        "full_session": null,
+        "packages_checked": 0
+      }
+    },
+    {
+      "run": 45984418959,
+      "job": 140456251261,
+      "job_name": "Pi yapılandırma ve güvenlik testleri",
+      "title": "Real Thunar and window geometry",
+      "data": {
+        "passed": true,
+        "scope": "nonroot-Xvfb-real-Thunar-XShape-GTK-CSD",
+        "gtk_scale": 1,
+        "themes": [
+          "OguzDows",
+          "OguzDowsLight",
+          "OguzDowsXP",
+          "OguzDowsXPDark",
+          "OguzDowsEleven",
+          "OguzDowsElevenDark",
+          "OguzDowsMac",
+          "OguzDowsMacDark",
+          "OguzDowsGnome",
+          "OguzDowsGnomeDark",
+          "OguzDowsAero",
+          "OguzDowsAeroDark",
+          "OguzDowsAeroGlass",
+          "OguzDowsAeroGlassDark",
+          "OguzDowsElevenUser-f2aebccd65c88375",
+          "OguzDowsElevenDarkUser-fa22a3ba67ca5f8b",
+          "OguzDowsMacUser-07188281c22effac",
+          "OguzDowsMacDarkUser-0034fb16163bde4d"
+        ],
+        "csd": [
+          {
+            "engine": "none",
+            "native_application_priority_square_state_styles": true
+          },
+          {
+            "engine": "xrender",
+            "native_application_priority_square_state_styles": true
+          }
+        ],
+        "physical_gpu": false,
+        "physical_pi_boot": false,
+        "performance_measurement": false,
+        "picom_recipe_parser": {
+          "version": "v10",
+          "recipes": [
+            "picom.conf",
+            "still.conf",
+            "blur.conf",
+            "blur-still.conf"
+          ],
+          "diagnostics_backend_override": "xrender",
+          "ci_only_no_vsync": true,
+          "glx_rendering_verified": false
+        },
+        "real_xfconf_uint64_budget_idempotence_and_personal_restore": true,
+        "complete_frame_masks_checked": 84,
+        "real_view_cases": 12
+      }
+    },
+    {
+      "run": 45984418994,
+      "job": 140456251370,
+      "job_name": "amd64 / trixie · gerçek Flatpak + GNOME Yazılımlar kurulumu",
+      "title": "Real Flatpak and GNOME Software bootstrap",
+      "data": {
+        "scope": "real-signed-APT-bootstrap-in-disposable-container",
+        "arch": "amd64",
+        "suite": "trixie",
+        "platform": "pc",
+        "source_revision": "6f0c015a4e1fc63478f79647bbcc2b126e658b4b",
+        "bundles": {
+          "flatpak-support": {
+            "real_approved_install": true,
+            "packages": [
+              "ca-certificates",
+              "flatpak",
+              "gir1.2-flatpak-1.0",
+              "xdg-desktop-portal",
+              "xdg-desktop-portal-gtk"
+            ],
+            "resolved_changes": 214,
+            "after_plan_empty": true,
+            "wrong_token_refused": true,
+            "message": "İşlem tamamlandı. Çekirdek / firmware güncellendiyse yeniden başlatın."
+          },
+          "software-center": {
+            "real_approved_install": true,
+            "packages": [
+              "flatpak",
+              "gir1.2-flatpak-1.0",
+              "gnome-software",
+              "gnome-software-plugin-flatpak",
+              "iso-codes",
+              "packagekit",
+              "python3-xlib"
+            ],
+            "resolved_changes": 22,
+            "after_plan_empty": true,
+            "wrong_token_refused": true,
+            "message": "İşlem tamamlandı. Çekirdek / firmware güncellendiyse yeniden başlatın."
+          }
+        },
+        "actual_dpkg_arch": "amd64",
+        "actual_flatpak_arch": "x86_64",
+        "libflatpak_gi_loads": true,
+        "iso639_language_data": true,
+        "real_store_refresh": true,
+        "physical_device": false,
+        "interactive_polkit_tested": false,
+        "flathub_download_tested": false,
+        "source_hashes": {
+          "helper": "e52e47b6657a2c647cd3f05b008b869014ad48d5b392d32c929995ffdb6323a8",
+          "maintenance.py": "dae4807f6dadf2605813db6d3dcfc15565bc66af4b23bff778b448be6beed6ac",
+          "app_catalog.py": "2659cceee8f77d84f9de4254b2ec5efaa83c7d708ca20ef9d1ad09703fa18d8b",
+          "hardware.py": "5bdb6c9ac224d50da5911af464dd74fbf17426a30631a4f74fe3f80925034d4c",
+          "pi_support.py": "00610ddad164dbd77d594569a0d19a559e6cf9779c45a3c6652143cbc862c7fb",
+          "resource_policy.py": "b7f4aa6b39188f6f0c41a0e5b2e360c6be7a8b9468cb5de5fec691921a989d21"
+        }
+      }
+    },
+    {
+      "run": 45984418994,
+      "job": 140456251603,
+      "job_name": "ARM64 gerçek GTK / kurulum · bookworm (kart değil)",
+      "title": "Real Flatpak and GNOME Software bootstrap",
+      "data": {
+        "scope": "real-signed-APT-bootstrap-in-disposable-container",
+        "arch": "arm64",
+        "suite": "bookworm",
+        "platform": "raspberrypi",
+        "source_revision": "6f0c015a4e1fc63478f79647bbcc2b126e658b4b",
+        "bundles": {
+          "flatpak-support": {
+            "real_approved_install": true,
+            "packages": [
+              "ca-certificates",
+              "flatpak",
+              "gir1.2-flatpak-1.0",
+              "xdg-desktop-portal",
+              "xdg-desktop-portal-gtk"
+            ],
+            "resolved_changes": 48,
+            "after_plan_empty": true,
+            "wrong_token_refused": true,
+            "message": "İşlem tamamlandı. Çekirdek / firmware güncellendiyse yeniden başlatın."
+          },
+          "software-center": {
+            "real_approved_install": true,
+            "packages": [
+              "flatpak",
+              "gir1.2-flatpak-1.0",
+              "gnome-software",
+              "gnome-software-plugin-flatpak",
+              "iso-codes",
+              "packagekit",
+              "python3-xlib"
+            ],
+            "resolved_changes": 74,
+            "after_plan_empty": true,
+            "wrong_token_refused": true,
+            "message": "İşlem tamamlandı. Çekirdek / firmware güncellendiyse yeniden başlatın."
+          }
+        },
+        "actual_dpkg_arch": "arm64",
+        "actual_flatpak_arch": "aarch64",
+        "libflatpak_gi_loads": true,
+        "iso639_language_data": true,
+        "real_store_refresh": true,
+        "physical_device": false,
+        "interactive_polkit_tested": false,
+        "flathub_download_tested": false,
+        "source_hashes": {
+          "helper": "e52e47b6657a2c647cd3f05b008b869014ad48d5b392d32c929995ffdb6323a8",
+          "maintenance.py": "dae4807f6dadf2605813db6d3dcfc15565bc66af4b23bff778b448be6beed6ac",
+          "app_catalog.py": "2659cceee8f77d84f9de4254b2ec5efaa83c7d708ca20ef9d1ad09703fa18d8b",
+          "hardware.py": "5bdb6c9ac224d50da5911af464dd74fbf17426a30631a4f74fe3f80925034d4c",
+          "pi_support.py": "00610ddad164dbd77d594569a0d19a559e6cf9779c45a3c6652143cbc862c7fb",
+          "resource_policy.py": "b7f4aa6b39188f6f0c41a0e5b2e360c6be7a8b9468cb5de5fec691921a989d21"
+        }
+      }
+    },
+    {
+      "run": 45984418994,
+      "job": 140456251603,
+      "job_name": "ARM64 gerçek GTK / kurulum · bookworm (kart değil)",
+      "title": "Atölye real GTK",
+      "data": {
+        "scope": "private-nonroot-real-GTK-real-files",
+        "tools_built": [
+          "tasks",
+          "notes",
+          "snippets",
+          "folders",
+          "find",
+          "rename",
+          "checksum",
+          "image",
+          "diff",
+          "json",
+          "calculator",
+          "units",
+          "colors",
+          "clocks",
+          "text",
+          "startup"
+        ],
+        "tools_count": 16,
+        "real_widget_actions": true,
+        "library_roundtrip": true,
+        "clipboard_explicit_copy": true,
+        "rename_preview_apply_undo": true,
+        "real_image_export": true,
+        "startup_user_only_restore": true,
+        "single_worker_not_gtk_thread": true,
+        "clock_stops_on_page_leave": true,
+        "appearance": "dark",
+        "screen": [
+          360,
+          800
+        ],
+        "window": [
+          345,
+          730
+        ],
+        "idle_sample_ms": 800,
+        "idle_cpu_ms": 1.99,
+        "peak_rss_kib": 126180,
+        "physical_arm_or_gpu_verified": false,
+        "not_a_hardware_performance_benchmark": true
+      }
+    },
+    {
+      "run": 45984418994,
+      "job": 140456251603,
+      "job_name": "ARM64 gerçek GTK / kurulum · bookworm (kart değil)",
+      "title": "Atölye real GTK",
+      "data": {
+        "scope": "private-nonroot-real-GTK-real-files",
+        "tools_built": [
+          "tasks",
+          "notes",
+          "snippets",
+          "folders",
+          "find",
+          "rename",
+          "checksum",
+          "image",
+          "diff",
+          "json",
+          "calculator",
+          "units",
+          "colors",
+          "clocks",
+          "text",
+          "startup"
+        ],
+        "tools_count": 16,
+        "real_widget_actions": true,
+        "library_roundtrip": true,
+        "clipboard_explicit_copy": true,
+        "rename_preview_apply_undo": true,
+        "real_image_export": true,
+        "startup_user_only_restore": true,
+        "single_worker_not_gtk_thread": true,
+        "clock_stops_on_page_leave": true,
+        "appearance": "light",
+        "screen": [
+          1024,
+          768
+        ],
+        "window": [
+          1000,
+          720
+        ],
+        "idle_sample_ms": 800,
+        "idle_cpu_ms": 2.61,
+        "peak_rss_kib": 132972,
+        "physical_arm_or_gpu_verified": false,
+        "not_a_hardware_performance_benchmark": true
+      }
+    },
+    {
+      "run": 45984418994,
+      "job": 140456251650,
+      "job_name": "Gerçek 32 bit kullanıcı ABI · i386 / bookworm (QEMU)",
+      "title": "Portable target ABI and tools",
+      "data": {
+        "schema": 1,
+        "scope": "target-user-QEMU-core-and-C-ABI-not-GUI-or-physical",
+        "arch": "i386",
+        "suite": "bookworm",
+        "qemu_cpu_for_core_and_abi_probes": "pentium3",
+        "source_revision": "6f0c015a4e1fc63478f79647bbcc2b126e658b4b",
+        "pointer_bits": 32,
+        "core_and_bootstrap_tests_passed": true,
+        "native_versions": {
+          "store": "OğuzDows Mağaza · GTK 3.24.38",
+          "news": "OğuzDows Haber · GTK 3.24.38",
+          "hub": "OğuzDows Başlat · native 1",
+          "monitor": "OğuzDows Sistem İzleyici · native 1"
+        },
+        "source_hashes": {
+          "system/usr/lib/oguzdows/workbench.py": "472c850ce135dbc9f3f7e4a6d795666cc0b53c6cb4476ddb2aa4117adf231c63",
+          "system/usr/lib/oguzdows/workbench_core.py": "b3be90cc2d0cf41355a3c453500cbae5ca01053703923b6206a29928f68b8cbe",
+          "system/usr/lib/oguzdows/store_core.py": "4f9e026c2aa252627cab721d1fff5ad7b06ee3d778043fe8ac70d57746e7247d",
+          "system/usr/lib/oguzdows/store_service.py": "5f3bf0885c601166a28dcd82755bf0337e4d99f984f1a17f1875a0a755315404",
+          "native/store.c": "db9967d4e472498d2ef3cce6a28da505e7e50accab49645906e17c5101b9243f",
+          "native/news.c": "4856f77e647a5a7bfd30fbe934bc320a69357ea5de240e1115a3a0939a7955f2",
+          "native/hub.c": "2c6a97a25d2b700d7046c834485721fdb4cf4aaf25466f6321deaf45f48fbf0f",
+          "native/ui.c": "1398b2f8f3c0b46a9a5518e48cf9d9daad37e1f056360f7048c09eaa6ad6a932"
+        },
+        "physical_device": false,
+        "gpu_or_performance_benchmark": false,
+        "armv6_tested": false
+      }
+    },
+    {
+      "run": 45984418994,
+      "job": 140456251672,
+      "job_name": "Gerçek 32 bit kullanıcı ABI · armhf / bookworm (QEMU)",
+      "title": "Portable target ABI and tools",
+      "data": {
+        "schema": 1,
+        "scope": "target-user-QEMU-core-and-C-ABI-not-GUI-or-physical",
+        "arch": "armhf",
+        "suite": "bookworm",
+        "qemu_cpu_for_core_and_abi_probes": "cortex-a7",
+        "source_revision": "6f0c015a4e1fc63478f79647bbcc2b126e658b4b",
+        "pointer_bits": 32,
+        "core_and_bootstrap_tests_passed": true,
+        "native_versions": {
+          "store": "OğuzDows Mağaza · GTK 3.24.38",
+          "news": "OğuzDows Haber · GTK 3.24.38",
+          "hub": "OğuzDows Başlat · native 1",
+          "monitor": "OğuzDows Sistem İzleyici · native 1"
+        },
+        "source_hashes": {
+          "system/usr/lib/oguzdows/workbench.py": "472c850ce135dbc9f3f7e4a6d795666cc0b53c6cb4476ddb2aa4117adf231c63",
+          "system/usr/lib/oguzdows/workbench_core.py": "b3be90cc2d0cf41355a3c453500cbae5ca01053703923b6206a29928f68b8cbe",
+          "system/usr/lib/oguzdows/store_core.py": "4f9e026c2aa252627cab721d1fff5ad7b06ee3d778043fe8ac70d57746e7247d",
+          "system/usr/lib/oguzdows/store_service.py": "5f3bf0885c601166a28dcd82755bf0337e4d99f984f1a17f1875a0a755315404",
+          "native/store.c": "db9967d4e472498d2ef3cce6a28da505e7e50accab49645906e17c5101b9243f",
+          "native/news.c": "4856f77e647a5a7bfd30fbe934bc320a69357ea5de240e1115a3a0939a7955f2",
+          "native/hub.c": "2c6a97a25d2b700d7046c834485721fdb4cf4aaf25466f6321deaf45f48fbf0f",
+          "native/ui.c": "1398b2f8f3c0b46a9a5518e48cf9d9daad37e1f056360f7048c09eaa6ad6a932"
+        },
+        "physical_device": false,
+        "gpu_or_performance_benchmark": false,
+        "armv6_tested": false
+      }
+    },
+    {
+      "run": 45984418994,
+      "job": 140456251713,
+      "job_name": "ARM64 gerçek GTK / kurulum · trixie (kart değil)",
+      "title": "Real Flatpak and GNOME Software bootstrap",
+      "data": {
+        "scope": "real-signed-APT-bootstrap-in-disposable-container",
+        "arch": "arm64",
+        "suite": "trixie",
+        "platform": "arm",
+        "source_revision": "6f0c015a4e1fc63478f79647bbcc2b126e658b4b",
+        "device_profile": "arm64-uefi",
+        "bundles": {
+          "flatpak-support": {
+            "real_approved_install": true,
+            "packages": [
+              "ca-certificates",
+              "flatpak",
+              "gir1.2-flatpak-1.0",
+              "xdg-desktop-portal",
+              "xdg-desktop-portal-gtk"
+            ],
+            "resolved_changes": 109,
+            "after_plan_empty": true,
+            "wrong_token_refused": true,
+            "message": "İşlem tamamlandı. Çekirdek / firmware güncellendiyse yeniden başlatın."
+          },
+          "software-center": {
+            "real_approved_install": true,
+            "packages": [
+              "flatpak",
+              "gir1.2-flatpak-1.0",
+              "gnome-software",
+              "gnome-software-plugin-flatpak",
+              "iso-codes",
+              "packagekit",
+              "python3-xlib"
+            ],
+            "resolved_changes": 17,
+            "after_plan_empty": true,
+            "wrong_token_refused": true,
+            "message": "İşlem tamamlandı. Çekirdek / firmware güncellendiyse yeniden başlatın."
+          }
+        },
+        "actual_dpkg_arch": "arm64",
+        "actual_flatpak_arch": "aarch64",
+        "libflatpak_gi_loads": true,
+        "iso639_language_data": true,
+        "real_store_refresh": true,
+        "physical_device": false,
+        "interactive_polkit_tested": false,
+        "flathub_download_tested": false,
+        "source_hashes": {
+          "helper": "e52e47b6657a2c647cd3f05b008b869014ad48d5b392d32c929995ffdb6323a8",
+          "maintenance.py": "dae4807f6dadf2605813db6d3dcfc15565bc66af4b23bff778b448be6beed6ac",
+          "app_catalog.py": "2659cceee8f77d84f9de4254b2ec5efaa83c7d708ca20ef9d1ad09703fa18d8b",
+          "hardware.py": "5bdb6c9ac224d50da5911af464dd74fbf17426a30631a4f74fe3f80925034d4c",
+          "pi_support.py": "00610ddad164dbd77d594569a0d19a559e6cf9779c45a3c6652143cbc862c7fb",
+          "resource_policy.py": "b7f4aa6b39188f6f0c41a0e5b2e360c6be7a8b9468cb5de5fec691921a989d21"
+        }
+      }
+    },
+    {
+      "run": 45984418994,
+      "job": 140456251713,
+      "job_name": "ARM64 gerçek GTK / kurulum · trixie (kart değil)",
+      "title": "Atölye real GTK",
+      "data": {
+        "scope": "private-nonroot-real-GTK-real-files",
+        "tools_built": [
+          "tasks",
+          "notes",
+          "snippets",
+          "folders",
+          "find",
+          "rename",
+          "checksum",
+          "image",
+          "diff",
+          "json",
+          "calculator",
+          "units",
+          "colors",
+          "clocks",
+          "text",
+          "startup"
+        ],
+        "tools_count": 16,
+        "real_widget_actions": true,
+        "library_roundtrip": true,
+        "clipboard_explicit_copy": true,
+        "rename_preview_apply_undo": true,
+        "real_image_export": true,
+        "startup_user_only_restore": true,
+        "single_worker_not_gtk_thread": true,
+        "clock_stops_on_page_leave": true,
+        "appearance": "dark",
+        "screen": [
+          360,
+          800
+        ],
+        "window": [
+          345,
+          730
+        ],
+        "idle_sample_ms": 800,
+        "idle_cpu_ms": 1.97,
+        "peak_rss_kib": 128136,
+        "physical_arm_or_gpu_verified": false,
+        "not_a_hardware_performance_benchmark": true
+      }
+    },
+    {
+      "run": 45984418994,
+      "job": 140456251713,
+      "job_name": "ARM64 gerçek GTK / kurulum · trixie (kart değil)",
+      "title": "Atölye real GTK",
+      "data": {
+        "scope": "private-nonroot-real-GTK-real-files",
+        "tools_built": [
+          "tasks",
+          "notes",
+          "snippets",
+          "folders",
+          "find",
+          "rename",
+          "checksum",
+          "image",
+          "diff",
+          "json",
+          "calculator",
+          "units",
+          "colors",
+          "clocks",
+          "text",
+          "startup"
+        ],
+        "tools_count": 16,
+        "real_widget_actions": true,
+        "library_roundtrip": true,
+        "clipboard_explicit_copy": true,
+        "rename_preview_apply_undo": true,
+        "real_image_export": true,
+        "startup_user_only_restore": true,
+        "single_worker_not_gtk_thread": true,
+        "clock_stops_on_page_leave": true,
+        "appearance": "light",
+        "screen": [
+          1024,
+          768
+        ],
+        "window": [
+          1000,
+          720
+        ],
+        "idle_sample_ms": 800,
+        "idle_cpu_ms": 22.29,
+        "peak_rss_kib": 134116,
+        "physical_arm_or_gpu_verified": false,
+        "not_a_hardware_performance_benchmark": true
+      }
+    },
+    {
+      "run": 45984418943,
+      "job": 140456251147,
+      "job_name": "Gerçek kabuk · gnome · trixie",
+      "title": "Gerçek yerel kabuk kontrolü",
+      "data": {
+        "scope": "private-nonroot-real-shell-X11-software-GPU",
+        "desktop": "gnome",
+        "system_bus": "private-empty-bus-no-logind-no-hardware-services",
+        "physical_device_verified": false,
+        "wayland_verified": false,
+        "performance_benchmark": false,
+        "resource_budget_simulated": true,
+        "ci_only_software_gpu_animation_override": "native-cli",
+        "shell": "GNOME Shell 48.7",
+        "apply_notes": [
+          "Diğer uygulamaların özel dekorasyonları / GTK4 libadwaita kuralları ayrı kalabilir."
+        ],
+        "extension_state": {
+          "accent": "#74c8d5",
+          "blur_attached": true,
+          "spring_enabled": true,
+          "spring_transitions_attached": 0,
+          "early_window_hook": true,
+          "spring_curve_api": "not-yet-used",
+          "wrapped_windows": 0,
+          "scope": "GNOME Shell açılır menüleri; opak üst çubuk ve uygulama içerikleri korunur."
+        },
+        "original_frame": [
+          0,
+          32,
+          320,
+          277
+        ],
+        "extension_after_open": {
+          "accent": "#74c8d5",
+          "blur_attached": true,
+          "spring_enabled": true,
+          "spring_transitions_attached": 3,
+          "early_window_hook": true,
+          "spring_curve_api": "native-custom-critical-damping",
+          "wrapped_windows": 1,
+          "scope": "GNOME Shell açılır menüleri; opak üst çubuk ve uygulama içerikleri korunur."
+        },
+        "snap_frame_rectangles": {
+          "restore": [
+            0,
+            32,
+            320,
+            277
+          ],
+          "left": [
+            0,
+            32,
+            512,
+            736
+          ],
+          "right": [
+            512,
+            32,
+            512,
+            736
+          ],
+          "maximize": [
+            0,
+            32,
+            1024,
+            736
+          ]
+        },
+        "snap_repeated_actions_idempotent_and_exact_frame_restored": true,
+        "extension_after_window_transitions": {
+          "accent": "#74c8d5",
+          "blur_attached": true,
+          "spring_enabled": true,
+          "spring_transitions_attached": 28,
+          "early_window_hook": true,
+          "spring_curve_api": "native-custom-critical-damping",
+          "wrapped_windows": 1,
+          "scope": "GNOME Shell açılır menüleri; opak üst çubuk ve uygulama içerikleri korunur."
+        },
+        "low_budget_disables_blur_and_spring": true,
+        "extension_disable_enable_clean": true,
+        "journal_restore_executed": true
+      }
+    },
+    {
+      "run": 45984418943,
+      "job": 140456251281,
+      "job_name": "Gerçek kabuk · kde · trixie",
+      "title": "Gerçek yerel kabuk kontrolü",
+      "data": {
+        "scope": "private-nonroot-real-shell-X11-software-GPU",
+        "desktop": "kde",
+        "system_bus": "private-empty-bus-no-logind-no-hardware-services",
+        "physical_device_verified": false,
+        "wayland_verified": false,
+        "performance_benchmark": false,
+        "resource_budget_simulated": true,
+        "kconfig_major": 6,
+        "ci_only_software_gpu_animation_override": true,
+        "compositor_before": {
+          "active": true,
+          "compositingNotPossibleReason": "",
+          "compositingPossible": true,
+          "compositingType": "gl2",
+          "openGLIsBroken": false,
+          "platformRequiresCompositing": false,
+          "supportedOpenGLPlatformInterfaces": [
+            "glx",
+            "egl"
+          ]
+        },
+        "apply_notes": [
+          "Diğer uygulamaların özel dekorasyonları / GTK4 libadwaita kuralları ayrı kalabilir."
+        ],
+        "compositor_after": {
+          "active": true,
+          "compositingNotPossibleReason": "",
+          "compositingPossible": true,
+          "compositingType": "gl2",
+          "openGLIsBroken": false,
+          "platformRequiresCompositing": false,
+          "supportedOpenGLPlatformInterfaces": [
+            "glx",
+            "egl"
+          ]
+        },
+        "live_qt_palette": {
+          "before": "#eff0f1",
+          "after": "#202326",
+          "matches_kconfig": true
+        },
+        "panel_ids_preserved": [
+          2
+        ],
+        "real_kwin_effects_loaded": [
+          "blur",
+          "oguzdows-aero"
+        ],
+        "aurorae_selected": "__aurorae__svg__oguzdows-glass-3ea69eb7a026",
+        "original_frame": [
+          346,
+          224,
+          332,
+          280
+        ],
+        "snap_frame_rectangles": {
+          "restore": [
+            346,
+            224,
+            332,
+            280
+          ],
+          "left": [
+            0,
+            0,
+            512,
+            728
+          ],
+          "right": [
+            512,
+            0,
+            512,
+            728
+          ],
+          "maximize": [
+            0,
+            0,
+            1024,
+            728
+          ]
+        },
+        "snap_repeated_actions_idempotent_and_exact_frame_restored": true,
+        "native_kwin_transition_callbacks": {
+          "transition-attached": true,
+          "transition-completed": true,
+          "snap-transition-attached": true
+        },
+        "low_budget_disables_blur_spring_and_restores_decoration": true,
+        "journal_restore_executed": true
+      }
+    },
+    {
+      "run": 45984418943,
+      "job": 140456251295,
+      "job_name": "Gerçek kabuk · gnome · bookworm",
+      "title": "Gerçek yerel kabuk kontrolü",
+      "data": {
+        "scope": "private-nonroot-real-shell-X11-software-GPU",
+        "desktop": "gnome",
+        "system_bus": "private-empty-bus-no-logind-no-hardware-services",
+        "physical_device_verified": false,
+        "wayland_verified": false,
+        "performance_benchmark": false,
+        "resource_budget_simulated": true,
+        "ci_only_software_gpu_animation_override": "separate-one-shot-fixture-extension",
+        "shell": "GNOME Shell 43.9",
+        "apply_notes": [
+          "Diğer uygulamaların özel dekorasyonları / GTK4 libadwaita kuralları ayrı kalabilir."
+        ],
+        "extension_state": {
+          "accent": "#74c8d5",
+          "blur_attached": true,
+          "spring_enabled": true,
+          "spring_transitions_attached": 0,
+          "early_window_hook": true,
+          "spring_curve_api": "not-yet-used",
+          "wrapped_windows": 0,
+          "scope": "GNOME Shell açılır menüleri; opak üst çubuk ve uygulama içerikleri korunur."
+        },
+        "original_frame": [
+          30,
+          92,
+          320,
+          277
+        ],
+        "extension_after_open": {
+          "accent": "#74c8d5",
+          "blur_attached": true,
+          "spring_enabled": true,
+          "spring_transitions_attached": 3,
+          "early_window_hook": true,
+          "spring_curve_api": "native-custom-critical-damping",
+          "wrapped_windows": 1,
+          "scope": "GNOME Shell açılır menüleri; opak üst çubuk ve uygulama içerikleri korunur."
+        },
+        "snap_frame_rectangles": {
+          "restore": [
+            30,
+            92,
+            320,
+            277
+          ],
+          "left": [
+            0,
+            32,
+            512,
+            736
+          ],
+          "right": [
+            512,
+            32,
+            512,
+            736
+          ],
+          "maximize": [
+            0,
+            32,
+            1024,
+            736
+          ]
+        },
+        "snap_repeated_actions_idempotent_and_exact_frame_restored": true,
+        "extension_after_window_transitions": {
+          "accent": "#74c8d5",
+          "blur_attached": true,
+          "spring_enabled": true,
+          "spring_transitions_attached": 27,
+          "early_window_hook": true,
+          "spring_curve_api": "native-custom-critical-damping",
+          "wrapped_windows": 1,
+          "scope": "GNOME Shell açılır menüleri; opak üst çubuk ve uygulama içerikleri korunur."
+        },
+        "low_budget_disables_blur_and_spring": true,
+        "extension_disable_enable_clean": true,
+        "journal_restore_executed": true
+      }
+    },
+    {
+      "run": 45984418943,
+      "job": 140456251296,
+      "job_name": "Yerel C · GTK · ayar API'leri · bookworm",
+      "title": "Gerçek Picom GLX ve ARGB blur sonucu",
+      "data": {
+        "scope": "private-nonroot-Xvfb-real-GLX-software-rendering",
+        "physical_gpu_verified": false,
+        "resource_budget_simulated": true,
+        "production_acceleration_guard_bypassed": false,
+        "recipes_launched_directly_only_by_ci_test": true,
+        "recipes": {
+          "still": {
+            "selection_owned": true,
+            "sample_standard_deviation": 89.5
+          },
+          "blur9-still": {
+            "selection_owned": true,
+            "sample_standard_deviation": 17.727,
+            "actual_background_blur_on_argb_fixture": true
+          },
+          "blur9": {
+            "selection_owned": true,
+            "sample_standard_deviation": 17.727,
+            "actual_background_blur_on_argb_fixture": true
+          }
+        },
+        "picom": "v9.1",
+        "production_probe": {
+          "major": 9,
+          "accelerated": false
+        },
+        "ci_only_vsync_override": true
+      }
+    },
+    {
+      "run": 45984418943,
+      "job": 140456251296,
+      "job_name": "Yerel C · GTK · ayar API'leri · bookworm",
+      "title": "Gerçek yerel GTK ve ayar API sonucu",
+      "data": {
+        "scope": "host-private-nonroot-real-GTK-GSettings-KConfig",
+        "physical_device": false,
+        "compositor_rendering_verified": false,
+        "performance_benchmark": false,
+        "monitor": {
+          "schema": 1,
+          "native": true,
+          "samples": 6,
+          "history_limit": 90,
+          "hidden_sampling_stops": true,
+          "source": "/proc",
+          "window_width": 340,
+          "window_height": 590,
+          "physical_device_verified": false,
+          "surface_including_csd_shadow": [
+            350,
+            661
+          ]
+        },
+        "hub": {
+          "schema": 1,
+          "native": true,
+          "app_count": 5,
+          "unicode_search": true,
+          "fixed_command_palette": true,
+          "shell_input_rejected": true,
+          "no_apps_launched": true,
+          "window_width": 356,
+          "window_height": 640,
+          "physical_device_verified": false,
+          "surface_including_csd_shadow": [
+            356,
+            640
+          ]
+        },
+        "real_gsettings_compare_restore": true,
+        "gnome_extension_not_run": true,
+        "real_kconfig_compare_restore": true,
+        "kconfig_major": 5,
+        "real_gsettings_rollback_after_simulated_file_commit_failure": true,
+        "preferences_gtk_timeout_recovery_and_install_gate": true,
+        "worker_start_unexpected_error_and_destroy_recovery": true,
+        "preferences_fits_screen": 360
+      }
+    },
+    {
+      "run": 45984418943,
+      "job": 140456251296,
+      "job_name": "Yerel C · GTK · ayar API'leri · bookworm",
+      "title": "Gerçek yerel GTK ve ayar API sonucu",
+      "data": {
+        "scope": "host-private-nonroot-real-GTK-GSettings-KConfig",
+        "physical_device": false,
+        "compositor_rendering_verified": false,
+        "performance_benchmark": false,
+        "monitor": {
+          "schema": 1,
+          "native": true,
+          "samples": 6,
+          "history_limit": 90,
+          "hidden_sampling_stops": true,
+          "source": "/proc",
+          "window_width": 940,
+          "window_height": 590,
+          "physical_device_verified": false,
+          "surface_including_csd_shadow": [
+            950,
+            661
+          ]
+        },
+        "hub": {
+          "schema": 1,
+          "native": true,
+          "app_count": 5,
+          "unicode_search": true,
+          "fixed_command_palette": true,
+          "shell_input_rejected": true,
+          "no_apps_launched": true,
+          "window_width": 660,
+          "window_height": 640,
+          "physical_device_verified": false,
+          "surface_including_csd_shadow": [
+            660,
+            640
+          ]
+        },
+        "real_gsettings_compare_restore": true,
+        "gnome_extension_not_run": true,
+        "real_kconfig_compare_restore": true,
+        "kconfig_major": 5,
+        "real_gsettings_rollback_after_simulated_file_commit_failure": true,
+        "preferences_gtk_timeout_recovery_and_install_gate": true,
+        "worker_start_unexpected_error_and_destroy_recovery": true,
+        "preferences_fits_screen": 1024
+      }
+    },
+    {
+      "run": 45984418943,
+      "job": 140456251331,
+      "job_name": "Yerel C · GTK · ayar API'leri · trixie",
+      "title": "Gerçek Picom GLX ve ARGB blur sonucu",
+      "data": {
+        "scope": "private-nonroot-Xvfb-real-GLX-software-rendering",
+        "physical_gpu_verified": false,
+        "resource_budget_simulated": true,
+        "production_acceleration_guard_bypassed": false,
+        "recipes_launched_directly_only_by_ci_test": true,
+        "recipes": {
+          "still": {
+            "selection_owned": true,
+            "sample_standard_deviation": 89.5
+          },
+          "blur-still": {
+            "selection_owned": true,
+            "sample_standard_deviation": 9.82,
+            "actual_background_blur_on_argb_fixture": true
+          },
+          "blur": {
+            "selection_owned": true,
+            "sample_standard_deviation": 9.82,
+            "actual_background_blur_on_argb_fixture": true
+          },
+          "motion": {
+            "selection_owned": true,
+            "sample_standard_deviation": 89.5
+          },
+          "full": {
+            "selection_owned": true,
+            "sample_standard_deviation": 9.932,
+            "actual_background_blur_on_argb_fixture": true
+          },
+          "snap": {
+            "selection_owned": true,
+            "sample_standard_deviation": 89.5,
+            "native_ewmh_snap_requests": true
+          },
+          "full-snap": {
+            "selection_owned": true,
+            "sample_standard_deviation": 9.932,
+            "actual_background_blur_on_argb_fixture": true,
+            "native_ewmh_snap_requests": true
+          }
+        },
+        "picom": "v12.5",
+        "production_probe": {
+          "major": 12,
+          "accelerated": false
+        }
+      }
+    },
+    {
+      "run": 45984418943,
+      "job": 140456251331,
+      "job_name": "Yerel C · GTK · ayar API'leri · trixie",
+      "title": "Gerçek yerel GTK ve ayar API sonucu",
+      "data": {
+        "scope": "host-private-nonroot-real-GTK-GSettings-KConfig",
+        "physical_device": false,
+        "compositor_rendering_verified": false,
+        "performance_benchmark": false,
+        "monitor": {
+          "schema": 1,
+          "native": true,
+          "samples": 6,
+          "history_limit": 90,
+          "hidden_sampling_stops": true,
+          "source": "/proc",
+          "window_width": 340,
+          "window_height": 590,
+          "physical_device_verified": false,
+          "surface_including_csd_shadow": [
+            350,
+            661
+          ]
+        },
+        "hub": {
+          "schema": 1,
+          "native": true,
+          "app_count": 5,
+          "unicode_search": true,
+          "fixed_command_palette": true,
+          "shell_input_rejected": true,
+          "no_apps_launched": true,
+          "window_width": 356,
+          "window_height": 640,
+          "physical_device_verified": false,
+          "surface_including_csd_shadow": [
+            356,
+            640
+          ]
+        },
+        "real_gsettings_compare_restore": true,
+        "gnome_extension_not_run": true,
+        "real_kconfig_compare_restore": true,
+        "kconfig_major": 6,
+        "real_gsettings_rollback_after_simulated_file_commit_failure": true,
+        "preferences_gtk_timeout_recovery_and_install_gate": true,
+        "worker_start_unexpected_error_and_destroy_recovery": true,
+        "preferences_fits_screen": 360
+      }
+    },
+    {
+      "run": 45984418943,
+      "job": 140456251331,
+      "job_name": "Yerel C · GTK · ayar API'leri · trixie",
+      "title": "Gerçek yerel GTK ve ayar API sonucu",
+      "data": {
+        "scope": "host-private-nonroot-real-GTK-GSettings-KConfig",
+        "physical_device": false,
+        "compositor_rendering_verified": false,
+        "performance_benchmark": false,
+        "monitor": {
+          "schema": 1,
+          "native": true,
+          "samples": 5,
+          "history_limit": 90,
+          "hidden_sampling_stops": true,
+          "source": "/proc",
+          "window_width": 940,
+          "window_height": 590,
+          "physical_device_verified": false,
+          "surface_including_csd_shadow": [
+            950,
+            661
+          ]
+        },
+        "hub": {
+          "schema": 1,
+          "native": true,
+          "app_count": 5,
+          "unicode_search": true,
+          "fixed_command_palette": true,
+          "shell_input_rejected": true,
+          "no_apps_launched": true,
+          "window_width": 660,
+          "window_height": 640,
+          "physical_device_verified": false,
+          "surface_including_csd_shadow": [
+            660,
+            640
+          ]
+        },
+        "real_gsettings_compare_restore": true,
+        "gnome_extension_not_run": true,
+        "real_kconfig_compare_restore": true,
+        "kconfig_major": 6,
+        "real_gsettings_rollback_after_simulated_file_commit_failure": true,
+        "preferences_gtk_timeout_recovery_and_install_gate": true,
+        "worker_start_unexpected_error_and_destroy_recovery": true,
+        "preferences_fits_screen": 1024
+      }
+    },
+    {
+      "run": 45984418943,
+      "job": 140456251415,
+      "job_name": "Gerçek kabuk · kde · bookworm",
+      "title": "Gerçek yerel kabuk kontrolü",
+      "data": {
+        "scope": "private-nonroot-real-shell-X11-software-GPU",
+        "desktop": "kde",
+        "system_bus": "private-empty-bus-no-logind-no-hardware-services",
+        "physical_device_verified": false,
+        "wayland_verified": false,
+        "performance_benchmark": false,
+        "resource_budget_simulated": true,
+        "kconfig_major": 5,
+        "ci_only_software_gpu_animation_override": true,
+        "compositor_before": {
+          "active": true,
+          "compositingNotPossibleReason": "",
+          "compositingPossible": true,
+          "compositingType": "gl2",
+          "openGLIsBroken": false,
+          "platformRequiresCompositing": false,
+          "supportedOpenGLPlatformInterfaces": [
+            "glx",
+            "egl"
+          ]
+        },
+        "apply_notes": [
+          "Diğer uygulamaların özel dekorasyonları / GTK4 libadwaita kuralları ayrı kalabilir."
+        ],
+        "compositor_after": {
+          "active": true,
+          "compositingNotPossibleReason": "",
+          "compositingPossible": true,
+          "compositingType": "gl2",
+          "openGLIsBroken": false,
+          "platformRequiresCompositing": false,
+          "supportedOpenGLPlatformInterfaces": [
+            "glx",
+            "egl"
+          ]
+        },
+        "live_qt_palette": {
+          "before": "#eff0f1",
+          "after": "#2a2e32",
+          "matches_kconfig": true
+        },
+        "panel_ids_preserved": [
+          2
+        ],
+        "real_kwin_effects_loaded": [
+          "blur",
+          "oguzdows-aero"
+        ],
+        "aurorae_selected": "__aurorae__svg__oguzdows-glass-3ea69eb7a026",
+        "original_frame": [
+          346,
+          221,
+          332,
+          281
+        ],
+        "snap_frame_rectangles": {
+          "restore": [
+            346,
+            221,
+            332,
+            281
+          ],
+          "left": [
+            0,
+            0,
+            512,
+            724
+          ],
+          "right": [
+            512,
+            0,
+            512,
+            724
+          ],
+          "maximize": [
+            0,
+            0,
+            1024,
+            724
+          ]
+        },
+        "snap_repeated_actions_idempotent_and_exact_frame_restored": true,
+        "native_kwin_transition_callbacks": {
+          "transition-attached": true,
+          "transition-completed": true,
+          "snap-transition-attached": true
+        },
+        "low_budget_disables_blur_spring_and_restores_decoration": true,
+        "journal_restore_executed": true
+      }
+    }
+  ]
+}

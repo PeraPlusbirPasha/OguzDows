@@ -1,2 +1,2 @@
 #!/bin/sh
-exec /usr/bin/python3 -I /usr/lib/oguzdows/welcome.py "$@"
+exec /usr/bin/python3 -I /usr/lib/oguzdows/welcome_start.py "$@"

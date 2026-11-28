@@ -85,7 +85,7 @@ class CursorTests(unittest.TestCase):
 class LandscapeProvenanceTests(unittest.TestCase):
     def test_every_replacement_matches_provenance_and_logo_is_bottom_right_only(self):
         records = json.loads((ROOT / 'artwork/landscapes.json').read_text())
-        self.assertEqual(len(records), 6)
+        self.assertEqual(len(records), 20)
         for item in records:
             path = ROOT / 'system/usr/share/backgrounds/oguzdows' / item['file']
             self.assertEqual(hashlib.sha256(path.read_bytes()).hexdigest(), item['packaged_sha256'])

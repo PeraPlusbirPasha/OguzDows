@@ -29,6 +29,7 @@ import target_system
 
 firmware = load('iso_test_firmware', 'tests/smoke-installed-boot.py')
 ci = load('iso_test_annotations', 'scripts/ci-run.py')
+initrd_report = load('iso_initrd_report', 'scripts/initramfs-report.py')
 
 
 def run(*args, timeout=600, **kwargs):
@@ -109,7 +110,90 @@ def record_live_state(root, output, phase):
         path = target_system.inside(root, relative)
         if path.is_file():
             (output / (phase + '-' + path.name + '.txt')).write_text(path.read_text())
-    print('::notice title=ISO canlı paket durumu ' + phase + '::' + json.dumps(report), flush=True)
+    # Keep the ten per-step notices for exact content, all three RAM budgets
+    # and the final boot/source result. Verbose package diagnostics stay in logs.
+    print('ISO canlı paket durumu ' + phase + ': ' + json.dumps(report), flush=True)
+
+
+
+NATIVE_CONTENT = {relative: ROOT / 'system' / relative for relative in (
+    'usr/share/oguzdows/ui/modern.css', 'usr/lib/oguzdows/ui_theme.py',
+    'usr/lib/oguzdows/news_core.py', 'usr/lib/oguzdows/news_service.py',
+    'usr/lib/oguzdows/store_service.py', 'usr/lib/oguzdows/app_catalog.py',
+    'usr/lib/oguzdows/maintenance.py', 'usr/local/sbin/oguzdows-maintenance',
+    'usr/lib/oguzdows/welcome.py', 'usr/lib/oguzdows/desktop_center.py',
+    'usr/lib/oguzdows/workbench.py', 'usr/lib/oguzdows/workbench_core.py',
+    'usr/local/bin/oguzdows-workbench', 'usr/share/applications/oguzdows-workbench.desktop',
+    'usr/lib/oguzdows/store_core.py', 'usr/lib/oguzdows/store.py',
+    'usr/lib/oguzdows/store_lifecycle.py', 'usr/share/applications/oguzdows-software.desktop')}
+NATIVE_CONTENT.update({'usr/share/oguzdows/native/' + name: ROOT / 'native' / name
+                       for name in ('ui.c', 'ui.h', 'news.c', 'store.c', 'hub.c', 'monitor.c')})
+
+
+def native_material_contract(root):
+    hashes = {}
+    for relative, source in NATIVE_CONTENT.items():
+        payload = target_system.nonempty(root, relative).read_bytes()
+        digest = hashlib.sha256(payload).hexdigest()
+        if digest != hashlib.sha256(source.read_bytes()).hexdigest():
+            raise RuntimeError('ISO native UI / haber / mağaza içeriği bu kaynakla eşleşmiyor: ' + relative)
+        hashes[relative] = digest
+    print('::notice title=Native app exact content::' + json.dumps(hashes))
+    return hashes
+
+
+MODE_CONTENT = {relative: ROOT / 'system' / relative for relative in (
+    'usr/lib/oguzdows/accent.py', 'usr/lib/oguzdows/profiles.py',
+    'usr/lib/oguzdows/desktop_material.py', 'usr/lib/oguzdows/desktop_preferences.py',
+    'usr/lib/oguzdows/desktop_state.py', 'usr/lib/oguzdows/desktop_ui.py',
+    'usr/lib/oguzdows/file_manager.py', 'usr/lib/oguzdows/resource_policy.py',
+    'usr/lib/oguzdows/desktop_appearance.py', 'usr/lib/oguzdows/desktop_shortcuts.py',
+    'usr/lib/oguzdows/screenshot.py', 'usr/share/oguzdows/ui/shell.css',
+    'usr/lib/oguzdows/bridge.py', 'usr/lib/oguzdows/bridge_core.py', 'usr/lib/oguzdows/bridge_capture.py',
+    'usr/lib/oguzdows/product_info.py', 'usr/share/oguzdows/product.json',
+    'usr/local/bin/oguzdows-bridge', 'usr/share/applications/oguzdows-bridge.desktop',
+    'usr/lib/oguzdows/session.sh', 'usr/lib/oguzdows/wallpapers.py',
+    'usr/local/bin/oguzdows-accent', 'usr/share/oguzdows/ui/window-geometry.css',
+    'usr/share/xfce4/panel/plugins/oguzdows-tasks.desktop', 'usr/share/oguzdows/picom.conf')}
+MODE_CONTENT.update({'usr/share/oguzdows/native/' + name: ROOT / 'native' / name for name in ('tasks.c', 'accent-watch.c')})
+MODE_CONTENT['usr/share/oguzdows/scripts/build-panel.sh'] = ROOT / 'scripts/build-panel.sh'
+MODE_CONTENT['usr/lib/oguzdows/render-assets.py'] = ROOT / 'scripts/render-assets.py'
+MODE_CONTENT['usr/share/doc/oguzdows/AKINCI-BAGLANTI.md'] = ROOT / 'docs/AKINCI-BAGLANTI.md'
+for name in ('OguzDows', 'OguzDowsLight', 'OguzDowsEleven', 'OguzDowsElevenDark', 'OguzDowsMac', 'OguzDowsMacDark'):
+    relative = 'usr/share/themes/' + name + '/gtk-3.0/gtk.css'
+    MODE_CONTENT[relative] = ROOT / 'system' / relative
+for source in sorted((ROOT / 'system/usr/share/oguzdows/compositor').glob('*.conf')):
+    MODE_CONTENT[str(source.relative_to(ROOT / 'system'))] = source
+
+
+def mode_contract(root, arch):
+    hashes = {}
+    for relative, source in MODE_CONTENT.items():
+        path = target_system.nonempty(root, relative)
+        info = path.stat()
+        if info.st_uid or info.st_gid or info.st_mode & 0o022:
+            raise RuntimeError('ISO mod kaynağı güvenli sahiplikte değil: ' + relative)
+        digest = hashlib.sha256(path.read_bytes()).hexdigest()
+        if digest != hashlib.sha256(source.read_bytes()).hexdigest():
+            raise RuntimeError('ISO mod / renk içeriği bu kaynakla eşleşmiyor: ' + relative)
+        hashes[relative] = digest
+    libraries = list((root / 'usr/lib').glob('*/xfce4/panel/plugins/liboguzdows-tasks.so'))
+    fallback = root / 'usr/lib/xfce4/panel/plugins/liboguzdows-tasks.so'
+    if fallback.is_file(): libraries.append(fallback)
+    if len(libraries) != 1:
+        raise RuntimeError('ISO yerel görev / Dock eklentisi eksik veya belirsiz.')
+    expected_class, expected_machine = (2, 62) if arch == 'amd64' else (1, 3)
+    for binary in (libraries[0], target_system.nonempty(root, 'usr/lib/oguzdows/oguzdows-accent-watch')):
+        info = binary.stat()
+        with binary.open('rb') as stream: header = stream.read(20)
+        if (len(header) < 20 or header[:4] != b'\x7fELF' or header[4] != expected_class or header[5] != 1
+                or int.from_bytes(header[18:20], 'little') != expected_machine
+                or info.st_uid or info.st_gid or info.st_mode & 0o022):
+            raise RuntimeError('ISO yerel mod bileşeni hedef ABI / güvenlik kontrolünü geçmedi: ' + str(binary))
+    pairs = list(hashes.items())
+    for start in range(0, len(pairs), 12):
+        print('::notice title=Desktop mode exact content ' + str(start // 12 + 1) + '::' + json.dumps(dict(pairs[start:start + 12])))
+    return {'content_sha256': hashes, 'target_abi_verified': True, 'panel_library': str(libraries[0].relative_to(root))}
 
 
 def desktop_contract(root):
@@ -117,6 +201,10 @@ def desktop_contract(root):
     secured = ('usr', 'usr/lib', 'usr/share', 'usr/local', 'usr/local/sbin', 'usr/lib/oguzdows',
                'usr/local/sbin/oguzdows-maintenance', 'usr/lib/oguzdows/maintenance.py',
                'usr/lib/oguzdows/hardware.py', 'usr/lib/oguzdows/pi_support.py',
+               'usr/lib/oguzdows/app_catalog.py', 'usr/lib/oguzdows/store_service.py',
+               'usr/lib/oguzdows/oguzdows-store-native', 'usr/lib/oguzdows/oguzdows-news-native',
+               'usr/lib/oguzdows/news_service.py', 'usr/lib/oguzdows/news_core.py',
+               'usr/share/oguzdows/picom.conf', 'usr/share/oguzdows/build-info.json',
                'usr/share/polkit-1/actions/org.oguzdows.maintenance.policy',
                'etc/apt/preferences.d/oguzdows-pardus', 'etc/apt/sources.list.d/oguzdows-pardus.sources',
                'usr/share/keyrings/oguzdows-pardus.asc')
@@ -131,7 +219,7 @@ def desktop_contract(root):
         fields = dict(line.split(': ', 1) for line in paragraph.splitlines() if ': ' in line and not line.startswith((' ', '\t')))
         if fields.get('Status') == 'install ok installed':
             installed.add(fields.get('Package'))
-    required = {'python3-apt', 'gnome-software', 'gnome-software-plugin-flatpak', 'iso-codes', 'flatpak', 'gpgv', 'xdg-desktop-portal-gtk'}
+    required = {'python3-apt', 'gnome-software', 'gnome-software-plugin-flatpak', 'iso-codes', 'flatpak', 'gpgv', 'xdg-desktop-portal-gtk', 'gir1.2-flatpak-1.0', 'libjson-glib-1.0-0', 'picom'}
     if required - installed:
         raise RuntimeError('ISO bakım / mağaza paketleri eksik: ' + ', '.join(sorted(required - installed)))
     # Software 48 bu isteğe bağlı gibi görünen veri olmadan SIGTRAP ile çıkar.
@@ -145,8 +233,25 @@ def desktop_contract(root):
         if hashlib.sha256(picture.read_bytes()).hexdigest() != record['packaged_sha256']:
             raise RuntimeError('ISO yeni logolu manzarayı taşımıyor: ' + record['file'])
     target_system.nonempty(root, 'usr/share/icons/OguzDowsTespih/cursors/left_ptr')
+    for identifier in json.loads((ROOT / 'system/usr/share/oguzdows/own-app-icons.json').read_text())['icons']:
+        target_system.nonempty(root, f'usr/share/icons/hicolor/64x64/apps/oguzdows-{identifier}.png')
+    target_system.nonempty(root, 'usr/share/oguzdows/news-sources.json')
+    content_hashes = native_material_contract(root)
+    modes = mode_contract(root, json.loads(target_system.nonempty(root, 'usr/share/oguzdows/build-info.json').read_text())['arch'])
     return {'packages': sorted(required), 'privileged_ownership_verified': True,
-            'pardus_enabled': False, 'replacement_wallpapers': 6, 'native_cursor': True}
+            'pardus_enabled': False, 'replacement_wallpapers': 20, 'native_cursor': True, 'native_app_content_sha256': content_hashes, 'desktop_modes': modes}
+
+
+def result_summary(report):
+    """Bounded final notice; the complete hash/sample report stays an artifact."""
+    selected = {key: report.get(key) for key in (
+        'arch', 'source_revision', 'build', 'modes', 'initramfs', 'desktop_idle', 'low_ram',
+        'gui_installation_tested', 'physical_boot_verified', 'encrypted_root_tested')}
+    selected['desktop_modes_target_abi_verified'] = report.get('desktop_contract', {}).get('desktop_modes', {}).get('target_abi_verified')
+    text = json.dumps(selected, ensure_ascii=False, separators=(',', ':'))
+    if len(text.encode()) > 3500:
+        raise RuntimeError('Hedef OS özet kanıtı kontrol notu sınırını aştı; tam rapor artefaktta korunuyor.')
+    return text
 
 
 def configure_idle_test(root, uid):
@@ -155,7 +260,7 @@ def configure_idle_test(root, uid):
         raise RuntimeError('Geçici grafik test hesabı normal bir kullanıcı olmalı.')
     user = 'oguz-idle-proof'
     target_system.inside(root, 'var/log/oguzdows').mkdir(parents=True, exist_ok=True)
-    put(root, f'home/{user}/.local/state/oguzdows/welcome-seen', 'Disposable graphical measurement\n')
+    put(root, f'home/{user}/.local/state/oguzdows/welcome-installed-1.1-seen', 'Disposable graphical measurement\n')
     put(root, 'etc/lightdm/lightdm.conf.d/99-oguzdows-disposable-idle.conf',
         f'[Seat:*]\nautologin-user={user}\nautologin-user-timeout=0\nuser-session=oguzdows\nautologin-session=oguzdows\n')
     put(root, 'usr/local/sbin/oguzdows-disposable-idle', '#!/bin/sh\nset -eu\n'
@@ -175,10 +280,40 @@ def configure_idle_test(root, uid):
     (wants / unit).symlink_to('../' + unit)
 
 
-def boot_os(image, mode, output, work, root_uuid, graphical_idle=False):
+def low_ram_budget(measurement, ram_mib):
+    """600 MB hedefi 512 MiB'de tek başına anlamsızdır; gerçek pay da kalmalı."""
+    if ram_mib not in (512, 1024):
+        raise ValueError('Düşük RAM bütçesi yalnızca 512 / 1024 MiB için ölçülür.')
+    reasons = []
+    samples = measurement.get('samples', [])
+    valid = (isinstance(samples, list) and 6 <= len(samples) <= 60
+             and all(isinstance(item, dict) and type(item.get('total_bytes')) is int
+                     and type(item.get('available_bytes')) is int
+                     and ram_mib * 1024**2 * .75 <= item['total_bytes'] <= ram_mib * 1024**2
+                     and 0 <= item['available_bytes'] <= item['total_bytes'] for item in samples))
+    threshold = observed = None
+    if not valid:
+        reasons.append('En az altı örnekte gerçek VM MemTotal / MemAvailable baytları doğrulanamadı.')
+    else:
+        threshold = max(32 * 1024**2, (max(item['total_bytes'] for item in samples) + 9) // 10)
+        observed = min(item['available_bytes'] for item in samples)
+        if observed < threshold:
+            reasons.append('Boşta kullanılabilir bellek payı yetersiz: en az max(32 MiB, MemTotal / 10) gerekli.')
+    if not measurement.get('valid_idle_measurement'):
+        reasons.append('Yerleşmiş boşta ölçüm geçerli değil.')
+    if not measurement.get('target_met'):
+        reasons.append('600 decimal MB boşta hedefi geçilmedi.')
+    return {'passed': not reasons, 'minimum_available_bytes': threshold, 'observed_min_available_bytes': observed,
+            'policy': 'Geçerli tam Xfce boşta ölçümü + en çok 600 MB kullanım + en az max(32 MiB, MemTotal / 10) kullanılabilir RAM; aktif uygulama gecikmesi garantisi değil.',
+            'fail_reasons': reasons}
+
+
+def boot_os(image, mode, output, work, root_uuid, graphical_idle=False, ram_mib=2048):
+    if ram_mib not in (512, 1024, 2048):
+        raise ValueError("VM RAM bütçesi 512, 1024 veya 2048 MiB olmalı.")
     serial = output / ('target-os-' + mode + '.serial.log')
     marker = 'OGUZDOWS-TARGET-OS-OK:' + root_uuid
-    args = ['qemu-system-x86_64', '-machine', 'pc,accel=tcg', '-m', '2048', '-smp', '2',
+    args = ['qemu-system-x86_64', '-machine', 'pc,accel=tcg', '-m', str(ram_mib), '-smp', '2',
             '-vga', 'std', '-display', 'none', '-monitor', 'none', '-serial', 'file:' + str(serial),
             '-drive', f'file={image},format=raw,if=none,id=testdisk,snapshot=on',
             '-device', 'virtio-blk-pci,drive=testdisk', '-nic', 'none', '-boot', 'c', '-no-reboot']
@@ -191,6 +326,10 @@ def boot_os(image, mode, output, work, root_uuid, graphical_idle=False):
             deadline = time.monotonic() + timeout
             while time.monotonic() < deadline:
                 text = serial.read_text(errors='replace') if serial.exists() else ''
+                if re.search(r'Kernel panic - not syncing:', text):
+                    # initramfs unpack OOM, systemd / masaüstü işaretinden önce
+                    # olur; bilinen ölümcül hatada 600 saniye boşuna bekleme.
+                    raise RuntimeError(f'{mode}: {ram_mib} MiB erken çekirdek paniği:\n' + text[-7000:])
                 if marker in text and not graphical_idle:
                     print(mode + ': gerçek hedef çekirdek, initramfs ve systemd disk kökünde açıldı.', flush=True)
                     return None
@@ -198,11 +337,22 @@ def boot_os(image, mode, output, work, root_uuid, graphical_idle=False):
                 idle_match = re.search(r'OGUZDOWS-DESKTOP-IDLE-JSON:([^\r\n]+)\r?\n', text) if graphical_idle else None
                 if marker in text and idle_match:
                     measurement = json.loads(idle_match[1])
+                    measurement['vm_ram_mib'] = ram_mib
+                    if ram_mib <= 1024:
+                        measurement['low_ram_budget'] = low_ram_budget(measurement, ram_mib)
+                        if re.search(r'out of memory|oom-kill', text, re.IGNORECASE):
+                            measurement['low_ram_budget']['passed'] = False
+                            measurement['low_ram_budget']['fail_reasons'].append('Düşük RAM testinde OOM görüldü; başarı sayılmadı.')
                     if not all(item.get('graphical_xfce') for item in measurement.get('samples', [])) or not measurement.get('samples'):
                         raise RuntimeError('Hedef kullanıcı için tam Xfce grafik oturumu açılamadı: ' + json.dumps(measurement.get('invalid_reasons')))
-                    (output / 'desktop-idle.json').write_text(json.dumps(measurement, ensure_ascii=False, indent=2) + '\n')
+                    (output / ('low-ram-idle.json' if ram_mib <= 1024 else 'desktop-idle.json')).write_text(json.dumps(measurement, ensure_ascii=False, indent=2) + '\n')
+                    if ram_mib <= 1024 and not measurement['low_ram_budget']['passed']:
+                        raise RuntimeError('Düşük RAM bütçesi geçilmedi: ' + json.dumps(measurement['low_ram_budget'], ensure_ascii=False))
                     status = 'notice' if measurement.get('target_met') else 'warning'
                     summary = {key: measurement.get(key) for key in ('valid_idle_measurement', 'median_used_mb', 'max_used_mb', 'target_met', 'invalid_reasons')}
+                    summary['vm_ram_mib'] = ram_mib
+                    if ram_mib <= 1024:
+                        summary['low_ram_budget'] = measurement['low_ram_budget']
                     print('::' + status + ' title=Tam Xfce oturumu RAM (VM)::' + json.dumps(summary, ensure_ascii=False), flush=True)
                     return summary
                 if process.poll() is not None:
@@ -219,6 +369,27 @@ def boot_os(image, mode, output, work, root_uuid, graphical_idle=False):
                     process.wait()
 
 
+def check_low_ram(image, output, work, root_uuid, results):
+    """512 hatası 1 GiB kanıtını saklamasın; herhangi bir hata yine işi düşürür."""
+    errors = []
+    for ram in (512, 1024):
+        low_output = output / f'ram-{ram}'
+        low_output.mkdir()
+        try:
+            measurement = boot_os(image, 'bios', low_output, work, root_uuid, graphical_idle=True, ram_mib=ram)
+            if not measurement or not measurement.get('valid_idle_measurement'):
+                raise RuntimeError(f'{ram} MiB tam Xfce ölçümü geçerli değil: ' + json.dumps(measurement))
+            results.append(measurement)
+        except Exception as error:
+            failure = {'vm_ram_mib': ram, 'valid_idle_measurement': False, 'error': str(error)}
+            (low_output / 'low-ram-boot-error.json').write_text(json.dumps(failure, ensure_ascii=True, indent=2) + '\n')
+            results.append(failure)
+            errors.append(failure)
+    if errors:
+        raise RuntimeError('Düşük RAM açılışı başarısız; her bütçenin kanıtı korundu:\n'
+                           + '\n'.join(str(item['vm_ram_mib']) + ' MiB: ' + item['error'] for item in errors))
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--iso', type=Path, required=True)
@@ -226,7 +397,10 @@ def main():
     parser.add_argument('--expected-revision', required=True)
     parser.add_argument('--output', type=Path, default=Path('test-results/iso-target'))
     parser.add_argument('--graphical-idle', action='store_true', help='Geçici test hesabıyla tam Xfce oturumu ve yerleşmiş RAM raporu')
+    parser.add_argument('--low-ram-checks', action='store_true', help='Aynı geçici hedefte 512 / 1024 MiB tam Xfce boot ve RAM kontrolü ekle; fiziksel ARM testi değil')
     args = parser.parse_args()
+    if args.low_ram_checks and not args.graphical_idle:
+        parser.error('--low-ram-checks için --graphical-idle gerekli.')
     if os.geteuid() != 0 or os.environ.get('CI') != 'true':
         parser.error('Yalnızca ayrıcalıklı, tek kullanımlık CI konteynerinde çalıştırılır.')
     if not args.iso.is_file() or not stat.S_ISREG(args.iso.stat().st_mode):
@@ -340,6 +514,18 @@ def main():
         # Calamares InitramfsJob ile aynı gerçek komut, aynı güvenli UMASK.
         chroot('update-initramfs', '-k', 'all', '-c', '-t')
         report['initramfs'] = target_system.verify_initramfs(target, before)
+        report['initramfs_inventory'] = []
+        for version in report['initramfs']:
+            inventory = initrd_report.record(target / ('boot/initrd.img-' + version), output, work)
+            if args.arch == 'amd64' and (len(inventory['firmware']) != 1
+                    or not inventory['firmware'][0].get('kernel_support_verified')
+                    or inventory['firmware'][0].get('payloads_verified', 0) == 0):
+                raise RuntimeError('amd64 initramfs GPU firmware sıkıştırma / içerik kanıtı eksik.')
+            report['initramfs_inventory'].append(inventory)
+            summary = json.dumps(inventory, ensure_ascii=True, separators=(',', ':'))
+            if len(summary) > 3500:
+                raise RuntimeError('initramfs envanteri kontrol notu sınırını aştı; kesik JSON yayımlanmadı.')
+            print('::notice title=Gerçek initramfs envanteri::' + ci.escape_data(summary), flush=True)
         put(target, 'etc/default/grub.d/99-disposable-test.cfg',
             'GRUB_DISABLE_OS_PROBER=true\nGRUB_TIMEOUT=1\nGRUB_TERMINAL="serial console"\n'
             'GRUB_SERIAL_COMMAND="serial --unit=0 --speed=115200"\n'
@@ -387,7 +573,10 @@ def main():
             if idle is not None:
                 report['desktop_idle'] = idle
             report['modes'].append(mode)
-        print('::notice title=ISO hedef sistem açılışı::' + json.dumps(report), flush=True)
+        if args.low_ram_checks:
+            report['low_ram'] = []
+            check_low_ram(image, output, work, root_uuid, report['low_ram'])
+        print('::notice title=ISO hedef sistem açılışı::' + ci.escape_data(result_summary(report)), flush=True)
     except Exception as error:
         report['error'] = str(error)
         # Artefakt deposuna erişilemese bile kesin hata API'den okunabilsin.

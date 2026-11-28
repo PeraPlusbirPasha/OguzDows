@@ -1,0 +1,69 @@
+/* Global GTK3 desktop chrome, imported by every OğuzDows theme.
+ * Explicit panel specificity beats inherited XP / Adwaita raised buttons.
+ * Client views stay opaque: no global opacity, negative margins or icon zoom.
+ */
+/* XEmbed plugins are GtkPlugs with the same .background / .xfce4-panel
+ * classes as the main panel. Do not paint a separate panel frame around
+ * every sound / power / tray process. Keep the panel's own border and the
+ * wrapper background supplied by Xfce; never restyle application windows. */
+.xfce4-panel#XfcePanelWindowWrapper,
+.xfce4-panel#XfcePanelWindowWrapper:backdrop {
+  border: 0; border-radius: 0; box-shadow: none; margin: 0; padding: 0;
+}
+.xfce4-panel.background button,
+.xfce4-panel.background button:backdrop {
+  background-image: none; background-color: transparent;
+  border: 0; border-radius: 7px; box-shadow: none; text-shadow: none;
+  padding: 3px 5px; margin: 2px; min-width: 0; min-height: 0;
+  transition: background-color 100ms ease-out;
+}
+.xfce4-panel.background button:hover { background-color: alpha(@theme_fg_color, .08); }
+.xfce4-panel.background button:checked { background-color: alpha(@theme_selected_bg_color, .14); }
+.xfce4-panel.background button:active { background-color: alpha(@theme_fg_color, .15); }
+.xfce4-panel.background button:focus { outline: 1px solid @theme_selected_bg_color; outline-offset: -2px; }
+.xfce4-panel.background button image,
+.xfce4-panel.background widget > image {
+  background: transparent; border: 0; box-shadow: none; -gtk-icon-shadow: none;
+}
+.xfce4-panel.background .tasklist button { padding: 3px 8px; }
+.xfce4-panel.background .tasklist button:checked { border-bottom: 2px solid @theme_selected_bg_color; }
+.xfce4-panel.background #clock-button label { font-size: 9pt; }
+.xfce4-panel.background button.oguzdows-task { padding: 0; margin: 0; }
+/* Solid file/text panes fix translucent gaps in Thunar, Nemo, Caja and GTK
+ * file choosers without repainting selection or imposing a fixed text colour. */
+.view, treeview.view, iconview.view, textview.view text {
+  background-color: @theme_base_color; color: @theme_text_color;
+}
+.view:selected, .view:selected:focus, treeview.view:selected, iconview.view:selected {
+  background-color: @theme_selected_bg_color; color: @theme_selected_fg_color;
+}
+.sidebar .view { background-color: @theme_bg_color; color: @theme_fg_color; }
+.sidebar .view:selected { background-color: @theme_selected_bg_color; color: @theme_selected_fg_color; }
+filechooser .view, .thunar .standard-view, .nemo-window .view, .caja-navigation-window .view {
+  background-color: @theme_base_color; color: @theme_text_color;
+}
+filechooser .view:selected, .nemo-window .view:selected, .caja-navigation-window .view:selected {
+  background-color: @theme_selected_bg_color; color: @theme_selected_fg_color;
+}
+/* ThunarStandardView is a GtkScrolledWindow with GTK_SHADOW_IN, not a web
+ * surface. Keep the icon/list/compact viewport rectangular and remove the
+ * inherited inset bevel; do not change toolbar buttons or selection geometry. */
+.thunar .standard-view {
+  background-color: @theme_base_color; background-image: none;
+  border: 1px solid alpha(@theme_fg_color, .18); border-radius: 0;
+  box-shadow: none;
+}
+.thunar .standard-view .view, .thunar .standard-view viewport {
+  background-image: none; border-radius: 0; box-shadow: none; text-shadow: none;
+}
+.thunar .standard-view .view:selected:backdrop {
+  background-color: @theme_selected_bg_color; color: @theme_selected_fg_color;
+}
+
+.xfce4-panel.background #whiskermenu-button,
+.xfce4-panel.background #whiskermenu-button:backdrop {
+  background-image: none; background-color: transparent;
+  border: 0; border-radius: 7px; padding: 3px 8px; box-shadow: none;
+}
+.xfce4-panel.background #whiskermenu-button:hover { background-color: alpha(@theme_fg_color, .08); }
+.xfce4-panel.background frame { border: 0; box-shadow: none; }

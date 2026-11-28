@@ -1,0 +1,15 @@
+#!/bin/sh
+# Yalnızca PC amd64 initramfs kopyası; kurulu firmware / sürücü paketleri değişmez.
+set -eu
+case "${1:-}" in prereqs) exit 0 ;; esac
+[ "${DPKG_ARCH:-}" = amd64 ] || exit 0
+
+# mkinitramfs önce dağıtım hooks/ dizinini, sonra /etc hooks/ dizinini çalıştırır.
+# 0.148, Plymouth'un istediği modülleri erteler: firmware gelmeden sıkıştırma.
+# shellcheck disable=SC1091
+. /usr/share/initramfs-tools/hook-functions
+if command -v apply_add_modules >/dev/null 2>&1; then
+    apply_add_modules
+fi
+exec /usr/bin/python3 -I /usr/lib/oguzdows/initramfs_firmware.py \
+    --root "${DESTDIR:?}" --kernel-version "${version:?}"

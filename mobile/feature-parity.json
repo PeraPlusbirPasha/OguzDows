@@ -1,0 +1,440 @@
+{
+  "schema_version": 4,
+  "product": "OğuzDows Mobile",
+  "phase": "connected-shell-api35-emulator-accepted",
+  "rom_built": false,
+  "native_apk_built": true,
+  "physical_device_tested": false,
+  "live_generative_model_tested": false,
+  "desktop_images_modified": false,
+  "platform_identity_policy": "Product branding in daily UI; preserve Android/AOSP technical IDs, permission sheets, security warnings, licenses and legal attribution.",
+  "preview_statuses": [
+    "interactive",
+    "partial",
+    "external-link",
+    "native-required",
+    "not-applicable"
+  ],
+  "workbench": [
+    {
+      "id": "tasks",
+      "desktop": "Günüm",
+      "mobile": "Yerel görevler",
+      "preview": "partial",
+      "limit": "100 görev; ekle/tamamla/sil var, öncelik/son tarih/düzenleme yok."
+    },
+    {
+      "id": "notes",
+      "desktop": "Defter",
+      "mobile": "Yerel not ve TXT çıktısı",
+      "preview": "partial",
+      "limit": "Tek not, 16384 karakter; birleşik yerel aramada bulunur. Çoklu defter ve şifreleme yok."
+    },
+    {
+      "id": "snippets",
+      "desktop": "Metin rafı",
+      "mobile": "Açık düğmeyle pano kopyalama",
+      "preview": "interactive",
+      "limit": "40 parça, 300 karakter; pano izlenmez."
+    },
+    {
+      "id": "places",
+      "desktop": "Yerlerim",
+      "mobile": "SAF belge/klasör URI yer imleri",
+      "preview": "native-required",
+      "limit": "Genel depolama izni yerine açık belge seçimi; webde uygulanmadı."
+    },
+    {
+      "id": "find",
+      "desktop": "Dosya bul",
+      "mobile": "İzin verilen belge ağacında sınırlı arama",
+      "preview": "native-required",
+      "limit": "İndeksleyici yok; iptal ve süre/girdi sınırı gerekli."
+    },
+    {
+      "id": "rename",
+      "desktop": "Toplu adlandır",
+      "mobile": "SAF üzerinde önizleme/onay/çakışmasız adlandırma",
+      "preview": "native-required",
+      "limit": "Belge sağlayıcılarının atomik geri alma garantisi yok; uygun değilse reddet."
+    },
+    {
+      "id": "checksum",
+      "desktop": "Dosya doğrula",
+      "mobile": "Seçilen belgenin gerçek SHA-256 özeti",
+      "preview": "partial",
+      "limit": "Web 32 MiB, SHA-256; SHA-512/ilerleme/streaming henüz yok. İmza doğrulaması değil."
+    },
+    {
+      "id": "image",
+      "desktop": "Görsel hazırla",
+      "mobile": "Sistem fotoğraf seçicisi; boyutlandırma/dışa aktarma",
+      "preview": "native-required",
+      "limit": "Galeri kullanıcı seçili 6 fotoğrafı açar ve asıl baytları indirir; boyutlandırma, dönüştürme ve EXIF temizleme uygulanmadı."
+    },
+    {
+      "id": "diff",
+      "desktop": "Metin karşılaştır",
+      "mobile": "Sınırlı yerel diff",
+      "preview": "native-required",
+      "limit": "Web yalnız durum ekranını gösterir; işlev tamamlandı sayılmaz."
+    },
+    {
+      "id": "json",
+      "desktop": "JSON masası",
+      "mobile": "JSON ayrıştırma/biçimlendirme",
+      "preview": "partial",
+      "limit": "16384 karakter, 20 katman, 4000 düğüm; yinelenen anahtar denetimi yok."
+    },
+    {
+      "id": "calculator",
+      "desktop": "Hesap",
+      "mobile": "Kod çalıştırmayan ayrıştırıcı",
+      "preview": "partial",
+      "limit": "128 karakter/64 token/20 derinlik; kayan nokta, ondalık finans hassasiyeti/sqrt/üs yok."
+    },
+    {
+      "id": "units",
+      "desktop": "Birimler",
+      "mobile": "Uzunluk, Celsius/Fahrenheit, MiB/MB",
+      "preview": "partial",
+      "limit": "Dört dönüşüm; masaüstündeki tüm kategoriler henüz yok."
+    },
+    {
+      "id": "color",
+      "desktop": "Renk stüdyosu",
+      "mobile": "Renk seçici ve gerçek WCAG beyaz kontrastı",
+      "preview": "partial",
+      "limit": "Palet kaydetme/iki keyfi renk/CSS dışa aktarma yok."
+    },
+    {
+      "id": "clocks",
+      "desktop": "Dünya saatleri",
+      "mobile": "Gerçek Intl/tzdata ile dört şehir",
+      "preview": "interactive",
+      "limit": "Dakikalık yalnız görünür sayfa zamanlayıcısı; ağ/GPS yok."
+    },
+    {
+      "id": "text",
+      "desktop": "Metin işle",
+      "mobile": "Türkçe büyük/küçük ve satır temizleme",
+      "preview": "partial",
+      "limit": "16384 karakter; masaüstündeki tüm sayımlar/işlemler yok."
+    },
+    {
+      "id": "startup",
+      "desktop": "Başlangıç yöneticisi",
+      "mobile": "Platformun uygulama/pil ayarlarına kullanıcı kontrollü geçiş",
+      "preview": "native-required",
+      "limit": "Diğer uygulamaların BOOT_COMPLETED veya arka plan izinleri normal başlatıcıdan değiştirilemez.",
+      "native_android": "partial-settings-delegation"
+    }
+  ],
+  "other_seven_new_functions": [
+    {
+      "id": "wishlist",
+      "desktop": "Mağaza istek listesi",
+      "preview": "interactive",
+      "mobile": "Yerel kalıcı katalog listesi; kurulmuş gibi göstermez."
+    },
+    {
+      "id": "store-health",
+      "desktop": "Çevrimdışı mağaza teşhisi",
+      "preview": "native-required",
+      "mobile": "Native rol/izin/kaynak izni, gerçek katalog/imza/hash/API/ABI ve yükleyici hata yolları; tüm OEM/GMS teşhisi değildir. APT/Flatpak motorları taşınmaz.",
+      "native_android": "partial-emulator-verified"
+    },
+    {
+      "id": "source-compare",
+      "desktop": "APT / Flatpak karşılaştırması",
+      "preview": "partial",
+      "mobile": "Web resmî geliştirici/Play bağlantıları. Native imzalı F-Droid boyut/sürüm/hash/API/ABI ve görünür yüklü sürüm karşılaştırması; Play metadata karşılaştırması veya tüm cihaz güncelleyicisi değil.",
+      "native_android": "partial-live-catalog-review-verified"
+    },
+    {
+      "id": "reading-list",
+      "desktop": "Çevrimdışı okuma listem",
+      "preview": "partial",
+      "mobile": "Üç özgün örnek metni sakla/çıkar; canlı RSS veya tüm makale arşivi değil."
+    },
+    {
+      "id": "read-history",
+      "desktop": "Okundu takibi",
+      "preview": "interactive",
+      "mobile": "Yerel okundu ve okunmamış filtreleri; 100 kayıt."
+    },
+    {
+      "id": "article-export",
+      "desktop": "Haberi TXT dışa aktar",
+      "preview": "interactive",
+      "mobile": "Açık düğmeyle seçilen özgün metni indirir; gerçek haber çekilmez."
+    },
+    {
+      "id": "command-palette",
+      "desktop": "Sabit komut paleti",
+      "preview": "partial",
+      "mobile": "Rıfkı yalnız sabit, açık düğmeyle onaylı arayüz eylemleri önerir; serbest kabuk yok."
+    }
+  ],
+  "identity_and_platform": [
+    {
+      "id": "nazar-power",
+      "preview": "interactive",
+      "mobile": "Native HOME’da nazar kimliği, gerçek pil/saat ve denetim/sistem ayarı yolu. Web pil/saat örnektir. Gerçek cihazı kilitli/kapanmış göstermez; SystemUI/ROM güç yetkisi ayrı.",
+      "native_android": "partial-native-home-emulator-verified"
+    },
+    {
+      "id": "rifki",
+      "preview": "partial",
+      "mobile": "Native yerel kedi: saat/pil/şarj/çağrı bağlamı, sevme/baş eğme/sağ-sol yerleşim ve düğmeyle onaylı tipli UI eylemleri. Bulut/mikrofon/TTS/hotword bağlı değil; webde ayrı opsiyonel sunucu köprüsü canlı denenmedi.",
+      "native_android": "partial-native-launcher-emulator-verified"
+    },
+    {
+      "id": "assistant-role",
+      "preview": "native-required",
+      "mobile": "VoiceInteractionService/Session, RoleManager ile kullanıcı seçimi. Gizli hotword, mikrofon veya ekran bağlamı yok; cihazda sınanmadı.",
+      "native_android": "assembled-specific-runtime-unverified"
+    },
+    {
+      "id": "google",
+      "preview": "external-link",
+      "mobile": "Google web kısayolları ve kurulu uygulamaları açma. GMS/Play lisans/sertifika koşullu; paketlenmedi.",
+      "native_android": "assembled-specific-runtime-unverified"
+    },
+    {
+      "id": "apk",
+      "preview": "partial",
+      "mobile": "Web 32 MiB başlık/hash, kurulum yok. Native 256 MiB özel kopya/paket/API/ABI/izin/ilk imzacı + ayrı sistem yükleyicisi; RESULT_OK ve yüklü sürüm/ilk imzacı eşleşmesi gerekir. API35 emülatörde etkisiz APK kurulumu/iptali ve canlı Aegis inceleme/iptali geçti; fiziksel cihaz/split/güncelleme zinciri doğrulanmadı.",
+      "native_android": "emulator-fixture-install-and-live-review-verified"
+    },
+    {
+      "id": "appearance",
+      "preview": "interactive",
+      "mobile": "Native hafif tint/cam yüzeyler, dört arka plan ve kendi ekranlarında ortak açık/koyu tercih. Launcher→Telefon gerçek koyu arka planı ve native HOME’a Geri test edildi. Webde ayrıca üç vurgu/kompakt/azaltılmış hareket. Başka üreticinin uygulaması zorlanmaz.",
+      "native_android": "partial-emulator-rendered-phone-and-native-theme-verified"
+    },
+    {
+      "id": "culture-wallpapers",
+      "preview": "partial",
+      "mobile": "Mevcut koleksiyondan dört byte-identical native duvar kâğıdı; gerçek seçim/disk kaydı kabulte sınandı. Tüm 20 görsel ve 11 anlatım kaydı mobilde henüz taşınmadı.",
+      "native_android": "partial-native-wallpaper-selection-emulator-verified"
+    },
+    {
+      "id": "printscreen",
+      "preview": "native-required",
+      "mobile": "Sistem ekran görüntüsü tuş/erişilebilirlik yolu; ekranı izinsiz yakalama yok. MediaProjection varsa her oturum sistem onayı.",
+      "native_android": "planned"
+    },
+    {
+      "id": "desktop-layouts",
+      "preview": "partial",
+      "mobile": "Altı gerçek masaüstü profil kimliği mobil ızgara/raf/dock ailesine uyarlandı; seçim/kalıcılık, gerçek OS HOME yeniden yaratma, Ayarlar ve tam ekran hareketler API35 emülatörde geçti. GNOME/Plasma/Xfce oturumları telefonda çalıştırılmaz.",
+      "native_android": "partial-six-mobile-layout-families-emulator-verified"
+    },
+    {
+      "id": "imece-heybe",
+      "preview": "native-required",
+      "mobile": "İmece/Heybe yerel yardım, dışa aktarım ve kullanıcı seçili yedek akışları. Bulut eşitlemesi/uygulama verisi yedekleme vaadi yok.",
+      "native_android": "planned"
+    },
+    {
+      "id": "focus-tea",
+      "preview": "partial",
+      "mobile": "Web Odak anahtarı arayüz örneği; APK gerçek DND ayarına gider. Tam çay molası/sistem hatırlatıcı servisi yok.",
+      "native_android": "partial-settings-delegation"
+    },
+    {
+      "id": "resource-monitor",
+      "preview": "partial",
+      "mobile": "Native pil/saat/medya sesi, Cihazım sistem bellek anlık görüntüsü; yalnız sistem toplam/kullanılabilir bellek, appRAM/FPS/pil ömrü ölçümü değil. 4GiB emülatör kabulü fiziksel performans vaadi değildir.",
+      "native_android": "partial-native-snapshot-and-volume-emulator-verified"
+    },
+    {
+      "id": "files",
+      "preview": "partial",
+      "mobile": "Açık SAF belge seçimi ve sürükle/bırak yüzeyi; OğuzKöprü kısa ömürlü davet/kod/alıcı onaylı yerel pinned-TLS dosya aktarımı. Native/Python iki yönlü dört gerçek dosya ve hash emülatörde geçti; fiziksel PC/telefon/ARM drag-drop matrisi ayrıca gerekir. Genel dosya, uzaktan SMS/kurulum veya keyfi girdi yetkisi yok.",
+      "native_android": "partial-pinned-tls-native-python-interop-emulator-verified"
+    },
+    {
+      "id": "updates-drivers",
+      "preview": "native-required",
+      "mobile": "Cihazın imzalı OTA/vendor güncelleme yolu. Debian depoları, DKMS, GRUB veya APT telefona taşınmaz.",
+      "native_android": "planned"
+    },
+    {
+      "id": "window-snap",
+      "preview": "native-required",
+      "mobile": "Sistemin desteklediği bölünmüş ekran/büyük ekran; SystemUI ve cihaz politikası koşullu.",
+      "native_android": "planned"
+    },
+    {
+      "id": "exe-flatpak",
+      "preview": "not-applicable",
+      "mobile": "EXE/Wine, Flatpak ve GNOME Software Android APK motoru değildir; destek varmış gibi gösterilmez.",
+      "native_android": "not-applicable"
+    },
+    {
+      "id": "calamares-pi-images",
+      "preview": "not-applicable",
+      "mobile": "PC ISO/Pi IMG telefon ROM'u değildir. Calamares, disk biçimleme ve mevcut yayınlara dokunulmaz.",
+      "native_android": "not-applicable"
+    }
+  ],
+  "rom_acceptance_gates": [
+    "Exact model/codename, SoC, supported ABI, Android/vendor branch and bootloader policy identified",
+    "Legally redistributable device/vendor/kernel trees and firmware licenses reviewed",
+    "User backup and verified stock recovery path; no automatic unlock/flash/relock",
+    "Verified Boot, SELinux enforcing, encryption and signed OTA/rollback policy",
+    "Boot/touch/display/GPU/camera/audio/modem/SIM/SMS/emergency/Wi-Fi/Bluetooth/GPS/NFC/biometrics tested on exact hardware",
+    "Suspend/resume/charging/thermal/battery/low-memory/accessibility and large-font tests measured",
+    "CTS/VTS and applicable CDD/GMS licensing/certification, no Integrity spoofing claims",
+    "Native APK build, emulator tests, installer cancellation/failure/signature/ABI/source gates and assistant role tested",
+    "Rifki provider/privacy/authentication/consent/data retention independently reviewed",
+    "Four desktop/Pi v1.2 files and release history remain independent and untouched"
+  ],
+  "daily_experience": {
+    "local_app_entries": 20,
+    "catalog_entries": 24,
+    "catalog_categories": 8,
+    "catalog_icons": "24 local brand SVGs plus reproducible licensed Android VectorDrawables; real installed icons preferred, bounded generated monograms for unknown packages; no icon CDN.",
+    "search": "Native HOME: Turkish module/installed-app label/package filtering, accessible profiles; no automatic network search. Bundled/web global search separately covers contacts, notes (16384 chars), tasks, tools, catalog and arithmetic.",
+    "home_gestures": "Native: six persisted mobile layout families, 2 shortcut pages + 1 widget page, horizontal paging, downward fullscreen controls and upward fullscreen drawer; real system Settings handoff. Web laboratory remains a separate design surface.",
+    "phone": "Browser: safe tel handoff only. APK: explicit dialer role, CALL_PHONE, native charge/recipient consent -> Telecom/InCallService and in-package controls; actual callback state, never inferred connection. Physical SIM/emergency unverified.",
+    "messages": "Browser: draft and safe sms handoff. APK: explicit default SMS role/grants/subscription and native consent -> SmsManager, durable multipart receipts and real provider history. queued/sent/delivery distinct; MMS/RCS unsupported.",
+    "contacts": "APK: explicit READ_CONTACTS, provider change observer and bounded in-memory recipients; separate WRITE_CONTACTS + final confirmation adds a real local contact, never deletes/edits existing contacts. Denied/read/write/cancel/SMS-draft paths passed API35 QEMU. Web laboratory separately stores up to 60 manual local contacts; those are not system contacts.",
+    "calendar": "80 local date plans, month navigation; no system calendar, alarm or notification",
+    "clock": "Timestamp-based persisted stopwatch and timer deadline; no background alarm guarantee",
+    "media": "Explicit local audio up to 32 MiB; panel volume/mute drives real HTMLMediaElement; page-scoped playback, no upload",
+    "photos": "6 explicitly selected temporary images up to 8 MiB each, inspect/download/remove; not permanent library",
+    "browser": "Explicit safe HTTPS/external search handoff, no embedded web engine",
+    "control_center": "Fullscreen native surface with real AudioManager media volume, own-window brightness and actual system Settings/panels; app-window immersive mode, not global SystemUI replacement. Browser controls only its preview audio/dimmer.",
+    "native_system_delegation": "API35/x86_64/4GiB QEMU 24-case acceptance: preserved HOME/inventory/layout/widgets/Phone/SMS/installer/live repository plus six mobile layout families, real system Settings, fullscreen gestures, system contacts/local addition, lock companion, independent native/Python pinned-TLS transfers and fresh-consent MediaProjection. Separate HOME/assistant/Phone/SMS roles; no physical SIM/PC/ARM/GMS/ROM, global SystemUI/keyguard replacement or measured hardware-performance claim."
+  },
+  "native_emulator_verified": true,
+  "native_evidence": {
+    "source_sha": "7244164364105a00838b4a68f5815c352554a36b",
+    "sdk_report": "android/evidence/sdk-7244164.json",
+    "emulator_report": "android/evidence/emulator-7244164.json",
+    "package_report": "android/evidence/package-7244164.json",
+    "historical_accepted_0_2": {
+      "source_sha": "023a89c9f22bdcd27eabecf8437b05addcab03e9",
+      "sdk_report": "android/evidence/sdk-023a89c.json",
+      "emulator_report": "android/evidence/emulator-023a89c.json",
+      "package_report": "android/evidence/package-023a89c.json",
+      "cases": 12,
+      "selections": 10
+    },
+    "historical_failed_emulator_reports": [
+      "android/evidence/emulator-384e905.json",
+      "android/evidence/emulator-be00308.json",
+      "android/evidence/emulator-a2eafe4.json",
+      "android/evidence/emulator-d13b34e.json",
+      "android/evidence/emulator-8257892.json",
+      "android/evidence/emulator-2be89d7.json",
+      "android/evidence/emulator-5433564.json",
+      "android/evidence/emulator-6780523.json",
+      "android/evidence/emulator-be65149.json",
+      "android/evidence/emulator-1ff62d9.json",
+      "android/evidence/emulator-266e623.json",
+      "android/evidence/emulator-05e9dd5.json",
+      "android/evidence/emulator-c31e736.json",
+      "android/evidence/emulator-58453b5.json",
+      "android/evidence/emulator-44e8cac.json",
+      "android/evidence/emulator-6584261.json"
+    ],
+    "historical_partial_failed_reports": [
+      "android/evidence/launcher-c174b6d.json",
+      "android/evidence/emulator-ece0f3b-partial.json",
+      "android/evidence/emulator-2da79b2-partial.json"
+    ],
+    "emulator_acceptance": "Same-source 7244164 API35/x86_64/4GiB QEMU PASSED: 24/24 cases in 15 selections, 20 JVM cases, no skipped/empty acceptance, matching independent four-file native/Python pinned-TLS receipts and real MediaProjection cancel/fresh consent/FGS/JPEG/stop verified by the separate CI acceptance gate. Three mandatory review cancel/destruction/original-Home-focus/noninstallation cycles plus final system install passed. No Android product ANR/crash observed in this run, but a 2060ms HWUI main-thread stall was sampled; no permanent ANR fix or hardware-performance claim. No physical SIM/PC/ARM/SystemUI/keyguard/ROM/GMS acceptance.",
+    "historical_accepted_0_3": {
+      "source_sha": "fb6cad5a3f56c5bf37e739388ded5ffce8e5ad13",
+      "sdk_report": "android/evidence/sdk-fb6cad5.json",
+      "emulator_report": "android/evidence/emulator-fb6cad5.json",
+      "package_report": "android/evidence/package-fb6cad5.json",
+      "cases": 17,
+      "selections": 11
+    },
+    "acceptance_report": "android/evidence/acceptance-7244164.json"
+  },
+  "android_acceptance": {
+    "compile_sdk": 35,
+    "min_sdk": 29,
+    "java_unit_tests_observed_passed": 6,
+    "lint_errors_observed": 0,
+    "instrumentation_cases_required": 24,
+    "driver_selections_required": 15,
+    "api_29_to_34_tested": false,
+    "physical_sim_tested": false,
+    "emergency_calls_tested": false,
+    "gms_certification_tested": false,
+    "mms_rcs_supported": false,
+    "live_repository_acceptance_observed": true,
+    "production_signed_release": false,
+    "universal_phone_iso": false,
+    "lint_warnings_observed": 47,
+    "instrumentation_cases_observed_passed": 24,
+    "driver_selections_observed_passed": 15,
+    "debug_package_prepared": true,
+    "artifact_download_verified_locally": false,
+    "kotlin_unit_tests_observed_passed": 14,
+    "jvm_unit_tests_observed_passed": 20,
+    "independent_interop_files_observed": 4,
+    "real_media_projection_acceptance_observed": true
+  },
+  "native_launcher": {
+    "version": "0.4.0-connected",
+    "entry_point": "LauncherActivity: MAIN/HOME/LAUNCHER, native Kotlin + Jetpack Compose; not a WebView home.",
+    "emulator_verified": true,
+    "launcher_cases_observed_passed": 5,
+    "installed_apps": "LauncherApps/UserManager, accessible profile-qualified activities and badged icons; actual search/launch/details. At most 1000 entries, 3MiB icon LRU, background inventory and visible-lifecycle callbacks. No QUERY_ALL_PACKAGES.",
+    "layout": "Six persisted mobile families (oguzdows/kde/gnome/xfce/windows11/mac); 12 default / 16 maximum pins across 2 shortcut pages, explicit add/remove/step-wise move, ordered private IO and corruption write guard; 4 existing wallpapers. Not PC window managers or arbitrary pixel placement.",
+    "widgets": "Third page: real AppWidgetHost, platform bind/configuration path and RemoteViews, max 2 fixed-size areas. Real fixture binding/content/new-host restoration/removal passed. All-provider/OEM/profile/process-death matrix remains open.",
+    "rifki": "Local typed deterministic reaction to time/battery/charging/call, pet/head-tilt and left/right placement, explicitly confirmed UI suggestions. No cloud inference, ASR/TTS, microphone, wake word or always-listening animation.",
+    "module_handoff": "Existing native Phone/SMS/Store and bundled daily modules retained. launcher.home and launcher-origin Back return to native HOME. Shared Phone dark pixels checked, not only a saved theme flag.",
+    "visual_preview": "screenshots/launcher-native-emulator.jpg",
+    "visual_scope": "Historical accepted 0.3 / fb6cad5 only: actual UiDevice capture reduced to 234x520 JPEG, inspected locally from complete ordered chunks. Not a current 0.4 screenshot. Full current 7244164 PNGs/JPEG are in its artifact; only four of six new thumbnail annotations survived the checks cap, so no new local native image is claimed. Not browser/AI/physical-device imagery.",
+    "ram_target_gib": [
+      4,
+      6
+    ],
+    "emulator_ram_gib": 4,
+    "physical_ram_fps_power_measured": false,
+    "cloud_voice_wake_word_implemented": false,
+    "visual_preview_source_sha": "fb6cad5a3f56c5bf37e739388ded5ffce8e5ad13"
+  },
+  "native_connected": {
+    "source_sha": "7244164364105a00838b4a68f5815c352554a36b",
+    "connected_cases_observed_passed": 4,
+    "layout_ids": [
+      "oguzdows",
+      "kde",
+      "gnome",
+      "xfce",
+      "windows11",
+      "mac"
+    ],
+    "settings_and_fullscreen_gestures_emulator_verified": true,
+    "system_contacts_and_local_addition_emulator_verified": true,
+    "lock_companion_emulator_verified": true,
+    "global_systemui_replaced": false,
+    "secure_keyguard_replaced": false,
+    "native_python_file_protocol_emulator_verified": true,
+    "independent_files_verified": 4,
+    "physical_drag_drop_matrix_tested": false,
+    "media_projection": {
+      "emulator_verified": true,
+      "fresh_system_consent": true,
+      "cancel_and_stop_tested": true,
+      "frame_bytes": 11662,
+      "sha256": "1cfe029facd6d57cdae79bd00654055efe3b8dafb9934f56839fc57c949076a0",
+      "remote_input": false,
+      "audio": false,
+      "complete_frame_retrieved_locally": false
+    },
+    "known_emulator_main_thread_stall_ms": 2060,
+    "permanent_anr_resolution_proven": false,
+    "physical_pc_phone_arm_tested": false
+  }
+}

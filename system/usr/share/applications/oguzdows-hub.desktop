@@ -1,0 +1,10 @@
+[Desktop Entry]
+Type=Application
+Name=OğuzDows Başlat
+Comment=Kurulu uygulamalar, arama, sabitlenenler ve yerel durum araçları
+Exec=/usr/local/bin/oguzdows-hub
+Icon=oguzdows-hub
+Terminal=false
+Categories=Utility;
+Keywords=Başlat;Uygulamalar;Launcher;
+StartupNotify=true

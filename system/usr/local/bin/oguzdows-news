@@ -1,0 +1,3 @@
+#!/bin/sh
+# Python GTK kabuğu, webview veya oturumda derleme yok.
+exec /usr/lib/oguzdows/oguzdows-news-native "$@"

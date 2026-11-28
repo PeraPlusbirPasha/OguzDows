@@ -1,0 +1,7 @@
+# Cihaza özgü zaten çalışan ARM64 / trixie rootfs içindir; çekirdek / DTB yok.
+xserver-xorg
+xinit
+policykit-1
+firmware-linux-free
+flatpak
+gir1.2-flatpak-1.0

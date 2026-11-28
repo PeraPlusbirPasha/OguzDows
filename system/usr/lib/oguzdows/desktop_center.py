@@ -1,0 +1,160 @@
+#!/usr/bin/env python3
+"""Masaüstü Merkezi / ortak oturum uzlaştırıcısı. Sürekli servis değildir."""
+from __future__ import annotations
+
+import argparse
+import json
+import subprocess
+import sys
+from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+import desktop_preferences as preferences
+import desktop_runtime as runtime
+
+
+def gui():
+    import gi
+    gi.require_version('Gtk', '3.0')
+    from gi.repository import Gio, Gtk
+    from desktop_ui import PreferencesPanel, control_grid, note
+
+    class Center(Gtk.Application):
+        def __init__(self):
+            super().__init__(application_id='org.oguzdows.DesktopCenter', flags=Gio.ApplicationFlags.FLAGS_NONE)
+            self.window = None
+
+        def do_activate(self):
+            if self.window:
+                self.window.present()
+                return
+            self.window = Gtk.ApplicationWindow(application=self, title='OğuzDows · Masaüstü Merkezi')
+            screen = self.window.get_screen()
+            self.window.set_default_size(min(760, screen.get_width() - 20), min(660, screen.get_height() - 24))
+            self.window.set_size_request(320, 400)
+            self.window.set_icon_name('oguzdows-desktop')
+            header = Gtk.HeaderBar(title='Masaüstü Merkezi', subtitle=runtime.current().upper() + ' · yerel oturum')
+            header.set_show_close_button(True)
+            self.window.set_titlebar(header)
+            import ui_theme
+            ui_theme.setup(self.window)
+            root = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
+            body = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL)
+            stack = Gtk.Stack()
+            ui_theme.configure_stack(self.window, stack)
+            sidebar = Gtk.StackSidebar(stack=stack)
+            sidebar.set_size_request(176, -1)
+            sidebar.get_style_context().add_class('center-sidebar')
+            switcher = Gtk.StackSwitcher(stack=stack, halign=Gtk.Align.CENTER)
+            root.pack_start(switcher, False, False, 8)
+            body.pack_start(sidebar, False, False, 0)
+            body.pack_start(stack, True, True, 0)
+            root.pack_start(body, True, True, 0)
+            def fit(_window, event):
+                sidebar.set_visible(event.width >= 680)
+                switcher.set_visible(event.width < 680)
+                return False
+            self.window.connect('configure-event', fit)
+            scroll = Gtk.ScrolledWindow()
+            scroll.set_policy(Gtk.PolicyType.NEVER, Gtk.PolicyType.AUTOMATIC)
+            panel = PreferencesPanel(self.window); panel.set_border_width(20)
+            self.window.connect('delete-event', lambda *_: panel.busy)
+            scroll.add(panel); stack.add_titled(scroll, 'appearance', 'Görünüm')
+            actions = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=14, margin=20)
+            actions.pack_start(note('Kabuğun kendi araçları', True), False, False, 0)
+            actions.pack_start(note('GNOME: üst çubuk / Etkinlikler ve uzantı sistemi; Plasma: panel düzenleyici / gerçek plasmoid gezgini; Xfce: kendi panel eklentileri. Bir kabuğun widget’ı diğerinin sürecine yüklenmez.'), False, False, 0)
+            status = note('Bir işlem seç. Eksik yerel araç varsa başka masaüstünün aracı zorla açılmaz.')
+            actions.pack_start(control_grid(self.window, status), False, False, 0)
+            for title, command in (('OğuzKöprü · PC / telefon / ARM', '/usr/local/bin/oguzdows-bridge'),
+                                   ('Atölye · 16 çevrimdışı araç', '/usr/local/bin/oguzdows-workbench'),
+                                   ('Modern Başlat menüsünü aç', '/usr/local/bin/oguzdows-hub'),
+                                   ('Gerçek GNOME / Plasma oturumlarını yönet…', '/usr/local/bin/oguzdows-desktops'),
+                                   ('Türkiye duvar kâğıtları…', '/usr/local/bin/oguzdows-welcome')):
+                button = Gtk.Button(label=title)
+                args = [command, '--wallpapers'] if command.endswith('welcome') else [command]
+                def clicked(_button, argv=args):
+                    Gio.Subprocess.new(argv, Gio.SubprocessFlags.NONE)
+                button.connect('clicked', clicked)
+                actions.pack_start(button, False, False, 0)
+            actions.pack_start(status, False, False, 0)
+            actions.pack_start(note(preferences.status()['session_note']), False, False, 0)
+            actions.pack_start(note('Kısayol atamak için yerel kısayol düzenleyicide şu sabit komutlar kullanılabilir: oguzdows-hub · oguzdows-monitor · oguzdows-desktop --snap left / right / maximize / restore / minimize. Mevcut kişisel kısayollar otomatik ezilmez. Bildirimler için mevcut panelin yerel merkezi korunur.'), False, False, 0)
+            scroll = Gtk.ScrolledWindow(); scroll.set_policy(Gtk.PolicyType.NEVER, Gtk.PolicyType.AUTOMATIC)
+            scroll.add(actions); stack.add_titled(scroll, 'tools', 'Yerel araçlar')
+            self.window.add(root); self.window.show_all()
+            switcher.set_visible(self.window.get_allocated_width() < 680)
+    return Center().run([sys.argv[0]])
+
+
+def main(argv=None):
+    parser = argparse.ArgumentParser(description=__doc__)
+    group = parser.add_mutually_exclusive_group()
+    group.add_argument('--profile', choices=('windows11', 'mac', 'oguzdows', 'xfce', 'gnome', 'kde'))
+    group.add_argument('--apply', action='store_true')
+    parser.add_argument('--refresh-panels', action='store_true', help='Açık onay: yalnız paneli yeniden yükle')
+    parser.add_argument('--appearance', choices=('light', 'dark'))
+    parser.add_argument('--effects', choices=('off', 'glass', 'aero'))
+    parser.add_argument('--blur', action=argparse.BooleanOptionalAction, default=None)
+    parser.add_argument('--motion', choices=('reduced', 'smooth', 'spring'))
+    parser.add_argument('--accent-source', choices=('wallpaper', 'theme'))
+    group.add_argument('--session', action='store_true')
+    group.add_argument('--effects-session', action='store_true')
+    group.add_argument('--status', action='store_true')
+    group.add_argument('--restore', action='store_true')
+    group.add_argument('--control', choices=tuple(runtime.ACTIONS))
+    group.add_argument('--snap', choices=('left', 'right', 'maximize', 'restore', 'minimize'))
+    args = parser.parse_args(argv)
+    changes = {key: getattr(args, key) for key in ('appearance', 'effects', 'blur', 'motion', 'accent_source') if getattr(args, key) is not None}
+    if (changes or args.refresh_panels) and not (args.profile or args.apply):
+        parser.error('Bu seçenekler --profile veya --apply ile kullanılır.')
+    try:
+        if args.profile or args.apply:
+            result = preferences.update_and_apply(changes, profile=args.profile)
+            if args.refresh_panels:
+                if runtime.current() != 'xfce':
+                    raise ValueError('Panel yenileme yalnız Xfce için geçerli.')
+                import profiles
+                profiles.reload_panels()
+                result['panel_reloaded'] = True
+            elif args.profile:
+                result['notes'].append('Panel düzeni kaydedildi. Paneli ayrı onayla yenileyin veya oturumu yeniden açın.')
+        elif args.status:
+            result = preferences.status()
+        elif args.session or args.effects_session:
+            result = preferences.session()
+            if args.effects_session and 'engine' not in result:
+                import effects
+                result = effects.reconcile()
+        elif args.restore:
+            result = preferences.restore()
+        elif args.control:
+            runtime.native_control(args.control)
+            return 0
+        elif args.snap:
+            runtime.snap(args.snap)
+            return 0
+        else:
+            return gui()
+        print(json.dumps(result, ensure_ascii=False, indent=2))
+        return 0
+    except (OSError, ValueError, RuntimeError, ImportError, subprocess.SubprocessError) as error:
+        print('OğuzDows masaüstü: ' + str(error), file=sys.stderr)
+        if args.control or args.snap:
+            try:
+                import gi
+                gi.require_version('Gtk', '3.0')
+                from gi.repository import Gtk
+                if Gtk.init_check([])[0]:
+                    dialog = Gtk.MessageDialog(message_type=Gtk.MessageType.INFO, buttons=Gtk.ButtonsType.CLOSE,
+                                               text='Yerel masaüstü işlemi tamamlanamadı')
+                    dialog.format_secondary_text(str(error))
+                    import ui_theme
+                    ui_theme.setup(dialog)
+                    dialog.run(); dialog.destroy()
+            except ImportError:
+                pass
+        return 1
+
+
+if __name__ == '__main__':
+    raise SystemExit(main())

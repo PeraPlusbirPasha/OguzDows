@@ -1,5 +1,5 @@
 #!/bin/sh
 set -eu
-systemctl enable NetworkManager.service lightdm.service bluetooth.service zramswap.service oguzdows-live-setup.service
+systemctl enable NetworkManager.service lightdm.service bluetooth.service zramswap.service oguzdows-resource-tune.service oguzdows-live-setup.service
 systemctl set-default graphical.target
 update-initramfs -u -k all

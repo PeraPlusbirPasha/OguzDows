@@ -31,7 +31,9 @@ def main():
         if result.returncode:
             raise core.MaintenanceError(result.stdout[-3000:] + result.stderr[-3000:])
         return result.stdout + result.stderr
-    requests = ['upgrade'] + (['desktop:kde', 'desktop:gnome'] if args.suite == 'trixie' else [])
+    # Bookworm burada amd64 hosttur: Pi ARM64 oturumu / işlem kanıtı değil,
+    # fakat her iki tabandaki sabit paket adları ve imzalı adaylar zorunludur.
+    requests = ['upgrade', 'desktop:kde', 'desktop:gnome']
     for request in requests:
         print('Gerçek APT planı: ' + request, flush=True)
         plan = core.make_plan(request, info, execute, cache)

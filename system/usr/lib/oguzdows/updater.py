@@ -14,6 +14,7 @@ import gi
 
 gi.require_version('Gtk', '3.0')
 from gi.repository import Gio, GLib, Gtk
+from narration import NarrationBar
 
 HELPER = ['/usr/bin/pkexec', '/usr/local/sbin/oguzdows-maintenance']
 
@@ -51,7 +52,9 @@ class Updater(Gtk.Application):
 
     def build(self):
         self.window = Gtk.ApplicationWindow(application=self, title='OğuzDows Güncelleyici')
-        self.window.set_icon_name('oguzdows')
+        import ui_theme
+        ui_theme.setup(self.window)
+        self.window.set_icon_name('oguzdows-update')
         self.window.set_default_size(850, 640)
         self.window.set_size_request(540, 380)
         self.window.connect('delete-event', self.closing)
@@ -62,12 +65,16 @@ class Updater(Gtk.Application):
         box.pack_start(text('Güncel kal, kontrol sende kalsın.', 'heading'), False, False, 0)
         box.pack_start(text('Açılışta indirme veya otomatik kurulum yok. Uygulamalar kapalıyken denetle; paket işlemi sürerken bilgisayarı kapatma.', 'muted'), False, False, 0)
         self.stack = Gtk.Stack()
+        ui_theme.configure_stack(self.window, self.stack)
         switcher = Gtk.StackSwitcher(stack=self.stack, halign=Gtk.Align.CENTER)
         box.pack_start(switcher, False, False, 0)
         self.stack.add_titled(self.updates_page(), 'updates', 'Güncellemeler')
         self.stack.add_titled(self.drivers_page(), 'drivers', 'Sürücüler')
         self.stack.add_titled(self.sources_page(), 'sources', 'Depolar ve Mağaza')
         box.pack_start(self.stack, True, True, 0)
+        self.voicebar = NarrationBar(self.window, lambda: 'hardware' if self.stack.get_visible_child_name() == 'drivers' else 'store' if self.stack.get_visible_child_name() == 'sources' else 'applications')
+        self.stack.connect('notify::visible-child-name', self.voicebar.refresh)
+        box.pack_start(self.voicebar, False, False, 0)
         self.status = text('Hazır. Henüz ağ isteği yapılmadı.', 'muted')
         box.pack_start(self.status, False, False, 0)
         scroll = Gtk.ScrolledWindow()
@@ -116,7 +123,7 @@ class Updater(Gtk.Application):
     def drivers_page(self):
         page = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=12)
         page.pack_start(text('Önce aygıtı tanı; sürücüyü zorlamayalım.', 'section-title'), False, False, 0)
-        page.pack_start(text('Debian’ın imzalı firmware paketleri donanım üreticisiyle eşleştirilir. Öneri, sorunun kesin firmware olduğu anlamına gelmez. Çalışan modüller sökülmez; Ubuntu/Kali çekirdek paketleri karıştırılmaz.'), False, False, 0)
+        page.pack_start(text('Tabanın imzalı firmware paketleri donanım üreticisiyle eşleştirilir. Öneri, sorunun kesin firmware olduğu anlamına gelmez. Çalışan modüller sökülmez; Ubuntu/Kali çekirdek paketleri karıştırılmaz.'), False, False, 0)
         self.button(page, 'Aygıtları tara', lambda *_: self.backend(['drivers'], self.show_drivers))
         self.drivers = Gtk.ComboBoxText()
         self.controls.append(self.drivers)
@@ -129,22 +136,11 @@ class Updater(Gtk.Application):
 
     def sources_page(self):
         page = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=12)
-        page.pack_start(text('Debian + kontrollü Pardus + Flathub', 'section-title'), False, False, 0)
-        page.pack_start(text('Debian sistemin temelidir. Pardus 25 kanalı amd64/trixie için isteğe bağlıdır ve yalnızca Pardus Image Writer, Night Light, Pen paketlerine izin verir. Diğer Pardus paketlerinin önceliği −1’dir; çekirdek / libc / GRUB çapraz yükseltilmez. Pardus taban depoları (-deb) eklenmez.'), False, False, 0)
-        row = Gtk.Box(spacing=8)
-        self.button(row, 'Pardus kanalını aç…', lambda *_: self.channel(True))
-        self.button(row, 'Pardus kanalını kapat', lambda *_: self.backend(['pardus-disable']))
-        page.pack_start(row, False, False, 0)
-        self.pardus = Gtk.ComboBoxText()
-        for package in maintenance.PARDUS_APPS:
-            self.pardus.append(package, package)
-        self.pardus.set_active(0)
-        self.controls.append(self.pardus)
-        page.pack_start(self.pardus, False, False, 0)
-        self.button(page, 'Seçilen Pardus uygulaması için plan göster', lambda *_: self.preview('pardus:' + self.pardus.get_active_id()))
-        page.pack_start(text('Mağaza: GNOME Yazılımlar + imza doğrulamalı Flathub. Mağaza açılışta çalıştırılmaz. Özellikle i386’de tüm Flathub uygulamaları mevcut değildir; APT uygulamaları kullanılabilir.'), False, False, 0)
-        self.button(page, 'GNOME Yazılımlar’ı aç', lambda *_: self.store())
+        page.pack_start(text('OğuzDows · Uygulama kaynakları', 'section-title'), False, False, 0)
+        page.pack_start(text('Sistem paketleri kendi imzalı taban kaynağından gelir. Yeni uygulamalar için isteğe bağlı kullanıcı Flathub’u ekleyebilirsin. Başka dağıtımların çekirdek / libc / GRUB depoları karıştırılmaz. Snap kullanılmaz.'), False, False, 0)
+        self.button(page, 'OğuzDows Mağaza’yı aç', lambda *_: self.store())
         self.button(page, 'Flathub kaynağını kur / denetle…', lambda *_: self.store('setup'))
+        page.pack_start(text('Mağaza yerel, derlenen GTK arayüzüdür. Otomatik başlangıç / indirme yoktur. i386 ve eski ARM cihazlarda her uygulama bulunmaz. Teknik depo kökeni ve zorunlu lisans / telif bilgileri gizlenmez.'), False, False, 0)
         self.button(page, 'Anlık bellek kullanımını ölç', self.memory)
         self.memory_label = text('600 MB hedefi: temiz açılmış, uygulamaları kapalı varsayılan Xfce oturumu. Donanım ve sürücülere göre ayrıca ölçülür.')
         page.pack_start(self.memory_label, False, False, 0)
@@ -191,10 +187,6 @@ class Updater(Gtk.Application):
             plan = self.plan
             self.invalidate()
             self.backend(['apply', plan['request'], plan['token']])
-
-    def channel(self, enabled):
-        if not enabled or self.confirm('Kontrollü Pardus kanalı açılsın mı?', 'Yalnızca seçili uygulamalar, uygun taban ve gömülü doğrulanmış imza anahtarıyla. Uyumsuz bağımlılıklar zorlanmaz. Diğer dağıtım depoları sisteme eklenmez.'):
-            self.backend(['pardus-enable' if enabled else 'pardus-disable'])
 
     def memory(self, *_):
         try:

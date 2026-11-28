@@ -1,0 +1,15 @@
+{
+  "KPackageStructure": "KWin/Effect",
+  "KPlugin": {
+    "Id": "oguzdows-aero",
+    "Name": "OğuzDows Aero",
+    "Description": "Explicit opt-in, resource-gated spring window transitions",
+    "Version": "1",
+    "License": "GPL-3.0-or-later",
+    "EnabledByDefault": false
+  },
+  "X-Plasma-API": "javascript",
+  "X-Plasma-MainScript": "code/main.js",
+  "X-KDE-Ordering": 60,
+  "X-KWin-Exclusive-Category": "toplevel-open-close-animation"
+}

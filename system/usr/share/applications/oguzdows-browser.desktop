@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Name=Web Tarayıcısı
+Exec=/usr/local/bin/oguzdows-browser %u
+Icon=oguzdows-browser
+Terminal=false
+Categories=Network;WebBrowser;
+MimeType=text/html;x-scheme-handler/http;x-scheme-handler/https;

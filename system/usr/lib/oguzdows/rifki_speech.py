@@ -29,9 +29,20 @@ def text_key(text):
     return hashlib.sha256(('tr-v1\n'+canonical(text)).encode()).hexdigest()
 
 
-def ready_clip(text, assets=ASSETS):
+def load_manifest(assets=ASSETS):
     try:
-        manifest=json.loads((assets/'speech.json').read_text())
+        path = assets / 'speech.json'
+        if path.stat().st_size > 65536:
+            return {}
+        result = json.loads(path.read_text())
+        return result if isinstance(result, dict) else {}
+    except (OSError, ValueError):
+        return {}
+
+
+def ready_clip(text, assets=ASSETS, manifest=None):
+    try:
+        manifest = load_manifest(assets) if manifest is None else manifest
         name=manifest.get(text_key(text))
         if not isinstance(name,str) or Path(name).name!=name or not name.endswith('.wav'):
             return None
@@ -46,6 +57,8 @@ class Speaker:
         self.dispatch=dispatch
         self.on_error=on_error or (lambda _:None)
         self.assets=assets
+        # Açılışta bir kez oku; her sayfa değişiminde JSON/klasör taraması yok.
+        self.clips=load_manifest(assets)
         self.process=None
         self.generation=0
         self.closed=False
@@ -88,7 +101,7 @@ class Speaker:
         self.stop()
         if not self.enabled or self.closed or not self.last_text:
             return False
-        path=ready_clip(self.last_text,self.assets)
+        path=ready_clip(self.last_text,self.assets,self.clips)
         if path is None and cue in CUES:
             candidate=self.assets/CUES[cue]
             if candidate.is_file() and not candidate.is_symlink():

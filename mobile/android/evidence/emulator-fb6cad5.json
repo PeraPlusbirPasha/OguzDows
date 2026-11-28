@@ -1,0 +1,101 @@
+{
+  "source_sha": "fb6cad5a3f56c5bf37e739388ded5ffce8e5ad13",
+  "sdk": "35",
+  "abi": "x86_64",
+  "image_fingerprint": "google/sdk_gphone64_x86_64/emu64xa:15/AE3A.240806.043/12960925:userdebug/dev-keys",
+  "emulator_only": true,
+  "physical_sim_tested": false,
+  "emergency_calls_tested": false,
+  "gms_certification_tested": false,
+  "mms_rcs_supported": false,
+  "tests": [
+    {
+      "name": "NativeDeviceTest.bundledBridgeRolesValidationAndIsolation",
+      "passed": true,
+      "test_cases": 1,
+      "seconds": 26.23
+    },
+    {
+      "name": "NativeDeviceTest.paidActionsRequireFinalNativeConsent",
+      "passed": true,
+      "test_cases": 1,
+      "seconds": 15.55
+    },
+    {
+      "name": "NativeDeviceTest.systemVolumeBrightnessAndNativeThemeAreReal",
+      "passed": true,
+      "test_cases": 1,
+      "seconds": 15.27
+    },
+    {
+      "name": "NativeDeviceTest.incomingSmsUsesTheRealProviderAndRichInbox",
+      "passed": true,
+      "test_cases": 1,
+      "seconds": 15.45
+    },
+    {
+      "name": "NativeDeviceTest.outgoingSmsWaitsForActualSentCallback",
+      "passed": true,
+      "test_cases": 1,
+      "seconds": 12.53
+    },
+    {
+      "name": "NativeDeviceTest.outgoingCallUsesTelecomAndOurInCallService",
+      "passed": true,
+      "test_cases": 1,
+      "seconds": 17.35
+    },
+    {
+      "name": "NativeDeviceTest.incomingCallCanBeAnsweredMutedAndEndedInOurUi",
+      "passed": true,
+      "test_cases": 1,
+      "seconds": 10.22
+    },
+    {
+      "name": "NativeDeviceTest.localApkReviewCancelAndSystemInstall",
+      "passed": true,
+      "test_cases": 1,
+      "seconds": 20.5
+    },
+    {
+      "name": "LauncherDeviceTest.suite",
+      "passed": true,
+      "test_cases": 5,
+      "seconds": 67.57
+    },
+    {
+      "name": "RepositorySecurityTest.suite",
+      "passed": true,
+      "test_cases": 3,
+      "seconds": 1.68
+    },
+    {
+      "name": "LiveRepositoryTest.suite",
+      "passed": true,
+      "test_cases": 1,
+      "seconds": 17.18
+    }
+  ],
+  "live_repository": {
+    "apps": 5057,
+    "compatible": 5016,
+    "timestamp": 1795648445236,
+    "synced": 1795812696231,
+    "source": "https://f-droid.org/repo"
+  },
+  "live_apk_review": "APK_REVIEW com.beemdevelopment.aegis code=82 sha256=0eecec45de0da3ff1358004b51e2960d9178551643a6ed44f6496ea9ec999c19 bytes=6869856 installed=false",
+  "passed": true,
+  "github": {
+    "run_url": "https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/46065713858",
+    "job_id": 140730403637,
+    "job_url": "https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/46065713858/job/140730403637",
+    "scope": "Native 0.3 launcher acceptance: 17/17 cases in 11 selections; emulator only. SDK assembly is not device evidence on its own."
+  },
+  "visual_preview": {
+    "path": "../../screenshots/launcher-native-emulator.jpg",
+    "width": 234,
+    "height": 520,
+    "sha256": "37147bdecd792b58e44b790ba93a0901264a2105b6b05f1ced93a7e5e9d2b36f",
+    "source": "Actual UiDevice screenshot in LauncherDeviceTest.test05, resized/JPEG-compressed on the disposable emulator, reconstructed from six ordered checks-annotation chunks. Full-resolution PNGs remain in the CI artifact. Not a mock-up, browser capture, generated image or physical-phone photo."
+  }
+}

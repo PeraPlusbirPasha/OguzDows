@@ -1,0 +1,765 @@
+{
+  "schema_version": 1,
+  "scope": "ARM-only-new-images-with-exact-75-source-contract-and-real-target-appearance-not-physical-Pi",
+  "repository": "PeraPlusbirPasha/OguzDows",
+  "product_version": "2.0",
+  "tag": "v2.0-arm1",
+  "release_id": 461532378,
+  "url": "https://github.com/PeraPlusbirPasha/OguzDows/releases/tag/v2.0-arm1",
+  "published": true,
+  "prerelease": false,
+  "latest_at_publication": false,
+  "source_revision": "c5063ee8b558cb6c8af8301143cf3ce02106e2aa",
+  "publisher_revision": "3f8541a0c1129323f2882ade4e0776a7d7aad70e",
+  "asset_count": 11,
+  "files": {
+    "INDIRME-REHBERI.md": {
+      "id": 804609767,
+      "size": 7222,
+      "sha256": "fd822fc9594aabce2932401384bd9bb423a577552491da4ecd2c0ea257544509",
+      "state": "uploaded",
+      "url": "https://github.com/PeraPlusbirPasha/OguzDows/releases/download/v2.0-arm1/INDIRME-REHBERI.md"
+    },
+    "OguzDows-rpi-arm64.img.xz": {
+      "id": 804609806,
+      "size": 942489748,
+      "sha256": "cd946ee2e0bd3a9e58f6dbb7abf14af12b4af341c79567520fd6d0344e5da4de",
+      "state": "uploaded",
+      "url": "https://github.com/PeraPlusbirPasha/OguzDows/releases/download/v2.0-arm1/OguzDows-rpi-arm64.img.xz"
+    },
+    "OguzDows-rpi-arm64.img.xz.sha256": {
+      "id": 804611107,
+      "size": 92,
+      "sha256": "2d84c469ac7b841b5356512ce4837df40abf7f16af2c5c9efc34b7c60c674946",
+      "state": "uploaded",
+      "url": "https://github.com/PeraPlusbirPasha/OguzDows/releases/download/v2.0-arm1/OguzDows-rpi-arm64.img.xz.sha256"
+    },
+    "OguzDows-rpi-arm64.packages.txt": {
+      "id": 804611145,
+      "size": 179156,
+      "sha256": "14a027b2d55e7bf64d91c87513b9791d66e97fdd08418211470cca2be4af2044",
+      "state": "uploaded",
+      "url": "https://github.com/PeraPlusbirPasha/OguzDows/releases/download/v2.0-arm1/OguzDows-rpi-arm64.packages.txt"
+    },
+    "OguzDows-rpi-armhf.img.xz": {
+      "id": 804611199,
+      "size": 983647880,
+      "sha256": "169efe8d60392ce4a2e26519f4bc72712e4ded0b150fda63d91c473dabca0b35",
+      "state": "uploaded",
+      "url": "https://github.com/PeraPlusbirPasha/OguzDows/releases/download/v2.0-arm1/OguzDows-rpi-armhf.img.xz"
+    },
+    "OguzDows-rpi-armhf.img.xz.sha256": {
+      "id": 804612477,
+      "size": 92,
+      "sha256": "17197894cbeca9dce84856f8a9cfac244a6114f8ba37022a450c0e08e4486907",
+      "state": "uploaded",
+      "url": "https://github.com/PeraPlusbirPasha/OguzDows/releases/download/v2.0-arm1/OguzDows-rpi-armhf.img.xz.sha256"
+    },
+    "OguzDows-rpi-armhf.packages.txt": {
+      "id": 804612523,
+      "size": 178113,
+      "sha256": "bfc2abc23702433adf848226228bf14e0ab2fe782608a38c69142e5cee1d7401",
+      "state": "uploaded",
+      "url": "https://github.com/PeraPlusbirPasha/OguzDows/releases/download/v2.0-arm1/OguzDows-rpi-armhf.packages.txt"
+    },
+    "pi-gen.lock.json": {
+      "id": 804612608,
+      "size": 1375,
+      "sha256": "cfcb91286ad0e894cb9d5fc2055751e83f2334c14110436670b07d40d24c03c1",
+      "state": "uploaded",
+      "url": "https://github.com/PeraPlusbirPasha/OguzDows/releases/download/v2.0-arm1/pi-gen.lock.json"
+    },
+    "release-manifest.json": {
+      "id": 804612638,
+      "size": 6551,
+      "sha256": "bc41bd59ef0a29bba5a7acc9890729d185086955663dad2ca27a11a41956eb79",
+      "state": "uploaded",
+      "url": "https://github.com/PeraPlusbirPasha/OguzDows/releases/download/v2.0-arm1/release-manifest.json"
+    },
+    "SHA256SUMS": {
+      "id": 804612583,
+      "size": 184,
+      "sha256": "e30790199958c43e0f9a7aa1b8618c259aa67b7c9375a5cfd623be4de142495d",
+      "state": "uploaded",
+      "url": "https://github.com/PeraPlusbirPasha/OguzDows/releases/download/v2.0-arm1/SHA256SUMS"
+    },
+    "test-evidence.tar.gz": {
+      "id": 804612672,
+      "size": 15247,
+      "sha256": "fd06224efd896e846c9a6b081542a17fe7d172853b0cf9ae93e5caf5caa18b16",
+      "state": "uploaded",
+      "url": "https://github.com/PeraPlusbirPasha/OguzDows/releases/download/v2.0-arm1/test-evidence.tar.gz"
+    }
+  },
+  "images_built_in_source_run": true,
+  "images_repacked_by_publisher": false,
+  "pc_rebuilt": false,
+  "mobile_rebuilt": false,
+  "historical_v2_assets_modified": false,
+  "physical_boot_verified": false,
+  "pi_performance_measured": false,
+  "source_run": {
+    "id": 46142709227,
+    "url": "https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/46142709227",
+    "source_revision": "c5063ee8b558cb6c8af8301143cf3ce02106e2aa",
+    "conclusion": "success",
+    "jobs": [
+      {
+        "id": 140971984397,
+        "name": "Pi yapılandırma ve güvenlik testleri",
+        "conclusion": "success",
+        "url": "https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/46142709227/job/140971984397"
+      },
+      {
+        "id": 140972624937,
+        "name": "Pi SD/USB imajı · arm64",
+        "conclusion": "success",
+        "url": "https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/46142709227/job/140972624937"
+      },
+      {
+        "id": 140972624939,
+        "name": "Pi SD/USB imajı · armhf",
+        "conclusion": "success",
+        "url": "https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/46142709227/job/140972624939"
+      }
+    ],
+    "artifacts": {
+      "OguzDows-Pi-gunluk-arm64": {
+        "id": 15264816054,
+        "name": "OguzDows-Pi-gunluk-arm64",
+        "size_in_bytes": 138049,
+        "digest": "sha256:96351ae1a2caa768fd05552c8011c7cc048c1a8d710c992072eb59f3f7408a5a"
+      },
+      "OguzDows-Pi-gunluk-armhf": {
+        "id": 15264501937,
+        "name": "OguzDows-Pi-gunluk-armhf",
+        "size_in_bytes": 137150,
+        "digest": "sha256:ff1ea03dafd7376ada2b559755da7e20943fc242470595ea42d9461c7e4aba63"
+      },
+      "OguzDows-rpi-arm64": {
+        "id": 15264417479,
+        "name": "OguzDows-rpi-arm64",
+        "size_in_bytes": 942670993,
+        "digest": "sha256:0f5de7fc9f7f835fd715b9849e5d02e271b8a3f878050f0abb85a48d51f6aaa7"
+      },
+      "OguzDows-rpi-armhf": {
+        "id": 15264337951,
+        "name": "OguzDows-rpi-armhf",
+        "size_in_bytes": 983828082,
+        "digest": "sha256:29cc1b8882e6e70eaa5ff21492e87bbad4ecfbb9f9df8df3d38094d22d3aff10"
+      }
+    },
+    "artifact_digest_scope": "Actions ZIP archives only; actual compressed image SHA-256 is in files and SHA256SUMS"
+  },
+  "target_runtime_reports": {
+    "armhf": {
+      "scope": "ARM-qemu-user-with-host-Xvfb",
+      "physical_boot": false,
+      "hardware_gpu": false,
+      "performance_measurement": false,
+      "errors": [],
+      "arch": "armhf",
+      "minimum_cpu": "arm1176",
+      "gui": {
+        "gtk_window": true,
+        "gtk_version": [
+          3,
+          24,
+          38
+        ],
+        "xfce_version": "xfce4-session 4.18.1 (Xfce 4.18)",
+        "native_store_version": "OğuzDows Mağaza · GTK 3.24.38",
+        "native_news_version": "OğuzDows Haber · GTK 3.24.38"
+      },
+      "feature_presence": {
+        "groups": [
+          "desktop-start-menu",
+          "welcome-rifki-narration",
+          "independent-light-dark-and-xp",
+          "cultural-wallpapers-and-tools",
+          "native-store",
+          "device-and-file-inspection",
+          "web-office-media",
+          "network-bluetooth-audio",
+          "pi-kms-camera-gpio",
+          "lightweight-news",
+          "original-icons-and-budgeted-transitions",
+          "offline-workbench",
+          "pc-phone-arm-bridge"
+        ],
+        "asset_hashes": 75,
+        "wallpapers": 20,
+        "selected_narration": 11,
+        "speech_contexts": 25
+      },
+      "full_session": {
+        "scope": "non-root-Xfce-on-host-Xvfb",
+        "uid": 65534,
+        "lightdm_pam": false,
+        "physical_boot": false,
+        "performance_measurement": false,
+        "errors": [],
+        "xfwm4": true,
+        "xfce4-panel": true,
+        "xfdesktop": true,
+        "x11_window_manager": "Xfwm4",
+        "stable_samples": 5,
+        "panel_configuration": "Value is an array with 1 items:\n\n1",
+        "startup_profile": "full",
+        "appearance": {
+          "schema": 1,
+          "scope": "target-user-QEMU-real-Xfce-appearance",
+          "gtk3_dark_light_reloaded": true,
+          "gtk_themes": {
+            "dark": "OguzDowsXPDarkUser-64d1e089f51915c4",
+            "light": "OguzDowsXPUser-55f765198363859e"
+          },
+          "wallpaper_ids": [
+            "kackar-sisi",
+            "bogaz-sabahi"
+          ],
+          "wallpaper_pixel_sha256": [
+            "da9fc1519075a321f6480f390e091087dfa7dc2a81615540635106c113e257fd",
+            "298fe369ec337a08125cffc0476d751195e9acebc4df525fa70cc66a8ea80e4b"
+          ],
+          "wallpaper_pixels_changed": true,
+          "settings_backend_mocked": false,
+          "packaged_wallpapers": true,
+          "welcome_callbacks_tested": false,
+          "gtk4_portal_tested": false,
+          "physical_device": false,
+          "performance_measurement": false
+        },
+        "news": {
+          "native_process_alive": true,
+          "worker_exited": true,
+          "cached_fixture_preserved": true,
+          "network_tested": false,
+          "performance_measurement": false,
+          "window_pixels_verified": false
+        },
+        "browser": {
+          "program": "netsurf-gtk",
+          "local_start_page_alive": true,
+          "network_tested": false,
+          "modern_sites_verified": false
+        }
+      },
+      "packages_checked": 128
+    },
+    "arm64": {
+      "scope": "ARM-qemu-user-with-host-Xvfb",
+      "physical_boot": false,
+      "hardware_gpu": false,
+      "performance_measurement": false,
+      "errors": [],
+      "arch": "arm64",
+      "minimum_cpu": "cortex-a53",
+      "gui": {
+        "gtk_window": true,
+        "gtk_version": [
+          3,
+          24,
+          38
+        ],
+        "xfce_version": "xfce4-session 4.18.1 (Xfce 4.18)",
+        "native_store_version": "OğuzDows Mağaza · GTK 3.24.38",
+        "native_news_version": "OğuzDows Haber · GTK 3.24.38"
+      },
+      "feature_presence": {
+        "groups": [
+          "desktop-start-menu",
+          "welcome-rifki-narration",
+          "independent-light-dark-and-xp",
+          "cultural-wallpapers-and-tools",
+          "native-store",
+          "device-and-file-inspection",
+          "web-office-media",
+          "network-bluetooth-audio",
+          "pi-kms-camera-gpio",
+          "lightweight-news",
+          "original-icons-and-budgeted-transitions",
+          "offline-workbench",
+          "pc-phone-arm-bridge"
+        ],
+        "asset_hashes": 75,
+        "wallpapers": 20,
+        "selected_narration": 11,
+        "speech_contexts": 25
+      },
+      "full_session": {
+        "scope": "non-root-Xfce-on-host-Xvfb",
+        "uid": 65534,
+        "lightdm_pam": false,
+        "physical_boot": false,
+        "performance_measurement": false,
+        "errors": [],
+        "xfwm4": true,
+        "xfce4-panel": true,
+        "xfdesktop": true,
+        "x11_window_manager": "Xfwm4",
+        "stable_samples": 5,
+        "panel_configuration": "Value is an array with 1 items:\n\n1",
+        "startup_profile": "full",
+        "appearance": {
+          "schema": 1,
+          "scope": "target-user-QEMU-real-Xfce-appearance",
+          "gtk3_dark_light_reloaded": true,
+          "gtk_themes": {
+            "dark": "OguzDowsXPDarkUser-64d1e089f51915c4",
+            "light": "OguzDowsXPUser-55f765198363859e"
+          },
+          "wallpaper_ids": [
+            "kackar-sisi",
+            "bogaz-sabahi"
+          ],
+          "wallpaper_pixel_sha256": [
+            "da9fc1519075a321f6480f390e091087dfa7dc2a81615540635106c113e257fd",
+            "298fe369ec337a08125cffc0476d751195e9acebc4df525fa70cc66a8ea80e4b"
+          ],
+          "wallpaper_pixels_changed": true,
+          "settings_backend_mocked": false,
+          "packaged_wallpapers": true,
+          "welcome_callbacks_tested": false,
+          "gtk4_portal_tested": false,
+          "physical_device": false,
+          "performance_measurement": false
+        },
+        "news": {
+          "native_process_alive": true,
+          "worker_exited": true,
+          "cached_fixture_preserved": true,
+          "network_tested": false,
+          "performance_measurement": false,
+          "window_pixels_verified": false
+        }
+      },
+      "packages_checked": 132
+    }
+  },
+  "image_identity": {
+    "arm64": {
+      "scope": "read-only-MBR-FAT-ext4-identity-and-existing-verifier-not-physical-boot",
+      "build": {
+        "platform": "raspberrypi",
+        "arch": "arm64",
+        "suite": "bookworm",
+        "pi_gen_commit": "3a7eeb9bd49278375b8871b284c1aacf54a31b34",
+        "status": "physical-boot-unverified",
+        "source_revision": "c5063ee8b558cb6c8af8301143cf3ce02106e2aa",
+        "source_dirty": false
+      },
+      "version": "2.0",
+      "uncompressed_bytes": 4731174912,
+      "uncompressed_sha256": "7d2a88977a162de0e766290a9649e712e5fb89a14f0e88a56ef3c09f8c31b43b",
+      "existing_pi_verifier_passed": true,
+      "embedded_runtime_matches_raw_artifact": true
+    },
+    "armhf": {
+      "scope": "read-only-MBR-FAT-ext4-identity-and-existing-verifier-not-physical-boot",
+      "build": {
+        "platform": "raspberrypi",
+        "arch": "armhf",
+        "suite": "bookworm",
+        "pi_gen_commit": "8b71acc79287392a63985ba383c496d5419426b4",
+        "status": "physical-boot-unverified",
+        "source_revision": "c5063ee8b558cb6c8af8301143cf3ce02106e2aa",
+        "source_dirty": false
+      },
+      "version": "2.0",
+      "uncompressed_bytes": 4043309056,
+      "uncompressed_sha256": "1927299edf1b84227c17e2f54a6edc957649bcf6d6e5cb281cf97fdefe24ed3a",
+      "existing_pi_verifier_passed": true,
+      "embedded_runtime_matches_raw_artifact": true
+    }
+  },
+  "release_transfer": {
+    "run_id": 46147922509,
+    "url": "https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/46147922509",
+    "job_id": 140987938125,
+    "conclusion": "success",
+    "actual_receipt": {
+      "release_id": 461532378,
+      "tag": "v2.0-arm1",
+      "draft": true,
+      "source_revision": "c5063ee8b558cb6c8af8301143cf3ce02106e2aa",
+      "source_run_id": 46142709227,
+      "asset_count": 11,
+      "historical_v2_assets_modified": false
+    }
+  },
+  "release_download_audit": {
+    "run_id": 46149729927,
+    "url": "https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/46149729927",
+    "job_id": 140993658929,
+    "conclusion": "success",
+    "release_id": 461532378,
+    "tag": "v2.0-arm1",
+    "source_run_id": 46142709227,
+    "source_revision": "c5063ee8b558cb6c8af8301143cf3ce02106e2aa",
+    "publisher_revision": "3f8541a0c1129323f2882ade4e0776a7d7aad70e",
+    "asset_count": 11,
+    "evidence_file_count": 13,
+    "all_release_assets_redownloaded_and_hashed": true,
+    "both_images_reinspected_read_only": true,
+    "expected_75_source_asset_contracts_matched": true,
+    "release_modified": false,
+    "draft": true,
+    "download_access": "asset-scoped-signed-GET",
+    "live_draft_metadata_rechecked_inside_audit": false,
+    "publication_collector_must_recheck_live_metadata": true,
+    "draft_snapshot_sha256": "9361682e08d00c533f9a0d2fb2c6b913a2702861615365919a0fe8a0ef9fbffc",
+    "physical_boot": false
+  },
+  "draft_read_access_and_live_metadata_recheck": {
+    "helper_job_id": 140993540016,
+    "helper_url": "https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/46149729927/job/140993540016",
+    "helper_conclusion": "success",
+    "helper_permissions": {
+      "contents": "write",
+      "actions": "read"
+    },
+    "helper_only_GETs_no_Release_mutation": true,
+    "helper_note": "GitHub requires contents:write even to GET private draft metadata; the separate auditor is read-only",
+    "audit_job_permissions": {
+      "contents": "read",
+      "actions": "read"
+    },
+    "bearer_token_exported_to_auditor": false,
+    "download_access": "expiring asset-only read SAS URLs; no generic GitHub credential",
+    "live_release_snapshot_sha256": "9361682e08d00c533f9a0d2fb2c6b913a2702861615365919a0fe8a0ef9fbffc",
+    "live_metadata_rechecked_after_audit_by_collector": true,
+    "snapshot_hash_scope": "Release ID/tag/source/notes/draft/prerelease and stable asset API IDs/names/URLs/sizes/digests/states; mutable untagged browser routes excluded and validated separately",
+    "snapshot_draft_field_normalized_only_after_authorized_publication": true,
+    "earlier_rejected_access_helper_attempt": {
+      "run_id": 46149474218,
+      "job_id": 140992746242,
+      "conclusion": "failure",
+      "accepted": false,
+      "image_audit_started": false,
+      "reason": "Private draft has temporary untagged browser routes; strict URL validation stopped before any download"
+    },
+    "earlier_rejected_attempt": {
+      "run_id": 46148281246,
+      "job_id": 140989023993,
+      "conclusion": "failure",
+      "accepted": false,
+      "reason": "Private draft GET denied to contents:read (403), before any image audit",
+      "downloads_or_image_inspection_started": false
+    }
+  },
+  "full_product_bytes_hashed_in_GitHub_runner": true,
+  "full_product_bytes_downloaded_or_independently_hashed_in_local_sandbox": false,
+  "previous_releases_preserved": {
+    "v2.0": {
+      "release_id": 461210500,
+      "source_revision": "5a44de0dde676d901a32be40d631d481e213439d",
+      "asset_count": 26,
+      "body_sha256": "a2577c57c655bcb7e42803f0c2f3b38331e1be2e444a3521ecf6dae026aac078",
+      "tag_body_asset_ids_sizes_hashes_unchanged": true
+    },
+    "v1.2": {
+      "release_id": 460537352,
+      "source_revision": "dc92fe9e47d8cdc599094281780e274cc49d1470",
+      "asset_count": 17,
+      "body_sha256": "9a91f1a7edd82d390f341a05b9a75de8324f5525802e4e64ad6a18292a8dd8a0",
+      "tag_body_asset_ids_sizes_hashes_unchanged": true
+    },
+    "v1.1": {
+      "release_id": 455583593,
+      "source_revision": "29f7738534cd00bd87887f530355ef45e01eb28c",
+      "asset_count": 17,
+      "body_sha256": "f42850683fa13925a243270dd881cf4beccf916db09a693f38fec9131d808486",
+      "tag_body_asset_ids_sizes_hashes_unchanged": true
+    },
+    "v1.0.0": {
+      "release_id": 452038375,
+      "source_revision": "bcd03315873f186ee25f9296afc44356defd0763",
+      "asset_count": 8,
+      "body_sha256": "f6e7c447c722e0a3dfa2084f9ed86e99a6814c3af276ce0f01921296c5e4ce41",
+      "tag_body_asset_ids_sizes_hashes_unchanged": true
+    }
+  },
+  "newer_mobile_ci_not_accepted": [
+    {
+      "run_id": 46141102883,
+      "job_id": 140967180202,
+      "url": "https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/46141102883/job/140967180202",
+      "attempt": 1,
+      "source_revision": "01f634c7c03825096269d6eef0fdb9ec1da40435",
+      "conclusion": "failure",
+      "accepted": false,
+      "product_anr_detected": true,
+      "product_crash_detected": false,
+      "runtime_anr_crash_checks_performed": true,
+      "acceptance_failure": "Acceptance refused: missing / unexpected scope or app health: product_anr_detected",
+      "setup_failure": null,
+      "preflight": {
+        "sim_state": "LOADED",
+        "default_sms_subscription_setting": 1,
+        "active_default_network": 100,
+        "ready": true
+      },
+      "failed_selections": [],
+      "missing_native_ui": [],
+      "root_cause_confirmed": false,
+      "product_source_paths_unchanged_from_original_v2": [
+        "mobile/android/app/src",
+        "mobile/android/fixture",
+        "mobile/scripts",
+        "mobile/preview/src",
+        "mobile/preview/public"
+      ],
+      "replaces_original_apk_acceptance": false
+    },
+    {
+      "run_id": 46141102883,
+      "job_id": 140971721566,
+      "url": "https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/46141102883/job/140971721566",
+      "attempt": 2,
+      "source_revision": "01f634c7c03825096269d6eef0fdb9ec1da40435",
+      "conclusion": "failure",
+      "accepted": false,
+      "product_anr_detected": false,
+      "product_crash_detected": false,
+      "runtime_anr_crash_checks_performed": true,
+      "acceptance_failure": "Acceptance refused: failed / empty / skipped / wrong native case count: LauncherDeviceTest.suite",
+      "setup_failure": null,
+      "preflight": {
+        "sim_state": "LOADED",
+        "default_sms_subscription_setting": 1,
+        "active_default_network": 100,
+        "ready": true
+      },
+      "failed_selections": [
+        {
+          "name": "LauncherDeviceTest.suite",
+          "passed": false,
+          "test_cases": 0,
+          "seconds": 98.89,
+          "failure": "INSTRUMENTATION_STATUS: stack=java.lang.AssertionError: Missing native UI: launcher-device-panel; pa"
+        }
+      ],
+      "missing_native_ui": [
+        "launcher-device-panel"
+      ],
+      "root_cause_confirmed": false,
+      "product_source_paths_unchanged_from_original_v2": [
+        "mobile/android/app/src",
+        "mobile/android/fixture",
+        "mobile/scripts",
+        "mobile/preview/src",
+        "mobile/preview/public"
+      ],
+      "replaces_original_apk_acceptance": false
+    },
+    {
+      "run_id": 46143262394,
+      "job_id": 140974464222,
+      "url": "https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/46143262394/job/140974464222",
+      "attempt": 1,
+      "source_revision": "86347fc7e16830a598edf6d183093b995779998b",
+      "conclusion": "failure",
+      "accepted": false,
+      "product_anr_detected": false,
+      "product_crash_detected": false,
+      "runtime_anr_crash_checks_performed": true,
+      "acceptance_failure": "Acceptance refused: failed / empty / skipped / wrong native case count: LauncherDeviceTest.suite",
+      "setup_failure": null,
+      "preflight": {
+        "sim_state": "LOADED",
+        "default_sms_subscription_setting": 1,
+        "active_default_network": 100,
+        "ready": true
+      },
+      "failed_selections": [
+        {
+          "name": "LauncherDeviceTest.suite",
+          "passed": false,
+          "test_cases": 0,
+          "seconds": 89.8,
+          "failure": "INSTRUMENTATION_STATUS: stack=java.lang.AssertionError: Missing native UI: launcher-wallpapers; pack"
+        }
+      ],
+      "missing_native_ui": [
+        "launcher-wallpapers"
+      ],
+      "root_cause_confirmed": false,
+      "product_source_paths_unchanged_from_original_v2": [
+        "mobile/android/app/src",
+        "mobile/android/fixture",
+        "mobile/scripts",
+        "mobile/preview/src",
+        "mobile/preview/public"
+      ],
+      "replaces_original_apk_acceptance": false
+    },
+    {
+      "run_id": 46144565111,
+      "job_id": 140977645533,
+      "url": "https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/46144565111/job/140977645533",
+      "attempt": 1,
+      "source_revision": "3f8541a0c1129323f2882ade4e0776a7d7aad70e",
+      "conclusion": "failure",
+      "accepted": false,
+      "product_anr_detected": false,
+      "product_crash_detected": false,
+      "runtime_anr_crash_checks_performed": true,
+      "acceptance_failure": "Acceptance refused: failed / empty / skipped / wrong native case count: LauncherDeviceTest.suite",
+      "setup_failure": null,
+      "preflight": {
+        "sim_state": "LOADED",
+        "default_sms_subscription_setting": 1,
+        "active_default_network": 100,
+        "ready": true
+      },
+      "failed_selections": [
+        {
+          "name": "LauncherDeviceTest.suite",
+          "passed": false,
+          "test_cases": 0,
+          "seconds": 93.2,
+          "failure": "INSTRUMENTATION_STATUS: stack=java.lang.AssertionError: Missing native UI: launcher-wallpapers; pack"
+        }
+      ],
+      "missing_native_ui": [
+        "launcher-wallpapers"
+      ],
+      "root_cause_confirmed": false,
+      "product_source_paths_unchanged_from_original_v2": [
+        "mobile/android/app/src",
+        "mobile/android/fixture",
+        "mobile/scripts",
+        "mobile/preview/src",
+        "mobile/preview/public"
+      ],
+      "replaces_original_apk_acceptance": false
+    },
+    {
+      "run_id": 46149463903,
+      "job_id": 140992711587,
+      "url": "https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/46149463903/job/140992711587",
+      "attempt": 1,
+      "source_revision": "5d21038334973507cd9a3f186c1ae4d5b362d3aa",
+      "conclusion": "failure",
+      "accepted": false,
+      "product_anr_detected": null,
+      "product_crash_detected": null,
+      "runtime_anr_crash_checks_performed": false,
+      "acceptance_failure": "QEMU SIM / OS-selected SMS subscription / default network not ready; no device acceptance inferred.",
+      "setup_failure": "QEMU SIM / OS-selected SMS subscription / default network not ready; no device acceptance inferred.",
+      "preflight": {
+        "sim_state": "LOADED",
+        "default_sms_subscription_setting": null,
+        "active_default_network": 100,
+        "ready": false
+      },
+      "failed_selections": [],
+      "missing_native_ui": [],
+      "root_cause_confirmed": false,
+      "product_source_paths_unchanged_from_original_v2": [
+        "mobile/android/app/src",
+        "mobile/android/fixture",
+        "mobile/scripts",
+        "mobile/preview/src",
+        "mobile/preview/public"
+      ],
+      "replaces_original_apk_acceptance": false
+    }
+  ],
+  "known_issues": [
+    "First-generation Pi Zero/Zero W account-to-desktop black screen unresolved",
+    "No physical Pi kernel/firmware/LightDM/PAM/GPU/HDMI/SD/performance acceptance",
+    "Target GTK3/Xfce appearance gate is not Welcome callback, GTK4/portal, all applications or package installation acceptance",
+    "Mobile APK remains the original v2.0 accepted package; newer CI ANR and launcher focus/UI failures are not fixed or accepted by this ARM release",
+    "No automatic SD-card migration, paid service, microphone/wake-word or cloud AI activation"
+  ],
+  "tag_target": "c5063ee8b558cb6c8af8301143cf3ce02106e2aa",
+  "published_at_github": "2026-11-28T13:33:10Z",
+  "public_download_checks": [
+    {
+      "name": "INDIRME-REHBERI.md",
+      "url": "https://github.com/PeraPlusbirPasha/OguzDows/releases/download/v2.0-arm1/INDIRME-REHBERI.md",
+      "status": 302,
+      "unauthenticated": true,
+      "full_bytes_downloaded_by_this_head_check": false
+    },
+    {
+      "name": "OguzDows-rpi-arm64.img.xz",
+      "url": "https://github.com/PeraPlusbirPasha/OguzDows/releases/download/v2.0-arm1/OguzDows-rpi-arm64.img.xz",
+      "status": 302,
+      "unauthenticated": true,
+      "full_bytes_downloaded_by_this_head_check": false
+    },
+    {
+      "name": "OguzDows-rpi-arm64.img.xz.sha256",
+      "url": "https://github.com/PeraPlusbirPasha/OguzDows/releases/download/v2.0-arm1/OguzDows-rpi-arm64.img.xz.sha256",
+      "status": 302,
+      "unauthenticated": true,
+      "full_bytes_downloaded_by_this_head_check": false
+    },
+    {
+      "name": "OguzDows-rpi-arm64.packages.txt",
+      "url": "https://github.com/PeraPlusbirPasha/OguzDows/releases/download/v2.0-arm1/OguzDows-rpi-arm64.packages.txt",
+      "status": 302,
+      "unauthenticated": true,
+      "full_bytes_downloaded_by_this_head_check": false
+    },
+    {
+      "name": "OguzDows-rpi-armhf.img.xz",
+      "url": "https://github.com/PeraPlusbirPasha/OguzDows/releases/download/v2.0-arm1/OguzDows-rpi-armhf.img.xz",
+      "status": 302,
+      "unauthenticated": true,
+      "full_bytes_downloaded_by_this_head_check": false
+    },
+    {
+      "name": "OguzDows-rpi-armhf.img.xz.sha256",
+      "url": "https://github.com/PeraPlusbirPasha/OguzDows/releases/download/v2.0-arm1/OguzDows-rpi-armhf.img.xz.sha256",
+      "status": 302,
+      "unauthenticated": true,
+      "full_bytes_downloaded_by_this_head_check": false
+    },
+    {
+      "name": "OguzDows-rpi-armhf.packages.txt",
+      "url": "https://github.com/PeraPlusbirPasha/OguzDows/releases/download/v2.0-arm1/OguzDows-rpi-armhf.packages.txt",
+      "status": 302,
+      "unauthenticated": true,
+      "full_bytes_downloaded_by_this_head_check": false
+    },
+    {
+      "name": "SHA256SUMS",
+      "url": "https://github.com/PeraPlusbirPasha/OguzDows/releases/download/v2.0-arm1/SHA256SUMS",
+      "status": 302,
+      "unauthenticated": true,
+      "full_bytes_downloaded_by_this_head_check": false
+    },
+    {
+      "name": "pi-gen.lock.json",
+      "url": "https://github.com/PeraPlusbirPasha/OguzDows/releases/download/v2.0-arm1/pi-gen.lock.json",
+      "status": 302,
+      "unauthenticated": true,
+      "full_bytes_downloaded_by_this_head_check": false
+    },
+    {
+      "name": "release-manifest.json",
+      "url": "https://github.com/PeraPlusbirPasha/OguzDows/releases/download/v2.0-arm1/release-manifest.json",
+      "status": 302,
+      "unauthenticated": true,
+      "full_bytes_downloaded_by_this_head_check": false
+    },
+    {
+      "name": "test-evidence.tar.gz",
+      "url": "https://github.com/PeraPlusbirPasha/OguzDows/releases/download/v2.0-arm1/test-evidence.tar.gz",
+      "status": 302,
+      "unauthenticated": true,
+      "full_bytes_downloaded_by_this_head_check": false
+    }
+  ],
+  "public_release_tag_check": {
+    "unauthenticated": true,
+    "status": 200,
+    "release_id": 461532378,
+    "source_revision": "c5063ee8b558cb6c8af8301143cf3ce02106e2aa",
+    "original_v2_remains_latest": true
+  }
+}

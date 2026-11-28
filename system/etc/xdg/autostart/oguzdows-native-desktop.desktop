@@ -1,0 +1,7 @@
+[Desktop Entry]
+Type=Application
+Name=OğuzDows ortak masaüstü tercihleri
+Exec=/usr/bin/python3 -I /usr/lib/oguzdows/desktop_center.py --session
+OnlyShowIn=GNOME;KDE;
+NoDisplay=true
+X-GNOME-Autostart-enabled=true

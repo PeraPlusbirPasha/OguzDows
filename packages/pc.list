@@ -1,6 +1,12 @@
 # Yalnızca x86 ISO: PC sürücüleri, mikro kod, DKMS ve disk kurucusu.
 # İstek üzerine Türkçe bakım ve APT / Flatpak mağazası.
 python3-apt
+# Derlenen yerel mağaza: derleme başlıkları disk alanıdır, servis değildir.
+pkg-config
+libgtk-3-dev
+libjson-glib-dev
+libjson-glib-1.0-0
+gir1.2-flatpak-1.0
 python3-xlib
 gpgv
 gnome-software
@@ -9,8 +15,6 @@ gnome-software-plugin-flatpak
 iso-codes
 flatpak
 packagekit
-xdg-desktop-portal
-xdg-desktop-portal-gtk
 xorg
 xserver-xorg-video-all
 intel-microcode

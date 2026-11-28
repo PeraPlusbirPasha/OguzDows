@@ -6,7 +6,6 @@
   "80b5b8b31c463033fff89510639ba3d63eb45fbae170dfd552c8d441b631fa8d": "topic-install.wav",
   "f7cf7bdefe275f504b787cfbbb7622cd5ccfb182d90857ab77e3cad7334b6e9f": "topic-disk.wav",
   "5d367113a50dbd61971dcb1068a0d93beaf825adc0bfe3ce0c848c8487a51b24": "topic-help.wav",
-  "c72e1509d9578f25abbfdfe26515ff05311d0690fe6662ef1708b0dcf344947c": "panel-welcome.wav",
   "6c19252cd93c7599573e3cbfbde8440252eb905fb3c36096d42ef75c0b247fff": "panel-hardware.wav",
   "ba766ef7bc7354efcfb1a1c4ddde382c1afa4061f1b69e7d8267b6825da7a206": "panel-settings-light.wav",
   "68e28bf3271720a63383818fa861d4f488565bce88f6b401f26edfd66fbf9220": "intro-light.wav",
@@ -14,7 +13,15 @@
   "095f96da4c91f392e4bbcbcb35beb3b12dbfec3951edcb3e9e0a9e91847a65cf": "stage-preparing.wav",
   "259107d5c758d3d1235657dc59d2b43d5397a7ad8a94d5f407974859858e1564": "stage-ready.wav",
   "1640237ec3cfb8f06d5435d6f4b228540589ac53e11a91e2a7f4d2d424ead371": "stage-boot.wav",
-  "9fa113ccb6984232eb188ec6118db6325445f21875ad94681879c7061795a991": "panel-wallpapers.wav",
-  "e7a4606568ad630faff171fbc5cb82a6f19d2e19f47128f224794ed833db7984": "topic-wallpapers.wav",
-  "a3b777e8e2b388d7004c8d3d7ba8a20cdbe256505bbd142c36cf12831e564062": "panel-styles.wav"
+  "966548769ef1416ef322f766686f34c7e59040f128c79c31773f67e2227fb9a7": "panel-live.wav",
+  "80b44a552d8ff2941ed8e17f9385c3ca45a6463653d5a85a47db40796f400baf": "panel-installed.wav",
+  "4cca67691b9980d86b4a68090e094ce159712d648070697660e94580cc8e7d3b": "panel-appearance.wav",
+  "438d121424c721e4857c33c4306f6744ee629457f69412292f159dea726a2d1d": "panel-applications.wav",
+  "a760f111336a8a6dc572b2514dc9d57919d8fae225c118597b96c9d55c61dc73": "panel-support.wav",
+  "8e7b90e0565f875c91b629b1bf04ad9f4a386b89648f5f86f44d915a10aa8fba": "panel-wallpapers-v11.wav",
+  "90a263c7d6251f0e2325adb66ce17dbb06dee99ad10af63453eca3d1051bb0b2": "panel-hardware-pi.wav",
+  "d26cd45690ee3cdd0b23314098dafd6e8ab58e51f17b19500ced6436f6cee5cc": "panel-store.wav",
+  "eb9d80904f85e5959be543472116653479f94e60d18089dbff2d030311a2de07": "panel-compatibility.wav",
+  "b11581540d69adfb1573acf22e0fbc695b28a829c3f406ef5ca2980926bafd3d": "panel-news.wav",
+  "9ef21daaef4eeb67885295bab24c2bd24f001c28fe067a29377269d2d79a5f29": "panel-culture.wav"
 }

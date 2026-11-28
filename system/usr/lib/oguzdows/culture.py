@@ -11,6 +11,7 @@ import gi
 gi.require_version('Gtk', '3.0')
 gi.require_version('Gdk', '3.0')
 from gi.repository import Gdk, Gio, GLib, Gtk
+from narration import NarrationBar
 
 
 def label(value):
@@ -32,7 +33,9 @@ class Culture(Gtk.Application):
 
     def build(self):
         self.window = Gtk.ApplicationWindow(application=self, title='OğuzDows · İmece')
-        self.window.set_icon_name('oguzdows')
+        import ui_theme
+        ui_theme.setup(self.window)
+        self.window.set_icon_name('oguzdows-imece')
         self.window.set_default_size(760, 560)
         self.window.connect('delete-event', self.close)
         header = Gtk.HeaderBar(title='İmece', subtitle='Küçük araçlar · Büyük kolaylık')
@@ -40,11 +43,15 @@ class Culture(Gtk.Application):
         self.window.set_titlebar(header)
         box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=16, margin=24)
         self.stack = stack = Gtk.Stack()
+        ui_theme.configure_stack(self.window, stack)
         box.pack_start(Gtk.StackSwitcher(stack=stack), False, False, 0)
         for title, identifier, factory in [('Çay Molası', 'tea', self.tea_page), ('Türkçe Yazım', 'text', self.text_page),
                                            ('Heybe', 'backup', self.backup_page), ('İmece Paketi', 'share', self.share_page)]:
             stack.add_titled(factory(), identifier, title)
         box.pack_start(stack, True, True, 0)
+        self.voicebar = NarrationBar(self.window, 'culture')
+        stack.connect('notify::visible-child-name', self.voicebar.refresh)
+        box.pack_start(self.voicebar, False, False, 0)
         self.status = label('Çevrimdışı. Dosyalar kendiliğinden taranmaz; ağda paylaşım servisi açılmaz.')
         box.pack_start(self.status, False, False, 0)
         self.window.add(box)

@@ -1,0 +1,75 @@
+{
+  "schema_version": 1,
+  "scope": "original-accepted-APK-CI-read-only-aapt-apksigner-diagnostics-not-physical-install-or-local-binary-audit",
+  "source_revision": "5a44de0dde676d901a32be40d631d481e213439d",
+  "mobile_source_run_id": 46092350348,
+  "diagnostic_run": {
+    "id": 46099111876,
+    "html_url": "https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/46099111876",
+    "head_sha": "2ed3fcb05193acc152434988698a781aefed03bd",
+    "head_branch": "arena/2d796713-o-uzdows",
+    "status": "completed",
+    "conclusion": "success"
+  },
+  "diagnostic_job": {
+    "id": 140837273117,
+    "html_url": "https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/46099111876/job/140837273117",
+    "name": "Özgün APK kimliklerini salt okunur incele (derlemez)",
+    "status": "completed",
+    "conclusion": "success"
+  },
+  "identities": [
+    {
+      "file": "OguzDows-inert-install-fixture.apk",
+      "bytes": 11512,
+      "sha256": "487efbf4bcf8f552ad9c4644cabe6ff71761c29104d58f02cd7fd7617bf65ebe",
+      "source_sha": "5a44de0dde676d901a32be40d631d481e213439d",
+      "package_lines": [
+        "package: name='org.oguzdows.fixture' versionCode='1' versionName='1.0-test-only' platformBuildVersionName='15' platformBuildVersionCode='35' compileSdkVersion='35' compileSdkVersionCodename='15'"
+      ],
+      "instrumentation_xml": [],
+      "certificate_sha256": "5f87f6817823b618c7ff26ed57e56f5e71305b689e5d7b50331883b767ee7811",
+      "read_only": true,
+      "installed_or_executed": false
+    },
+    {
+      "file": "OguzDows-Mobile-2.0-Akinci-tests.apk",
+      "bytes": 1087315,
+      "sha256": "7ef313a2ca2ea7197fe58280f4e5488c97cecd78a606378684ff3334db49184e",
+      "source_sha": "5a44de0dde676d901a32be40d631d481e213439d",
+      "package_lines": [
+        "package: name='org.oguzdows.mobile.test' versionCode='' versionName='' platformBuildVersionName='15' platformBuildVersionCode='35' compileSdkVersion='35' compileSdkVersionCodename='15'"
+      ],
+      "instrumentation_xml": [
+        [
+          "    E: instrumentation (line=9)",
+          "      A: android:label(0x01010001)=\"Tests for org.oguzdows.mobile\" (Raw: \"Tests for org.oguzdows.mobile\")",
+          "      A: android:name(0x01010003)=\"androidx.test.runner.AndroidJUnitRunner\" (Raw: \"androidx.test.runner.AndroidJUnitRunner\")",
+          "      A: android:targetPackage(0x01010021)=\"org.oguzdows.mobile\" (Raw: \"org.oguzdows.mobile\")",
+          "      A: android:handleProfiling(0x01010022)=(type 0x12)0x0",
+          "      A: android:functionalTest(0x01010023)=(type 0x12)0x0",
+          "    E: queries (line=16)"
+        ]
+      ],
+      "certificate_sha256": "5f87f6817823b618c7ff26ed57e56f5e71305b689e5d7b50331883b767ee7811",
+      "read_only": true,
+      "installed_or_executed": false
+    },
+    {
+      "file": "OguzDows-Mobile-2.0-Akinci-debug.apk",
+      "bytes": 24434944,
+      "sha256": "305015d09e57dcc18b854c3624754ed1723b2cfb2b9c3493c2b0cc6661820e82",
+      "source_sha": "5a44de0dde676d901a32be40d631d481e213439d",
+      "package_lines": [
+        "package: name='org.oguzdows.mobile' versionCode='20' versionName='2.0.0-akinci' platformBuildVersionName='15' platformBuildVersionCode='35' compileSdkVersion='35' compileSdkVersionCodename='15'"
+      ],
+      "instrumentation_xml": [],
+      "certificate_sha256": "5f87f6817823b618c7ff26ed57e56f5e71305b689e5d7b50331883b767ee7811",
+      "read_only": true,
+      "installed_or_executed": false
+    }
+  ],
+  "artifacts_or_release_modified": false,
+  "APKs_installed_or_executed_by_diagnostic": false,
+  "full_APK_bytes_downloaded_or_hashed_in_local_sandbox": false
+}

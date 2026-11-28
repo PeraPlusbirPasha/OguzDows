@@ -1,0 +1,10 @@
+[Desktop Entry]
+Type=X-GNOME-Metatheme
+Name=OğuzDows · Aero esintisi · Koyu
+Comment=Opak okunaklı başlıklar, kaynak bütçeli Xfce düzeni
+
+[X-GNOME-Metatheme]
+GtkTheme=OguzDowsAeroDark
+MetacityTheme=OguzDowsAeroDark
+IconTheme=OguzDows
+CursorTheme=OguzDowsTespih

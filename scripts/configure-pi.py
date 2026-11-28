@@ -3,15 +3,22 @@
 from __future__ import annotations
 
 import argparse
+import hashlib
+import importlib.util
 import json
 import shutil
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 LOCK = json.loads((ROOT / "raspberrypi/pi-gen.lock.json").read_text())
+SPEC = importlib.util.spec_from_file_location('pi_shared_source_identity', ROOT / 'scripts/configure.py')
+SHARED = importlib.util.module_from_spec(SPEC)
+SPEC.loader.exec_module(SHARED)
 # Canlı USB hesabı, Calamares ve PCI ek sürücü kurucusu kalıcı Pi'ye taşınmaz.
 PC_ONLY = (
     "etc/default/grub", "etc/default/grub.d",
+    # lsb_release -cs, Pi araçlarına ürün kod adı değil gerçek tabanı söylemeli.
+    "etc/lsb-release",
     "etc/systemd/system/oguzdows-live-setup.service",
     "usr/lib/oguzdows/live-setup.sh", "usr/lib/oguzdows/finish-install.sh",
     "usr/lib/oguzdows/prepare-install.py", "usr/lib/oguzdows/cache-drivers.py",
@@ -21,19 +28,15 @@ PC_ONLY = (
     "usr/local/sbin/oguzdows-driver-helper", "usr/share/applications/oguzdows-install.desktop",
     "usr/share/polkit-1/actions/org.oguzdows.install.policy",
     "usr/share/polkit-1/actions/org.oguzdows.drivers.policy",
-    # PC tabanına sınırlandırılmış bakım / mağaza, ARMv6 ve Pi apt kaynaklarıyla
-    # karıştırılmaz. Görünüm profilleri, tespih ve çevrimdışı İmece ortaktır.
-    "usr/lib/oguzdows/maintenance.py", "usr/lib/oguzdows/updater.py",
-    "usr/lib/oguzdows/store.py", "usr/lib/oguzdows/store_core.py", "usr/lib/oguzdows/store_lifecycle.py", "usr/lib/oguzdows/memory_probe.py",
-    "usr/local/sbin/oguzdows-maintenance", "usr/local/bin/oguzdows-update",
-    "usr/local/bin/oguzdows-store", "usr/local/bin/oguzdows-memory-report",
-    "usr/share/applications/oguzdows-update.desktop", "usr/share/applications/oguzdows-store.desktop",
-    "usr/local/share/applications/org.gnome.Software.desktop",
-    "usr/share/polkit-1/actions/org.oguzdows.maintenance.policy",
+    # PC güncelleyici / Pardus taşınmaz. GNOME merkezi isteğe bağlı kalır. Yerel C
+    # mağazası yalnızca app: demetlerini Pi imzalı tabanında ayrıca doğrular.
+    "usr/lib/oguzdows/updater.py",
+    "usr/lib/oguzdows/memory_probe.py",
+    "usr/local/bin/oguzdows-update",
+    "usr/local/bin/oguzdows-memory-report",
+    "usr/share/applications/oguzdows-update.desktop",
     "etc/apt/sources.list.d/oguzdows-pardus.sources", "etc/apt/preferences.d/oguzdows-pardus",
     "usr/share/keyrings/oguzdows-pardus.asc",
-    "usr/share/glib-2.0/schemas/90_oguzdows-store.gschema.override",
-    "etc/xdg/autostart/org.gnome.Software.desktop",
 )
 
 
@@ -42,13 +45,19 @@ def write(path: Path, text: str) -> None:
     path.write_text(text, encoding="utf-8")
 
 
-def packages_for() -> list[str]:
+def packages_for(arch='armhf') -> list[str]:
     packages = []
     for name in ("common", "raspberrypi"):
         for line in (ROOT / "packages" / (name + ".list")).read_text().splitlines():
             package = line.partition("#")[0].strip()
+            # ARMv6 uyumlu ortak armhf imajında zorunlu ağır web motoru yok.
+            # NetSurf aynı web özelliğini temel / JavaScript'siz kapsamda sağlar.
+            if arch == 'armhf' and package in ('firefox-esr', 'firefox-esr-l10n-tr'):
+                continue
             if package and package not in packages:
                 packages.append(package)
+    if arch == 'arm64':
+        packages.extend(['flatpak', 'gir1.2-flatpak-1.0'])  # Settings portal is common to both architectures.
     return packages
 
 
@@ -68,23 +77,80 @@ def configure(arch: str, output: Path) -> None:
             shutil.rmtree(path)
         else:
             path.unlink(missing_ok=True)
+    SHARED.install_desktop_assets(overlay, LOCK['suite'])
     shutil.copytree(ROOT / "raspberrypi/system", overlay, dirs_exist_ok=True,
                     ignore=shutil.ignore_patterns("__pycache__", "*.py[cod]"))
     shutil.copytree(ROOT / "boot", overlay / "usr/share/plymouth/themes/oguzdows")
     shutil.copytree(ROOT / "assets", overlay / "usr/share/oguzdows/assets")
     documentation = overlay / "usr/share/doc/oguzdows"
     documentation.mkdir(parents=True, exist_ok=True)
+    shutil.copy2(ROOT / "docs/AKINCI-BAGLANTI.md", documentation / "AKINCI-BAGLANTI.md")
     shutil.copy2(ROOT / "docs/MASAUSTU-VE-BAKIM.md", documentation / "masaustu-ve-bakim.md")
+    shutil.copy2(ROOT / "docs/PI-ZERO-OTURUM.md", documentation / "PI-ZERO-OTURUM.md")
+    shutil.copy2(ROOT / "docs/ELEMENTARY-HABER.md", documentation / "ELEMENTARY-HABER.md")
+    shutil.copy2(ROOT / "docs/NATIVE-MATERYAL-HABER-MAGAZA.md", documentation / "NATIVE-MATERYAL-HABER-MAGAZA.md")
+    shutil.copy2(ROOT / "docs/ATOLYE-VE-MAGAZA-YENILEME.md", documentation / "ATOLYE-VE-MAGAZA-YENILEME.md")
+    shutil.copy2(ROOT / 'docs/MODLAR-VE-OTOMATIK-RENK.md', documentation / 'MODLAR-VE-OTOMATIK-RENK.md')
+    shutil.copy2(ROOT / "docs/CIHAZLAR-VE-UYUMLULUK.md", documentation / "cihazlar-ve-uyumluluk.md")
     shutil.copy2(ROOT / "scripts/render-assets.py", overlay / "usr/lib/oguzdows/render-assets.py")
+    shutil.copytree(ROOT / 'native', overlay / 'usr/share/oguzdows/native')
+    (overlay / 'usr/share/oguzdows/scripts').mkdir(parents=True, exist_ok=True)
+    shutil.copy2(ROOT / 'scripts/build-native.sh', overlay / 'usr/share/oguzdows/scripts/build-native.sh')
+    shutil.copy2(ROOT / 'scripts/build-news.sh', overlay / 'usr/share/oguzdows/scripts/build-news.sh')
+    shutil.copy2(ROOT / 'scripts/build-desktop.sh', overlay / 'usr/share/oguzdows/scripts/build-desktop.sh')
+    (overlay / 'usr/share/oguzdows/scripts/build-desktop.sh').chmod(0o755)
+    shutil.copy2(ROOT / 'scripts/build-panel.sh', overlay / 'usr/share/oguzdows/scripts/build-panel.sh')
+    (overlay / 'usr/share/oguzdows/scripts/build-panel.sh').chmod(0o755)
+    (overlay / 'usr/share/oguzdows/scripts/build-news.sh').chmod(0o755)
+    (overlay / 'usr/share/oguzdows/scripts/build-native.sh').chmod(0o755)
     shutil.copy2(ROOT / "scripts/verify-pi.py", overlay / "usr/lib/oguzdows/verify-pi.py")
+    shutil.copy2(ROOT / "scripts/pi_contract.py", overlay / "usr/lib/oguzdows/pi_contract.py")
     write(overlay / "etc/locale.gen", "tr_TR.UTF-8 UTF-8\nen_US.UTF-8 UTF-8\n")
     write(overlay / "etc/default/locale", 'LANG=tr_TR.UTF-8\nLANGUAGE="tr:en"\n')
     write(overlay / "etc/timezone", "Europe/Istanbul\n")
     info = {"platform": "raspberrypi", "arch": arch, "suite": LOCK["suite"],
-            "pi_gen_commit": LOCK[arch]["commit"], "status": "physical-boot-unverified"}
+            "pi_gen_commit": LOCK[arch]["commit"], "status": "physical-boot-unverified",
+            **SHARED.source_identity()}
     for name in ("etc/oguzdows/pi-image.json", "usr/share/oguzdows/build-info.json"):
         write(overlay / name, json.dumps(info, ensure_ascii=False, indent=2) + "\n")
     write(overlay / "usr/share/oguzdows/pi-gen.lock.json", json.dumps(LOCK, indent=2) + "\n")
+    # Her sürümde tüm ortak paketler / ürün varlıkları için hedef mimari kapısı.
+    contract = json.loads((ROOT / 'raspberrypi/feature-contract.json').read_text())
+    if arch == 'armhf':
+        contract['features']['web-office-media']['packages'] = [
+            package for package in contract['features']['web-office-media']['packages']
+            if package not in ('firefox-esr', 'firefox-esr-l10n-tr')]
+    contract.update(arch=arch, suite=LOCK['suite'], required_packages=packages_for(arch),
+                    source_revision=info['source_revision'], pi_gen_commit=info['pi_gen_commit'])
+    contract['asset_hashes'] = {
+        'usr/share/backgrounds/oguzdows/' + entry['file']: entry['packaged_sha256']
+        for entry in json.loads((ROOT / 'artwork/landscapes.json').read_text())}
+    contract['asset_hashes'].update({
+        'usr/share/oguzdows/rifki/' + entry['file']: entry['sha256']
+        for entry in json.loads((ROOT / 'artwork/rifki-narration.json').read_text())['clips']})
+    # Export must contain these exact repaired UI / resource-policy bytes, not
+    # merely files with the right names. The read-only image verifier hashes
+    # them without importing or executing any code from the mounted image.
+    desktop_content = ['usr/lib/oguzdows/' + name for name in (
+        'file_manager.py', 'resource_policy.py', 'desktop_material.py',
+        'desktop_preferences.py', 'session.sh', 'render-assets.py',
+        'wallpapers.py', 'desktop_runtime.py', 'desktop_state.py', 'profiles.py',
+        'welcome.py', 'desktop_center.py',
+        'workbench.py', 'workbench_core.py', 'app_catalog.py', 'store_core.py',
+        'store_service.py', 'store.py', 'store_lifecycle.py', 'maintenance.py',
+        'bridge.py', 'bridge_core.py', 'bridge_capture.py', 'product_info.py')]
+    desktop_content += ['usr/share/oguzdows/ui/' + name for name in ('modern.css', 'window-geometry.css', 'shell.css')]
+    desktop_content += ['usr/share/oguzdows/product.json', 'usr/share/doc/oguzdows/AKINCI-BAGLANTI.md',
+                        'usr/local/bin/oguzdows-bridge', 'usr/share/applications/oguzdows-bridge.desktop']
+    desktop_content += ['usr/share/oguzdows/picom.conf', 'usr/local/bin/oguzdows-workbench',
+                        'usr/share/applications/oguzdows-workbench.desktop', 'usr/share/applications/oguzdows-software.desktop']
+    desktop_content += [str(path.relative_to(overlay)) for path in sorted((overlay / 'usr/share/oguzdows/compositor').glob('*.conf'))]
+    contract['asset_hashes'].update({name: hashlib.sha256((overlay / name).read_bytes()).hexdigest() for name in desktop_content})
+    write(overlay / 'usr/share/oguzdows/pi-contract.json', json.dumps(contract, ensure_ascii=False, indent=2) + '\n')
+    shutil.copy2(ROOT / 'scripts/pi-runtime-smoke.py', stage / '00-desktop/files/pi-runtime-smoke.py')
+    shutil.copy2(ROOT / 'scripts/pi_contract.py', stage / '00-desktop/files/pi_contract.py')
+    shutil.copy2(ROOT / 'scripts/pi_session_smoke.py', stage / '00-desktop/files/pi_session_smoke.py')
+    shutil.copy2(ROOT / 'scripts/pi-ci-cleanup.py', stage / '00-desktop/files/pi-ci-cleanup.py')
     # Sadece güvenli tarayıcı varsayılanları; sandbox/çoklu süreç izolasyonu kapatılmaz.
     policy_path = overlay / "usr/lib/firefox-esr/distribution/policies.json"
     policies = json.loads(policy_path.read_text())
@@ -92,7 +158,13 @@ def configure(arch: str, output: Path) -> None:
         "browser.cache.disk.enable": {"Value": False, "Status": "default"},
         "browser.sessionstore.interval": {"Value": 60000, "Status": "default"},
     })
-    write(policy_path, json.dumps(policies, ensure_ascii=False, indent=2) + "\n")
+    # Pi paketi distribution'ı /etc altına bağlı bir symlink olarak getirebilir.
+    # Host cp -a ile bu bağlantının üstüne dizin kopyalama / hostta takip yok.
+    # Politika hedef chroot içinde, mevcut anahtarlar korunarak birleştirilir.
+    write(overlay / 'usr/share/oguzdows/firefox-policies.json', json.dumps(policies, ensure_ascii=False, indent=2) + '\n')
+    policy_path.unlink()
+    policy_path.parent.rmdir()
+    policy_path.parent.parent.rmdir()  # Beklenmeyen ek Firefox dosyasını sessizce silme.
     for name in ("Masaüstü", "İndirilenler", "Şablonlar", "Ortak", "Belgeler", "Müzik", "Resimler", "Videolar"):
         (overlay / "etc/skel" / name).mkdir(parents=True, exist_ok=True)
     shutil.copy2(overlay / "usr/share/applications/oguzdows-welcome.desktop",
@@ -102,7 +174,7 @@ def configure(arch: str, output: Path) -> None:
             if path.is_file() and path.suffix in ("", ".py", ".sh"):
                 path.chmod(0o755)
     (overlay / "etc/skel/Masaüstü/oguzdows-welcome.desktop").chmod(0o755)
-    write(stage / "00-desktop/00-packages-nr", "\n".join(packages_for()) + "\n")
+    write(stage / "00-desktop/00-packages-nr", "\n".join(packages_for(arch)) + "\n")
     write(stage / "EXPORT_IMAGE", 'IMG_SUFFIX=""\n')
     # FIRST_USER_PASS bilerek yok. Resmî rename aşaması ayrı SKIP ile devre dışı;
     # kilitli derleme hesabı silinir, Türkçe yerel kurulum servisi gerçek hesabı açar.

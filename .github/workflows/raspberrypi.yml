@@ -41,7 +41,8 @@ permissions:
   contents: read
 
 concurrency:
-  group: oguzdows-pi-${{ github.ref }}-${{ inputs.architecture || 'both' }}
+  # Same-source duplicates queue; a new source never cancels or blocks an older image build.
+  group: oguzdows-pi-${{ github.ref }}-${{ github.sha }}-${{ inputs.architecture || 'both' }}
   cancel-in-progress: false
 
 jobs:
@@ -61,30 +62,106 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y --no-install-recommends python3-pil python3-yaml shellcheck \
-            fonts-dejavu-core python3-gi gir1.2-gtk-3.0 xvfb xauth dbus-x11
+            fonts-dejavu-core python3-gi python3-gi-cairo python3-cairo gir1.2-gtk-3.0 xvfb xauth dbus-x11 \
+            thunar xfconf xfwm4 xfce4-settings picom python3-xlib dconf-gsettings-backend \
+            build-essential pkg-config libgtk-3-dev libjson-glib-dev xfce4-session \
+            librsvg2-common shared-mime-info
       - name: Birim / kaynak / hesap güvenliği testleri
         run: |
           python3 scripts/ci-run.py --title 'Pi birim ve kaynak kontrolleri' -- \
             python3 -W error::ResourceWarning -m unittest discover -s tests -p 'test_*.py' -v
           python3 scripts/ci-run.py --title 'Pi kabuk betikleri' -- \
-            shellcheck build-pi.sh scripts/verify-pi-image.sh raspberrypi/export-check.sh \
+            shellcheck build-pi.sh scripts/prepare-pi-binfmt.sh scripts/verify-pi-image.sh raspberrypi/export-check.sh \
             raspberrypi/stage/prerun.sh raspberrypi/stage/00-desktop/*-run.sh \
-            raspberrypi/stage/00-desktop/files/configure-system.sh
+            raspberrypi/stage/00-desktop/files/configure-system.sh \
+            raspberrypi/stage/00-desktop/files/pi-gui-chroot.sh
           python3 scripts/ci-run.py --title 'Pi armhf yapılandırma' -- \
             python3 scripts/configure-pi.py --arch armhf --output /tmp/oguzdows-pi-armhf
           python3 scripts/ci-run.py --title 'Pi arm64 yapılandırma' -- \
             python3 scripts/configure-pi.py --arch arm64 --output /tmp/oguzdows-pi-arm64
+      - name: Özel Pi GUI chroot süreçlerini gerçek pidfd ile temizle (host, kart değil)
+        run: |
+          sudo env OGUZDOWS_REQUIRE_PI_CLEANUP_PROBE=1 \
+            python3 scripts/ci-run.py --title 'Pi private chroot and pidfd cleanup (host, not Pi boot)' -- \
+            python3 -W error::ResourceWarning -m unittest discover -s tests -p test_pi_ci_cleanup.py -v
+
       - name: Pi görünümünü gerçek GTK ile aç (host üzerinde, kart testi değil)
         env:
           GSETTINGS_BACKEND: memory
           NO_AT_BRIDGE: '1'
         run: |
-          sudo cp -a system/usr/share/themes/OguzDows /usr/share/themes/
+          sudo cp -a system/usr/share/themes/. /usr/share/themes/
           sudo python3 scripts/ci-run.py --title 'Pi tema görselleri' -- \
             python3 scripts/render-assets.py --root /
+          sudo gtk-update-icon-cache -f -t /usr/share/icons/hicolor
           python3 scripts/ci-run.py --title 'Pi GTK görünümü' -- \
             xvfb-run -a -s '-screen 0 1024x768x24' dbus-run-session -- \
             python3 tests/smoke-welcome.py --pi --output test-results/pi-ui
+      - name: Ortak Thunar maskesi ve kaynak bütçesi (host, fiziksel Pi değil)
+        run: |
+          sudo install -Dm644 scripts/render-assets.py /usr/lib/oguzdows/render-assets.py
+          sudo install -Dm644 system/usr/share/oguzdows/picom.conf /usr/share/oguzdows/picom.conf
+          sudo cp -a system/usr/share/oguzdows/compositor /usr/share/oguzdows/
+          python3 scripts/ci-run.py --title 'Pi shared Thunar / native GTK geometry (host only)' -- \
+            xvfb-run -a -s '-screen 0 1024x768x24 -nolisten tcp' \
+            python3 tests/smoke-window-geometry.py --output test-results/pi-ui/window-geometry
+
+      - name: Özel geometri ekranı · yalnız host test hatasında
+        if: ${{ failure() }}
+        run: python3 scripts/ci-preview.py test-results/pi-ui/window-geometry/geometry-failure.png
+
+      - name: Paylaşılan yerel mağazayı host üzerinde derle (ARM boot testi değil)
+        run: |
+          sh scripts/build-native.sh /tmp/oguzdows-store-native
+          sh scripts/build-native.sh /tmp/oguzdows-store-ui-test --test
+          python3 scripts/ci-run.py --title 'Pi ortak C / GTK mağaza (host)' -- \
+            xvfb-run -a -s '-screen 0 1280x900x24' dbus-run-session -- \
+            /tmp/oguzdows-store-ui-test --smoke-test test-results/pi-ui
+
+      - name: Pi ortak hafif C haber okuyucusu (host, ağsız fixture)
+        run: |
+          sh scripts/build-news.sh /tmp/oguzdows-news-native
+          sh scripts/build-news.sh /tmp/oguzdows-news-ui-test --test
+          /tmp/oguzdows-news-native --version
+          for screen in 1024x768 360x800; do
+            python3 scripts/ci-run.py --title "Pi ortak C Haber $screen (host / fixture)" -- \
+              xvfb-run -a -s "-screen 0 ${screen}x24" dbus-run-session -- \
+              /tmp/oguzdows-news-ui-test --smoke-test "test-results/pi-ui/news-$screen"
+          done
+
+      - name: Başsız Xfce kontrolünü gerçek özel X ve D-Bus ile doğrula (host)
+        run: |
+          runtime=$(mktemp -d)
+          trap 'rm -rf "$runtime"' EXIT
+          python3 scripts/ci-run.py --title 'Pi ortak Xfce / GTK ekran regresyonu (host)' -- \
+            env -i PATH="$PATH" LANG=C.UTF-8 HOME="$runtime" \
+            XDG_RUNTIME_DIR="$runtime" XDG_CONFIG_HOME="$runtime/config" \
+            XDG_CACHE_HOME="$runtime/cache" XDG_DATA_HOME="$runtime/data" \
+            GSETTINGS_BACKEND=memory NO_AT_BRIDGE=1 \
+            xvfb-run -a -s '-screen 0 1024x768x24 -nolisten tcp' dbus-run-session -- \
+            python3 scripts/pi-runtime-smoke.py --host-gui --native-store /tmp/oguzdows-store-native \
+            --output test-results/pi-ui/pi-runtime-host.json
+
+      - name: Hafif başlangıç ve oturum seçicisi (host, fiziksel ARM değil)
+        env:
+          GSETTINGS_BACKEND: memory
+          NO_AT_BRIDGE: '1'
+        run: |
+          for component in light desktops; do
+            python3 scripts/ci-run.py --title "Pi ortak oturum GTK $component" -- \
+              xvfb-run -a -s '-screen 0 1024x768x24' dbus-run-session -- \
+              python3 tests/smoke-session-ui.py --component "$component" --output test-results/pi-ui
+          done
+
+      - name: Paylaşılan doğal kayıt ve D-Bus kapısı (host)
+        env:
+          GSETTINGS_BACKEND: memory
+          NO_AT_BRIDGE: '1'
+        run: |
+          python3 scripts/ci-run.py --title 'Pi ortak anlatım GTK ve D-Bus (host)' -- \
+            xvfb-run -a -s '-screen 0 1024x768x24' dbus-run-session -- \
+            python3 tests/smoke-narration.py --output test-results/pi-ui
+
       - uses: actions/upload-artifact@v4
         if: always()
         with:
@@ -114,14 +191,20 @@ jobs:
           df -h .
       - name: Yerel pi-gen ve çapraz ARM çalıştırma araçları
         run: |
-          sudo apt-get update
-          sudo apt-get install -y --no-install-recommends \
-            quilt parted coreutils qemu-user-static debootstrap zerofree zip dosfstools \
-            e2fsprogs libcap2-bin rsync grep udev xz-utils curl xxd file kmod bc gpg pigz \
-            arch-test binfmt-support ca-certificates fdisk git python3
-          sudo update-binfmts --enable qemu-arm
-          sudo update-binfmts --enable qemu-aarch64
-          arch-test '${{ matrix.arch }}'
+          # Araç / binfmt hatası imaj günlüğünden önce oluşabilir. Kuyruk, Azure
+          # günlük indirmesi kapalı olsa da kontrol notundan okunabilsin.
+          sudo python3 scripts/ci-run.py --title 'Pi ${{ matrix.arch }} host araçları' -- \
+            bash -euxo pipefail -c '
+              apt-get update
+              apt-get install -y --no-install-recommends \
+                quilt parted coreutils qemu-user-static debootstrap zerofree zip dosfstools \
+                e2fsprogs libcap2-bin rsync grep udev xz-utils curl xxd file kmod bc gpg pigz \
+                arch-test binfmt-support ca-certificates fdisk git python3 xvfb xauth
+              update-binfmts --display
+              if [ -d /proc/sys/fs/binfmt_misc ]; then ls -l /proc/sys/fs/binfmt_misc; fi
+              if [ -d /usr/share/binfmts ]; then ls -l /usr/share/binfmts; fi
+              bash scripts/prepare-pi-binfmt.sh "$1"
+            ' bash '${{ matrix.arch }}'
       - name: Pi imajını derle, minimum ARM CPU ve salt okunur imaj denetimleri
         run: |
           sudo python3 scripts/ci-run.py --title 'Pi ${{ matrix.arch }}' -- \
@@ -137,13 +220,17 @@ jobs:
           if-no-files-found: error
           compression-level: 0
           retention-days: 7
+      - name: Yalnızca bilinen günlükleri topla (rootfs izinlerini değiştirme)
+        if: always()
+        run: |
+          mkdir -p 'test-results/pi-build-${{ matrix.arch }}'
+          sudo python3 scripts/ci-run.py --title 'Pi ${{ matrix.arch }} günlük toplama' -- \
+            python3 scripts/collect-pi-logs.py --arch '${{ matrix.arch }}'
       - uses: actions/upload-artifact@v4
         if: always()
         with:
           name: OguzDows-Pi-gunluk-${{ matrix.arch }}
-          path: |
-            build-rpi-${{ matrix.arch }}/build.log
-            build-rpi-${{ matrix.arch }}/pi-gen/work/**/build.log
-            build-rpi-${{ matrix.arch }}/pi-gen/work/**/debootstrap.log
-          if-no-files-found: warn
+          # Rootfs'te glob taraması / chmod -R yok; yalnızca düz günlük kopyası.
+          path: test-results/pi-build-${{ matrix.arch }}
+          if-no-files-found: error
           retention-days: 7

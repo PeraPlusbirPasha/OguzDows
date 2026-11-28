@@ -1,4 +1,9 @@
 [Default Applications]
-x-scheme-handler/http=firefox-esr.desktop
-x-scheme-handler/https=firefox-esr.desktop
-text/html=firefox-esr.desktop
+x-scheme-handler/http=oguzdows-browser.desktop
+x-scheme-handler/https=oguzdows-browser.desktop
+text/html=oguzdows-browser.desktop
+application/x-ms-dos-executable=oguzdows-compatibility.desktop
+application/vnd.microsoft.portable-executable=oguzdows-compatibility.desktop
+application/x-msdownload=oguzdows-compatibility.desktop
+application/x-dosexec=oguzdows-compatibility.desktop
+application/vnd.android.package-archive=oguzdows-compatibility.desktop

@@ -9,6 +9,7 @@ import argparse
 import json
 import os
 import re
+import runpy
 import shutil
 import subprocess
 from pathlib import Path
@@ -59,12 +60,17 @@ def source_identity():
     return {'source_revision': revision, 'source_dirty': dirty}
 
 
+def install_desktop_assets(overlay, suite):
+    runpy.run_path(str(ROOT / 'scripts/install-desktop-assets.py'))['install'](overlay, suite)
+
+
 def configure(arch: str, output: Path) -> None:
     info = ARCHITECTURES[arch]
     overlay = output / "includes.chroot"
     output.mkdir(parents=True, exist_ok=True)
     shutil.copytree(ROOT / "system", overlay, dirs_exist_ok=True,
                     ignore=shutil.ignore_patterns("__pycache__", "*.py[cod]", "rifki_pet.py", "rifki_scene.py", "rifki_motion.py", "rig", "envelopes.json", "intro-full.wav", "hello.wav", "help.wav", "disk.wav", "talk-blink.png"))
+    install_desktop_assets(overlay, info['suite'])
     shutil.copytree(ROOT / "installer" / "modules", overlay / "etc/calamares/modules", dirs_exist_ok=True,
                     ignore=shutil.ignore_patterns("__pycache__", "*.py[cod]"))
     # Bookworm Calamares 3.2 ile trixie 3.3 bazı anahtarları farklı okur.
@@ -81,8 +87,32 @@ def configure(arch: str, output: Path) -> None:
     shutil.copytree(ROOT / "assets", overlay / "usr/share/oguzdows/assets", dirs_exist_ok=True)
     documentation = overlay / "usr/share/doc/oguzdows"
     documentation.mkdir(parents=True, exist_ok=True)
+    shutil.copy2(ROOT / "docs/AKINCI-BAGLANTI.md", documentation / "AKINCI-BAGLANTI.md")
     shutil.copy2(ROOT / "docs/MASAUSTU-VE-BAKIM.md", documentation / "masaustu-ve-bakim.md")
+    shutil.copy2(ROOT / "docs/PI-ZERO-OTURUM.md", documentation / "PI-ZERO-OTURUM.md")
+    shutil.copy2(ROOT / "docs/ELEMENTARY-HABER.md", documentation / "ELEMENTARY-HABER.md")
+    shutil.copy2(ROOT / "docs/NATIVE-MATERYAL-HABER-MAGAZA.md", documentation / "NATIVE-MATERYAL-HABER-MAGAZA.md")
+    shutil.copy2(ROOT / "docs/ATOLYE-VE-MAGAZA-YENILEME.md", documentation / "ATOLYE-VE-MAGAZA-YENILEME.md")
+    shutil.copy2(ROOT / 'docs/MODLAR-VE-OTOMATIK-RENK.md', documentation / 'MODLAR-VE-OTOMATIK-RENK.md')
+    shutil.copy2(ROOT / "docs/CIHAZLAR-VE-UYUMLULUK.md", documentation / "cihazlar-ve-uyumluluk.md")
     shutil.copy2(ROOT / "scripts/render-assets.py", overlay / "usr/lib/oguzdows/render-assets.py")
+    if arch == 'amd64':
+        # Trixie / 64 bit erken açılış: tüm sürücüler korunur; yalnızca geçici
+        # initramfs GPU firmware kopyası kernel tarafından istenince açılır.
+        # Pi / diğer ARM katmanları ve çalışan i386 yolu değiştirilmez.
+        shutil.copytree(ROOT / 'pc/initramfs-tools', overlay / 'etc/initramfs-tools', dirs_exist_ok=True)
+        (overlay / 'etc/initramfs-tools/hooks/oguzdows-firmware').chmod(0o755)
+        shutil.copy2(ROOT / 'pc/initramfs-firmware.py', overlay / 'usr/lib/oguzdows/initramfs_firmware.py')
+    shutil.copytree(ROOT / 'native', overlay / 'usr/share/oguzdows/native', dirs_exist_ok=True)
+    (overlay / 'usr/share/oguzdows/scripts').mkdir(parents=True, exist_ok=True)
+    shutil.copy2(ROOT / 'scripts/build-native.sh', overlay / 'usr/share/oguzdows/scripts/build-native.sh')
+    shutil.copy2(ROOT / 'scripts/build-news.sh', overlay / 'usr/share/oguzdows/scripts/build-news.sh')
+    shutil.copy2(ROOT / 'scripts/build-desktop.sh', overlay / 'usr/share/oguzdows/scripts/build-desktop.sh')
+    (overlay / 'usr/share/oguzdows/scripts/build-desktop.sh').chmod(0o755)
+    shutil.copy2(ROOT / 'scripts/build-panel.sh', overlay / 'usr/share/oguzdows/scripts/build-panel.sh')
+    (overlay / 'usr/share/oguzdows/scripts/build-panel.sh').chmod(0o755)
+    (overlay / 'usr/share/oguzdows/scripts/build-news.sh').chmod(0o755)
+    (overlay / 'usr/share/oguzdows/scripts/build-native.sh').chmod(0o755)
 
     # Paketlerin önerilen ayar paketlerinden marka/config taşınmasına izin verme.
     write(output / "package-lists/oguzdows.list.chroot", "\n".join(packages_for(arch)) + "\n")

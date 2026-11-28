@@ -1,0 +1,38 @@
+[
+  {
+    "id": "bosphorus",
+    "source": "preview/public/assets/bosphorus.webp",
+    "native": "android/app/src/main/res/drawable-nodpi/shell_bosphorus.webp",
+    "bytes": 115670,
+    "sha256": "24189cfe04633584fc6759914ecee9066d76f983bb4965ab28f9754f3572b5fc",
+    "provenance": "../artwork/README.md",
+    "modification": "Byte-identical copy of the existing optimized OğuzDows collection asset; not a real geographic photograph."
+  },
+  {
+    "id": "cappadocia",
+    "source": "preview/public/assets/cappadocia.webp",
+    "native": "android/app/src/main/res/drawable-nodpi/shell_cappadocia.webp",
+    "bytes": 81506,
+    "sha256": "be1d42000ba0eddc97a3eacc98721a8e35e201b42956da2813553b1022c7fcf7",
+    "provenance": "../artwork/README.md",
+    "modification": "Byte-identical copy of the existing optimized OğuzDows collection asset; not a real geographic photograph."
+  },
+  {
+    "id": "mountains",
+    "source": "preview/public/assets/mountains.webp",
+    "native": "android/app/src/main/res/drawable-nodpi/shell_mountains.webp",
+    "bytes": 96740,
+    "sha256": "71603c9690031d53d1c9c54dd230935f96842927f017eddd49dbf1bdcae864b2",
+    "provenance": "../artwork/README.md",
+    "modification": "Byte-identical copy of the existing optimized OğuzDows collection asset; not a real geographic photograph."
+  },
+  {
+    "id": "salt-lake",
+    "source": "preview/public/assets/salt-lake.webp",
+    "native": "android/app/src/main/res/drawable-nodpi/shell_salt_lake.webp",
+    "bytes": 38124,
+    "sha256": "c0cf6dcda5629a19203488d667359dc1d4320f1a377b7a0b0a254e46e8fd6f5e",
+    "provenance": "../artwork/README.md",
+    "modification": "Byte-identical copy of the existing optimized OğuzDows collection asset; not a real geographic photograph."
+  }
+]

@@ -53,9 +53,19 @@ class ConfigurationTests(unittest.TestCase):
                     self.assertFalse((overlay / 'usr/lib/oguzdows' / name).exists())
                 for name in ('rig','envelopes.json','intro-full.wav'):
                     self.assertFalse((overlay / 'usr/share/oguzdows/rifki' / name).exists())
+                self.assertEqual((overlay / "usr/share/doc/oguzdows/ATOLYE-VE-MAGAZA-YENILEME.md").read_bytes(),
+                                 (ROOT / "docs/ATOLYE-VE-MAGAZA-YENILEME.md").read_bytes())
                 self.assertFalse(list(overlay.rglob("__pycache__")))
                 for path in (overlay / "usr/lib/oguzdows").glob("*.py"):
                     self.assertTrue(os.access(path, os.X_OK))
+                initrd_hook = overlay / 'etc/initramfs-tools/hooks/oguzdows-firmware'
+                initrd_helper = overlay / 'usr/lib/oguzdows/initramfs_firmware.py'
+                self.assertEqual(initrd_hook.is_file(), arch == 'amd64')
+                self.assertEqual(initrd_helper.is_file(), arch == 'amd64')
+                if arch == 'amd64':
+                    self.assertTrue(os.access(initrd_hook, os.X_OK))
+                    self.assertEqual(initrd_helper.read_bytes(), (ROOT / 'pc/initramfs-firmware.py').read_bytes())
+                self.assertFalse((ROOT / 'system/etc/initramfs-tools').exists(), 'PC hook ortak Pi / ARM katmanına sızmamalı.')
                 for hook in (output / "hooks/live").iterdir():
                     self.assertTrue(os.access(hook, os.X_OK))
                 settings = yaml.safe_load((overlay / "etc/calamares/settings.conf").read_text())

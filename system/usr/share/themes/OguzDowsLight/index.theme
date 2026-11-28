@@ -1,0 +1,10 @@
+[Desktop Entry]
+Type=X-GNOME-Metatheme
+Name=OğuzDows · Açık
+Comment=Özgün OğuzDows renkleri, opak ve okunaklı panel
+
+[X-GNOME-Metatheme]
+GtkTheme=OguzDowsLight
+MetacityTheme=OguzDowsLight
+IconTheme=OguzDows
+CursorTheme=OguzDowsTespih

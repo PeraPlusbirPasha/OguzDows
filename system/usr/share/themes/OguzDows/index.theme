@@ -1,10 +1,10 @@
 [Desktop Entry]
 Type=X-GNOME-Metatheme
-Name=OğuzDows · Ay Yıldız
+Name=OğuzDows · Akıncı
 Comment=Al kırmızısı, turkuaz ve Anadolu geometrisi
 
 [X-GNOME-Metatheme]
 GtkTheme=OguzDows
 MetacityTheme=OguzDows
-IconTheme=Adwaita
-CursorTheme=Adwaita
+IconTheme=OguzDows
+CursorTheme=OguzDowsTespih
