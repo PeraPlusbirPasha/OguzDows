@@ -101,7 +101,7 @@ class AcceptanceRulesTests(unittest.TestCase):
             report = synthetic_build(); mutate(report)
             with self.assertRaises(ValueError): acceptance.validate_build(report, 'a' * 40)
         workflow = (ROOT / '.github/workflows/mobile-emulator.yml').read_text()
-        self.assertLess(workflow.index('python3 mobile/scripts/acceptance.py'), workflow.index('mkdir -p test-results/mobile/package'))
+        self.assertLess(workflow.index('python3 mobile/scripts/acceptance.py'), workflow.index('python3 mobile/scripts/package-mobile.py'))
 
     def test_disposable_preflight_does_not_invent_a_sms_line_or_default_network(self):
         from emulator_preflight import snapshot

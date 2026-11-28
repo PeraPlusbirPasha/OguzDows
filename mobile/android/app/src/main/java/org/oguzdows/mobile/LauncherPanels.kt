@@ -123,7 +123,7 @@ fun LauncherControls(state: LauncherUiState, model: LauncherViewModel, role:(Str
     }
     Column(Modifier.fillMaxWidth().fillMaxHeight().verticalScroll(rememberScrollState()).padding(horizontal=24.dp).testTag("launcher-control-panel")) {
         Text("Biraz sana göre.", style=MaterialTheme.typography.headlineSmall, fontWeight=FontWeight.SemiBold)
-        Text("OğuzDows 0.4 · bağlı kabuk", fontSize=12.sp, color=MaterialTheme.colorScheme.onSurfaceVariant)
+        Text("OğuzDows ${BuildConfig.VERSION_NAME} · Akıncı", fontSize=12.sp, color=MaterialTheme.colorScheme.onSurfaceVariant)
         Row(Modifier.fillMaxWidth().padding(top=14.dp), verticalAlignment=Alignment.CenterVertically) {
             Column(Modifier.weight(1f)) { Text("Gece mavisi", fontWeight=FontWeight.Medium); Text("Kendi uygulama ekranlarımızda ortak tema", fontSize=11.sp) }
             Switch(checked=state.dark, onCheckedChange=model::dark, modifier=Modifier.testTag("launcher-dark-switch").semantics{contentDescription="Gece görünümü"})
@@ -208,7 +208,7 @@ fun LauncherDevicePanel(state: LauncherUiState, system: (String) -> Unit) {
         .padding(horizontal = 24.dp).testTag("launcher-device-panel")) {
         Text("Cihazım.", style = MaterialTheme.typography.headlineSmall)
         Text("Uydurma yüzdeler değil, sistemin söylediği.", fontSize = 12.sp, modifier = Modifier.padding(vertical = 12.dp))
-        Text("OğuzDows 0.4 · API ${android.os.Build.VERSION.SDK_INT}")
+        Text("OğuzDows ${BuildConfig.VERSION_NAME} · API ${android.os.Build.VERSION.SDK_INT}")
         Text("${android.os.Build.MANUFACTURER} ${android.os.Build.MODEL}", fontSize = 14.sp)
         HorizontalDivider(Modifier.padding(vertical = 16.dp))
         Text(state.battery?.let { "Pil · %$it · ${if (state.charging) "şarjda" else "şarjda değil"}" } ?: "Pil durumu sistemden alınamadı")
@@ -223,6 +223,10 @@ fun LauncherDevicePanel(state: LauncherUiState, system: (String) -> Unit) {
             fontSize = 12.sp, modifier = Modifier.padding(vertical = 16.dp))
         OutlinedButton(onClick = { memory = android.app.ActivityManager.MemoryInfo().also(activityManager::getMemoryInfo) }, modifier = Modifier.fillMaxWidth()) { Text("Bellek anlık görüntüsünü yenile") }
         FilledTonalButton(onClick = { system("battery") }, modifier = Modifier.fillMaxWidth()) { Text("Gerçek sistem pil ayarları") }
+        OutlinedButton(onClick = {
+            try { context.startActivity(android.content.Intent(android.content.Intent.ACTION_VIEW, android.net.Uri.parse(BuildConfig.RELEASE_URL))) }
+            catch (_: android.content.ActivityNotFoundException) { /* No browser installed; never invent a successful open. */ }
+        }, modifier = Modifier.fillMaxWidth()) { Text("Akıncı · PC / Pi / APK ve bağlantı rehberi") }
     }
 }
 

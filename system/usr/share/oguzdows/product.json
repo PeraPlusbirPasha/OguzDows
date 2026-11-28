@@ -1,0 +1,17 @@
+{
+  "schema_version": 1,
+  "product": "OğuzDows",
+  "version": "2.0",
+  "codename": "Akıncı",
+  "slug": "akinci",
+  "release_tag": "v2.0",
+  "mobile_version_name": "2.0.0-akinci",
+  "mobile_version_code": 20,
+  "mobile_apk": "OguzDows-Mobile-2.0-Akinci-debug.apk",
+  "mobile_tests_apk": "OguzDows-Mobile-2.0-Akinci-tests.apk",
+  "web_bundle": "OguzDows-Web-2.0-Akinci.tar.gz",
+  "bridge_protocol": 1,
+  "release_url": "https://github.com/PeraPlusbirPasha/OguzDows/releases/tag/v2.0",
+  "connection_guide_url": "https://github.com/PeraPlusbirPasha/OguzDows/releases/download/v2.0/BAGLANTI-REHBERI.md",
+  "apk_url": "https://github.com/PeraPlusbirPasha/OguzDows/releases/download/v2.0/OguzDows-Mobile-2.0-Akinci-debug.apk"
+}

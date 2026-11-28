@@ -87,6 +87,7 @@ def configure(arch: str, output: Path) -> None:
     shutil.copytree(ROOT / "assets", overlay / "usr/share/oguzdows/assets", dirs_exist_ok=True)
     documentation = overlay / "usr/share/doc/oguzdows"
     documentation.mkdir(parents=True, exist_ok=True)
+    shutil.copy2(ROOT / "docs/AKINCI-BAGLANTI.md", documentation / "AKINCI-BAGLANTI.md")
     shutil.copy2(ROOT / "docs/MASAUSTU-VE-BAKIM.md", documentation / "masaustu-ve-bakim.md")
     shutil.copy2(ROOT / "docs/PI-ZERO-OTURUM.md", documentation / "PI-ZERO-OTURUM.md")
     shutil.copy2(ROOT / "docs/ELEMENTARY-HABER.md", documentation / "ELEMENTARY-HABER.md")

@@ -37,7 +37,7 @@ public final class PlatformState {
         RoleManager roles = context.getSystemService(RoleManager.class);
         JSONObject state = new JSONObject();
         state.put("platform", "android");
-        state.put("version", "0.4.0-connected");
+        state.put("version", BuildConfig.VERSION_NAME);
         state.put("sdk", Build.VERSION.SDK_INT);
         state.put("contactsPermission", granted(context, Manifest.permission.READ_CONTACTS));
         state.put("themeAccent", ShellStyles.webAccent(new LauncherStore(context).wallpaper()));

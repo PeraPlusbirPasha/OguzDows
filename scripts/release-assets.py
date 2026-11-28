@@ -14,6 +14,7 @@ import json
 import lzma
 import os
 import re
+import runpy
 import shutil
 import subprocess
 import sys
@@ -67,9 +68,11 @@ def checked_image(directory, name):
     return image, checksum, digest
 
 
-def validate_run(run, run_id, repository, branch, *, pi=False):
+def validate_run(run, run_id, repository, branch, *, pi=False, mobile=False):
     paths = {'.github/workflows/main.yml'}
-    if pi:
+    if mobile:
+        paths = {'.github/workflows/mobile-emulator.yml'}
+    elif pi:
         paths.add('.github/workflows/raspberrypi.yml')
     if (run.get('id') != run_id or run.get('status') != 'completed' or run.get('conclusion') != 'success'
             or run.get('repository', {}).get('full_name') != repository
@@ -104,8 +107,11 @@ def validate_draft(release, release_id, tag, revision, notes):
 
 def validate_changes(paths):
     # Ürün dosyası/lock/recipe için geniş raspberrypi/** istisnası YOKTUR.
+    mobile_docs = {f'mobile/{name}.md' for name in ('README', 'INSTALL', 'VERIFICATION', 'CONNECTED', 'DESIGN', 'ROADMAP')}
+    mobile_docs.add('mobile/android/README.md')
     for path in paths:
-        if not (path.startswith(('.github/', 'docs/', 'tests/'))
+        mobile_evidence = re.fullmatch(r'mobile/android/evidence/(?:sdk|emulator|acceptance|package)-[0-9a-f]{7,40}\.json', path)
+        if not (path.startswith(('.github/', 'docs/', 'tests/')) or path in mobile_docs or mobile_evidence
                 or path in ('README.md', 'raspberrypi/README.md', 'build.yml', 'scripts/release-assets.py')):
             raise ValueError('ISO sonrasında ürün/derleme içeriği değişmiş; yeni ISO gerekir: ' + path)
 
@@ -268,6 +274,182 @@ def deterministic_bundle(files, destination):
                     archive.addfile(info, source)
 
 
+# Raw accepted reports, not borrowed historical documentation receipts.
+MOBILE_EVIDENCE = {
+    'build': ('build.json', 'mobile-build.json'),
+    'device': ('evidence.json', 'mobile-emulator.json'),
+    'acceptance': ('acceptance.json', 'mobile-acceptance.json'),
+    'package': ('release-package.json', 'mobile-release-package.json'),
+    'frame': ('connected-real-mediaprojection.jpg', 'mobile-connected-real-mediaprojection.jpg'),
+    'product': ('product-identity.json', 'product-identity.json'),
+}
+
+
+def mobile_product(tag):
+    product = read_json(ROOT / 'system/usr/share/oguzdows/product.json')
+    if (tag != product.get('release_tag') or product.get('version') != tag[1:]
+            or product.get('bridge_protocol') != 1 or product.get('codename') != 'Akıncı'
+            or product.get('mobile_version_code') != 20 or product.get('mobile_version_name') != '2.0.0-akinci'):
+        raise ValueError('Mobil yayın gerçek ortak Akıncı ürün kimliğiyle eşleşmeli.')
+    for key in ('mobile_apk', 'mobile_tests_apk', 'web_bundle'):
+        if not re.fullmatch(r'[A-Za-z0-9_.-]+', product.get(key, '')):
+            raise ValueError('Sabit/güvenli mobil dosya adı gerekli.')
+    return product
+
+
+def mobile_assets(product):
+    return {product['mobile_apk'], product['mobile_apk'] + '.sha256', product['mobile_tests_apk'],
+            'OguzDows-inert-install-fixture.apk', 'APK-SIGNATURE.txt', 'MOBILE-BUILD.txt',
+            product['web_bundle'], product['web_bundle'] + '.sha256', 'BAGLANTI-REHBERI.md'}
+
+
+def inspect_apk(path, package, *, version=None, code=None):
+    """Independent host data readers, never execute/install code from the APK."""
+    badging = command('aapt', 'dump', 'badging', str(path))
+    match = re.search(r"^package: name='([^']+)' versionCode='([0-9]+)' versionName='([^']*)'", badging, re.MULTILINE)
+    signature = command('apksigner', 'verify', '--verbose', '--print-certs', str(path))
+    pins = re.findall(r'^Signer #1 certificate SHA-256 digest: ([a-f0-9]{64})$', signature, re.MULTILINE)
+    if (match is None or match[1] != package or len(pins) != 1
+            or version is not None and match[3] != version or code is not None and int(match[2]) != code):
+        raise ValueError('APK iç paket/sürüm/imza kimliği geçersiz: ' + path.name)
+    return {'package': match[1], 'version_code': int(match[2]), 'version_name': match[3],
+            'certificate_sha256': pins[0], 'signature_verified': True,
+            'scope': 'read-only-aapt-and-apksigner-not-physical-install'}
+
+
+def validate_web_bundle(path, revision, build_text):
+    total, names = 0, set()
+    with tarfile.open(path, 'r:gz') as archive:
+        for member in archive:
+            name = member.name
+            if (name in names or len(names) >= 1500 or not member.isfile() or member.size > 16 * 1024**2
+                    or name.startswith('/') or '..' in Path(name).parts
+                    or not (name in ('BUILD.txt', 'ASSETS.md', 'BAGLANTI-REHBERI.md') or name.startswith('web/'))):
+                raise ValueError('Web arşivinde beklenmeyen yol/tür/boyut var.')
+            names.add(name)
+            total += member.size
+            if total > 64 * 1024**2:
+                raise ValueError('Web arşivi toplam boyut sınırı.')
+            if name in ('BUILD.txt', 'BAGLANTI-REHBERI.md'):
+                with archive.extractfile(member) as stream:
+                    text = stream.read(2 * 1024**2 + 1).decode()
+                expected = build_text if name == 'BUILD.txt' else (ROOT / 'docs/AKINCI-BAGLANTI.md').read_text()
+                if text != expected or name == 'BUILD.txt' and revision not in text:
+                    raise ValueError('Web kaynağı/bağlantı rehberi eşleşmiyor.')
+    if not {'web/index.html', 'BUILD.txt', 'ASSETS.md', 'BAGLANTI-REHBERI.md'} <= names:
+        raise ValueError('Gerçek web derlemesi/kimliği/rehberi eksik.')
+
+
+def verify_mobile_files(paths, revision, tag):
+    """Identical fail-closed verification for source artifacts and re-downloaded assets."""
+    product = mobile_product(tag)
+    if read_json(paths['product']) != product:
+        raise ValueError('Mobil paketin ortak ürün kimliği eski veya farklı.')
+    rules = runpy.run_path(str(ROOT / 'mobile/scripts/acceptance.py'))
+    build, device, accepted, package = (read_json(paths[key]) for key in ('build', 'device', 'acceptance', 'package'))
+    frame = regular(paths['frame'])
+    if frame.stat().st_size > 512 * 1024:
+        raise ValueError('Gerçek yakalama kare sınırını aşıyor.')
+    rules['validate_build'](build, revision)
+    rules['validate_emulator'](device, revision, frame.read_bytes())
+    if (device.get('passed') is not True or accepted.get('source_sha') != revision or accepted.get('passed') is not True
+            or accepted.get('native_cases') != 24 or accepted.get('jvm_cases') != 20
+            or accepted.get('interop_files') != 4 or accepted.get('real_capture_sha256') != sha256(frame)
+            or accepted.get('physical_devices_tested') is not False or accepted.get('rom_or_gms_certification') is not False):
+        raise ValueError('Tam/same-source mobil kabul makbuzu gerekli.')
+    if (package.get('source_sha') != revision or package.get('version') != product['mobile_version_name']
+            or package.get('version_code') != product['mobile_version_code'] or package.get('release_tag') != tag
+            or package.get('bridge_protocol') != 1 or package.get('apksigner_verified') is not True
+            or package.get('production_signing') is not False or package.get('physical_devices_tested') is not False):
+        raise ValueError('Mobil paket makbuzu kaynak/sürüm/kapsam eşleşmesi başarısız.')
+    originals = {item['file']: item for item in build['assembled']}
+    names = [product['mobile_apk'], product['mobile_tests_apk'], 'OguzDows-inert-install-fixture.apk']
+    files = package.get('files', [])
+    if len(files) != 3 or {item.get('file') for item in files} != set(names):
+        raise ValueError('Üç özgün, tekil mobil APK gerekli.')
+    by_name = {item['file']: item for item in files}
+    signatures = regular(paths['signature'])
+    build_file = regular(paths['build_text'])
+    if signatures.stat().st_size > 65536 or build_file.stat().st_size > 4096:
+        raise ValueError('Mobil imza/build metni boyut sınırı.')
+    signature_text, build_text = signatures.read_text(), build_file.read_text()
+    if ('SOURCE_SHA=' + revision + '\n' not in build_text or 'DEBUG' not in build_text):
+        raise ValueError('Mobil BUILD kaynak/debug kimliği eksik.')
+    identities = {}
+    for index, (original, name) in enumerate(zip(rules['APK_PATHS'], names)):
+        item, file = by_name[name], regular(paths[name])
+        if file.stat().st_size > 256 * 1024**2:
+            raise ValueError('APK boyut sınırı.')
+        actual = {'bytes': file.stat().st_size, 'sha256': sha256(file)}
+        if (actual != {key: originals[original].get(key) for key in actual}
+                or actual != {key: item.get(key) for key in actual}):
+            raise ValueError('APK kabulden sonra değişmiş veya eski dosya: ' + name)
+        identity = inspect_apk(file, ('org.oguzdows.mobile', 'org.oguzdows.mobile.test', 'org.oguzdows.fixture')[index],
+                               version=product['mobile_version_name'] if index == 0 else None,
+                               code=product['mobile_version_code'] if index == 0 else None)
+        pin = identity['certificate_sha256']
+        if package.get('certificate_sha256', {}).get(name) != pin or name + '\n' not in signature_text or pin not in signature_text:
+            raise ValueError('Bağımsız APK imzası kabul makbuzuyla eşleşmiyor.')
+        identities[name] = identity
+    if identities[names[0]]['certificate_sha256'] != identities[names[1]]['certificate_sha256']:
+        raise ValueError('Ana APK ve instrumentation APK imzacısı farklı.')
+    sums = ''.join(by_name[name]['sha256'] + '  ' + name + '\n' for name in names)
+    if regular(paths['apk_sums']).read_text() != sums:
+        raise ValueError('Özgün APK SHA256SUMS listesi eşleşmiyor.')
+    web = package.get('web_bundle', {})
+    path = regular(paths['web'])
+    if (web.get('file') != product['web_bundle'] or web.get('bytes') != path.stat().st_size
+            or web.get('sha256') != sha256(path) or path.stat().st_size > 64 * 1024**2):
+        raise ValueError('Web demeti kabulden sonra değişmiş.')
+    validate_web_bundle(path, revision, build_text)
+    return {'source_revision': revision, 'version': product['mobile_version_name'], 'version_code': product['mobile_version_code'],
+            'bridge_protocol': 1, 'acceptance': accepted, 'package': package, 'apk_identity': identities,
+            'production_signing': False, 'rom': False, 'physical_devices_tested': False}
+
+
+def prepare_mobile(inputs, output, revision, tag, checksums, evidence):
+    directory = inputs / 'mobile'
+    product = mobile_product(tag)
+    paths = {key: single(directory, original) for key, (original, _) in MOBILE_EVIDENCE.items()}
+    for name in (product['mobile_apk'], product['mobile_tests_apk'], 'OguzDows-inert-install-fixture.apk'):
+        paths[name] = single(directory, name)
+    paths.update(signature=single(directory, 'APK-SIGNATURE.txt'), build_text=single(directory, 'BUILD.txt'),
+                 apk_sums=single(directory, 'SHA256SUMS'), web=single(directory, product['web_bundle']))
+    report = verify_mobile_files(paths, revision, tag)
+    names = [product['mobile_apk'], product['mobile_tests_apk'], 'OguzDows-inert-install-fixture.apk', product['web_bundle']]
+    for name in names:
+        path = paths['web'] if name == product['web_bundle'] else paths[name]
+        os.link(path, output / name)
+        checksum = sha256(path) + '  ' + name + '\n'
+        checksums.append(checksum)
+        if name in (product['mobile_apk'], product['web_bundle']):
+            (output / (name + '.sha256')).write_text(checksum)
+    shutil.copyfile(paths['signature'], output / 'APK-SIGNATURE.txt')
+    shutil.copyfile(paths['build_text'], output / 'MOBILE-BUILD.txt')
+    shutil.copyfile(ROOT / 'docs/AKINCI-BAGLANTI.md', output / 'BAGLANTI-REHBERI.md')
+    for key, (_, name) in MOBILE_EVIDENCE.items():
+        evidence[name] = paths[key]
+    return report
+
+
+def audit_mobile(downloaded, evidence_dir, revision, tag, manifest, work):
+    product = mobile_product(tag)
+    paths = {key: regular(evidence_dir / name) for key, (_, name) in MOBILE_EVIDENCE.items()}
+    for name in (product['mobile_apk'], product['mobile_tests_apk'], 'OguzDows-inert-install-fixture.apk'):
+        paths[name] = regular(downloaded / name)
+    # Recreate only the fixed original three-APK sum view; the global sum file also covers images/web.
+    apk_sums = work / 'mobile-apk-SHA256SUMS'
+    names = [product['mobile_apk'], product['mobile_tests_apk'], 'OguzDows-inert-install-fixture.apk']
+    apk_sums.write_text(''.join(sha256(paths[name]) + '  ' + name + '\n' for name in names))
+    paths.update(signature=downloaded / 'APK-SIGNATURE.txt', build_text=downloaded / 'MOBILE-BUILD.txt',
+                 apk_sums=apk_sums, web=downloaded / product['web_bundle'])
+    report = verify_mobile_files(paths, revision, tag)
+    expected = {key: value for key, value in manifest['mobile'].items() if key not in ('source_run_id', 'source_run_url')}
+    if report != expected or (downloaded / 'BAGLANTI-REHBERI.md').read_text() != (ROOT / 'docs/AKINCI-BAGLANTI.md').read_text():
+        raise ValueError('Yeniden indirilen mobil paket/bağlantı kimliği manifestle eşleşmiyor.')
+    return names + [product['web_bundle']]
+
+
 def prepare_pi(inputs, output, revision, checksums, evidence):
     lock = read_json(ROOT / 'raspberrypi/pi-gen.lock.json')
     upstream = read_json(ROOT / 'raspberrypi/upstream-contract.json')
@@ -325,7 +507,11 @@ def prepare_pi(inputs, output, revision, checksums, evidence):
 
 
 def prepare(inputs, output, *, repository, run_id, release_id, revision, publisher_revision, tag,
-            pi_run_id=None, source_artifacts=None):
+            pi_run_id=None, mobile_run_id=None, source_artifacts=None):
+    if tag == 'v2.0' and not (pi_run_id and mobile_run_id):
+        raise ValueError('Akıncı yayını aynı kaynaklı PC + iki Pi + tam kabul edilmiş mobil paket gerektirir.')
+    if mobile_run_id and not pi_run_id:
+        raise ValueError('Birleşik mobil yayında iki Pi imajı da gerekli.')
     output.mkdir(parents=True, exist_ok=False)
     reports, checksums, evidence = {}, [], {}
     for arch in ARCHES:
@@ -370,6 +556,10 @@ def prepare(inputs, output, *, repository, run_id, release_id, revision, publish
             path.write_text(json.dumps(identity, ensure_ascii=False, indent=2) + '\n')
             evidence[path.name] = path
         evidence['host-gtk-panels-effects.json'] = host_evidence(tag, revision)
+        mobile = None
+        if mobile_run_id:
+            mobile = prepare_mobile(inputs, output, revision, tag, checksums, evidence)
+            mobile.update(source_run_id=mobile_run_id, source_run_url=f'https://github.com/{repository}/actions/runs/{mobile_run_id}')
         deterministic_bundle(evidence, output / 'test-evidence.tar.gz')
         shutil.copyfile(ROOT / 'docs/releases' / (tag + '.md'), output / 'INDIRME-REHBERI.md')
         manifest.update(format=2, pi_source_run_id=pi_run_id,
@@ -383,7 +573,11 @@ def prepare(inputs, output, *, repository, run_id, release_id, revision, publish
                         evidence_files={name: {'sha256': sha256(path), 'size': path.stat().st_size}
                                         for name, path in sorted(evidence.items())},
                         source_artifacts=source_artifacts or {},
-                        artifact_digest_scope='ZIP archive only; image digests are in files/SHA256SUMS')
+                        artifact_digest_scope='ZIP archive only; product digests are in files/SHA256SUMS')
+        if mobile is not None:
+            manifest.update(format=3, mobile=mobile, product=mobile_product(tag),
+                            mobile_source_run_id=mobile_run_id,
+                            mobile_source_run_url=f'https://github.com/{repository}/actions/runs/{mobile_run_id}')
     (output / 'SHA256SUMS').write_text(''.join(checksums))
     manifest['files'] = inventory(output)
     (output / 'release-manifest.json').write_text(json.dumps(manifest, ensure_ascii=False, indent=2) + '\n')
@@ -414,10 +608,12 @@ def emit_files(expected):
         print(f'::notice title=Release doğrulanmış dosyalar {offset // 8 + 1}::' + text, flush=True)
 
 
-def audit_release(release, work, *, repository, run_id, pi_run_id, release_id, revision, tag, notes):
-    """Yüklenmiş 17 dosyayı tekrar indir/hash'le; release'e hiçbir şey YAZMA."""
+def audit_release(release, work, *, repository, run_id, pi_run_id, release_id, revision, tag, notes, mobile_run_id=None):
+    """Yüklenmiş tüm dosyaları tekrar indir/hash'le; release'e hiçbir şey YAZMA."""
     if not pi_run_id:
         raise ValueError('Dört imajlı release denetiminde Pi kaynak çalışması gerekli.')
+    if tag == 'v2.0' and not mobile_run_id:
+        raise ValueError('Akıncı denetiminde tam kabul edilmiş mobil kaynak çalışması gerekli.')
     work.mkdir(parents=True, exist_ok=False)
     metadata, downloaded = work / 'metadata', work / 'download'
     command('gh', 'release', 'download', tag, '--repo', repository,
@@ -430,8 +626,15 @@ def audit_release(release, work, *, repository, run_id, pi_run_id, release_id, r
     allowed.update(images)
     allowed.update(name + '.sha256' for name in images)
     allowed.update(f'OguzDows-rpi-{arch}.packages.txt' for arch in PI_ARCHES)
+    if mobile_run_id:
+        product = mobile_product(tag)
+        allowed.update(mobile_assets(product))
+        mobile = manifest.get('mobile', {})
+        if (manifest.get('mobile_source_run_id') != mobile_run_id or mobile.get('source_run_id') != mobile_run_id
+                or manifest.get('product') != product or mobile.get('source_revision') != revision):
+            raise ValueError('Yüklü manifestin mobil kaynak/ürün sözleşmesi geçersiz.')
     expected = manifest.get('files', {})
-    if (set(expected) != allowed or manifest.get('format') != 2 or manifest.get('repository') != repository
+    if (set(expected) != allowed or manifest.get('format') != (3 if mobile_run_id else 2) or manifest.get('repository') != repository
             or manifest.get('release_id') != release_id or manifest.get('tag') != tag
             or manifest.get('source_revision') != revision or manifest.get('source_run_id') != run_id
             or manifest.get('pi_source_run_id') != pi_run_id or manifest.get('images_rebuilt') is not False
@@ -445,25 +648,36 @@ def audit_release(release, work, *, repository, run_id, pi_run_id, release_id, r
     command('gh', 'release', 'download', tag, '--repo', repository, '--pattern', '*', '--dir', str(downloaded))
     if inventory(downloaded) != expected:
         raise ValueError('Release yeniden indirme SHA-256/boyut doğrulaması başarısız.')
-    checksums = []
-    for name in images:
-        _, _, digest = checked_image(downloaded, name)
-        checksums.append(digest + '  ' + name + '\n')
-    if (downloaded / 'SHA256SUMS').read_text() != ''.join(checksums):
-        raise ValueError('Dört imajın birleşik SHA256SUMS listesi eşleşmiyor.')
-    if (downloaded / 'INDIRME-REHBERI.md').read_text() != notes:
-        raise ValueError('İndirilen rehber taslağın sürüm notlarıyla eşleşmiyor.')
     evidence = manifest.get('evidence_files', {})
+    evidence_dir = work / 'evidence'
+    evidence_dir.mkdir()
     with tarfile.open(downloaded / 'test-evidence.tar.gz', 'r:gz') as archive:
         members = archive.getmembers()
         if (len(members) != len(evidence) or {item.name for item in members} != set(evidence)
-                or not all(item.isfile() and Path(item.name).name == item.name and item.size <= 2 * 1024**2 for item in members)):
+                or not all(item.isfile() and Path(item.name).name == item.name and item.name not in ('.', '..')
+                           and item.size <= 2 * 1024**2 for item in members)):
             raise ValueError('İndirilen kanıt arşivi düz/normal/beklenen dosya listesi değil.')
         for item in members:
             with archive.extractfile(item) as stream:
                 content = stream.read(2 * 1024**2 + 1)
             if {'size': len(content), 'sha256': hashlib.sha256(content).hexdigest()} != evidence[item.name]:
-                raise ValueError('Kanıt arşivindeki özgün JSON hash/boyutu eşleşmiyor: ' + item.name)
+                raise ValueError('Kanıt arşivindeki özgün JSON/çerçeve hash/boyutu eşleşmiyor: ' + item.name)
+            (evidence_dir / item.name).write_bytes(content)
+    checksums = []
+    for name in images:
+        _, _, digest = checked_image(downloaded, name)
+        checksums.append(digest + '  ' + name + '\n')
+    if mobile_run_id:
+        names = audit_mobile(downloaded, evidence_dir, revision, tag, manifest, work)
+        for name in names:
+            line = sha256(downloaded / name) + '  ' + name + '\n'
+            checksums.append(line)
+            if name in (product['mobile_apk'], product['web_bundle']) and (downloaded / (name + '.sha256')).read_text() != line:
+                raise ValueError('Mobil/web ayrı SHA-256 dosyası eşleşmiyor.')
+    if (downloaded / 'SHA256SUMS').read_text() != ''.join(checksums):
+        raise ValueError('Tüm imaj/APK/web birleşik SHA256SUMS listesi eşleşmiyor.')
+    if (downloaded / 'INDIRME-REHBERI.md').read_text() != notes:
+        raise ValueError('İndirilen rehber taslağın sürüm notlarıyla eşleşmiyor.')
     current = api(f'repos/{repository}/releases/{release_id}')
     validate_draft(current, release_id, tag, revision, notes)
     check_remote(current, expected, complete=True)
@@ -476,7 +690,9 @@ def audit_release(release, work, *, repository, run_id, pi_run_id, release_id, r
     print('::notice title=Release yeniden indirme doğrulaması::' + json.dumps(
         {'release_id': release_id, 'tag': tag, 'source_revision': revision,
          'publisher_revision': manifest['publisher_revision'], 'asset_count': len(expected),
-         'evidence_json_count': len(evidence), 'all_release_assets_redownloaded_and_hashed': True,
+         'evidence_json_count': sum(name.endswith('.json') for name in evidence),
+         'evidence_file_count': len(evidence), 'mobile_source_run_id': mobile_run_id,
+         'all_release_assets_redownloaded_and_hashed': True,
          'release_modified': False, 'draft': True}), flush=True)
     return expected
 
@@ -497,6 +713,7 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--run', type=int, required=True)
     parser.add_argument('--pi-run', type=int, help='Aynı kaynak/dalın başarılı armhf+arm64 çalışması; yeniden derlemez')
+    parser.add_argument('--mobile-run', type=int, help='Aynı kaynak/dalın tam kabul edilmiş mobil APK/emülatör çalışması')
     parser.add_argument('--release-id', type=int, required=True)
     parser.add_argument('--audit', action='store_true', help='Mevcut taslağı yeniden indir/doğrula; hiçbir dosya yükleme veya değiştirme')
     parser.add_argument('--tag', required=True)
@@ -504,6 +721,7 @@ def main():
     args = parser.parse_args()
     repository, branch = os.environ['GITHUB_REPOSITORY'], os.environ['GITHUB_REF_NAME']
     if (args.run <= 0 or args.release_id <= 0 or args.pi_run is not None and args.pi_run <= 0
+            or args.mobile_run is not None and args.mobile_run <= 0
             or not TAG.fullmatch(args.tag) or not re.fullmatch(r'[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+', repository)):
         parser.error('Yayın etiketi / çalışma / release kimliği geçersiz.')
     notes = (ROOT / 'docs/releases' / (args.tag + '.md')).read_text()
@@ -514,6 +732,13 @@ def main():
         pi_revision = validate_run(api(f'repos/{repository}/actions/runs/{args.pi_run}'), args.pi_run, repository, branch, pi=True)
         if pi_revision != revision or f'actions/runs/{args.pi_run}' not in notes:
             raise ValueError('PC/Pi imajları aynı kaynaktan gelmeli ve Pi çalışması notlarda bulunmalı.')
+    if args.tag == 'v2.0' and not (args.pi_run and args.mobile_run):
+        raise ValueError('Akıncı için PC/Pi/mobil kaynakları birlikte zorunlu.')
+    if args.mobile_run:
+        mobile_revision = validate_run(api(f'repos/{repository}/actions/runs/{args.mobile_run}'),
+                                       args.mobile_run, repository, branch, mobile=True)
+        if mobile_revision != revision or f'actions/runs/{args.mobile_run}' not in notes:
+            raise ValueError('PC/Pi/mobil aynı kaynak olmalı; mobil kabul bağlantısı notlarda bulunmalı.')
     command('git', 'merge-base', '--is-ancestor', revision, 'HEAD')
     validate_changes(command('git', 'diff', '--name-only', revision, 'HEAD').splitlines())
     if command('git', 'status', '--porcelain', '--untracked-files=no').strip():
@@ -523,13 +748,15 @@ def main():
     validate_draft(release, args.release_id, args.tag, revision, notes)
     if args.audit:
         audit_release(release, args.work, repository=repository, run_id=args.run, pi_run_id=args.pi_run,
-                      release_id=args.release_id, revision=revision, tag=args.tag, notes=notes)
+                      release_id=args.release_id, revision=revision, tag=args.tag, notes=notes, mobile_run_id=args.mobile_run)
         return
     sources = [(args.run, ['OguzDows-' + arch for arch in ARCHES]
                 + ['OguzDows-ISO-hedef-test-' + arch for arch in ARCHES])]
     if args.pi_run:
         sources.append((args.pi_run, ['OguzDows-rpi-' + arch for arch in PI_ARCHES]
                         + ['OguzDows-Pi-gunluk-' + arch for arch in PI_ARCHES]))
+    if args.mobile_run:
+        sources.append((args.mobile_run, ['oguzdows-mobile-emulator-' + str(args.mobile_run)]))
     source_artifacts = {}
     for run_id, names in sources:
         source_artifacts[str(run_id)] = validate_artifacts(
@@ -538,7 +765,9 @@ def main():
     inputs, output = args.work / 'input', args.work / 'upload'
     for run_id, names in sources:
         for name in names:
-            if name.startswith(('OguzDows-ISO-hedef-test-', 'OguzDows-Pi-gunluk-')):
+            if name.startswith('oguzdows-mobile-emulator-'):
+                destination = inputs / 'mobile'
+            elif name.startswith(('OguzDows-ISO-hedef-test-', 'OguzDows-Pi-gunluk-')):
                 destination = inputs / 'evidence' / name
             else:
                 destination = inputs / name.removeprefix('OguzDows-')
@@ -546,7 +775,7 @@ def main():
             command('gh', 'run', 'download', str(run_id), '--repo', repository, '--name', name, '--dir', str(destination))
     expected = prepare(inputs, output, repository=repository, run_id=args.run, release_id=args.release_id,
                        revision=revision, publisher_revision=command('git', 'rev-parse', 'HEAD').strip(), tag=args.tag,
-                       pi_run_id=args.pi_run, source_artifacts=source_artifacts)
+                       pi_run_id=args.pi_run, mobile_run_id=args.mobile_run, source_artifacts=source_artifacts)
     # Yalnızca aynı hash/boyuttaki tamamlanmış dosyalar korunur. Ezme/silme yok.
     release = api(endpoint)
     validate_draft(release, args.release_id, args.tag, revision, notes)
@@ -560,7 +789,7 @@ def main():
     emit_files(expected)
     print('::notice title=Doğrulanmış release taslağı::' + json.dumps(
         {'release_id': args.release_id, 'tag': args.tag, 'draft': True, 'source_revision': revision,
-         'pc_run_id': args.run, 'pi_run_id': args.pi_run, 'asset_count': len(expected)}), flush=True)
+         'pc_run_id': args.run, 'pi_run_id': args.pi_run, 'mobile_run_id': args.mobile_run, 'asset_count': len(expected)}), flush=True)
 
 
 if __name__ == '__main__':

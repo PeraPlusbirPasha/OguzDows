@@ -1170,10 +1170,17 @@ export default function App() {
       </section>
       <footer className="lab-footer">
         <span>
-          OĞUZDOWS MOBILE <i>—</i> AYNI RUH. YENİ BİR DÜNYA.
+          OĞUZDOWS 2.0 <i>—</i> AKINCI. AYNI RUH. YENİ BİR DÜNYA.
         </span>
         <p>
           Tarayıcı tasarımıdır, ROM değildir. Durum göstergeleri örnektir.{" "}
+          <a
+            href="https://github.com/PeraPlusbirPasha/OguzDows/releases/tag/v2.0"
+            target="_blank"
+            rel="noreferrer"
+          >
+            PC / Pi / APK · Akıncı yayını
+          </a>{" "}
           <button onClick={() => setOverlay("about")}>
             Tasarım sınırları <Icon name="ArrowUpRight" size={12} />
           </button>

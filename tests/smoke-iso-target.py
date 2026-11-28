@@ -149,12 +149,16 @@ MODE_CONTENT = {relative: ROOT / 'system' / relative for relative in (
     'usr/lib/oguzdows/file_manager.py', 'usr/lib/oguzdows/resource_policy.py',
     'usr/lib/oguzdows/desktop_appearance.py', 'usr/lib/oguzdows/desktop_shortcuts.py',
     'usr/lib/oguzdows/screenshot.py', 'usr/share/oguzdows/ui/shell.css',
+    'usr/lib/oguzdows/bridge.py', 'usr/lib/oguzdows/bridge_core.py', 'usr/lib/oguzdows/bridge_capture.py',
+    'usr/lib/oguzdows/product_info.py', 'usr/share/oguzdows/product.json',
+    'usr/local/bin/oguzdows-bridge', 'usr/share/applications/oguzdows-bridge.desktop',
     'usr/lib/oguzdows/session.sh', 'usr/lib/oguzdows/wallpapers.py',
     'usr/local/bin/oguzdows-accent', 'usr/share/oguzdows/ui/window-geometry.css',
     'usr/share/xfce4/panel/plugins/oguzdows-tasks.desktop', 'usr/share/oguzdows/picom.conf')}
 MODE_CONTENT.update({'usr/share/oguzdows/native/' + name: ROOT / 'native' / name for name in ('tasks.c', 'accent-watch.c')})
 MODE_CONTENT['usr/share/oguzdows/scripts/build-panel.sh'] = ROOT / 'scripts/build-panel.sh'
 MODE_CONTENT['usr/lib/oguzdows/render-assets.py'] = ROOT / 'scripts/render-assets.py'
+MODE_CONTENT['usr/share/doc/oguzdows/AKINCI-BAGLANTI.md'] = ROOT / 'docs/AKINCI-BAGLANTI.md'
 for name in ('OguzDows', 'OguzDowsLight', 'OguzDowsEleven', 'OguzDowsElevenDark', 'OguzDowsMac', 'OguzDowsMacDark'):
     relative = 'usr/share/themes/' + name + '/gtk-3.0/gtk.css'
     MODE_CONTENT[relative] = ROOT / 'system' / relative

@@ -144,7 +144,7 @@ def main() -> int:
             cleanup_provision()
             return 0
         subprocess.run(["/usr/bin/plymouth", "quit"], check=False, capture_output=True)
-        print("\nOğuzDows · Ay Yıldız\nRaspberry Pi ilk açılış kurulumu\n")
+        print("\nOğuzDows · Akıncı\nRaspberry Pi ilk açılış kurulumu\n")
         print("Ortak kullanıcı veya parola yok. Bir yönetici hesabı oluşturacağız.\nParolanız yazılırken görünmez; root hesabı kilitli ve SSH kapalıdır.\n")
         try:
             provision = read_provision()

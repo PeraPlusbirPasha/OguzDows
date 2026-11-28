@@ -1,8 +1,13 @@
+import groovy.json.JsonSlurper
+
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
     id("org.jetbrains.kotlin.plugin.compose")
 }
+
+// One release identity for PC, ARM and the actual native APK (not just a filename).
+val product = JsonSlurper().parse(rootProject.file("../../system/usr/share/oguzdows/product.json")) as Map<*, *>
 
 android {
     namespace = "org.oguzdows.mobile"
@@ -11,8 +16,9 @@ android {
         applicationId = "org.oguzdows.mobile"
         minSdk = 29
         targetSdk = 35
-        versionCode = 4
-        versionName = "0.4.0-connected"
+        versionCode = (product["mobile_version_code"] as Number).toInt()
+        versionName = product["mobile_version_name"] as String
+        buildConfigField("String", "RELEASE_URL", "\"${product["release_url"]}\"")
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
     compileOptions {
@@ -20,7 +26,7 @@ android {
         targetCompatibility = JavaVersion.VERSION_17
     }
     kotlinOptions { jvmTarget = "17" }
-    buildFeatures { compose = true }
+    buildFeatures { compose = true; buildConfig = true }
     testOptions { animationsDisabled = true }
     lint { abortOnError = true }
     sourceSets.getByName("main").assets.srcDir(layout.buildDirectory.dir("generated/bundled-ui"))

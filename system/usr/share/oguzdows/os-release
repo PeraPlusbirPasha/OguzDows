@@ -1,9 +1,9 @@
 NAME="OğuzDows"
-PRETTY_NAME="OğuzDows 1.2 · Ay Yıldız"
+PRETTY_NAME="OğuzDows 2.0 · Akıncı"
 ID=oguzdows
-VERSION_ID="1.2"
-VERSION="1.2 (Ay Yıldız)"
-VERSION_CODENAME=ayyildiz
+VERSION_ID="2.0"
+VERSION="2.0 (Akıncı)"
+VERSION_CODENAME=akinci
 HOME_URL="https://github.com/PeraPlusbirPasha/OguzDows"
 SUPPORT_URL="https://github.com/PeraPlusbirPasha/OguzDows/issues"
 BUG_REPORT_URL="https://github.com/PeraPlusbirPasha/OguzDows/issues"

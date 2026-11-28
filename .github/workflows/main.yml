@@ -16,6 +16,10 @@ on:
         description: pc-release için isteğe bağlı, aynı kaynaklı başarılı Pi armhf+arm64 çalışması
         type: string
         default: ""
+      mobile_evidence_run:
+        description: v2.0 için zorunlu; aynı kaynaklı başarılı mobil APK / tam emülatör kabulü
+        type: string
+        default: ""
       release_tag:
         description: pc-release için mevcut taslağın etiketi (ör. v1.1 veya v2.0)
         type: string
@@ -542,7 +546,7 @@ jobs:
           PY
 
   release:
-    name: Doğrulanmış PC / Pi imajları → Release taslağı (derlemez)
+    name: Doğrulanmış PC / Pi / mobil → Release taslağı (derlemez)
     if: github.event_name == 'workflow_dispatch' && github.event.inputs.target == 'pc-release'
     runs-on: ubuntu-latest
     timeout-minutes: 45
@@ -560,7 +564,7 @@ jobs:
       - name: Salt okunur imaj inceleme araçları (imajdan kod çalıştırılmaz)
         run: |
           sudo apt-get update
-          sudo apt-get install -y --no-install-recommends python3-yaml xorriso squashfs-tools xz-utils fdisk e2fsprogs udev
+          sudo apt-get install -y --no-install-recommends python3-yaml xorriso squashfs-tools xz-utils fdisk e2fsprogs udev aapt apksigner
       - name: Yayın aracı negatif / bütünlük regresyonları
         run: |
           python3 scripts/ci-run.py --title 'Yayın aracı regresyonu' -- \
@@ -570,12 +574,14 @@ jobs:
           GH_TOKEN: ${{ github.token }}
           SOURCE_RUN: ${{ inputs.evidence_run }}
           PI_SOURCE_RUN: ${{ inputs.pi_evidence_run }}
+          MOBILE_SOURCE_RUN: ${{ inputs.mobile_evidence_run }}
           AUDIT_ONLY: ${{ inputs.release_audit_only }}
           RELEASE_TAG: ${{ inputs.release_tag }}
           RELEASE_ID: ${{ inputs.release_id }}
         run: |
           extra=()
           if [ -n "$PI_SOURCE_RUN" ]; then extra=(--pi-run "$PI_SOURCE_RUN"); fi
+          if [ -n "$MOBILE_SOURCE_RUN" ]; then extra+=(--mobile-run "$MOBILE_SOURCE_RUN"); fi
           if [ "$AUDIT_ONLY" = true ]; then extra+=(--audit); fi
           python3 scripts/ci-run.py --title 'Release imaj aktarımı / denetimi' -- \
             python3 scripts/release-assets.py --run "$SOURCE_RUN" --release-id "$RELEASE_ID" --tag "$RELEASE_TAG" "${extra[@]}"

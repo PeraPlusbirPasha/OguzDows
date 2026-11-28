@@ -347,9 +347,7 @@ def main():
     # mandatory counts / independent hashes / actual capture evidence.
     if evidence['passed'] and previews:
         encoded = previews[-1]
-        pieces = [encoded[i:i + 3400] for i in range(0, len(encoded), 3400)]
-        for index, piece in enumerate(pieces):
-            annotation('notice', f'Native launcher preview {index + 1:02}/{len(pieces):02}', piece)
+        (OUT / 'native-launcher-preview.b64').write_text(encoded + '\n')
     elif failure_previews:
         label, encoded = failure_previews[0]
         pieces = [encoded[i:i + 3400] for i in range(0, len(encoded), 3400)]

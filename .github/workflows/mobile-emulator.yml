@@ -14,6 +14,7 @@ on:
       - 'mobile/preview/tsconfig.json'
       - 'mobile/scripts/**'
       - 'system/usr/lib/oguzdows/bridge*.py'
+      - 'system/usr/share/oguzdows/product.json'
       - 'tests/test_bridge.py'
       - 'mobile/tests/**'
       - '.github/workflows/mobile-emulator.yml'
@@ -89,15 +90,7 @@ jobs:
       - name: Yalnız tüm native testler geçince dağıtım paketini hazırla
         run: |
           python3 mobile/scripts/acceptance.py
-          mkdir -p test-results/mobile/package
-          cp mobile/android/app/build/outputs/apk/debug/app-debug.apk test-results/mobile/package/OguzDows-Mobile-0.4.0-connected-debug.apk
-          cp mobile/android/app/build/outputs/apk/androidTest/debug/app-debug-androidTest.apk test-results/mobile/package/OguzDows-Mobile-0.4.0-connected-tests.apk
-          cp mobile/android/fixture/build/outputs/apk/debug/fixture-debug.apk test-results/mobile/package/OguzDows-inert-install-fixture.apk
-          "$ANDROID_HOME/build-tools/35.0.0/apksigner" verify --verbose --print-certs test-results/mobile/package/OguzDows-Mobile-0.4.0-connected-debug.apk > test-results/mobile/package/APK-SIGNATURE.txt
-          cd test-results/mobile/package
-          sha256sum *.apk > SHA256SUMS
-          echo "SOURCE_SHA=$(git rev-parse HEAD)" > BUILD.txt
-          echo 'DEBUG / emulator milestone. Not a ROM/OTA/ISO, physical SIM test or GMS-certified distribution.' >> BUILD.txt
+          python3 mobile/scripts/package-mobile.py
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         if: always()
         with:

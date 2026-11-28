@@ -89,7 +89,7 @@ LABEL {item.key}
 
 
 def grub_menu(items: list[Entry], kernel: str, initrd: str) -> str:
-    menu = f"""# OğuzDows · Ay Yıldız
+    menu = f"""# OğuzDows · Akıncı
 set default=0
 set timeout=8
 if [ -z "$iso_path" ]; then
@@ -186,13 +186,13 @@ def configure(binary: Path, root: Path, config: dict) -> None:
         shutil.copy2(root / "usr/share/grub/unicode.pf2", grub / "unicode.pf2")
     disk = binary / ".disk"
     disk.mkdir(exist_ok=True)
-    (disk / "info").write_text(f"OğuzDows · Ay Yıldız · {config['arch']}\n", encoding="utf-8")
+    (disk / "info").write_text(f"OğuzDows · Akıncı · {config['arch']}\n", encoding="utf-8")
     defines = binary / "README.diskdefines"
     if defines.exists():
         defines.write_text(f"#define DISKNAME OğuzDows\n#define ARCH {config['arch']}\n", encoding="utf-8")
     readme = binary / "README.html"
     if readme.exists():
-        readme.write_text('<!doctype html><meta charset="utf-8"><title>OğuzDows</title><h1>OğuzDows · Ay Yıldız</h1><p>Başlangıç için masaüstündeki OğuzDows Rehberi’ni açın.</p>\n', encoding="utf-8")
+        readme.write_text('<!doctype html><meta charset="utf-8"><title>OğuzDows</title><h1>OğuzDows · Akıncı</h1><p>Başlangıç için masaüstündeki OğuzDows Rehberi’ni açın.</p>\n', encoding="utf-8")
 
 
 def main() -> None:

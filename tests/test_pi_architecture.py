@@ -40,17 +40,17 @@ def elf(expected, hard_float=True):
 
 
 class PiIdentityTests(unittest.TestCase):
-    def test_current_1_2_product_version_preserves_both_pi_base_identities(self):
+    def test_current_2_0_product_version_preserves_both_pi_base_identities(self):
         product = identity.read_release(ROOT / 'system/usr/share/oguzdows/os-release')
-        self.assertEqual(product['VERSION_ID'], '1.2')
+        self.assertEqual(product['VERSION_ID'], '2.0')
         for native_id in ('raspbian', 'debian'):
             with self.subTest(native_id=native_id), tempfile.TemporaryDirectory() as directory:
                 base = {'ID': native_id, 'VERSION_ID': '12', 'VERSION_CODENAME': 'bookworm'}
                 expected = {'os_id': native_id, 'base_version_id': '12', 'suite': 'bookworm'}
                 path = write(Path(directory), 'os-release', identity.render(base, product, expected))
                 result = identity.read_release(path)
-                self.assertEqual(result['OGUZDOWS_VERSION_ID'], '1.2')
-                self.assertEqual(result['PRETTY_NAME'], 'OğuzDows 1.2 · Ay Yıldız')
+                self.assertEqual(result['OGUZDOWS_VERSION_ID'], '2.0')
+                self.assertEqual(result['PRETTY_NAME'], 'OğuzDows 2.0 · Akıncı')
                 for key, value in base.items():
                     self.assertEqual(result[key], value)
 
@@ -189,7 +189,11 @@ class PiAbiAndFeatureTests(unittest.TestCase):
                 if arch == 'armhf':
                     self.assertTrue({'firefox-esr', 'firefox-esr-l10n-tr'}.isdisjoint(contract['required_packages']))
                     self.assertIn('netsurf-gtk', contract['required_packages'])
-                self.assertEqual(len(contract['asset_hashes']), 61)  # 31 assets + 30 portable desktop / store sources
+                self.assertEqual(len(contract['asset_hashes']), 69)  # 61 existing + 8 exact bridge/product/guide sources
+                bridge_files = contract['features']['pc-phone-arm-bridge']['files']
+                self.assertEqual(len(bridge_files), 8)
+                for relative in bridge_files:
+                    self.assertEqual(contract['asset_hashes'][relative], hashlib.sha256((overlay / relative).read_bytes()).hexdigest())
                 self.assertIn('file_manager', contract['python_modules'])
                 for relative in ('usr/lib/oguzdows/file_manager.py', 'usr/lib/oguzdows/render-assets.py',
                                  'usr/share/oguzdows/ui/modern.css', 'usr/share/oguzdows/ui/window-geometry.css',
@@ -209,7 +213,7 @@ class PiAbiAndFeatureTests(unittest.TestCase):
                 reader = (ROOT / 'scripts/pi_contract.py').read_bytes()
                 self.assertEqual((overlay / 'usr/lib/oguzdows/pi_contract.py').read_bytes(), reader)
                 self.assertEqual((output / 'stage-oguzdows/00-desktop/files/pi_contract.py').read_bytes(), reader)
-                self.assertEqual(len(contract['features']), 12)
+                self.assertEqual(len(contract['features']), 13)
                 self.assertIn('lightweight-news', contract['features'])
                 self.assertIn('original-icons-and-budgeted-transitions', contract['features'])
                 self.assertIn('flatpak', contract['required_packages']) if arch == 'arm64' else self.assertNotIn('flatpak', contract['required_packages'])

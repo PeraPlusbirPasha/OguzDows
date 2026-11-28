@@ -84,6 +84,7 @@ def configure(arch: str, output: Path) -> None:
     shutil.copytree(ROOT / "assets", overlay / "usr/share/oguzdows/assets")
     documentation = overlay / "usr/share/doc/oguzdows"
     documentation.mkdir(parents=True, exist_ok=True)
+    shutil.copy2(ROOT / "docs/AKINCI-BAGLANTI.md", documentation / "AKINCI-BAGLANTI.md")
     shutil.copy2(ROOT / "docs/MASAUSTU-VE-BAKIM.md", documentation / "masaustu-ve-bakim.md")
     shutil.copy2(ROOT / "docs/PI-ZERO-OTURUM.md", documentation / "PI-ZERO-OTURUM.md")
     shutil.copy2(ROOT / "docs/ELEMENTARY-HABER.md", documentation / "ELEMENTARY-HABER.md")
@@ -134,8 +135,11 @@ def configure(arch: str, output: Path) -> None:
         'file_manager.py', 'resource_policy.py', 'desktop_material.py',
         'desktop_preferences.py', 'session.sh', 'render-assets.py',
         'workbench.py', 'workbench_core.py', 'app_catalog.py', 'store_core.py',
-        'store_service.py', 'store.py', 'store_lifecycle.py', 'maintenance.py')]
+        'store_service.py', 'store.py', 'store_lifecycle.py', 'maintenance.py',
+        'bridge.py', 'bridge_core.py', 'bridge_capture.py', 'product_info.py')]
     desktop_content += ['usr/share/oguzdows/ui/' + name for name in ('modern.css', 'window-geometry.css', 'shell.css')]
+    desktop_content += ['usr/share/oguzdows/product.json', 'usr/share/doc/oguzdows/AKINCI-BAGLANTI.md',
+                        'usr/local/bin/oguzdows-bridge', 'usr/share/applications/oguzdows-bridge.desktop']
     desktop_content += ['usr/share/oguzdows/picom.conf', 'usr/local/bin/oguzdows-workbench',
                         'usr/share/applications/oguzdows-workbench.desktop', 'usr/share/applications/oguzdows-software.desktop']
     desktop_content += [str(path.relative_to(overlay)) for path in sorted((overlay / 'usr/share/oguzdows/compositor').glob('*.conf'))]

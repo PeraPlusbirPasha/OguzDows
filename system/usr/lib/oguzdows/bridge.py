@@ -12,6 +12,7 @@ from urllib.parse import unquote, urlsplit
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import bridge_core as core
 from bridge_capture import jpeg_dimensions, unlocked_x11
+from product_info import product_info
 
 
 def addresses(execute=subprocess.run):
@@ -89,7 +90,13 @@ def application():
             root = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=12, margin=20)
             scroll.add(root); self.window.add(scroll)
             self.root = root
-            root.pack_start(self.label('Aynı ağ. Aynı masa. Seçtiğin dosyalar.'), False, False, 0)
+            product = product_info()
+            root.pack_start(self.label(f"OğuzDows {product['version']} · {product['codename']} / Aynı ağ. Aynı masa."), False, False, 0)
+            # Links are static validated product data. No listener/network request on open.
+            links = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=8)
+            links.pack_start(Gtk.LinkButton.new_with_label(product['release_url'], 'PC / Pi / telefon APK’sı'), False, False, 0)
+            links.pack_start(Gtk.LinkButton.new_with_label(product['connection_guide_url'], 'Bağlantı rehberi'), False, False, 0)
+            root.pack_start(links, False, False, 0)
             root.pack_start(self.label('Otomatik keşif / bulut yok. Her eşleşmede iki ekrandaki kodu doğrula. Dosyalar otomatik açılmaz; rehber, SMS, terminal, kurulum ve uzaktan kontrol paylaşılmaz.'), False, False, 0)
             self.status = self.label('Bir cihazda masa aç; diğerinde iki dakikalık daveti yapıştır.')
             root.pack_start(self.status, False, False, 0)
@@ -460,7 +467,8 @@ def main(argv=None):
     parser.add_argument('--version', action='store_true')
     args = parser.parse_args(argv)
     if args.version:
-        print('OğuzKöprü 0.4 · protocol 1 · explicit LAN TLS / file consent / read-only frames')
+        product = product_info()
+        print(f"OğuzKöprü {product['version']} · {product['codename']} · protocol {product['bridge_protocol']} · explicit LAN TLS / file consent / read-only frames")
         return 0
     return gui()
 
