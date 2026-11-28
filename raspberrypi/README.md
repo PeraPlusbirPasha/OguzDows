@@ -1,8 +1,14 @@
+> **2.0 yayın taslağı hazırlanıyor:** aşağıdaki yeni bağlantılar bağımsız dosya denetimi ve kamuya açma tamamlandığında çalışır. [Şu an yayımlanmış önceki v1.2](https://github.com/PeraPlusbirPasha/OguzDows/releases/tag/v1.2).
+
 # OğuzDows · Raspberry Pi portu
 
 Aynı Ay Yıldız kimliği, Türkçe Xfce/X11 masaüstü, net pencere/panel düğmeleri, Plymouth animasyonu, Pi'ye özel karşılayıcı, doğal yerel Rıfkı rehberi, cihaz merkezi, yerel C/GTK mağaza ve **20 kültür duvar kâğıdı**; Pi'ye özgü çekirdek, boot firmware'i ve güvenli ilk açılış ile. Galeri 16 AI görsel ve 4 özgün çizimden oluşur; yirmi gerçek fotoğraf iddiası değildir.
 
-**[v1.2 yayını](https://github.com/PeraPlusbirPasha/OguzDows/releases/tag/v1.2)** iki mimarinin kalıcı indirmesini içerir: **[armhf](https://github.com/PeraPlusbirPasha/OguzDows/releases/download/v1.2/OguzDows-rpi-armhf.img.xz)** · [armhf SHA-256](https://github.com/PeraPlusbirPasha/OguzDows/releases/download/v1.2/OguzDows-rpi-armhf.img.xz.sha256) · **[arm64](https://github.com/PeraPlusbirPasha/OguzDows/releases/download/v1.2/OguzDows-rpi-arm64.img.xz)** · [arm64 SHA-256](https://github.com/PeraPlusbirPasha/OguzDows/releases/download/v1.2/OguzDows-rpi-arm64.img.xz.sha256). Ürün kaynağı `dc92fe9e47d8cdc599094281780e274cc49d1470`; `--configure-only` çıktısı imaj değildir. **[PC/Pi model, CPU, RAM ve depolama indirme rehberi](../docs/releases/v1.2.md).**
+**[v2.0 · Akıncı](https://github.com/PeraPlusbirPasha/OguzDows/releases/tag/v2.0)** iki yeniden derlenmiş imajı içerir: **[armhf](https://github.com/PeraPlusbirPasha/OguzDows/releases/download/v2.0/OguzDows-rpi-armhf.img.xz)** · [armhf SHA-256](https://github.com/PeraPlusbirPasha/OguzDows/releases/download/v2.0/OguzDows-rpi-armhf.img.xz.sha256) · **[arm64](https://github.com/PeraPlusbirPasha/OguzDows/releases/download/v2.0/OguzDows-rpi-arm64.img.xz)** · [arm64 SHA-256](https://github.com/PeraPlusbirPasha/OguzDows/releases/download/v2.0/OguzDows-rpi-arm64.img.xz.sha256). Gerçek ortak PC/Pi/APK kaynağı **`5a44de0dde676d901a32be40d631d481e213439d`**, iç ürün kimliği **2.0 / Akıncı**. Teknik Bookworm/12 tabanı korunur; `--configure-only` imaj değildir. **[Güncel cihaz/RAM/kurulum ve test rehberi](../docs/releases/v2.0.md).**
+
+**OğuzKöprü bu 2.0 imajlarına dahildir:** izinli yerel dosya/salt ekran bağlantısı için [PC–Pi–telefon rehberi](../docs/AKINCI-BAGLANTI.md). Telefon için ayrı [debug launcher APK](../mobile/INSTALL.md); Pi imajı telefon ROM’u değildir. TLS/kod onayı, dosya bazında alıcı kabulü ve kilitsiz X11 gerekir; uzaktan giriş/SMS/kurulum yetkisi yoktur.
+
+Önceki **[v1.2](https://github.com/PeraPlusbirPasha/OguzDows/releases/tag/v1.2)** (`dc92fe9e47d8cdc599094281780e274cc49d1470`) değişmeden korunur: [tarihsel armhf](https://github.com/PeraPlusbirPasha/OguzDows/releases/download/v1.2/OguzDows-rpi-armhf.img.xz) / [arm64](https://github.com/PeraPlusbirPasha/OguzDows/releases/download/v1.2/OguzDows-rpi-arm64.img.xz); eski dosyalar 2.0 diye yeniden adlandırılmadı.
 
 > **Deneysel port:** fiziksel kartlar bu yeni imajla doğrulanmadı. İlk nesil Zero/Zero W’de doğru armhf ile hesap ekranı sonrası siyah ekran bildirimi hâlâ açıktır; giderildiği iddia edilmez. ARM kullanıcı-QEMU/Xvfb başarısı LightDM/PAM veya fiziksel boot kanıtı değildir. [Teşhis](../docs/PI-ZERO-OTURUM.md).
 
@@ -29,7 +35,7 @@ Aynı Ay Yıldız kimliği, Türkçe Xfce/X11 masaüstü, net pencere/panel dü�
 
 Ortak masaüstü/uygulama listesi iki PC imajıyla paylaşılır: LibreOffice Writer/Calc/Impress, VLC, dosya yöneticisi, ağ/Bluetooth/ses, temalar ve galeri korunur. Web başlatıcısı armhf'de NetSurf GTK, arm64'te kaynak bütçesine göre NetSurf / kurulu Türkçe Firefox ESR kullanır; armhf için Firefox zorunlu değildir. Pi'ye GPIO/I2C/SPI kitaplıkları ve kamera komut satırı araçları da eklenir. Kamera/HAT arabirimleri kullanıcı istemeden zorla etkinleştirilmez.
 
-Yerel mağaza Pi rootfs'i içinde kendi mimarisine derlenir; PC ikili dosyası kopyalanmaz. Sabit uygulama demetleri yalnızca cihazın mevcut imzalı kaynaklarından planlanır. Genel Pi sistem / çekirdek güncellemeleri kendi paket yöneticisinde kalır; PC güncelleyicisi veya başka dağıtımın temel depoları taşınmaz. İsteğe bağlı kullanıcı Flatpak / Flathub altyapısı yalnızca arm64 tarifindedir; eski Zero / armhf için bu kaynak veya APK çalıştırma vaadi yoktur. 1.2’de ARM64/Bookworm/Trixie üzerinde gerçek imzalı APT ile motor/GNOME Software demet kurulumu CI’da geçti; kullanıcı parolalı Polkit, Flathub uygulaması indirme ve fiziksel kart doğrulaması değildir.
+Yerel mağaza Pi rootfs'i içinde kendi mimarisine derlenir; PC ikili dosyası kopyalanmaz. Sabit uygulama demetleri yalnızca cihazın mevcut imzalı kaynaklarından planlanır. Genel Pi sistem / çekirdek güncellemeleri kendi paket yöneticisinde kalır; PC güncelleyicisi veya başka dağıtımın temel depoları taşınmaz. İsteğe bağlı kullanıcı Flatpak / Flathub altyapısı yalnızca arm64 tarifindedir; eski Zero / armhf için bu kaynak veya APK çalıştırma vaadi yoktur. 2.0 kaynağında ARM64/Bookworm/Trixie üzerinde gerçek imzalı APT ile motor/GNOME Software demet kurulumu CI’da geçti; kullanıcı parolalı Polkit, Flathub uygulaması indirme ve fiziksel kart doğrulaması değildir.
 
 **512 MB + tek ARMv6 çekirdeğinde güncel web/ofis, Pi 5 hızında çalışamaz.** Modern Firefox'un ARMv7/NEON gereksinimlerini ARMv6'ya dayatmamak için varsayılan tarayıcı başlatıcısı eski Zero/Pi 1'de **Netsurf GTK** seçer. Bu tarayıcı temel web içindir; **JavaScript ve modern sitelerle tam uyumluluk yoktur**. **armhf imajında Firefox ve Türkçe dil paketi artık zorunlu değildir / yüklenmez; NetSurf kullanılır.** arm64’te 1 GiB ve altı Pi’de NetSurf, daha yüksek RAM’de kurulu Firefox seçilir. Menü / web bağlantıları ortak `oguzdows-browser` MIME başlatıcısından geçer. NetSurf için JavaScript kullanan siteler yerine sade haber, HTML / mobil veya yazdırma sayfaları tercih edin. ARMv6’da Firefox isteği açıkça reddedilir. Ofis ve video uygulamalarının özellikle 512 MB'da büyük dosya/çoklu sekme/yüksek çözünürlük performansı garanti edilmez. Modern web/ofis için **Pi 4/5 ve en az 2 GB, tercihen 4 GB RAM** önerilir.
 
@@ -37,7 +43,7 @@ PC'ye özgü Calamares, BIOS/UEFI/GRUB menüsü, Intel/AMD mikro kodları ve Bro
 
 ## SD / USB'ye yazma ve ilk açılış
 
-1. Yukarıdaki v1.2 yayınından kartınıza uygun `OguzDows-rpi-armhf.img.xz` veya `OguzDows-rpi-arm64.img.xz` ile SHA-256 dosyasını indirin. Release dosyası `.img.xz` biçimindedir; ayrıca Actions ZIP’i indirmeniz gerekmez.
+1. Yukarıdaki v2.0 Akıncı yayınından kartınıza uygun `OguzDows-rpi-armhf.img.xz` veya `OguzDows-rpi-arm64.img.xz` ile SHA-256 dosyasını indirin. Release dosyası `.img.xz` biçimindedir; ayrıca Actions ZIP’i indirmeniz gerekmez.
 2. Aynı dizinde `sha256sum -c OguzDows-rpi-armhf.img.xz.sha256` (veya arm64) çalıştırın.
 3. Raspberry Pi Imager'da **özel imaj kullan** ile `.img.xz` dosyasını seçin. Hedefin tüm verileri silinir; doğru SD/USB'yi seçtiğinizi iki kez kontrol edin. En az **16 GB**, tercihen kaliteli **32 GB A1/A2** kart kullanın. Pi 4/5'te desteklenen USB 3 SSD, SD'ye göre daha iyi uygulama deneyimi sağlayabilir.
 4. **Imager'ın kullanıcı/SSH/ileri özelleştirme seçeneklerini uygulamayın.** Bu port kendi hesap adımını kullanır. Mevcut imaj dosyası için Imager'ın kimlik özelleştirme uyumluluğu test edilmemiştir.
@@ -136,11 +142,21 @@ Resmî `RPi-Distro/pi-gen` kaynakları `pi-gen.lock.json` içinde **tam commit +
 
 ## Doğrulama ve testlerin anlamı
 
+### 2.0 Akıncı · aynı kaynaklı iki imaj
+
+**[46092347693](https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/46092347693)**, kaynak **`5a44de0`**: armhf/ARM1176 ve arm64/Cortex-A53 **başarılı**. **13 özellik grubu / 69 varlık hash’i**, yerel hedef Python/GTK/ELF, UID65534 tam Xfce ve beş kararlı örnek, native Haber/çıkan işçi, armhf NetSurf yerel sayfası, dar chroot/HOME/UID/pidfd temizliği ve son salt-okunur export denetimi geçti. [İmaj makbuzları](../docs/releases/v2.0-build.json) · [16 başarılı host/ABI işi](../docs/releases/v2.0-host.json).
+
+OğuzKöprü/product/rehberin sekiz ek birebir kaynağı iki rootfs’te doğrulanır. Emülatörün gerçek native/Python çift yönlü dört-dosya TLS/MediaProjection kabulü ayrı [mobil koşudadır](https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/46092350348); bu, fiziksel Pi-telefon Wi-Fi matrisi değildir. **Pi firmware/kernel/LightDM/PAM/GPU/SD/pil/RAM/FPS veya Zero siyahlık kabulü yoktur.**
+
+Yayın aktarımı aynı kaynaktaki dört imaj + APK/web dosyasını denetler; ayrı runner bütün 26 release dosyasını yeniden indirip hash’ler. [Manifest](https://github.com/PeraPlusbirPasha/OguzDows/releases/download/v2.0/release-manifest.json) · [26 JSON + 1 JPEG ham kanıt](https://github.com/PeraPlusbirPasha/OguzDows/releases/download/v2.0/test-evidence.tar.gz) · [Sürüm notları](../docs/releases/v2.0.md).
+
+### Tarihsel 1.2 · güncel 2.0 sonucu değildir
+
 **1.2 / `dc92fe9`:** [armhf + arm64 imaj çalışması](https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/45984521207) ve [güncel 16 işlik host/ABI kanıtı](../docs/releases/v1.2-host.json) başarılı. Ortak Atölye/23 yeni işlev ve Mağaza onarımı bu Pi imajlarındadır; özellik/varlık hash'leri her mimarinin kendi rootfs'inde doğrulandı. ARM1176 / Cortex-A53 kullanıcı-QEMU, non-root tam Xfce ve yerel Haber/NetSurf kapıları fiziksel kart/GPU/performans veya Zero siyahlığı onarım kanıtı değildir.
 
-[Yayın aktarımı](https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/45993701545) gerçek IMG.XZ baytlarını/özgün checksum'ları ve salt okunur iç 1.2/kaynak/lock/rapor kimliklerini doğruladı. [Ayrı yeniden-indirme denetimi](https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/45994504674) 17 yayın dosyasını ve 21 ham JSON'u doğruladı; release'i değiştirmedi. [Güncel manifest](https://github.com/PeraPlusbirPasha/OguzDows/releases/download/v1.2/release-manifest.json) · [Ham kanıt](https://github.com/PeraPlusbirPasha/OguzDows/releases/download/v1.2/test-evidence.tar.gz) · [Sürüm notları](../docs/releases/v1.2.md).
+[Yayın aktarımı](https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/45993701545) gerçek IMG.XZ baytlarını/özgün checksum'ları ve salt okunur iç 1.2/kaynak/lock/rapor kimliklerini doğruladı. [Ayrı yeniden-indirme denetimi](https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/45994504674) 17 yayın dosyasını ve 21 ham JSON'u doğruladı; release'i değiştirmedi. [Tarihsel manifest](https://github.com/PeraPlusbirPasha/OguzDows/releases/download/v1.2/release-manifest.json) · [Ham kanıt](https://github.com/PeraPlusbirPasha/OguzDows/releases/download/v1.2/test-evidence.tar.gz) · [Sürüm notları](../docs/releases/v1.2.md).
 
-### v1.1 tarihsel kaydı · güncel 1.2 ölçümü değildir
+### v1.1 tarihsel kaydı · güncel 2.0 ölçümü değildir
 
 `29f7738` [Pi ortak host CI](https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/45169809200) ve [armhf+arm64 imaj çalışması 45170576727](https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/45170576727) **başarılı tamamlandı**. İmajlar birer kez başlatıldı; iptal/yeniden başlatma yoktur. ARM1176/Cortex-A53 hedef ELF/GTK, root olmayan tam Xfce/beş kararlı örnek, native C Haber/çıkan üretim işçisi/ağsız TEST önbelleği ve armhf NetSurf yerel sayfası geçti. 115/121 ortak paket, 11 özellik grubu, 31 görsel/ses hash’i, 20 duvar kâğıdı, 11 kayıt/25 eşleme doğrulandı. **LightDM/PAM, fiziksel Pi kernel/GPU/SD, ses çıkışı, canlı haber veya Pi RAM/hız ölçümü değildir.**
 

@@ -1,16 +1,12 @@
-# OğuzDows 0.4 · Bağlı native Aero kabuk
+# OğuzDows 2.0 · Akıncı — OğuzKöprü/1
 
-**Durum: `0.4.0-connected`, tam API35 emülatör kabulünü geçti.**
-[`7244164` / koşu 46087817657](https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/46087817657):
-aynı kaynakta **24/24 native vaka / 15 seçim, 20/20 JVM**, bağımsız iki yönlü
-TLS makbuzları ve gerçek MediaProjection kabulü geçti. Paket/imza/artifact hazır:
-[**APK’yı indir ve emülatörde dene → INSTALL.md**](INSTALL.md).
-Bu, fiziksel PC/telefon/ARM veya ROM/SystemUI/keyguard kabulü değildir.
-Emülatörde 2060 ms HWUI ana iş parçacığı beklemesi de kaydedildi; bu koşuda
-ürün ANR/çökmesi yoktu, kalıcı ANR çözümü veya fiziksel performans iddia edilmez.
-Önceki başarısız koşular ve 0.3 kabulü silinmeden korunur.
+**Güncel APK: `2.0.0-akinci` / kod 20**, kaynak **`5a44de0dde676d901a32be40d631d481e213439d`**. [46092350348](https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/46092350348): **24/24 native / 15 seçim ve 20/20 JVM**, bağımsız iki yönlü dosya hash’leri, gerçek MediaProjection/iptal/FGS/JPEG/durdurma ve paket/imza geçti. [APK kurulumu](INSTALL.md) · [PC/Pi/telefon adım adım bağlantı](../docs/AKINCI-BAGLANTI.md) · [2.0 birleşik yayın](https://github.com/PeraPlusbirPasha/OguzDows/releases/tag/v2.0).
 
-## Eklenen yollar
+PC/Pi **2.0 imajları** köprü kodunu ve bağlantı rehberini taşır; eski 1.2’ye otomatik eklenmez. TLS protokolü hâlâ **1**’dir; ürün sürümü 2.0 olması protokolü keyfî değiştirmez. Salt görüntü/yerel onay sınırı ve aşağıdaki güvenlik kuralları korunur.
+
+**Kabul sınırı:** fiziksel PC/telefon/ARM, ROM/SystemUI/keyguard veya performans kabulü değildir. Başarılı koşuda ANR/çökme yok, **2205 ms HWUI beklemesi** var; aynı kaynaklı manuel 46092349811 ve önceki 46091903486 launcher otomasyonu/odak hatalarıyla reddedildi, paketlenmedi. Kalıcı çözüm iddia edilmez. [Güncel ve tarihsel testler](VERIFICATION.md).
+
+## 0.4’ten korunan bağlı yollar
 
 - Masaüstündeki aynı altı profil kimliği: OğuzDows, Plasma, GNOME/Ubuntu, Xfce,
   Windows 11 esintisi, macOS iskelesi. Dokunmatik ızgara/raf/dock geometrisi ve
@@ -104,7 +100,7 @@ zorunludur. Eksik bildirim, eski commit, boş/atlanmış test, ürün ANR/çökm
 fiziksel başarı iddiası kabul edilmez. Kuralların sentetik rapor testleri native
 başarı kanıtı yerine geçmez. Davet/sır dosyaları raporlara alınmaz.
 
-### Kabul edilmiş tek-kaynaklı 0.4 sonucu
+### Tarihsel kabul edilmiş tek-kaynaklı 0.4 sonucu
 
 [`7244164` / 46087817657](https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/46087817657),
 tam kaynak `7244164364105a00838b4a68f5815c352554a36b`: **24/24 native / 15 seçim,
@@ -295,6 +291,4 @@ ve MediaProjection iptal → taze izin → foreground service → JPEG → durdu
   sentetik rapor/orkestrasyon/tanı testi); JS mantık/API **31/31**, Chromium **33/33** (31 akış ve 2
   kapsayıcı). Bunlar derlenmiş APK'nın 24 cihaz vakası yerine kullanılamaz.
 
-Güncel teslim yalnız yukarıdaki **7244164 kaynaklı, kabul edilmiş debug APK**’dır.
-ROM/ISO/OTA, yeni public mobil Release veya PC/Pi imajlarının yeniden yayını yapılmadı;
-PR birleştirilmedi. Fiziksel cihaz ve açık performans/izin/ROM kapıları korunur.
+Yukarıdaki uzun başarısızlık zinciri ve **7244164** sonucu tarihsel 0.4 kaydıdır; yeni Akıncı sonucu baştadır. **2.0**, yeniden derlenmiş PC/Pi ve debug APK’yı ayrı birleşik yayında sunar; eski v1.x dosyalarını değiştirmez. Telefon ROM/OTA/GSI yapılmadı, PR birleştirilmez; fiziksel cihaz ve açık performans/izin/model kapıları korunur.

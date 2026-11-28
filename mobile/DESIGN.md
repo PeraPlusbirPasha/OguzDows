@@ -1,6 +1,6 @@
 # OğuzDows Mobile · ürün, mimari ve kabul kapıları
 
-Bu belge **0.4 Kotlin/Compose bağlı native launcher + korunan günlük modüller + tarayıcı laboratuvarı** mimarisini anlatır. Altı mobil düzen, sistem rehberi, gerçek Ayarlar/tam ekran hareketler, kilit eşlikçisi ve izinli yerel köprü/yansıtma, [24-vaka / 20-JVM emülatör kabulünü geçti](VERIFICATION.md). [Bağlı kabuk protokolü ve sınırları](CONNECTED.md). Bulut ağırlıklı konuşan Rıfkı, koşullu wake-word, zengin sistem yardımcı yüzeyi ve arayan profilleri [sonraki aşamalardır](ROADMAP.md); bu sürümde bitmiş sayılmaz.
+Bu belge **2.0 Akıncı (0.4 temelli) Kotlin/Compose bağlı native launcher + korunan günlük modüller + tarayıcı laboratuvarı** mimarisini anlatır. Altı mobil düzen, sistem rehberi, gerçek Ayarlar/tam ekran hareketler, kilit eşlikçisi ve izinli yerel köprü/yansıtma, [24-vaka / 20-JVM emülatör kabulünü geçti](VERIFICATION.md). [Bağlı kabuk protokolü ve sınırları](CONNECTED.md). Bulut ağırlıklı konuşan Rıfkı, koşullu wake-word, zengin sistem yardımcı yüzeyi ve arayan profilleri [sonraki aşamalardır](ROADMAP.md); bu sürümde bitmiş sayılmaz.
 
 ## 1. Ürün ve kapsam
 
@@ -11,7 +11,7 @@ Günlük UI’da ürün adı OğuzDows’tur. **Android/AOSP teknik kimliği, iz
 Üç farklı çıktı birbirine karıştırılmaz:
 
 1. **Tarayıcı laboratuvarı:** etkileşimli ve yerel verili tasarım; SIM/APK kurulum yetkisi yok.
-2. **`0.4.0-connected` APK:** native HOME/çekmece/kalıcılık/widget/yerel kedi ve Telefon/SMS/Mağaza; ayrıca altı mobil düzen, gerçek Ayarlar/rehber, tam ekran paneller, kilit eşlikçisi, yerel TLS dosya/izinli ekran paylaşımı. [24/24 emülatör ve 20/20 JVM kabulü](VERIFICATION.md); normal uygulama/kullanıcı seçili roller, root/platform imzası değil. 0.3/0.2 tarihsel kanıttır.
+2. **`2.0.0-akinci` APK (versionCode20):** native HOME/çekmece/kalıcılık/widget/yerel kedi ve Telefon/SMS/Mağaza; ayrıca altı mobil düzen, gerçek Ayarlar/rehber, tam ekran paneller, kilit eşlikçisi, yerel TLS dosya/izinli ekran paylaşımı. [24/24 emülatör ve 20/20 JVM kabulü](VERIFICATION.md); normal uygulama/kullanıcı seçili roller, root/platform imzası değil. 0.4/0.3/0.2 kabul kayıtları tarihsel kanıttır.
 3. **Cihaz özel işletim sistemi:** henüz yok. Boot/vendor/ROM/OTA/GSI ve tüm uygulamalarla uyumluluk bir APK üretildi diye tamamlanmış sayılmaz. Evrensel telefon ISO’su vaat edilmez.
 
 Kullanıcının seçtiği ilk kabul hedefi **emülatörde, telefonun içinde OğuzDows’tan arama/SMS**’tir; eşleştirilmiş telefona webden uzaktan kumanda değildir. Fiziksel model/kod adı ve bootloader politikası henüz bilinmiyor.
@@ -114,7 +114,7 @@ Yerel işçiler sınırlıdır. Katalog ≤48 MiB JAR / ≤256 MiB JSON, ≥384 
 
 Kaynak sözleşmesi, SDK derlemesi, emülatör sanal radyo/kurulum testi ve gerçek SIM/cihaz kanıtı ayrı tutulur. CI harcanabilir QEMU emülatörü dışında fixture araması/SMS çalıştırmaz; gerçek rol uygunluğunu atlamaz. 8 korunan Telefon/SMS/köprü/yükleyici + 5 native launcher + 4 bağlı kabuk/rehber/kilit + 3 TLS/interop/MediaProjection + 3 depo güvenliği + 1 canlı kaynak = **24 vaka / 15 seçim** ve 20 JVM, bağımsız dosya makbuzları/gerçek JPEG kabulü geçmeden dağıtım paketi hazırlanmaz. Canlı Aegis APK incelemesi **kurmadan iptal**, ayrı etkisiz fixture ise sistem onayıyla gerçek kurulumdur. Bunlar GMS/operatör onayı değildir.
 
-**Güncel bağlı kabuk kabulü:** [`7244164` / 46087817657](https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/46087817657), **24/24 native, 20/20 JVM**, bağımsız pinned-TLS makbuzları ve gerçek MediaProjection iptal/taze izin/FGS/JPEG/durdurma, paket/imza geçti. Üç zorunlu APK iptalinde inceleme yıkımı/özgün HomeActivity odağı/kurulmama ve ardından gerçek sistem kurulumu doğrulandı. Bu koşuda ürün ANR/çökmesi yoktu, fakat 2060 ms HWUI beklemesi kaydedildi; kalıcı ANR çözümü veya fiziksel performans iddia edilmez. [Açık görsel/yerel indirme sınırı](VERIFICATION.md).
+**Güncel bağlı kabuk kabulü:** [`5a44de0` / 46092350348](https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/46092350348), **24/24 native, 20/20 JVM**, bağımsız dosya/TLS ve gerçek MediaProjection/iptal/FGS/JPEG/durdurma, paket/imza geçti. PC/Pi aynı kaynaklı 2.0 ürün ailesindedir; bağlantı rehberi imajlara gömülür. Kabulde ürün ANR/çökmesi yoktu, fakat **2205 ms HWUI beklemesi** vardı; aynı kaynaklı paralel manuel launcher otomasyonu ayrıca başarısız oldu. Kalıcı çözüm veya fiziksel performans iddia edilmez. [Başarısızlık/geçmiş ve gerçek yeni thumbnail](VERIFICATION.md). Önceki [0.4 / 7244164 kabulü](android/evidence/acceptance-7244164.json) değişmeden korunur.
 
 **Tarihsel native launcher kilometre taşı:** [`fb6cad5` / koşu 46065713858](https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/46065713858) tam **17/17** kabulü, **13 JVM** testini ve paket/imza kapısını geçti. Native HOME/inventory/gerçek uygulama açma, diskten düzen/bozuk kaydı koruma, ortak Telefon koyu rengi/Geri geçişi, Rıfkı ve gerçek widget bağlama/yeniden host/kaldırma sınandı. Telefon/SMS/kurulum/depo kapsamı azaltılmadı. [Kurulum ve gerçek ekran](INSTALL.md); artifact burada ağ sınırı nedeniyle indirilemediğinden yerel APK hash/imza doğrulaması iddia edilmez.
 

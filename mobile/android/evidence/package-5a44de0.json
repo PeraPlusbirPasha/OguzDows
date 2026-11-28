@@ -1,0 +1,73 @@
+{
+  "source_sha": "5a44de0dde676d901a32be40d631d481e213439d",
+  "version": "2.0.0-akinci",
+  "version_code": 20,
+  "release_tag": "v2.0",
+  "bridge_protocol": 1,
+  "apksigner_verified": true,
+  "production_signing": false,
+  "files": [
+    {
+      "file": "OguzDows-Mobile-2.0-Akinci-debug.apk",
+      "bytes": 24434944,
+      "sha256": "305015d09e57dcc18b854c3624754ed1723b2cfb2b9c3493c2b0cc6661820e82"
+    },
+    {
+      "file": "OguzDows-Mobile-2.0-Akinci-tests.apk",
+      "bytes": 1087315,
+      "sha256": "7ef313a2ca2ea7197fe58280f4e5488c97cecd78a606378684ff3334db49184e"
+    },
+    {
+      "file": "OguzDows-inert-install-fixture.apk",
+      "bytes": 11512,
+      "sha256": "487efbf4bcf8f552ad9c4644cabe6ff71761c29104d58f02cd7fd7617bf65ebe"
+    }
+  ],
+  "certificate_sha256": {
+    "OguzDows-Mobile-2.0-Akinci-debug.apk": "5f87f6817823b618c7ff26ed57e56f5e71305b689e5d7b50331883b767ee7811",
+    "OguzDows-Mobile-2.0-Akinci-tests.apk": "5f87f6817823b618c7ff26ed57e56f5e71305b689e5d7b50331883b767ee7811",
+    "OguzDows-inert-install-fixture.apk": "5f87f6817823b618c7ff26ed57e56f5e71305b689e5d7b50331883b767ee7811"
+  },
+  "web_bundle": {
+    "file": "OguzDows-Web-2.0-Akinci.tar.gz",
+    "bytes": 548075,
+    "sha256": "7c58f6449ce9bfcc55cd076d092e5bf561b2cdf19f9ab2b94bc8cd85e4e40237"
+  },
+  "physical_devices_tested": false,
+  "github": {
+    "run_url": "https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/46092350348",
+    "job_id": 140816933793,
+    "job_url": "https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/46092350348/job/140816933793",
+    "workflow_conclusion": "success",
+    "evidence_scope": "Observed actual CI check receipts, cross-checked independently; not locally executed APK or physical-device acceptance"
+  },
+  "artifact": {
+    "id": 15241623587,
+    "name": "oguzdows-mobile-emulator-46092350348",
+    "size_in_bytes": 14934728,
+    "digest": "sha256:fa96697db925abebb40d008696945a8dbf1926e3bf67cc460c7e7068a0e382dd",
+    "expires_at": "2026-12-12T01:29:51Z"
+  },
+  "public_release_url": "https://github.com/PeraPlusbirPasha/OguzDows/releases/tag/v2.0",
+  "public_apk_url": "https://github.com/PeraPlusbirPasha/OguzDows/releases/download/v2.0/OguzDows-Mobile-2.0-Akinci-debug.apk",
+  "local_independent_apk_hash_or_signature_verification": false,
+  "scope": "APK package receipt after same-source SDK / complete native emulator / actual capture / apksigner gates; debug signing, not ROM or physical SIM",
+  "local_artifact_download": {
+    "attempted": true,
+    "result": "EOF at GitHub Actions blob-storage redirect; no APK bytes independently obtained",
+    "storage_host": "productionresultssa12.blob.core.windows.net",
+    "artifact_id": 15241623587,
+    "does_not_invalidate_ci_acceptance": true,
+    "runner_release_transfer_and_independent_redownload_audit_still_required": true
+  },
+  "launcher_thumbnail": {
+    "source_sha": "5a44de0dde676d901a32be40d631d481e213439d",
+    "run_id": 46092350348,
+    "file": "docs/assets/oguzdows-mobile-v2.jpg",
+    "width": 234,
+    "height": 519,
+    "bytes": 12959,
+    "sha256": "2f532a28e17c2df84030c0169a44878479b4e6df51cf9ed4d4b6e7699bff6876",
+    "scope": "actual accepted native API35 emulator launcher thumbnail, not physical phone or MediaProjection capture"
+  }
+}

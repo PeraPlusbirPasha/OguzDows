@@ -1,0 +1,182 @@
+{
+  "source_sha": "5a44de0dde676d901a32be40d631d481e213439d",
+  "sdk": "35",
+  "abi": "x86_64",
+  "image_fingerprint": "google/sdk_gphone64_x86_64/emu64xa:15/AE3A.240806.043/12960925:userdebug/dev-keys",
+  "emulator_only": true,
+  "physical_sim_tested": false,
+  "emergency_calls_tested": false,
+  "gms_certification_tested": false,
+  "mms_rcs_supported": false,
+  "tests": [
+    {
+      "name": "NativeDeviceTest.bundledBridgeRolesValidationAndIsolation",
+      "passed": true,
+      "test_cases": 1,
+      "seconds": 21.86
+    },
+    {
+      "name": "NativeDeviceTest.paidActionsRequireFinalNativeConsent",
+      "passed": true,
+      "test_cases": 1,
+      "seconds": 13.26
+    },
+    {
+      "name": "NativeDeviceTest.systemVolumeBrightnessAndNativeThemeAreReal",
+      "passed": true,
+      "test_cases": 1,
+      "seconds": 15.89
+    },
+    {
+      "name": "NativeDeviceTest.incomingSmsUsesTheRealProviderAndRichInbox",
+      "passed": true,
+      "test_cases": 1,
+      "seconds": 15.47
+    },
+    {
+      "name": "NativeDeviceTest.outgoingSmsWaitsForActualSentCallback",
+      "passed": true,
+      "test_cases": 1,
+      "seconds": 11.73
+    },
+    {
+      "name": "NativeDeviceTest.outgoingCallUsesTelecomAndOurInCallService",
+      "passed": true,
+      "test_cases": 1,
+      "seconds": 13.09
+    },
+    {
+      "name": "NativeDeviceTest.incomingCallCanBeAnsweredMutedAndEndedInOurUi",
+      "passed": true,
+      "test_cases": 1,
+      "seconds": 8.02
+    },
+    {
+      "name": "NativeDeviceTest.localApkReviewCancelAndSystemInstall",
+      "passed": true,
+      "test_cases": 1,
+      "seconds": 21.37
+    },
+    {
+      "name": "LauncherDeviceTest.suite",
+      "passed": true,
+      "test_cases": 5,
+      "seconds": 70.11
+    },
+    {
+      "name": "ConnectedDeviceTest.suite",
+      "passed": true,
+      "test_cases": 4,
+      "seconds": 53.79
+    },
+    {
+      "name": "BridgeDeviceTest.nativeTls",
+      "passed": true,
+      "test_cases": 1,
+      "seconds": 1.78
+    },
+    {
+      "name": "BridgeDeviceTest.pcArmInterop",
+      "passed": true,
+      "test_cases": 1,
+      "seconds": 6.76
+    },
+    {
+      "name": "BridgeDeviceTest.systemProjection",
+      "passed": true,
+      "test_cases": 1,
+      "seconds": 16.54
+    },
+    {
+      "name": "RepositorySecurityTest.suite",
+      "passed": true,
+      "test_cases": 3,
+      "seconds": 0.56
+    },
+    {
+      "name": "LiveRepositoryTest.suite",
+      "passed": true,
+      "test_cases": 1,
+      "seconds": 15.18
+    }
+  ],
+  "display": {
+    "pixels": "720x1600",
+    "density": 280,
+    "gpu": "headless SwiftShader"
+  },
+  "preflight": {
+    "sim_state": "LOADED",
+    "default_sms_subscription_setting": 1,
+    "active_default_network": 100,
+    "ready": true
+  },
+  "device_bridge": {
+    "protocol": 1,
+    "native_host_python_client": true,
+    "python_host_native_client": true,
+    "files_verified": 4,
+    "pinned_tls": true,
+    "sha256_verified": true,
+    "file_sha256": {
+      "native-to-desktop.txt": "c2743e81b8bd3ddfedd38da55dcc6afef4c2d9c54b36312f48a82a9911232b24",
+      "desktop-upload.txt": "cebff615107908970303b57c61d791ef236fd1eb07fbbed88684770ce36742a4",
+      "desktop-to-native.txt": "627cb1d79773668746e6deaa21767b42f6f271d110da55706b31468e5e5df4f4",
+      "native-upload.txt": "1e5694ab01903b1de93f650f49971180bbad69294784a96635d28d8c18e0d749"
+    },
+    "transport": "QEMU virtual Ethernet + adb forward",
+    "physical_devices": false
+  },
+  "native_device_bridge": {
+    "protocol": 1,
+    "native_host_python_client": true,
+    "python_host_native_client": true,
+    "pinned_tls": true,
+    "sha256_verified": true,
+    "files_verified": 4,
+    "file_sha256": {
+      "native-to-desktop.txt": "c2743e81b8bd3ddfedd38da55dcc6afef4c2d9c54b36312f48a82a9911232b24",
+      "desktop-upload.txt": "cebff615107908970303b57c61d791ef236fd1eb07fbbed88684770ce36742a4",
+      "desktop-to-native.txt": "627cb1d79773668746e6deaa21767b42f6f271d110da55706b31468e5e5df4f4",
+      "native-upload.txt": "1e5694ab01903b1de93f650f49971180bbad69294784a96635d28d8c18e0d749"
+    },
+    "physical_devices": false
+  },
+  "screen_capture": {
+    "stop_tested": true,
+    "media_projection_consent": true,
+    "cancel_tested": true,
+    "foreground_service": true,
+    "frame_bytes": 12253,
+    "sha256": "4c03fe2b035f38463a55b30794239ce4a5229ad64f1e0b37979fce82a2b4db83",
+    "fixture_only": true,
+    "remote_input": false
+  },
+  "live_repository": {
+    "apps": 5057,
+    "compatible": 5016,
+    "timestamp": 1795648445236,
+    "synced": 1795829379746,
+    "source": "https://f-droid.org/repo"
+  },
+  "live_apk_review": "APK_REVIEW com.beemdevelopment.aegis code=82 sha256=0eecec45de0da3ff1358004b51e2960d9178551643a6ed44f6496ea9ec999c19 bytes=6869856 installed=false",
+  "product_anr_detected": false,
+  "product_crash_detected": false,
+  "passed": true,
+  "github": {
+    "run_url": "https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/46092350348",
+    "job_id": 140816933793,
+    "job_url": "https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/46092350348/job/140816933793",
+    "workflow_conclusion": "success",
+    "evidence_scope": "Observed actual CI check receipts, cross-checked independently; not locally executed APK or physical-device acceptance"
+  },
+  "observed_main_thread_stalls_not_anr_waivers": [
+    {
+      "process": "org.oguzdows.mobile",
+      "pid": 5337,
+      "phase": "HomeActivity -> InstallReviewActivity, required cancel cycle 1",
+      "main_delay_ms": 2205,
+      "main": "  at android.graphics.HardwareRenderer.nSetStopped(Native Method)\n  at android.graphics.HardwareRenderer.setStopped(HardwareRenderer.java:527)\n  at android.view.ViewRootImpl.setWindowStopped(ViewRootImpl.java:2579)\n  at android.view.WindowManagerGlobal.setStoppedState(WindowManagerGlobal.java:651)\n  at android.app.Activity.performStop(Activity.java:9248)\n  at android.app.ActivityThread.callActivityOnStop(ActivityThread.java:5714)\n  at android.app.ActivityThread.performStopActivityInner(ActivityThread.java:5694)\n  at android.app.ActivityThread.handleStopActivity(ActivityThread.java:5758)\n  at android.app.servertransaction.StopActivityItem.execute(StopActivityItem.java:40)\n  at android.app.servertransaction.ActivityTransactionItem.execute(ActivityTransactionItem.java:60)\n  at android.app.servertransaction.TransactionExecutor.executeLifecycleItem(TransactionExecutor.java:225)\n  at android.app.servertransaction.TransactionExecutor.executeTransactionItems(TransactionExecutor.java:107)\n  at android.app.servertransaction.TransactionExecutor.execute(TransactionExecutor.java:81)\n  at android.app.ActivityThread$H.handleMessage(ActivityThread.java:2636)\n  at android.os.Handler.dispatchMessage(Handler.java:107)\n  at android.os.Looper.loopOnce(Looper.java:232)\n  at android.os.Looper.loop(Looper.java:317)\n  at android.app.ActivityThread.main(ActivityThread.java:8705)\n  at java.lang.reflect.Method.invoke(Native Method)\n  at com.android.internal.os.RuntimeInit$MethodAndArgsCaller.run(RuntimeInit.java:580)\n  at com.android.internal.os.ZygoteInit.main(ZygoteInit.java:886)\n"
+    }
+  ]
+}

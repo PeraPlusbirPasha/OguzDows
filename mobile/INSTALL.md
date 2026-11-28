@@ -1,95 +1,85 @@
-# OğuzDows Mobile 0.4 · bağlı launcher’ı dene
+# OğuzDows 2.0 · Akıncı — launcher’ı kur
 
-**`0.4.0-connected` APK’sı hazır.** Kotlin + Jetpack Compose HOME, altı mobil düzen ailesi, gerçek sistem Ayarları/rehberi, tam ekran paneller, kilit eşlikçisi ve OğuzKöprü. Telefon/SMS/Mağaza/widget tabanı korunarak **15 seçimde 24/24 native vaka ve 20/20 JVM** aynı kaynakta geçti. Bu bir **debug uygulamasıdır**; telefon ROM’u, OTA, GSI veya ISO değildir.
+> **Yayın hazırlığı:** aşağıdaki APK tam kabulü geçti; kalıcı indirme bağlantısı 2.0 taslağının bütünlük denetimi ve yayımlanmasından sonra açılır. Bu satır yayımlama tamamlanınca kaldırılır.
 
-## 1. İndir
+**Gerçek APK sürümü `2.0.0-akinci`, versionCode `20`.** Kotlin/Compose HOME, Aero/cam, altı mobil düzen, gerçek sistem Ayarları/rehberi, Telefon/SMS/Mağaza/widget ve OğuzKöprü aynı pakette. **Debug imzalı normal uygulamadır; telefon ROM’u, OTA, GSI veya ISO değildir.**
 
-### [0.4 APK + testler + raporlar paketini indir](https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/46087817657/artifacts/15240450965)
+## 1. Kalıcı yayın dosyasını indir
 
-- [Başarılı derleme ve tam kabul](https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/46087817657) · tam kaynak **`7244164364105a00838b4a68f5815c352554a36b`**.
-- Artifact: `oguzdows-mobile-emulator-46087817657`. GitHub oturumu gerekebilir. **14 gün saklanır**; kalıcı mobil Release yayımlanmadı.
-- ZIP’i açıp `SHA256SUMS` bulunan `package/` klasörüne gir. Raporlar ve tam çözünürlüklü native emülatör görüntüleri de pakettedir.
+### [OguzDows-Mobile-2.0-Akinci-debug.apk](https://github.com/PeraPlusbirPasha/OguzDows/releases/download/v2.0/OguzDows-Mobile-2.0-Akinci-debug.apk)
 
-| Dosya | Kullanımı |
+[Tüm PC / Pi / APK dosyaları](https://github.com/PeraPlusbirPasha/OguzDows/releases/tag/v2.0) · [APK SHA-256](https://github.com/PeraPlusbirPasha/OguzDows/releases/download/v2.0/OguzDows-Mobile-2.0-Akinci-debug.apk.sha256) · [PC–telefon–ARM bağlantı rehberi](../docs/AKINCI-BAGLANTI.md)
+
+| Dosya | Ne için? |
 | --- | --- |
-| **`OguzDows-Mobile-0.4.0-connected-debug.apk`** | Kurulacak ana launcher; **24.418.460 bayt** |
-| `OguzDows-Mobile-0.4.0-connected-tests.apk` | Otomatik instrumentation testleri; günlük uygulama değil |
+| **`OguzDows-Mobile-2.0-Akinci-debug.apk`** | Ana launcher, **24.434.944 bayt** |
+| `OguzDows-Mobile-2.0-Akinci-tests.apk` | Instrumentation testleri; günlük uygulama değildir |
 | `OguzDows-inert-install-fixture.apk` | Kurulum/widget testlerinin etkisiz örneği; elle kurmana gerek yok |
-| `SHA256SUMS`, `APK-SIGNATURE.txt`, `BUILD.txt` | Hash’ler, CI imza denetimi ve APK’nın tam kaynak commit’i |
+| `APK-SIGNATURE.txt`, `MOBILE-BUILD.txt`, `SHA256SUMS`, `release-manifest.json` | İmzacı özeti, gerçek kaynak SHA’sı, boyutlar/hash’ler ve test kökeni |
+| `OguzDows-Web-2.0-Akinci.tar.gz` | Ayrı statik tarayıcı tasarım laboratuvarı; APK/ROM veya etkin AI sunucusu değildir |
 
-GitHub CLI ile:
+Kaynak **`5a44de0dde676d901a32be40d631d481e213439d`**. [Tam kabul koşusu 46092350348](https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/46092350348): **15/15 seçimde 24/24 native vaka + 20/20 JVM**, lint **0 hata / 47 uyarı / 1 bilgi**; iki bağımsız dört-dosya TLS makbuzu, gerçek MediaProjection/iptal/durdurma ve `apksigner` geçti. [SDK](android/evidence/sdk-5a44de0.json) · [Emülatör](android/evidence/emulator-5a44de0.json) · [Kabul](android/evidence/acceptance-5a44de0.json) · [Paket](android/evidence/package-5a44de0.json).
 
-```sh
-gh run download 46087817657 --repo PeraPlusbirPasha/OguzDows \
-  --name oguzdows-mobile-emulator-46087817657 --dir oguzdows-mobile-0.4
-```
+Release kalıcıdır; tanısal [Actions artifact’ı](https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/46092350348/artifacts/15241623587) ise 14 günlük, GitHub oturumu gerektirebilen ayrı dağıtımdır. Artifact ZIP hash’i APK hash’i değildir.
 
-**Bu çalışma alanındaki sınır:** CI paketi hazırlayıp yükledi, ayrı `acceptance.py` kapısı ve `apksigner verify` geçti. Sandbox’ın artifact/iş-logu depolama yönlendirmesi ise `EOF` verdi; **APK ve yeni tam görseller burada açılamadı, bağımsız yerel APK hash/imza doğrulaması yapılamadı**. Hash/boyut CI kaydı, ZIP digest’i GitHub API gözlemidir. [Paket kökeni](android/evidence/package-7244164.json). İndirdiğin kendi kopyanı doğrula.
+## 2. İndirdiğin kopyayı doğrula
 
-## 2. Doğrula
-
-Ana APK’nın beklenen SHA-256 değeri:
+Ana APK’nın SHA-256 değeri:
 
 ```text
-7213f4a94782d8a01c96af9d4aef0ab2e493cb80df4edc8b002c559b54cbe95d
+305015d09e57dcc18b854c3624754ed1723b2cfb2b9c3493c2b0cc6661820e82
 ```
 
-`SHA256SUMS` bulunan klasörde Linux/WSL:
+APK ile ona ait `.sha256` dosyasını aynı klasöre indir:
 
 ```sh
-sha256sum -c SHA256SUMS
+sha256sum -c OguzDows-Mobile-2.0-Akinci-debug.apk.sha256
 ```
 
 Windows PowerShell:
 
 ```powershell
-Get-FileHash .\OguzDows-Mobile-0.4.0-connected-debug.apk -Algorithm SHA256
+Get-FileHash .\OguzDows-Mobile-2.0-Akinci-debug.apk -Algorithm SHA256
 ```
 
-Değer farklıysa kurma. İmza **debug imzasıdır**, üretim imzası veya malware taraması değildir. Koşuların test anahtarları değişebilir; eski debug kuruluma güncelleme garantisi yoktur. İmza uyuşmazlığını aşmak için günlük telefon verilerini silme; temiz bir emülatör kullan.
+Değer farklıysa kurma. Hash malware taraması değildir; debug imzası üretim imzası/Play sertifikası değildir. Koşular arasında test anahtarı değişebilir: eski debug kuruluma güncelleme garantisi yoktur. İmza uyuşmazlığı için günlük telefon verilerini silme; temiz emülatör kullan.
 
 ## 3. Boş emülatöre kur ve ana ekran yap
 
-Android Studio AVD Manager’da **Pixel 6 · API 35 · Google APIs · x86_64 · 4 GB RAM** oluştur ve başlat. Doğrulanan konuk budur; Play Store imajı değildir. ARM konuk, başka API ve OEM’ler ayrıca sınanmalıdır.
+Android Studio AVD Manager’da **Pixel 6 · API 35 · Google APIs · x86_64 · 4 GB RAM** oluştur. Bu Play Store imajı değildir. APK’nın asgari API’si 29’dur; kabul matrisi yalnız API35/x86_64’tür. Başka API/ARM/OEM’ler ayrıca sınanmalıdır.
 
-Fiziksel telefonlarını adb’den ayır. Komutlar yalnız `emulator-5554` içindir; `adb devices` başka `emulator-*` numarası gösterirse onu kullan. **QEMU çıktısı `1` değilse devam etme.**
+Fiziksel telefonlarını adb’den ayır. `adb devices` başka bir `emulator-*` numarası gösterirse aşağıdaki numarayı değiştir. **QEMU çıktısı `1` değilse devam etme.**
 
 ```sh
 adb devices
 adb -s emulator-5554 shell getprop ro.kernel.qemu
 # Çıktı 1 olmalı.
-adb -s emulator-5554 install -t OguzDows-Mobile-0.4.0-connected-debug.apk
+adb -s emulator-5554 install -t OguzDows-Mobile-2.0-Akinci-debug.apk
 adb -s emulator-5554 shell am start -n org.oguzdows.mobile/.LauncherActivity
 ```
 
-1. **Ana ekran yap** → sistem seçiminde OğuzDows’u onayla. Alternatif: sistem **Ayarlar → Uygulamalar → Varsayılan uygulamalar → Ana ekran**.
-2. **Home** hareketi native OğuzDows’a dönmeli. Ana ekran WebView değildir; günlük araçların bir kısmı çevrimdışı paketlenmiş modül arayüzüdür.
-3. Telefon ve SMS, HOME’dan **ayrı rollerdir**. Yalnız boş emülatörde ilgili rol/izin düğmelerini kullan. Alıcı/metin ve ücretli işlem son onayı ayrıca gerekir; rol seçmek arama/mesaj başlatmaz.
-4. Rehber, yeni kişi ve ekran paylaşımının izinleri de ayrıdır. Sistem sorusunu okuyup açıkça seç; izin verilmediyse başarı taklidi yapılmaz. Ekran paylaşımı her başlangıçta yeniden sistem onayı ister.
+1. **Ana ekran yap** → sistem seçiminde OğuzDows’u onayla. Alternatif: Ayarlar → Uygulamalar → Varsayılan uygulamalar → Ana ekran.
+2. HOME hareketi gerçek native OğuzDows’a dönmeli; ana ekran WebView değildir. Günlük araçların bir kısmı çevrimdışı paketli modüldür.
+3. Telefon/SMS, HOME’dan **ayrı rollerdir**. Yalnız boş emülatörde seç; alıcı/metin/ücret için son yerel onay ayrıca gerekir. Rol seçimi arama/mesaj başlatmaz.
+4. Rehber okuma/yazma ve her yeni ekran paylaşımının sistem izni ayrıdır. İptal edilen işlem yapılmış sayılmaz.
+5. Çıkmak için Varsayılan uygulamalar → Ana ekran’da stok launcher’ı seç. Root, bootloader açma veya flash gerekmez.
 
-Bootloader açma, flash veya root gerekmez. Çıkmak için **Varsayılan uygulamalar → Ana ekran** bölümünde stok launcher’ı seçebilirsin; bu seçim verileri silmez.
+## 4. PC / Pi / telefon bağla
 
-## 4. Neleri dene?
+Yeni **2.0 PC/Pi imajlarında OğuzKöprü kurulu gelir**; eski 1.2 imajlarına kendiliğinden eklenmez. Aynı güvenilir yerel ağda bir cihazda masa aç, diğerine daveti aktar; iki ekranda sekiz haneli kodu birebir karşılaştırıp onayla. Seçili dosyayı sürükle veya erişilebilir düğmeyi kullan; istemci gönderiminde alıcının dosya bazında kabulü gerekir.
 
-- **Altı mobil masaüstü ailesi:** OğuzDows, Plasma, GNOME/Ubuntu, Xfce, Windows 11 esintisi ve macOS iskelesi. Seçim/kalıcılık gerçek HOME yeniden yaratma testini geçti; bu işletim sistemlerini telefonda çalıştırmak değildir.
-- **Uygulamalar/masaüstün/widget:** gerçek kurulu uygulamayı Türkçe adı/paket adıyla bul ve aç. İki kısayol sayfası, varsayılan 12/en çok 16 giriş, açık ekle/kaldır/öne-sona taşı; dört duvar kâğıdı. Üçüncü sayfada gerçek AppWidgetHost ve sistem bağlama/yapılandırma, en çok iki sabit boyutlu alan.
-- **Tam ekran yüzeyler:** aşağı hareketle denetim, yukarı hareketle uygulama çekmecesi. Gerçek medya sesi, yalnız OğuzDows pencere parlaklığı; **telefonun kendi Ayarlar ekranı** ve ilgili sistem panelleri. Başka üreticinin uygulamaları zorla temalanmaz.
-- **Sistem rehberi:** okuma izniyle gerçek kişileri gör. Yeni yerel kişi için ayrı yazma izni ve son kayıt onayı; iptal kişi eklemez. Telefon/SMS seçimi taslaktır, kendiliğinden arama/gönderim değildir. Web laboratuvarının elle oluşturulan kişi listesi bundan ayrıdır.
-- **Nazar kilit eşlikçisi:** markalı kilit/karşılama yüzeyi. **Sistem PIN/parmak izi kilidinin yerine geçmez; sistem bildirim perdesini veya keyguard’ı cihaz genelinde devre dışı bırakmaz.** Bunlar cihaz özel ROM/SystemUI çalışmasıdır.
-- **OğuzKöprü:** telefonda Dosyalar/OğuzKöprü, güncel dalın PC/ARM kaynaklarında `oguzdows-bridge`. Aynı yerel ağ, iki ekranda kod karşılaştırma, karşı taraf/dosya onayı ve pinned TLS. Seçili dosyayı masaya bırak; alım hash’i doğrulanır, otomatik açılmaz/çalıştırılmaz. Her başlatmada sistem izniyle salt görüntü, foreground bildirim ve durdurma; ses/uzaktan dokunma yoktur. [Adım adım eşleştirme, süre/boyut sınırları ve X11/Wayland koşulları](CONNECTED.md).
-- **Rıfkı:** sevme/baş eğme, sağ/sol konum, saat/pil/şarj/görüşme tepkisi ve açıkça onaylanan tipli UI önerileri. **Şimdilik yerel kural tabanlıdır; konuşan bulut AI/ASR/TTS/mikrofon/wake-word bağlı değil.**
-- **Telefon/SMS/Mağaza:** gerçek Telecom/SmsManager/sağlayıcı ve imzalı F-Droid korunur. Kabulte 5.057 uygulama / 5.016 uygun paket gözlendi; tüm APK’lerin çalıştığı anlamına gelmez. Canlı Aegis incelemesi kurmadan iptal; ayrı etkisiz fixture ise gerçek sistem kurulumu ile sınandı. İncelemede Vazgeç veya diyalogda sistem Geri, çağırana döner; son yükleyici onayı atlanmaz.
+Dosya başına 128 MiB, kuyrukta 256 MiB / 8 öğe, 2 eş ve 15 dakika. Gerçek dosya SHA-256’sı denetlenir; otomatik açma/kurma yoktur. Telefon ekranı için her başlangıçta gerçek MediaProjection izni ve foreground bildirim; PC/Pi kaynağı için doğrulanabilen kilitsiz X11. **Salt görüntüdür; ses/mikrofon/uzaktan fare-klavye/SMS/kurulum yetkisi yoktur.** [Adım adım eşleştirme ve güvenlik](../docs/AKINCI-BAGLANTI.md).
 
-## Kabul, görüntüler ve açık sınırlar
+## Ne tamamlandı, ne tamamlanmadı?
 
-**Geçen:** 24 native vaka / 15 seçim, 20 JVM, iki bağımsız dört-dosya TLS makbuzu, taze MediaProjection izni/iptal/FGS/gerçek JPEG/durdurma ve paket/imza. Lint **0 hata / 47 uyarı / 1 bilgi**. [Ayrıntılı sonuçlar ve başarısız geçmiş](VERIFICATION.md) · [tekrar üretim](android/README.md).
+- **Var:** gerçek kurulu uygulama arama/başlatma, kalıcı iki kısayol sayfası, en çok iki gerçek AppWidgetHost alanı; medya sesi, kendi pencere parlaklığı ve gerçek Ayarlar bağlantıları; gerçek sistem rehberi, açık onayla kişi ekleme ve Telefon/SMS taslakları; altı mobil düzen/duvar kâğıdı vurgu rengi; yerel, dokunmaya/bağlama tepki veren Rıfkı; native Telefon/SMS ve imzalı F-Droid.
+- **Sistem yerine geçmez:** kendi immersive penceresi ve nazar kilit eşlikçisi; SystemUI/bildirim perdesi/güvenli PIN-biyometri cihaz genelinde kaldırılmaz. Üçüncü taraf uygulamalar zorla temalanmaz.
+- **AI sınırı:** bulut üretken model, mikrofon/ASR/TTS ve wake-word bağlı değildir. Ücretli hizmet etkinleştirilmedi.
+- **Açık performans/otomasyon sınırı:** kabul edilen koşuda ürün ANR/çökmesi yok, fakat **2205 ms HWUI ana iş parçacığı beklemesi** gözlendi. Aynı kaynaklı paralel manuel **46092349811** koşusu launcher otomasyonunda `StaleObjectException` / menü aramasında `NullPointerException` ile reddedildi; paketlenmedi. Önceki **46091903486** da launcher odak/eksik düğme nedeniyle reddedildi. Bu geçmiş saklanır; tüm koşulların kararlı olduğu veya eski ANR’ın kalıcı giderildiği iddia edilmez.
+- **Fiziksel kabul yok:** gerçek SIM/operatör/acil arama, MMS/RCS, çoklu SIM/çağrı, tüm rol/izin/süreç ölümü matrisi, GMS/Integrity/bankacılık/DRM/tüm APK uyumluluğu, gerçek pil/RAM/FPS ve PC–telefon–Pi Wi-Fi matrisi açık kalır. 4–6 GB bir ürün hedefidir, ölçülmüş garanti değildir.
 
-**Görseller:** güncel tam native PNG’ler ve **11.662 bayt gerçek fixture paylaşım JPEG’i** artifact’tadır. Yeni küçük native görüntünün altı checks parçasından yalnız dördü kotaya sığdı; eksik görüntü oluşturulmadı. README’deki küçük native JPEG açıkça **tarihsel 0.3**’tür, 0.4 görüntüsü değildir. Web ekranları ayrıca web önizlemesi olarak etiketlidir.
+**Günlük fiziksel telefonunda varsayılan Telefon/SMS uygulamanı bu deneysel paketle değiştirme.** ROM için cihaz modeli/kod adı ve stok geri dönüş yolu bilinmeden flash hazırlanmaz.
 
-**Performans:** bu başarılı koşuda Android ürün ANR/çökmesi görülmedi, fakat **2060 ms HWUI ana iş parçacığı beklemesi** örneklendi. Önceki aralıklı ANR’ın kalıcı giderildiği veya fiziksel telefon akıcılığı/pil/RAM/FPS kabulü iddia edilmez.
+Bu sandbox APK/tam MediaProjection JPEG’ini bağımsız indirip çalıştırmadı veya hash’lemedi; bunlar CI makbuzları ve yayının ayrı runner byte denetimiyle ayrılır. Yeni **234×519 native thumbnail** ise eksiksiz altı checks parçasından alınıp yerelde JPEG olarak doğrulandı; fiziksel telefon ekranı veya paylaşım karesi değildir. [Doğrulama/geçmiş](VERIFICATION.md).
 
-**Henüz değil:** fiziksel PC/telefon/ARM drag-drop/yansıtma matrisi; gerçek SIM/operatör/acil çağrı, MMS/RCS, çoklu SIM/çağrı ve bütün rol/izin/lock/süreç ölümü matrisi; GMS/Play lisansı/sertifikası, Integrity/banka/DRM/tüm APK uyumluluğu; üretim imzası ve cihaz işletim sistemi imajı. Salt görüntü yansıtması uzaktan kontrol değildir.
-
-**Günlük fiziksel telefonunda varsayılan Telefon/SMS uygulamanı bu deneysel paketle değiştirme.** ROM için tam marka/model/kod adı/yazılım ve stok geri dönüş yolu incelenmeden flash komutu hazırlanmaz. GNOME Software/Flatpak, APK/GMS motoru değildir.
-
-Önceki kabul edilmiş [0.3 paketi](android/evidence/package-fb6cad5.json) ve [0.2 paketi](android/evidence/package-023a89c.json) tarihsel olarak korunur; buradaki indirme **0.4 bağlı launcher** içindir. Yayımlanmış PC/Pi v1.2 imajları değiştirilmedi/yeniden yayımlanmadı; PR birleştirilmedi, mobil Release açılmadı.
+Önceki [0.4](android/evidence/package-7244164.json), [0.3](android/evidence/package-fb6cad5.json) ve [0.2](android/evidence/package-023a89c.json) kabul kayıtları değişmez; eski APK hash’leri 2.0’a taşınmaz. Eski PC/Pi v1.x yayınları korunur. PR birleştirilmez; cihazlara flash atılmaz.

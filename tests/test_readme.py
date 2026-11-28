@@ -31,7 +31,8 @@ class References(HTMLParser):
 class ReadmeTests(unittest.TestCase):
     def test_local_markdown_html_images_and_explicit_navigation_anchors_resolve(self):
         for name in ('README.md', 'docs/TEKNIK-REHBER.md', 'docs/SURUM-POLITIKASI.md', 'docs/assets/README.md',
-                     'docs/releases/v1.1.md', 'docs/releases/v1.2.md', 'raspberrypi/README.md', 'docs/ELEMENTARY-HABER.md',
+                     'docs/releases/v1.1.md', 'docs/releases/v1.2.md', 'docs/releases/v2.0.md',
+                     'docs/AKINCI-BAGLANTI.md', 'mobile/INSTALL.md', 'raspberrypi/README.md', 'docs/ELEMENTARY-HABER.md',
                      'docs/V1.1-TEST-KANITI.md', 'docs/V1.1-GELISTIRME.md', 'docs/YEREL-MASAUSTU.md',
                      'docs/ATOLYE-VE-MAGAZA-YENILEME.md', 'docs/MASAUSTU-GORSEL-YENILEME.md',
                      'docs/NATIVE-MATERYAL-HABER-MAGAZA.md'):
@@ -54,15 +55,23 @@ class ReadmeTests(unittest.TestCase):
                     self.assertTrue(destination.is_relative_to(ROOT))
                     self.assertTrue(destination.is_file(), destination)
 
-    def test_current_downloads_point_to_all_four_v12_images_and_preserve_v11_v100_history(self):
+    def test_current_downloads_point_to_v20_images_launcher_web_and_preserve_published_history(self):
         text = (ROOT / 'README.md').read_text()
         links = re.findall(r'https://github\.com/PeraPlusbirPasha/OguzDows/releases/download/([^/]+)/([^\s)"<>]+)', text)
-        self.assertEqual(set(links), {('v1.2', name) for name in (
+        # Current entry links move to Akıncı; historical release receipts/tests
+        # remain pinned to their original sources. This is documentation only,
+        # not a relaxation of any image, SDK, native or publication gate.
+        self.assertEqual(set(links), {('v2.0', name) for name in (
             'OguzDows-amd64.iso', 'OguzDows-amd64.iso.sha256',
             'OguzDows-i386.iso', 'OguzDows-i386.iso.sha256',
             'OguzDows-rpi-armhf.img.xz', 'OguzDows-rpi-armhf.img.xz.sha256',
             'OguzDows-rpi-arm64.img.xz', 'OguzDows-rpi-arm64.img.xz.sha256',
+            'OguzDows-Mobile-2.0-Akinci-debug.apk', 'OguzDows-Mobile-2.0-Akinci-debug.apk.sha256',
+            'OguzDows-Web-2.0-Akinci.tar.gz', 'OguzDows-Web-2.0-Akinci.tar.gz.sha256',
             'SHA256SUMS', 'release-manifest.json', 'test-evidence.tar.gz')})
+        self.assertIn('mobile/INSTALL.md', text)
+        self.assertIn('docs/AKINCI-BAGLANTI.md', text)
+        self.assertIn('debug uygulamasıdır, ROM/OTA/GSI değildir', text)
         self.assertIn('releases/tag/v1.0.0', text)
         self.assertIn('docs/releases/v1.1.md', text)
         self.assertIn('releases/tag/v1.1', text)

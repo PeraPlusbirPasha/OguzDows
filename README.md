@@ -1,3 +1,5 @@
+> **2.0 yayın taslağı hazırlanıyor:** aşağıdaki yeni bağlantılar bağımsız dosya denetimi ve kamuya açma tamamlandığında çalışır. [Şu an yayımlanmış önceki v1.2](https://github.com/PeraPlusbirPasha/OguzDows/releases/tag/v1.2).
+
 <p align="center">
   <img src="docs/assets/oguzdows-banner.svg" width="100%" alt="OğuzDows · Ay Yıldız — Köklerinden güç alır. Özgürce üretir.">
 </p>
@@ -5,13 +7,13 @@
 <h1 align="center">Türkçe. Hafif. Sana ait.</h1>
 
 <p align="center">
-  Türkiye’den izler taşıyan, Xfce tabanlı bir canlı masaüstü ve kurulum ISO’su.<br>
-  İhtiyacın olduğunda açılan araçlar, anlaşılır Türkçe ve kendine özgü bir masaüstü.
+  PC’de ve Pi’de hafif Xfce; telefonda native Aero launcher.<br>
+  OğuzDows 2.0 · Akıncı — aynı kimlik, onaylı yerel bağlantı, kendine özgü bir dünya.
 </p>
 
 <p align="center">
-  <a href="https://github.com/PeraPlusbirPasha/OguzDows/releases/tag/v1.2"><kbd>Yayın · v1.2</kbd></a>
-  &nbsp; <kbd>amd64 · i386 · Pi armhf · Pi arm64</kbd> &nbsp; <kbd>Xfce</kbd> &nbsp; <kbd>Türkçe</kbd>
+  <a href="https://github.com/PeraPlusbirPasha/OguzDows/releases/tag/v2.0"><kbd>2.0 · Akıncı</kbd></a>
+  &nbsp; <kbd>PC · Pi · launcher APK</kbd> &nbsp; <kbd>Xfce</kbd> &nbsp; <kbd>Türkçe</kbd>
 </p>
 
 <p align="center">
@@ -25,34 +27,42 @@
 
 ---
 
-## 1.2 · Modern arayüz, 23 yeni işlev, dört imaj
+## 2.0 · Akıncı — aynı ağ, aynı masa
 
-**[OğuzDows 1.2 · Ay Yıldız](https://github.com/PeraPlusbirPasha/OguzDows/releases/tag/v1.2)**: **amd64 / i386 PC ISO** ve **Pi armhf / arm64 IMG.XZ** aynı **`dc92fe9`** kaynağından, iç ürün/kurucu sürümü **1.2** ile yeniden derlendi. Eski 1.1 dosyaları yeniden etiketlenmedi.
+**[OğuzDows 2.0 · Akıncı](https://github.com/PeraPlusbirPasha/OguzDows/releases/tag/v2.0)**: yeniden derlenmiş **amd64/i386 ISO + Pi armhf/arm64 IMG.XZ + gerçek native launcher APK’sı**, aynı **`5a44de0`** kaynağı. İmajların iç ürün sürümü **2.0**, APK **`2.0.0-akinci` / kod20**. Eski imaj/APK yeniden etiketlenmedi; telefon paketi **debug uygulamasıdır, ROM/OTA/GSI değildir**.
 
-**Atölye'de 16 yerel araç**; Mağaza istek listesi / ağsız sağlık / APT–Flatpak karşılaştırması; Haber saklama / okundu takibi / TXT; Başlat'ta sabit komut paleti: **23 gerçekten yeni işlev**. Ortak modern açık/koyu GTK/C-GTK arayüzleri, Thunar/pencere/PrintScreen onarımları ve **Flatpak / GNOME Yazılımlar için gerçek imzalı bileşen onarımı** birlikte gelir. Yeni daemon, indeksleyici veya webview yoktur; düşük kaynak/ARMv6 korumaları korunur. [Kullanım ve açık kaynak bütçeleri →](docs/ATOLYE-VE-MAGAZA-YENILEME.md)
+**OğuzKöprü/1** PC, telefon ve ARM’ı seçilmiş dosyalar ve izinli **salt ekran** için bağlar: pinned TLS, iki ekranda kod, dosya bazında alıcı onayı. Gizli eşitleme, uzaktan SMS/kurulum veya fare-klavye yetkisi yoktur. Köprü, yeni PC/Pi imajlarına ve APK’ya dahildir; **[bağlantı rehberi →](docs/AKINCI-BAGLANTI.md)**.
 
-[PC derleme/testi](https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/45984535667) ve [Pi derleme/testi](https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/45984521207) başarılı. Yayın aktarımı imajların gerçek SHA-256 / iç kaynak / 1.2 kimliklerini; [ayrı salt-okunur yeniden indirme denetimi](https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/45994504674) 17 dosyanın tamamını ve 21 ham JSON'u doğruladı. **[Sürüm notları, cihaz/RAM seçimi ve test sınırları →](docs/releases/v1.2.md)**
+**Masaüstü:** modern GTK/C-GTK, gerçek uygulama koyu/açık senkronu ve **PrintScreen**, optimize Thunar/kenarlar, native görev çubuğu/Dock. Atölye’nin **16 aracı** ve önceki sürümdeki toplam **23 ek işlev**, resimli/tıklanabilir Haber, imzalı APT ile Flatpak/GNOME Yazılımlar bileşen onarımı korunur. [Kullanım →](docs/ATOLYE-VE-MAGAZA-YENILEME.md)
 
-> **Pi portları deneyseldir. İlk nesil Zero/Zero W'de doğru armhf ile hesap ekranı sonrası siyah ekran bildirimi hâlâ açıktır.** ARM kullanıcı-QEMU/Xvfb bu fiziksel hatanın giderildiğini veya Pi GPU/hızını kanıtlamaz. [Teşhis →](docs/PI-ZERO-OTURUM.md)
+**Telefon:** Kotlin/Compose HOME, gerçek uygulama arama/başlatma, kalıcı kısayollar ve gerçek widget; altı dokunmatik düzen, Ayarlar, medya sesi/paneller, sistem rehberi, Telefon/SMS/Mağaza ve hareketli yerel Rıfkı. [**Launcher APK’sı ve boş emülatöre kurulum →**](mobile/INSTALL.md) · [Gerçek yeni native ekran →](docs/assets/oguzdows-mobile-v2.jpg). Bulut AI/ses/wake-word etkin değildir; SystemUI/güvenli kilit cihaz genelinde değişmez.
 
-Altı hafif Xfce düzeni, kaynak kontrollü efektler, yerel Mağaza/Haber/Başlat/İzleyici, 20 kültür görseli ve 11 çevrimdışı Rıfkı kaydı korunur. Gerçek GNOME/Plasma ayrıca mimari/kaynak koşulludur; Xfce tarzları gerçek oturum diye sunulmaz. [Masaüstü Merkezi / geri alma](docs/YEREL-MASAUSTU.md) · [Native materyal](docs/NATIVE-MATERYAL-HABER-MAGAZA.md) · [Görsel onarımlar](docs/MASAUSTU-GORSEL-YENILEME.md) · [Cihaz / EXE / APK sınırları](docs/CIHAZLAR-VE-UYUMLULUK.md)
+[PC](https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/46092345482), [Pi](https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/46092347693) ve [mobil](https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/46092350348) kabulü aynı kaynakta geçti: **24/24 native +20/20 JVM**, gerçek çift yönlü dört-dosya TLS/MediaProjection; ayrıca **16 başarılı host/ABI işi**. Kamuya açılmadan önce 26 yayın dosyası ayrı runner’da yeniden indirilir/hash’lenir. **[Sürüm notları, ölçümler ve açık sınırlar →](docs/releases/v2.0.md)**
+
+> **Pi portları deneyseldir. Zero/Zero W hesap sonrası siyah ekran bildirimi hâlâ açıktır.** Mobil kabulde ANR/çökme yok, fakat **2205 ms HWUI beklemesi** ve aynı kaynaklı başka koşuda launcher otomasyon hatası kaydı vardır; kalıcı çözüm veya fiziksel pil/FPS/kararlılık iddia edilmez. [Pi teşhis](docs/PI-ZERO-OTURUM.md) · [Mobil geçmiş](mobile/VERIFICATION.md).
+
+**Tarih korunur:** [1.2 · Ay Yıldız](docs/releases/v1.2.md) (`dc92fe9`, 17 dosya) ve [1.1](docs/releases/v1.1.md)/[1.0.0](docs/releases/v1.0.0.md) değişmez. 23 işlev 2.0’da ikinci kez “yeni” sayılmaz. Altı hafif Xfce tarzı gerçek GNOME/Plasma oturumu diye sunulmaz; fiziksel cihaz/ROM/AI yol haritası tamamlanmış sayılmaz.
 
 <a id="indir"></a>
 
-## Bir USB ile başla
+## Cihazına uygun paketle başla
 
-**Güncel yayın: [OğuzDows 1.2 · Ay Yıldız — PC + Raspberry Pi](https://github.com/PeraPlusbirPasha/OguzDows/releases/tag/v1.2)**
+**Güncel yayın: [OğuzDows 2.0 · Akıncı — PC + Pi + launcher APK](https://github.com/PeraPlusbirPasha/OguzDows/releases/tag/v2.0)**
 
 İndirmeler herkese açıktır; GitHub hesabı gerekmez. **Önce CPU mimarisi, sonra RAM seçilir.** `amd64` Intel ve AMD 64 bit PC’ler içindir; düşük RAM tek başına 32 bit imaj seçme gerekçesi değildir.
 
-| Cihazın | İmaj | RAM / önemli koşul | Bütünlük dosyası |
+| Cihazın | Paket | RAM / önemli koşul | Bütünlük dosyası |
 | :--- | :--- | :--- | :--- |
-| **64 bit PC** · Intel/AMD · ASUS X553M dahil | **[amd64 ISO ↗](https://github.com/PeraPlusbirPasha/OguzDows/releases/download/v1.2/OguzDows-amd64.iso)** | Canlı/kurucu **1 GiB+**, günlük **2 GiB+**, modern web/ofis **4 GiB+ önerilir**; BIOS / 64 bit UEFI | [SHA-256](https://github.com/PeraPlusbirPasha/OguzDows/releases/download/v1.2/OguzDows-amd64.iso.sha256) |
-| **32 bit PC** · i686/PAE, tarayıcı için SSE2 | **[i386 ISO ↗](https://github.com/PeraPlusbirPasha/OguzDows/releases/download/v1.2/OguzDows-i386.iso)** | Canlı/kurucu **1 GiB+**, günlük **2 GiB+ önerilir**; yalnız BIOS | [SHA-256](https://github.com/PeraPlusbirPasha/OguzDows/releases/download/v1.2/OguzDows-i386.iso.sha256) |
-| **Pi Zero/1/2**, düşük RAM’li **Zero 2/3** | **[Pi armhf IMG.XZ ↗](https://github.com/PeraPlusbirPasha/OguzDows/releases/download/v1.2/OguzDows-rpi-armhf.img.xz)** | 512 MB deneysel **mini**, 1 GB **light**; NetSurf temel web. **Zero siyah ekran sorunu açık; Pi 5 için değil** | [SHA-256](https://github.com/PeraPlusbirPasha/OguzDows/releases/download/v1.2/OguzDows-rpi-armhf.img.xz.sha256) |
-| **Pi 4/400/5**; 64 bit uygulama isteyen **Zero 2/3 / Pi 2 rev 1.2** | **[Pi arm64 IMG.XZ ↗](https://github.com/PeraPlusbirPasha/OguzDows/releases/download/v1.2/OguzDows-rpi-arm64.img.xz)** | Günlük **2 GB+**, modern web/ofis **4 GB+ önerilir**. Eski Zero/Pi 1/erken Pi 2 için değil | [SHA-256](https://github.com/PeraPlusbirPasha/OguzDows/releases/download/v1.2/OguzDows-rpi-arm64.img.xz.sha256) |
+| **64 bit PC** · Intel/AMD · ASUS X553M dahil | **[amd64 ISO ↗](https://github.com/PeraPlusbirPasha/OguzDows/releases/download/v2.0/OguzDows-amd64.iso)** | Canlı/kurucu **1 GiB+**, günlük **2 GiB+**, modern web/ofis **4 GiB+ önerilir**; BIOS / 64 bit UEFI | [SHA-256](https://github.com/PeraPlusbirPasha/OguzDows/releases/download/v2.0/OguzDows-amd64.iso.sha256) |
+| **32 bit PC** · i686/PAE, tarayıcı için SSE2 | **[i386 ISO ↗](https://github.com/PeraPlusbirPasha/OguzDows/releases/download/v2.0/OguzDows-i386.iso)** | Canlı/kurucu **1 GiB+**, günlük **2 GiB+ önerilir**; yalnız BIOS | [SHA-256](https://github.com/PeraPlusbirPasha/OguzDows/releases/download/v2.0/OguzDows-i386.iso.sha256) |
+| **Pi Zero/1/2**, düşük RAM’li **Zero 2/3** | **[Pi armhf IMG.XZ ↗](https://github.com/PeraPlusbirPasha/OguzDows/releases/download/v2.0/OguzDows-rpi-armhf.img.xz)** | 512 MB deneysel **mini**, 1 GB **light**; NetSurf temel web. **Zero siyah ekran sorunu açık; Pi 5 için değil** | [SHA-256](https://github.com/PeraPlusbirPasha/OguzDows/releases/download/v2.0/OguzDows-rpi-armhf.img.xz.sha256) |
+| **Pi 4/400/5**; 64 bit uygulama isteyen **Zero 2/3 / Pi 2 rev 1.2** | **[Pi arm64 IMG.XZ ↗](https://github.com/PeraPlusbirPasha/OguzDows/releases/download/v2.0/OguzDows-rpi-arm64.img.xz)** | Günlük **2 GB+**, modern web/ofis **4 GB+ önerilir**. Eski Zero/Pi 1/erken Pi 2 için değil | [SHA-256](https://github.com/PeraPlusbirPasha/OguzDows/releases/download/v2.0/OguzDows-rpi-arm64.img.xz.sha256) |
+| **Boş API35 x86_64 telefon emülatörü** | **[Launcher APK ↗](https://github.com/PeraPlusbirPasha/OguzDows/releases/download/v2.0/OguzDows-Mobile-2.0-Akinci-debug.apk)** | MinAPI29, kabul API35/Google APIs/4 GiB QEMU; debug imzalı uygulama, **ROM değildir**. [Kurulum](mobile/INSTALL.md) | [SHA-256](https://github.com/PeraPlusbirPasha/OguzDows/releases/download/v2.0/OguzDows-Mobile-2.0-Akinci-debug.apk.sha256) |
+| **Tarayıcı tasarım laboratuvarı** | [Statik web arşivi ↗](https://github.com/PeraPlusbirPasha/OguzDows/releases/download/v2.0/OguzDows-Web-2.0-Akinci.tar.gz) | Ayrı yerel tasarım yüzeyi; SIM/native widget/etkin model sunucusu yok | [SHA-256](https://github.com/PeraPlusbirPasha/OguzDows/releases/download/v2.0/OguzDows-Web-2.0-Akinci.tar.gz.sha256) |
 
-**Pi dosyaları PC ISO’su değildir; fiziksel kart doğrulaması yoktur.** Pi 1’in 256 MB modelleri günlük masaüstü için önerilmez. Telefonlara/diğer ARM kartlarına bu imajları yazmayın. [Tam model/revizyon ve kapasite tablosu →](docs/releases/v1.2.md)
+**Pi dosyaları PC ISO’su değildir; fiziksel kart doğrulaması yoktur.** Pi 1’in 256 MB modelleri günlük masaüstü için önerilmez. Telefonlara/diğer ARM kartlarına bu imajları yazmayın. [Tam model/revizyon ve kapasite tablosu →](docs/releases/v2.0.md)
+
+**APK için:** önce [boş emülatör kılavuzunu](mobile/INSTALL.md) izle; günlük fiziksel telefonunun varsayılan Telefon/SMS uygulamasını değiştirme. HOME ve diğer roller/izinler ayrıdır; ücretli/kişi/ekran işlemleri son yerel onay ister.
 
 ### İndir → doğrula → dene
 
@@ -62,14 +72,14 @@ Altı hafif Xfce düzeni, kaynak kontrollü efektler, yerel Mağaza/Haber/Başla
    # Pi için, sıkıştırılmış dosya üzerinde:
    sha256sum -c OguzDows-rpi-armhf.img.xz.sha256
    ```
-   Sonuç `OK` olmalı. Dört imaj da varsa [SHA256SUMS](https://github.com/PeraPlusbirPasha/OguzDows/releases/download/v1.2/SHA256SUMS) ile hepsini denetle; yalnız birini indirdiysen ayrı checksum’u kullan. SHA-256 bir bütünlük denetimidir; ayrıca imzalı yayın iddiası yoktur.
+   Sonuç `OK` olmalı. Dört imaj + üç APK + web dosyasının tamamı varsa [SHA256SUMS](https://github.com/PeraPlusbirPasha/OguzDows/releases/download/v2.0/SHA256SUMS) içindeki 8 girdiyi denetle; yalnız birini indirdiysen ayrı checksum’u kullan. SHA-256 bir bütünlük denetimidir; ayrıca imzalı yayın iddiası yoktur.
 2. **PC:** ISO’yu güvendiğin bir imaj aracıyla **4 GB+ USB’ye** yaz. USB’den aç, **OğuzDows’u dene** ile donanımı kontrol et; hazır olunca **OğuzDows’u kur**.
 3. **Pi:** `.img.xz` dosyasını Raspberry Pi Imager → **özel imaj** ile **16 GB+ SD/USB’ye** yaz; tercihen 32 GB A1/A2 kart kullan. **Imager kullanıcı/SSH özelleştirmelerini uygulama**; ilk açılışta portun kendi Türkçe kişisel hesap adımını tamamla. [Pi kurulum rehberi →](raspberrypi/README.md)
 
 > [!IMPORTANT]
 > **Önce yedek al; yazılan aygıtın içeriği silinir.** PC’de Secure Boot kapalı olmalıdır; 32 bit UEFI desteklenmez. Canlı PC hesabı `oguz` / `oguz`; parolasız yönetici yetkisi yalnız canlı ortam içindir. Kurulu PC’de kişisel hesap belirlenir ve canlı hesap temizlenir. **Pi’de ortak hesap/otomatik giriş/parolasız sudo yoktur; SSH varsayılan kapalıdır.** Yeni imaj mevcut kurulumu kendiliğinden yükseltmez.
 
-[Kaynak / dosya manifesti](https://github.com/PeraPlusbirPasha/OguzDows/releases/download/v1.2/release-manifest.json) · [Ham test raporları](https://github.com/PeraPlusbirPasha/OguzDows/releases/download/v1.2/test-evidence.tar.gz) · [Önceki v1.1](docs/releases/v1.1.md) · [v1.1 yayını](https://github.com/PeraPlusbirPasha/OguzDows/releases/tag/v1.1) · [Korunan önceki v1.0.0](https://github.com/PeraPlusbirPasha/OguzDows/releases/tag/v1.0.0)
+[Kaynak / dosya manifesti](https://github.com/PeraPlusbirPasha/OguzDows/releases/download/v2.0/release-manifest.json) · [Ham test raporları](https://github.com/PeraPlusbirPasha/OguzDows/releases/download/v2.0/test-evidence.tar.gz) · [Önceki v1.2](docs/releases/v1.2.md) · [Önceki v1.1](docs/releases/v1.1.md) · [v1.1 yayını](https://github.com/PeraPlusbirPasha/OguzDows/releases/tag/v1.1) · [Korunan önceki v1.0.0](https://github.com/PeraPlusbirPasha/OguzDows/releases/tag/v1.0.0)
 
 <a id="ozellikler"></a>
 
@@ -121,6 +131,18 @@ Bu altı önizleme, **20 kültür görselli** galeriden bir seçkidir. Her manza
 
 ## Hafiflik, yalnızca bir sıfat değil
 
+**2.0 / `5a44de0` ISO’larından** hazırlanan özel disklerde gerçek tam Xfce ölçümü; yeni dosyalar, yeni ölçümler:
+
+| İmaj · en yüksek kullanım (decimal MB) | 512 MiB VM | 1024 MiB VM | 2048 MiB VM |
+| --- | ---: | ---: | ---: |
+| **amd64** | **297.1** | **490.2** | **501.7** |
+| **i386** | **195.6** | **407.1** | **479.8** |
+
+Ağsız QEMU/TCG · 2 sanal CPU/std VGA · **120 saniye yerleşme + 5 saniye aralıklı 6 örnek**, `MemTotal − MemAvailable`. Rehber/Rıfkı/Mağaza/Haber/compositor kapalı; 512/1024 MiB’de OOM yokluğu ve kullanılabilir RAM payı zorunlu. Fiziksel PC/Pi/telefon veya gerçek GNOME/Plasma için ölçüm değildir. **512 MiB boşta açılış, canlı kurucu veya modern tarayıcı konforu demek değildir.** [2.0 yöntem ve ham kanıt →](docs/releases/v2.0.md)
+
+<details>
+<summary>Tarihsel 1.2 ölçümleri — 2.0 sayıları değildir</summary>
+
 **Yayımlanmış v1.2**, `dc92fe9` ISO içeriğinden hazırlanan özel test diskinde gerçek **tam Xfce oturumu** ile ölçüldü; eski sürüm sayıları kullanılmaz.
 
 | İmaj · en yüksek kullanım (decimal MB) | 512 MiB VM | 1024 MiB VM | 2048 MiB VM |
@@ -131,6 +153,8 @@ Bu altı önizleme, **20 kültür görselli** galeriden bir seçkidir. Her manza
 **Koşullar:** ağsız QEMU/TCG · 2 sanal CPU/std VGA · 120 saniye yerleşme + 5 saniye aralıklı 6 örnek. `MemTotal − MemAvailable`, RSS toplamı değil. Rehber/Rıfkı/Mağaza/Haber ve compositor kapalı; 512/1024 MiB'de OOM yokluğu ve `max(32 MiB, MemTotal/10)` kullanılabilir pay kapıları geçti.
 
 **512 MiB'de boşta Xfce'nin açılması, kurucu/tarayıcı/ofisin rahat çalışacağı anlamına gelmez.** Fiziksel PC, Pi ve gerçek KDE/GNOME bu RAM ölçümünün kapsamında değildir. [1.2 ölçüm/test sınırları](docs/releases/v1.2.md) · [Tarihsel 1.1](docs/V1.1-TEST-KANITI.md) · [v1.0.0](docs/MASAUSTU-TEST-KANITI.md)
+
+</details>
 
 ### Donanım için kısa rehber
 
@@ -158,7 +182,7 @@ Siyah ekranda **güvenli görüntü**, az bellekte **düşük bellek** açılı�
 
 Zero–5 ailesi için ayrı `armhf` / `arm64` SD/USB imajı akışı bulunur. PC ISO’su Pi’ye yazılmaz; Pi’de ilk açılışta kişisel hesap oluşturulur, ortak canlı parola veya parolasız sudo yoktur.
 
-**v1.2 yayını hem armhf hem arm64 dosyasını içerir; Pi portları deneyseldir.** ARM1176/Cortex-A53 kullanıcı-QEMU + host Xvfb’de root olmayan tam Xfce, native Haber ve armhf NetSurf yerel sayfası geçti. Fiziksel Pi açılışı/LightDM/PAM/GPU/performance doğrulaması değildir; **Zero hesap sonrası siyahlık bildirimi açıktır**. Resmî Pi OS/pi-gen kaynak/ABI/paket/varlık kapıları ve kaynak kilidi korunur; sonraki portlar için kanıtlar saklanır. [Mimari karşılaştırma ve portlama verisi →](docs/ARM-MIMARI-VE-PORTLAMA.md) · [Pi rehberi →](raspberrypi/README.md)
+**v2.0 Akıncı yayını hem armhf hem arm64 dosyasını içerir; Pi portları deneyseldir.** ARM1176/Cortex-A53 kullanıcı-QEMU + host Xvfb’de root olmayan tam Xfce, native Haber ve armhf NetSurf yerel sayfası geçti. Fiziksel Pi açılışı/LightDM/PAM/GPU/performance doğrulaması değildir; **Zero hesap sonrası siyahlık bildirimi açıktır**. Resmî Pi OS/pi-gen kaynak/ABI/paket/varlık kapıları ve kaynak kilidi korunur; sonraki portlar için kanıtlar saklanır. [Mimari karşılaştırma ve portlama verisi →](docs/ARM-MIMARI-VE-PORTLAMA.md) · [Pi rehberi →](raspberrypi/README.md)
 
 ## Yeni bir sayfa, yeni bir ana sürüm
 
@@ -169,7 +193,7 @@ v1.1    ·  Ara güncelleme — PC + Pi yayımlandı
    ↓
 v1.2    ·  23 yeni işlev / modern arayüz — PC + Pi yayımlandı
    ↓
-v2.0    ·  Bir sonraki ana yayın
+v2.0    ·  Akıncı — PC + Pi + native launcher APK / OğuzKöprü
    ↓
 v3.0    ·  Sonraki ana yayın
 ```
@@ -194,7 +218,9 @@ Tam ISO derlemesi root, ağ ve yeterli disk alanı gerektirir. Hazırlık adıml
 | :--- | :--- |
 | [Teknik rehber](docs/TEKNIK-REHBER.md) | Derleme, kurulum güvenliği, eski sürücüler, Rıfkı ve geliştirici testleri. |
 | [Masaüstü ve bakım](docs/MASAUSTU-VE-BAKIM.md) | Mağaza, güncelleyici, tarzlar, kültür araçları ve depo güveni. |
-| [1.2 sürüm ve test kanıtı](docs/releases/v1.2.md) | Dört güncel imaj, 23 işlev, kurulum onarımı, düşük RAM/ABI ve yayın byte denetimi. |
+| [2.0 Akıncı indirme ve test kanıtı](docs/releases/v2.0.md) | Aynı kaynaklı dört imaj + native APK/web, onaylı bağlantı, düşük RAM/ABI ve 26 dosyalı yayın denetimi. |
+| [Mobil kurulum ve geçmiş](mobile/INSTALL.md) | Debug APK, gerçek emülatör kabulü ve açık fiziksel SIM/ROM/AI sınırları. |
+| [Tarihsel 1.2](docs/releases/v1.2.md) | Önceki dört imaj, 23 işlev ve değişmeyen yayın kanıtı. |
 | [Tarihsel 1.1 kanıtı](docs/V1.1-TEST-KANITI.md) | Önceki imajların değişmeyen kaynak, ölçüm ve test sınırları. |
 | [Kurulum karşılaştırması](docs/KURULUM-KARSILASTIRMA.md) | Kali/Linux Mint kaynak incelemesi ve kurulum kontrollerinin gerekçeleri. |
 | [Raspberry Pi](raspberrypi/README.md) | ARM hedefleri, ilk hesap, güvenlik ve fiziksel test sınırları. |
@@ -205,4 +231,4 @@ Bir sorun bildirirken cihaz modelini, ISO mimarisini/sürümünü ve kişisel bi
 
 <sub>OğuzDows PC tabanı amd64 için Debian trixie, i386 için Debian bookworm’dur. Xfce, Calamares, GNOME Software, Flatpak ve diğer üçüncü taraf bileşenlerin köken, telif ve lisans bilgileri korunur. Ürün kimliği, bu bilgileri gizlemek anlamına gelmez.</sub>
 
-<p align="center"><b>Biraz Anadolu. Biraz merak. Bolca emek.</b><br><sub>OğuzDows · Ay Yıldız</sub></p>
+<p align="center"><b>Biraz Anadolu. Biraz merak. Bolca emek.</b><br><sub>OğuzDows 2.0 · Akıncı</sub></p>

@@ -2,24 +2,26 @@
 
 **Cebinde, senden bir dünya.**
 
-> **`0.4.0-connected` hazır; tam emülatör kabulü geçti.** Altı mobil düzen ailesi, gerçek Ayarlar/tam ekran paneller, sistem rehberi, kilit eşlikçisi ve OğuzKöprü dosya/izinli yansıtma yolları aynı kaynakta doğrulandı. [Kapsam, sınırlar ve geçmiş → CONNECTED.md](CONNECTED.md). Fiziksel PC/telefon/ARM veya işletim sistemi imajı kabulü değildir.
+**2.0 · Akıncı**, PC/Pi ve launcher’ı aynı kaynak kimliğiyle birleştiren yayındır. APK’nın gerçek sürümü **`2.0.0-akinci` / kod 20**; OğuzKöprü/1 onaylı yerel dosya ve salt ekran protokolüdür. [Birleşik yayın](https://github.com/PeraPlusbirPasha/OguzDows/releases/tag/v2.0) · [PC–telefon–ARM bağlantı rehberi](../docs/AKINCI-BAGLANTI.md).
 
-**Kotlin + Jetpack Compose native launcher.** Gerçek HOME/LAUNCHER, Aero/cam kişiliği, nazar kimliği, gerçek kurulu uygulamalar, kalıcı masaüstü ve etkileşimli yerel Rıfkı; Telefon/SMS/Mağaza ile aynı APK’da. Ana ekran WebView değildir; günlük modüllerin bir kısmı çevrimdışı paketli arayüzdür.
+> **[Akıncı launcher APK’sını indir ve emülatörde dene →](INSTALL.md)**
+> [`5a44de0` / 46092350348](https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/46092350348): **24/24 native / 15 seçim + 20/20 JVM**, lint **0 hata / 47 uyarı / 1 bilgi**, bağımsız TLS/gerçek MediaProjection ve paket/imza geçti. Yayın taslağının imaj/indirme denetimi ayrıca tamamlanır. **Debug uygulamasıdır; ROM/OTA/GSI, fiziksel SIM veya GMS kabulü değildir.**
 
-> [**0.4 launcher APK’sını indir ve emülatörde dene →**](INSTALL.md)
-> [`7244164` / koşu 46087817657](https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/46087817657): **24/24 gerçek emülatör vakası / 15 seçim + 20/20 JVM**, lint **0 hata / 47 uyarı**. Bağımsız TLS/dosya ve gerçek MediaProjection kapısı, paket ve `apksigner verify` geçti. Debug uygulamasıdır; ROM/OTA/ISO, fiziksel SIM veya GMS kabulü değildir.
+**Kotlin + Jetpack Compose native launcher.** Gerçek HOME/LAUNCHER, Aero/cam kişiliği, nazar kimliği, gerçek kurulu uygulamalar, kalıcı masaüstü ve etkileşimli yerel Rıfkı; Telefon/SMS/Mağaza ile aynı APK’da. Ana ekran WebView değildir; günlük modüllerin bir kısmı çevrimdışı paketlidir.
 
-### 0.4 ile gelen bağlı deneyim
+### Akıncı’da korunan bağlı deneyim
 
 - **Altı masaüstü ailesi, mobile uyarlanmış:** OğuzDows, Plasma, GNOME/Ubuntu, Xfce, Windows 11 esintisi ve macOS iskelesi; seçim/kalıcılık ve gerçek OS HOME yeniden yaratma sınandı. Bu masaüstü işletim sistemleri telefonda çalıştırılmaz.
 - **Tam ekran yukarı/aşağı yüzeyler ve gerçek Ayarlar:** uygulama çekmecesi, denetim, gerçek medya sesi ve pencere parlaklığı; sistemin kendi Ayarlar ekranına açık geçiş. Kendi pencere immersive’dir, sistem perdesi/keyguard cihaz genelinde kapatılmaz.
 - **Gerçek rehber ve kilit eşlikçisi:** ayrı okuma/yazma izinleriyle sistem kişileri, son onayla gerçek yerel kişi ve Telefon/SMS taslakları. Nazar kilit/karşılama yüzeyi sistem PIN/biyometrik kilidinin yerine geçmez.
 - **OğuzKöprü:** telefon ve Python/GTK PC/ARM eşleri için kod karşılaştırmalı, alıcı onaylı yerel TLS dosya masası; native/Python arasında dört gerçek dosya/hash doğrulandı. Her başlatmada sistem izniyle salt görüntü paylaşımı, iptal/foreground bildirim/durdurma sınandı; ses/uzaktan girdi yoktur. Fiziksel cihazlar arası drag-drop/performans matrisi hâlâ açıktır.
-- **Dürüst performans sınırı:** bu başarılı koşuda ANR/çökme yoktu, fakat 2060 ms HWUI ana iş parçacığı beklemesi örneklendi. Kalıcı ANR çözümü veya fiziksel telefon akıcılığı/pili iddia edilmez.
+- **Dürüst performans sınırı:** kabul edilen 2.0 koşusunda ANR/çökme yok, fakat **2205 ms HWUI beklemesi** örneklendi. Aynı kaynaklı manuel 46092349811 launcher otomasyonunda stale nesne/menü hatalarıyla reddedildi ve paketlenmedi; kalıcı kararlılık/ANR çözümü veya fiziksel pil/FPS iddia edilmez. [Korunan başarısızlıklar](VERIFICATION.md).
 
-![Tarihsel 0.3 native launcher — 0.4 görüntüsü değildir](screenshots/launcher-native-emulator.jpg)
+![2.0 Akıncı gerçek native API35 emülatör launcher’ı; fiziksel telefon değildir](../docs/assets/oguzdows-mobile-v2.jpg)
 
-Üstteki **234×520** JPEG, önceki kabul edilmiş **0.3 / `fb6cad5`** ekranıdır; 0.4 diye yeniden etiketlenmedi. Güncel 0.4 tam PNG’leri ve gerçek paylaşım JPEG’i [yeni APK/test/rapor artifact’ında](https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/46087817657/artifacts/15240450965). Yeni küçük görüntünün altı checks parçasından yalnız dördü kota içinde kaldı; eksik JPEG oluşturulmadı. Ana APK **24.418.460 bayt**, debug imzalı; artifact **14 gün** saklanır. Blob yönlendirmesi nedeniyle APK/güncel tam görseller burada indirilemedi; yerel bağımsız APK hash/imza veya güncel görüntü incelemesi iddia edilmez. CI hash’i ve doğrulama [kurulum kılavuzunda](INSTALL.md).
+Üstteki **234×519**, kabul edilen **5a44de0 / 46092350348** koşusunun gerçek native thumbnail’idir; eksiksiz altı checks parçası yerelde JPEG olarak doğrulandı (**12.959 bayt**, SHA-256 `2f532a28e17c2df84030c0169a44878479b4e6df51cf9ed4d4b6e7699bff6876`). Web tasarımı veya MediaProjection karesi değildir. Tam PNG ve gerçek fixture paylaşım JPEG’i [Actions artifact’ında](https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/46092350348/artifacts/15241623587); APK **24.434.944 bayt**, debug imzalıdır. APK/tam yakalama bu sandbox’ta bağımsız indirilip hash’lenmedi; [CI kökeni ve kurulum](INSTALL.md) bunu ayrı tutar.
+
+**Tarih korunur:** [0.4 / 7244164](android/evidence/package-7244164.json), [0.3 / fb6cad5](android/evidence/package-fb6cad5.json), eski [0.3 ekranı](screenshots/launcher-native-emulator.jpg). Eski resim/hash 2.0 diye yeniden etiketlenmedi. `feature-parity.json` önceki 0.4 kabulünün özellik eşlemesidir; yeni 2.0 makbuzları [doğrulama kaydında](VERIFICATION.md) ayrıca bağlıdır.
 
 ## Native launcher’da çalışanlar
 

@@ -2,7 +2,30 @@
 
 Dört düzey ayrıdır: **tarayıcı**, **SDK/Java/lint**, **sanal radyo/sağlayıcı/yükleyici emülatörü**, **gerçek SIM/cihaz/ROM**. Bir düzeyin başarısı diğerine aktarılmaz. Bu kayıt, başarısız kabul koşularını da saklar; hazırlanmış test kodu geçmiş test sayılmaz.
 
-## Tam 0.4 bağlı kabuk kabulü: `7244164`
+## 2.0 Akıncı: aynı kaynaklı tam kabul
+
+**`5a44de0dde676d901a32be40d631d481e213439d`**, APK **`2.0.0-akinci` / versionCode20**. [46092350348](https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/46092350348) / [140816933793](https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/46092350348/job/140816933793): **24/24 native / 15 seçim, 20/20 JVM**, lint **0 hata / 47 uyarı / 1 bilgi**. Her zorunlu SDK/emülatör/kabul/paket/apksigner/artifact adımı başarılı; farklı koşuların kısmi başarıları toplanmadı. API35/x86_64/Google APIs/Pixel6 QEMU, 4 GiB RAM / 256 MiB heap / 720×1600 / 280dpi / SwiftShader kapsamıdır.
+
+- [SDK makbuzu](android/evidence/sdk-5a44de0.json) · [tüm native seçimler ve bağımsız TLS makbuzları](android/evidence/emulator-5a44de0.json) · [ayrı kabul kapısı](android/evidence/acceptance-5a44de0.json) · [paket, sürüm ve imza özeti](android/evidence/package-5a44de0.json).
+- **7** Telefon/SMS/origin/rol/sistem kontrolü + **1** üç iptal/son sistem kurulumu + **5** native launcher + **4** bağlı kabuk/rehber/kilit + **3** köprü/TLS/interop/MediaProjection + **4** depo güvenliği/canlı kaynak = **24**. Kabulde hiçbir seçim boş/atlanmış değildir.
+- İki bağımsız uygulama dört gerçek dosyanın SHA-256’sında aynı sonucu verdi; sanal Ethernet/adb forward, fiziksel Wi-Fi/ARM değil. Gerçek MediaProjection fixture karesi **12.253 bayt**, SHA-256 `4c03fe2b035f38463a55b30794239ce4a5229ad64f1e0b37979fce82a2b4db83`; taze sistem izni, iptal, foreground servis ve durdurma geçti. Ses/uzaktan girdi yoktur.
+- Ana APK **24.434.944 bayt**, SHA-256 `305015d09e57dcc18b854c3624754ed1723b2cfb2b9c3493c2b0cc6661820e82`. [Actions dağıtımı 15241623587](https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/46092350348/artifacts/15241623587) **14.934.728 bayt**, ZIP digest `sha256:fa96697db925abebb40d008696945a8dbf1926e3bf67cc460c7e7068a0e382dd`. Kalıcı [2.0 Release](https://github.com/PeraPlusbirPasha/OguzDows/releases/tag/v2.0) artifact saklama süresinden ayrı tutulur. [İndir/doğrula/kur](INSTALL.md).
+- **Yeni görüntü gerçekten elde edildi:** [234×519 native thumbnail](../docs/assets/oguzdows-mobile-v2.jpg), 12.959 bayt, SHA-256 `2f532a28e17c2df84030c0169a44878479b4e6df51cf9ed4d4b6e7699bff6876`. Altı checks parçası eksiksiz birleştirildi ve Pillow JPEG doğrulaması yapıldı. Bu launcher görüntüsü, yukarıdaki MediaProjection karesi değildir; fiziksel telefon da değildir. APK ve tam yakalama burada bağımsız hash’lenmedi; ham dosya/CI denetimi kapsamı ayrıdır.
+- **Sağlık sınırı:** ürün ANR/çökmesi yoktu, ancak PID5337’de **2205 ms `HardwareRenderer.nSetStopped` ana iş parçacığı beklemesi** gözlendi. Native kök neden, kalıcı kararlılık veya fiziksel akıcılık/pil/RAM/FPS kanıtı değildir.
+
+### Reddedilen 2.0 aday koşuları silinmez
+
+| Koşu | Kaynak | Gözlenen sonuç | Dağıtım |
+| --- | --- | --- | --- |
+| [46091898778 PC](https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/46091898778) | `ee0d471` | Python3.13, negatif tar örneğinin `addfile(size>0, fileobj=None)` oluşturulmasını reddetti; bağımlı GTK kurulum adımları atlandı ve daha sonraki zorunlu tema testi de eksik varlıkla başarısız oldu. Test gevşetilmedi; bozuk başlık fixture’ı doğru üretildi. | PC imajı oluşmadı |
+| [46091903486 mobil](https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/46091903486) | `ee0d471` | Launcher seçiminde `launcher-wallpapers` eksik/stock HOME görünümü; diğer seçimler, TLS ve yakalama geçti, tam kabul geçmedi. Ürün ANR/çökmesi yok; 2059 ms HWUI örneği vardı. | Paket yok |
+| [46092349811 mobil](https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/46092349811) | **aynı `5a44de0`** | Launcher seçiminde `StaleObjectException` ve pin menüsünde `NullPointerException`; 14/15 zorunlu seçim başarılı, launcher seçimi başarısız kabul edildi. Ürün ANR/çökmesi yok; 2220 ms HWUI örneği vardı. | Paket yok |
+
+Kabul edilen **46092350348**, aynı kaynaklı bağımsız, paralel PR koşusudur; yukarıdaki manuel koşu yeniden başarılı gösterilmedi ve hiçbir native/odak/iptal kapısı kaldırılmadı. **Bu değişken odak/otomasyon sonuçlarının kalıcı giderildiği iddia edilmez.** Mevcut aralıklı HWUI/ANR geçmişi de aşağıda kalır; bir başarılı koşu tüm OEM/cihaz koşullarını kapsamaz.
+
+PC/Pi imaj ve host/ABI kanıtı [birleşik sürüm notlarında](../docs/releases/v2.0.md), bağlantı adımları [AKINCI-BAGLANTI](../docs/AKINCI-BAGLANTI.md) belgesindedir. Kamuya açılmadan önce tüm yayın dosyaları ayrı runner’da tekrar indirilir; APK paket/sürüm/imzacısı ve aynı ham kabul/yakalama dosyaları yeniden denetlenir. Bu, fiziksel ürün testi yerine geçmez. Bulut AI/ASR/TTS/wake-word, GMS, gerçek modem/acil çağrı ve ROM kapıları açık kalır.
+
+## Tarihsel tam 0.4 bağlı kabuk kabulü: `7244164`
 
 [Başarılı koşu **46087817657**](https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/46087817657) / [iş **140801439213**](https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/46087817657/job/140801439213), tam kaynak **`7244164364105a00838b4a68f5815c352554a36b`**. API35 / Google APIs / x86_64 / Pixel6 QEMU, **4 GiB konuk RAM / 256 MiB heap**, 720×1600 / 280dpi / SwiftShader; iş **9m13s**. **15/15 seçimde 24/24 native vaka**, boş/atlanmış kabul yok; **20/20 JVM** (Platform6 + Launcher7 + Connected7), lint **0 hata / 47 uyarı / 1 bilgi**. Eski 17 vaka korunur; farklı koşular birleştirilmedi.
 
