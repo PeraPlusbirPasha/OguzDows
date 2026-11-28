@@ -5,6 +5,7 @@ on:
     branches: [main, arena/2d796713-o-uzdows]
     paths:
       - "website/**"
+      - "docs/releases/v2.0-arm1-release.json"
       - "docs/index.html"
       - "docs/404.html"
       - "docs/indir/**"
@@ -24,6 +25,7 @@ on:
   pull_request:
     paths:
       - "website/**"
+      - "docs/releases/v2.0-arm1-release.json"
       - "docs/index.html"
       - "docs/404.html"
       - "docs/indir/**"

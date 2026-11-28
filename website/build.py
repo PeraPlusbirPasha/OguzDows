@@ -25,7 +25,49 @@ REPO = CONFIG['repository']
 RELEASE = json.loads((ROOT / 'docs/releases/v2.0-release.json').read_text())
 TAG = 'v2.0'
 RELEASE_URL = REPO + '/releases/tag/' + TAG
-FILES = RELEASE['files']
+# Historical v2.0 proof stays immutable. Only Pi image/checksum/inventory
+# links may come from the separately accepted ARM refresh publication.
+ARM_TAG = 'v2.0-arm1'
+ARM_RELEASE_PATH = ROOT / 'docs/releases/v2.0-arm1-release.json'
+ARM_RELEASE = json.loads(ARM_RELEASE_PATH.read_text()) if ARM_RELEASE_PATH.is_file() else None
+ARM_RELEASE_URL = REPO + '/releases/tag/' + ARM_TAG
+ARM_NAMES = {f'OguzDows-rpi-{arch}.{suffix}' for arch in ('armhf', 'arm64')
+             for suffix in ('img.xz', 'img.xz.sha256', 'packages.txt')}
+
+
+def validated_files(original, refresh):
+    result = dict(original['files'])
+    if refresh is None:
+        return result
+    if (not isinstance(refresh, dict) or refresh.get('published') is not True or refresh.get('tag') != ARM_TAG
+            or refresh.get('product_version') != '2.0' or refresh.get('prerelease') is not False
+            or refresh.get('tag_target') != refresh.get('source_revision')
+            or not isinstance(refresh.get('source_revision'), str)
+            or not re.fullmatch('[0-9a-f]{40}', refresh['source_revision'])
+            or refresh['source_revision'] == original['source_revision']
+            or refresh.get('asset_count') != 11 or not isinstance(refresh.get('files'), dict)
+            or set(refresh['files']) != ARM_NAMES | {'SHA256SUMS', 'pi-gen.lock.json', 'INDIRME-REHBERI.md', 'test-evidence.tar.gz', 'release-manifest.json'}
+            or refresh.get('pc_rebuilt') is not False or refresh.get('mobile_rebuilt') is not False
+            or refresh.get('historical_v2_assets_modified') is not False
+            or not isinstance(refresh.get('release_download_audit'), dict)
+            or refresh['release_download_audit'].get('conclusion') != 'success'
+            or any(refresh['release_download_audit'].get(key) is not True for key in
+                   ('all_release_assets_redownloaded_and_hashed', 'both_images_reinspected_read_only', 'expected_75_source_asset_contracts_matched'))):
+        raise ValueError('Only a published, independently accepted ARM-only refresh can replace Pi links.')
+    for name, item in refresh['files'].items():
+        if (not isinstance(item, dict) or item.get('state') != 'uploaded'
+                or type(item.get('size')) is not int or not 0 < item['size'] < 2 * 1024**3
+                or not isinstance(item.get('sha256'), str) or not re.fullmatch('[0-9a-f]{64}', item['sha256'])
+                or item.get('url') != REPO + '/releases/download/' + ARM_TAG + '/' + name):
+            raise ValueError('ARM refresh download URL/size/SHA-256 must match the publication receipt.')
+    for name in ARM_NAMES:
+        if name.endswith('.img.xz') and refresh['files'][name]['sha256'] == original['files'][name]['sha256']:
+            raise ValueError('An old Pi image cannot be relabelled as the ARM repair.')
+        result[name] = refresh['files'][name]
+    return result
+
+
+FILES = validated_files(RELEASE, ARM_RELEASE)
 GUIDE = REPO + '/blob/' + CONFIG['source_branch'] + '/'
 APK = 'OguzDows-Mobile-2.0-Akinci-debug.apk'
 WEB = 'OguzDows-Web-2.0-Akinci.tar.gz'
@@ -88,6 +130,26 @@ def callout(title, text, kind='note'):
     return f'<aside class="callout {kind}"><strong>{title}</strong><p>{text}</p></aside>'
 
 
+def arm_download(name, text):
+    return link(ARM_RELEASE['files'][name]['url'], text)
+
+
+def arm_notice():
+    if ARM_RELEASE is None:
+        return ''
+    return callout('2.0 Akıncı · ARM düzeltmesi 1 yayında.',
+        'Pi armhf/arm64 imajları tema ve duvar kâğıdı düzeltmeleriyle yeniden derlendi. '
+        'Yeni imajlarda 75 kaynak/varlık hash’i ve hedef ARM/Xfce’de gerçek açık/koyu GTK3 + duvar kâğıdı piksel kapısı geçti. '
+        'PC ISO ve APK özgün 2.0’da kalır; mevcut SD kartlar otomatik güncellenmez. Fiziksel Pi kabulü değildir. '
+        + link(ARM_RELEASE_URL, 'ARM sürüm notları ↗'))
+
+
+def arm_resources():
+    if ARM_RELEASE is None:
+        return ''
+    return '<h3>Yeni ARM düzeltmesi 1</h3><p>Yalnız yeni armhf/arm64 imajları için: ' + arm_download('SHA256SUMS', 'İki ARM SHA256SUMS') + ' · ' + arm_download('release-manifest.json', 'ARM kaynak / dosya manifesti') + ' · ' + arm_download('test-evidence.tar.gz', '13 JSON: ham ARM kanıtı') + '. Özgün 2.0 toplam listesi yeni ARM baytlarını kapsamaz.</p>'
+
+
 def page_intro(kicker, title, lead):
     return f'<section class="page-intro wrap"><p class="eyebrow">{kicker}</p><h1>{title}</h1><p class="lead">{lead}</p></section>'
 
@@ -122,8 +184,9 @@ def home():
   </figure>
 </section>
 <section class="proof-strip wrap" aria-label="Yayın kanıtı">
-  <div><strong>4 mimari</strong><span>amd64 · i386 · armhf · arm64</span></div><div><strong>24 + 20</strong><span>Native emülatör + JVM vakası</span></div><div><strong>26 dosya</strong><span>Ayrı runner’da tekrar indirildi / hash’lendi</span></div>{link(RELEASE_URL, 'Kanıtları gör ↗', 'text-link')}
+  <div><strong>4 mimari</strong><span>amd64 · i386 · armhf · arm64</span></div><div><strong>24 + 20</strong><span>Native emülatör + JVM vakası</span></div><div><strong>{'26 + 11 dosya' if ARM_RELEASE else '26 dosya'}</strong><span>{'Özgün 2.0 + ARM düzeltmesi; ayrı indirme denetimleri' if ARM_RELEASE else 'Ayrı runner’da tekrar indirildi / hash’lendi'}</span></div>{link(RELEASE_URL, 'Kanıtları gör ↗', 'text-link')}
 </section>
+<div class="wrap">{arm_notice()}</div>
 <section class="section wrap"><div class="section-heading"><div><p class="eyebrow">AYNI KİMLİK, FARKLI CİHAZLAR</p><h2>Sen nerede üretiyorsan.</h2></div><p>Doğru mimariyi seç. Eski dosyaların adı değişmedi; dört imaj ve launcher 2.0 için yeniden derlendi.</p></div>
   <div class="platform-grid">
     <article class="platform-card"><span class="platform-icon">{icon('pc')}</span><span class="tag">PC</span><h3>Tanıdık, ama sana ait.</h3><p>Intel/AMD bilgisayarlar için Debian tabanlı Türkçe Xfce. Gerçek tema senkronu, native panel ve Atölye.</p>{link(route('pc/'), 'PC sürümünü keşfet ' + icon('arrow'), 'card-link')}</article>
@@ -140,7 +203,8 @@ def home():
 def file_card(name, title, subtitle, warning, icon_name):
     item = FILES[name]
     mib = item['size'] / 1024**2
-    return f'''<article class="download-card"><div class="download-card-top">{icon(icon_name)}<span class="tag">{subtitle}</span></div><h2>{title}</h2><p>{warning}</p><p class="file-name">{name}</p><span class="file-size">{mib:,.1f} MiB · {item['size']:,} bayt</span>{action_row(download(name, 'Paketi indir ' + icon('arrow')), download(name + '.sha256', 'SHA-256 dosyası', 'button secondary'))}<details class="checksum"><summary>SHA-256 özetini göster</summary><code>{item['sha256']}</code><button type="button" class="copy-button" data-copy="{item['sha256']}" data-label="SHA-256 özeti">Özeti kopyala</button></details></article>'''
+    origin = ('<p class="small">ARM düzeltmesi 1 · kaynak <code>' + escape(ARM_RELEASE['source_revision'][:7]) + '</code> · ' + link(ARM_RELEASE_URL, 'yeni yayın kanıtı') + '</p>') if ARM_RELEASE and name in ARM_NAMES else ''
+    return f'''<article class="download-card"><div class="download-card-top">{icon(icon_name)}<span class="tag">{subtitle}</span></div><h2>{title}</h2><p>{warning}</p>{origin}<p class="file-name">{name}</p><span class="file-size">{mib:,.1f} MiB · {item['size']:,} bayt</span>{action_row(download(name, 'Paketi indir ' + icon('arrow')), download(name + '.sha256', 'SHA-256 dosyası', 'button secondary'))}<details class="checksum"><summary>SHA-256 özetini göster</summary><code>{item['sha256']}</code><button type="button" class="copy-button" data-copy="{item['sha256']}" data-label="SHA-256 özeti">Özeti kopyala</button></details></article>'''
 
 
 def downloads():
@@ -152,12 +216,12 @@ def downloads():
         file_card(APK, 'Native telefon launcher’ı', '2.0.0-AKINCI · KOD 20', 'Debug imzalı normal uygulama; ROM/OTA/GSI değil. MinAPI29, kabul API35/x86_64/4 GiB emülatör. Önce boş emülatörde; günlük telefonun Telefon/SMS rollerini değiştirme.', 'phone'),
     ]
     return page_intro('RESMÎ 2.0 YAYINI · ÜCRETSİZ İNDİRME', 'Cihazına uygun<br><em>Akıncı’yı seç.</em>', 'Önce işlemci mimarisi, sonra RAM. İndirmeler doğrudan doğrulanmış GitHub Release dosyalarına gider; site büyük imajları yeniden barındırmaz.') + f'''
-<div class="wrap">{callout('Önce yedek, sonra deneme.', 'USB/SD/hedef diske imaj yazmak verileri siler. Fiziksel PC/Pi/telefon kabulü yoktur. Pi imajı PC ISO’su veya evrensel ARM/telefon ROM’u değildir.', 'warning')}
+<div class="wrap">{arm_notice()}{callout('Önce yedek, sonra deneme.', 'USB/SD/hedef diske imaj yazmak verileri siler. Fiziksel PC/Pi/telefon kabulü yoktur. Pi imajı PC ISO’su veya evrensel ARM/telefon ROM’u değildir.', 'warning')}
 <div class="download-grid">{''.join(cards)}</div>
 <section class="section prose"><h2>İndir → doğrula → dene</h2><ol class="steps"><li><strong>Doğru paketi seç.</strong> {link(route('pc/'), 'PC mimarisi')}, {link(route('raspberry-pi/'), 'Pi modeli')} veya {link(route('telefon/'), 'boş telefon emülatörü')} rehberini oku.</li><li><strong>Paket ile checksum’unu aynı klasöre indir.</strong> Tek paket için ona ait <code>.sha256</code> dosyasını kullan.</li><li><strong>Özeti doğrula.</strong> Linux’ta aşağıdaki komutu çalıştır. Sonuç <code>OK</code> olmalı; uyuşmazsa dosyayı kullanma.</li></ol><pre><code>sha256sum -c OguzDows-amd64.iso.sha256
 # Launcher için:
 sha256sum -c {APK}.sha256</code></pre><p>PowerShell: <code>Get-FileHash .\\{APK} -Algorithm SHA256</code>. Sonucu gösterilen özetle birebir karşılaştır. Checksum, imzalı ISO veya kötü amaçlı yazılım taraması iddiası değildir.</p></section>
-<section class="section prose"><h2>Rehberler, kanıtlar ve tasarım arşivi</h2><p>{download('SHA256SUMS', 'Birleşik SHA256SUMS', '')} dört imaj + üç APK + web, toplam sekiz dosyayı kapsar. Tümünü indirmediysen eksik dosya uyarılarını başarı sanma.</p><ul class="resource-list"><li>{download('release-manifest.json', 'Kaynak, dosya boyutları ve hash manifesti', '')}</li><li>{download('test-evidence.tar.gz', '26 JSON + 1 gerçek paylaşım JPEG’i: ham test kanıtları', '')}</li><li>{download('BAGLANTI-REHBERI.md', 'PC–Pi–telefon bağlantı rehberi', '')}</li><li>{link(RELEASE_URL, 'Tam sürüm notları ve diğer dosyalar ↗')}</li></ul><p><strong>Yalnız geliştirici/test için:</strong> instrumentation ve etkisiz fixture APK’ları günlük uygulama değildir. Tam yayında ayrıca bulunurlar.</p><p><strong>Tarayıcı tasarım laboratuvarı:</strong> {download(WEB, 'statik web arşivi', '')} · {download(WEB + '.sha256', 'SHA-256', '')}. Bu ayrı tasarım/yerel veri arşivi; APK, ROM, SIM veya etkin AI sunucusu değildir.</p></section>
+<section class="section prose"><h2>Rehberler, kanıtlar ve tasarım arşivi</h2>{arm_resources()}<p>{download('SHA256SUMS', 'Özgün 2.0 SHA256SUMS', '')} özgün dört imaj + üç APK + web, toplam sekiz dosyayı kapsar. Tümünü indirmediysen eksik dosya uyarılarını başarı sanma.</p><ul class="resource-list"><li>{download('release-manifest.json', 'Kaynak, dosya boyutları ve hash manifesti', '')}</li><li>{download('test-evidence.tar.gz', '26 JSON + 1 gerçek paylaşım JPEG’i: ham test kanıtları', '')}</li><li>{download('BAGLANTI-REHBERI.md', 'PC–Pi–telefon bağlantı rehberi', '')}</li><li>{link(RELEASE_URL, 'Tam sürüm notları ve diğer dosyalar ↗')}</li></ul><p><strong>Yalnız geliştirici/test için:</strong> instrumentation ve etkisiz fixture APK’ları günlük uygulama değildir. Tam yayında ayrıca bulunurlar.</p><p><strong>Tarayıcı tasarım laboratuvarı:</strong> {download(WEB, 'statik web arşivi', '')} · {download(WEB + '.sha256', 'SHA-256', '')}. Bu ayrı tasarım/yerel veri arşivi; APK, ROM, SIM veya etkin AI sunucusu değildir.</p></section>
 </div>'''
 
 
@@ -167,9 +231,10 @@ def pc():
 
 
 def pi():
+    verified = ('Yeni ARM düzeltmesi 1: ARM1176/Cortex-A53 kullanıcı-QEMU + host Xvfb’de 13 özellik grubu, 75 kaynak/varlık hash’i, hedef Python/GTK/ELF ve root olmayan tam Xfce. Kurulu üretim koduyla açık/koyu GTK3 canlı tema yüklemesi, gerçek paketlenmiş duvar kâğıtları ve örtülmemiş kararlı masaüstü piksellerinin değişmesi de zorunlu kapıdan geçti. Ayrı runner bütün yayın baytlarını yeniden indirip hash’ledi ve iki imajın iç kimlik/sözleşme denetimini tekrarladı.' if ARM_RELEASE else 'ARM1176/Cortex-A53 kullanıcı-QEMU + host Xvfb’de 13 özellik grubu, 69 varlık hash’i, hedef Python/GTK/ELF, root olmayan tam Xfce ve süreç temizliği kapıları geçti.')
     return page_intro('RASPBERRY PI · DENEYSEL PORT', 'Küçük kartında<br><em>Türkçe bir masa.</em>', 'OğuzDows 2.0, Pi için ayrı armhf ve arm64 SD/USB imajları sunar. Mimari, kart modeli ve RAM farklarını saklamadan.') + f'''
-<div class="wrap">{callout('Önemli: Zero siyah ekran bildirimi açık.', 'İlk nesil Zero/Zero W’de hesap ekranı sonrası siyahlık giderilmiş sayılmaz. Yeni imajlar fiziksel kartlarda doğrulanmadı; ARM kullanıcı-QEMU/Xvfb başarısı gerçek LightDM/PAM/GPU/SD veya 512 MB performans kabulü değildir.', 'warning')}</div>
-<div class="wrap content-layout"><article class="prose"><h2>Kartına göre imaj seç</h2><div class="table-scroll"><table><caption>Temel mimari rehberi; hiçbir satır fiziksel kart kabulü iddiası değildir</caption><thead><tr><th scope="col">Model</th><th scope="col">İmaj / öneri</th></tr></thead><tbody><tr><th scope="row">Zero / Zero W / Pi 1</th><td>armhf, ARMv6. 512 MB mini deneysel; 256 MB günlük masaüstü için önerilmez.</td></tr><tr><th scope="row">Pi 2 rev1.0 / 1.1</th><td>armhf, ARMv7; 1 GB light.</td></tr><tr><th scope="row">Zero 2 / Pi 2 rev1.2 / Pi 3</th><td>Az RAM’de armhf; 64 bit uygulama gerektiğinde arm64 alternatifi. 512 MB mini, 1 GB light.</td></tr><tr><th scope="row">Pi 4 / 400 / 5</th><td>arm64; günlük 2 GB+, modern web/ofis için 4 GB+ önerilir. Pi 5 armhf hedefi değildir.</td></tr></tbody></table></div><p>armhf Raspbian bookworm, ARMv6 uyumlu kullanıcı alanı; arm64 Debian/Raspberry Pi bookworm tabanlıdır. Eski Zero/Pi 1/erken Pi 2’de arm64 açılmaz. Pi 5’in özel <code>2712</code> çekirdeği korunur. Teknik <code>VERSION_ID=12</code> tabandır; ayrı ürün alanı <code>OGUZDOWS_VERSION_ID=2.0</code> olur.</p><h2>İlk açılışa hazırlan</h2><ol><li>Doğru <code>.img.xz</code> ve checksum’u indirip sıkıştırılmış dosyanın özetini doğrula.</li><li>Raspberry Pi Imager’da özel imaj seç; 16 GB+ SD/USB’ye yaz. Tercihen 32 GB A1/A2 kart kullan. Yazma hedefi siler.</li><li><strong>Imager kullanıcı/SSH özelleştirmelerini uygulama.</strong> Portun kendi Türkçe ilk hesap adımını kullan.</li><li>Bölüm büyütülürken gücü kesme. Uygun güç kaynağı ve soğutma kullan.</li></ol><p>Pi’de ortak <code>oguz/oguz</code>, otomatik giriş veya parolasız sudo yoktur. SSH varsayılan kapalıdır. Pi imajı PC ISO’su veya evrensel ARM/telefon ROM’u değildir; diğer SBC’lere/telefonlara yazma.</p><h2>Düşük RAM’de dürüst beklenti</h2><p>armhf’de eski ARMv6’ya modern Firefox dayatılmaz; NetSurf temel web içindir ve güncel JavaScript sitelerinde tam uyumluluk sunmaz. arm64’te 1 GiB ve altında NetSurf, daha yüksek RAM’de kurulu Firefox seçilir. Büyük ofis belgeleri, çok sekme ve yüksek çözünürlüklü video için garanti yoktur.</p><p>Türkçe Xfce, native Mağaza/Haber, Atölye ve OğuzKöprü ortak kaynakla gelir. Pi’ye özgü çekirdek/firmware/ilk hesap yolu korunur; PC Calamares/GRUB akışı karta taşınmaz. İsteğe bağlı Flatpak altyapısı arm64 tarifindedir; armhf’de bütün masaüstü/Flathub uygulamaları varmış gibi davranılmaz.</p><h2>Ne doğrulandı?</h2><p>ARM1176/Cortex-A53 kullanıcı-QEMU + host Xvfb’de 13 özellik grubu, 69 varlık hash’i, hedef Python/GTK/ELF, root olmayan tam Xfce ve süreç temizliği kapıları geçti. Bunlar fiziksel Pi boot/GPU/performans ölçümü değildir.</p><p>{doc('raspberrypi/README.md', 'Ayrıntılı model, profil ve kurulum rehberi ↗')} · {doc('docs/PI-ZERO-OTURUM.md', 'Zero oturum teşhisi ↗')}</p></article><aside class="side-card"><span class="platform-icon">{icon('pi')}</span><h2>Tek dosya,<br>her karta değil.</h2><p>Model ve revizyonu kontrol et. SD kartını yazmadan önce mutlaka yedekle.</p>{link(route('indir/'), 'Pi imajlarını gör ' + icon('arrow'), 'button primary')}<hr><p class="small">Compute Module/500, taşıyıcı kart, eMMC/USB ve firmware varyantları ayrıca test ister.</p></aside></div>'''
+<div class="wrap">{arm_notice()}{callout('Önemli: Zero siyah ekran bildirimi açık.', 'İlk nesil Zero/Zero W’de hesap ekranı sonrası siyahlık giderilmiş sayılmaz. Yeni imajlar fiziksel kartlarda doğrulanmadı; ARM kullanıcı-QEMU/Xvfb başarısı gerçek LightDM/PAM/GPU/SD veya 512 MB performans kabulü değildir.', 'warning')}</div>
+<div class="wrap content-layout"><article class="prose"><h2>Kartına göre imaj seç</h2><div class="table-scroll"><table><caption>Temel mimari rehberi; hiçbir satır fiziksel kart kabulü iddiası değildir</caption><thead><tr><th scope="col">Model</th><th scope="col">İmaj / öneri</th></tr></thead><tbody><tr><th scope="row">Zero / Zero W / Pi 1</th><td>armhf, ARMv6. 512 MB mini deneysel; 256 MB günlük masaüstü için önerilmez.</td></tr><tr><th scope="row">Pi 2 rev1.0 / 1.1</th><td>armhf, ARMv7; 1 GB light.</td></tr><tr><th scope="row">Zero 2 / Pi 2 rev1.2 / Pi 3</th><td>Az RAM’de armhf; 64 bit uygulama gerektiğinde arm64 alternatifi. 512 MB mini, 1 GB light.</td></tr><tr><th scope="row">Pi 4 / 400 / 5</th><td>arm64; günlük 2 GB+, modern web/ofis için 4 GB+ önerilir. Pi 5 armhf hedefi değildir.</td></tr></tbody></table></div><p>armhf Raspbian bookworm, ARMv6 uyumlu kullanıcı alanı; arm64 Debian/Raspberry Pi bookworm tabanlıdır. Eski Zero/Pi 1/erken Pi 2’de arm64 açılmaz. Pi 5’in özel <code>2712</code> çekirdeği korunur. Teknik <code>VERSION_ID=12</code> tabandır; ayrı ürün alanı <code>OGUZDOWS_VERSION_ID=2.0</code> olur.</p><h2>İlk açılışa hazırlan</h2><ol><li>Doğru <code>.img.xz</code> ve checksum’u indirip sıkıştırılmış dosyanın özetini doğrula.</li><li>Raspberry Pi Imager’da özel imaj seç; 16 GB+ SD/USB’ye yaz. Tercihen 32 GB A1/A2 kart kullan. Yazma hedefi siler.</li><li><strong>Imager kullanıcı/SSH özelleştirmelerini uygulama.</strong> Portun kendi Türkçe ilk hesap adımını kullan.</li><li>Bölüm büyütülürken gücü kesme. Uygun güç kaynağı ve soğutma kullan.</li></ol><p>Pi’de ortak <code>oguz/oguz</code>, otomatik giriş veya parolasız sudo yoktur. SSH varsayılan kapalıdır. Pi imajı PC ISO’su veya evrensel ARM/telefon ROM’u değildir; diğer SBC’lere/telefonlara yazma.</p><h2>Düşük RAM’de dürüst beklenti</h2><p>armhf’de eski ARMv6’ya modern Firefox dayatılmaz; NetSurf temel web içindir ve güncel JavaScript sitelerinde tam uyumluluk sunmaz. arm64’te 1 GiB ve altında NetSurf, daha yüksek RAM’de kurulu Firefox seçilir. Büyük ofis belgeleri, çok sekme ve yüksek çözünürlüklü video için garanti yoktur.</p><p>Türkçe Xfce, native Mağaza/Haber, Atölye ve OğuzKöprü ortak kaynakla gelir. Pi’ye özgü çekirdek/firmware/ilk hesap yolu korunur; PC Calamares/GRUB akışı karta taşınmaz. İsteğe bağlı Flatpak altyapısı arm64 tarifindedir; armhf’de bütün masaüstü/Flathub uygulamaları varmış gibi davranılmaz.</p><h2>Ne doğrulandı?</h2><p>{verified} Bunlar fiziksel Pi boot/GPU/performans ölçümü değildir.</p>{arm_resources()}<p>{doc('raspberrypi/README.md', 'Ayrıntılı model, profil ve kurulum rehberi ↗')} · {doc('docs/PI-ZERO-OTURUM.md', 'Zero oturum teşhisi ↗')}</p></article><aside class="side-card"><span class="platform-icon">{icon('pi')}</span><h2>Tek dosya,<br>her karta değil.</h2><p>Model ve revizyonu kontrol et. SD kartını yazmadan önce mutlaka yedekle.</p>{link(route('indir/'), 'Pi imajlarını gör ' + icon('arrow'), 'button primary')}<hr><p class="small">Compute Module/500, taşıyıcı kart, eMMC/USB ve firmware varyantları ayrıca test ister.</p></aside></div>'''
 
 
 def phone():
@@ -233,6 +298,12 @@ def structured_data(path, title, description):
                       'applicationCategory': 'DesktopEnhancementApplication', 'operatingSystem': 'Debian Linux / Raspberry Pi OS',
                       'softwareVersion': '2.0', 'url': url('pc/'), 'downloadUrl': FILES['OguzDows-amd64.iso']['url'],
                       'offers': {'@type': 'Offer', 'price': '0', 'priceCurrency': 'TRY', 'url': url('indir/')}})
+    if path == 'raspberry-pi/' and ARM_RELEASE:
+        nodes.append({'@type': 'SoftwareApplication', '@id': BASE + '#pi', 'name': 'OğuzDows 2.0 Akıncı · ARM düzeltmesi 1',
+                      'applicationCategory': 'DesktopEnhancementApplication', 'operatingSystem': 'Raspberry Pi OS / Debian Linux',
+                      'softwareVersion': '2.0', 'url': url(path), 'downloadUrl': FILES['OguzDows-rpi-arm64.img.xz']['url'],
+                      'description': 'Deneysel Pi imajı; hedef ARM/Xfce tema ve duvar kâğıdı kabulü, fiziksel Pi boot/GPU/performans değil.',
+                      'offers': {'@type': 'Offer', 'price': '0', 'priceCurrency': 'TRY', 'url': url('indir/')}})
     if path == 'telefon/':
         nodes.append({'@type': 'SoftwareApplication', '@id': BASE + '#launcher', 'name': 'OğuzDows Mobile 2.0 Akıncı debug launcher',
                       'applicationCategory': 'UtilitiesApplication', 'operatingSystem': 'Android 10+', 'softwareVersion': '2.0.0-akinci',
@@ -263,6 +334,7 @@ def outputs():
             or not RELEASE['published'] or RELEASE['tag'] != TAG or RELEASE['asset_count'] != 26
             or RELEASE['source_revision'] != '5a44de0dde676d901a32be40d631d481e213439d'):
         raise ValueError('Canonical URL and actual public 2.0 release must be valid.')
+    validated_files(RELEASE, ARM_RELEASE)
     verification = CONFIG.get('google_site_verification', '')
     if verification and not re.fullmatch(r'[A-Za-z0-9_-]{10,256}', verification):
         raise ValueError('Only an actual Search Console HTML-tag verification value is accepted.')
