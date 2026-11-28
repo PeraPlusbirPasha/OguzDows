@@ -32,6 +32,30 @@ def run(command):
                           timeout=10, check=False, env={**os.environ, 'LC_ALL': 'C.UTF-8'})
 
 
+def display_info():
+    """Read GDK's real X11 monitor names in a short, separate process.
+
+    Fallback for legacy / software X screens without usable RandR output.
+    Never access GTK's shared display from the Welcome worker thread, and
+    never invent monitor0 just because display enumeration failed.
+    """
+    import gi
+    gi.require_version('Gdk', '3.0'); gi.require_version('GdkX11', '3.0')
+    from gi.repository import Gdk, GdkX11
+    Gdk.set_allowed_backends('x11')
+    display = Gdk.Display.open(os.environ.get('DISPLAY'))
+    if display is None:
+        raise RuntimeError('X11 ekranı açılamadı.')
+    try:
+        if not isinstance(display, GdkX11.X11Display) or not 1 <= display.get_n_monitors() <= 128:
+            raise RuntimeError('X11 monitör bilgisi alınamadı.')
+        return {'screen': display.get_default_screen().get_number(),
+                'monitors': [re.sub(r'\s', '', display.get_monitor(index).get_model() or str(index))
+                             for index in range(display.get_n_monitors())]}
+    finally:
+        display.close()
+
+
 def xfce_properties():
     """Stored keys are history, not evidence that a monitor is still active.
 
@@ -49,14 +73,31 @@ def xfce_properties():
                 if len(match[1]) > 1024:
                     raise ValueError('Duvar kâğıdı ayar yolunun uzunluğu geçersiz.')
                 prefixes.add(match[1])
-    monitors = run(['xrandr', '--query'])
-    screen = re.search(r'^Screen ([0-9]+):', monitors.stdout, re.MULTILINE)
-    names = set(re.findall(r'^([^/\s]+) connected(?: primary)? [0-9]+x[0-9]+[+-][0-9]+[+-][0-9]+(?:\s|$)',
+    try:
+        monitors = run(['xrandr', '--query'])
+    except (OSError, subprocess.SubprocessError):
+        monitors = subprocess.CompletedProcess([], 1, '')
+    screen = re.search(r'^Screen ([0-9]{1,3}):', monitors.stdout, re.MULTILINE)
+    names = set(re.findall(r'^([^/\s]{1,255}) connected(?: primary)? [0-9]+x[0-9]+[+-][0-9]+[+-][0-9]+(?:\s|$)',
                            monitors.stdout, re.MULTILINE))
-    if monitors.returncode or screen is None or not names:
-        # Never report success after writing only an obsolete connector, or
-        # invent monitor0 when the actual X screen cannot be enumerated.
-        raise RuntimeError('Etkin X11 monitörleri okunamadı; duvar kâğıdı değiştirilmedi.')
+    screen_number = int(screen[1]) if screen is not None else None
+    if monitors.returncode or screen_number is None or not names:
+        # RandR is not a GPU requirement. Query GDK on its OWN connection in
+        # a bounded helper, not from the UI worker's shared display thread.
+        try:
+            result = run([sys.executable, '-I', str(Path(__file__).resolve()), '--display-info'])
+            if result.returncode or len(result.stdout) > 65536:
+                raise ValueError('Monitor helper failed')
+            value = json.loads(result.stdout)
+            if (not isinstance(value, dict) or set(value) != {'screen', 'monitors'}
+                    or type(value['screen']) is not int or not 0 <= value['screen'] <= 999
+                    or not isinstance(value['monitors'], list) or not 1 <= len(value['monitors']) <= 128
+                    or any(not isinstance(name, str) or not re.fullmatch(r'[^/\s\x00-\x1f\x7f]{1,255}', name)
+                           for name in value['monitors'])):
+                raise ValueError('Monitor helper reply invalid')
+            screen_number, names = value['screen'], set(value['monitors'])
+        except (OSError, ValueError, RuntimeError, subprocess.SubprocessError) as error:
+            raise RuntimeError('Etkin X11 monitörleri okunamadı; duvar kâğıdı değiştirilmedi.') from error
     count = run(['xfconf-query', '-c', 'xfwm4', '-p', '/general/workspace_count'])
     value = count.stdout.strip() if count.returncode == 0 else '4'  # Xfce default before the first user override.
     if not re.fullmatch(r'[0-9]{1,3}', value) or not 1 <= int(value) <= 128:
@@ -65,7 +106,7 @@ def xfce_properties():
     # unbounded targets supplied by a malformed display/configuration reply.
     if len(names) * int(value) > 128:
         raise ValueError('Duvar kâğıdı ekran / çalışma alanı sınırını aşıyor.')
-    prefixes.update(f'/backdrop/screen{int(screen[1])}/monitor{name}/workspace{workspace}/'
+    prefixes.update(f'/backdrop/screen{screen_number}/monitor{name}/workspace{workspace}/'
                     for name in names for workspace in range(int(value)))
     if len(prefixes) > 128:
         raise ValueError('Duvar kâğıdı ekran / çalışma alanı sınırını aşıyor.')
@@ -170,9 +211,16 @@ def initialize():
 
 
 if __name__ == "__main__":
-    if sys.argv[1:] != ["--initialize"]:
-        raise SystemExit("Kullanım: wallpapers.py --initialize")
-    try:
-        initialize()
-    except (OSError, ValueError, RuntimeError, subprocess.TimeoutExpired) as error:
-        print(f"OğuzDows duvar kâğıdı: {error}", file=sys.stderr)
+    if sys.argv[1:] == ['--display-info']:
+        try:
+            print(json.dumps(display_info()))
+        except (OSError, ValueError, RuntimeError, ImportError) as error:
+            print(f'OğuzDows ekran bilgisi: {error}', file=sys.stderr)
+            raise SystemExit(1)
+    elif sys.argv[1:] == ['--initialize']:
+        try:
+            initialize()
+        except (OSError, ValueError, RuntimeError, subprocess.TimeoutExpired) as error:
+            print(f"OğuzDows duvar kâğıdı: {error}", file=sys.stderr)
+    else:
+        raise SystemExit("Kullanım: wallpapers.py --initialize | --display-info")

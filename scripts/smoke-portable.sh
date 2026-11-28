@@ -77,6 +77,10 @@ chroot "$root" /usr/bin/env LANG=C.UTF-8 LC_ALL=C.UTF-8 OGUZDOWS_TEST_PROBE="${p
     cd /src
     $OGUZDOWS_TEST_PROBE /usr/bin/python3 -W error::ResourceWarning -m unittest discover -s tests -p test_workbench.py -v
     $OGUZDOWS_TEST_PROBE /usr/bin/python3 -W error::ResourceWarning -m unittest discover -s tests -p test_store_bootstrap.py -v
+    # Explicitly mocked native settings: exercises 32-bit Python/validation and
+    # rollback only, not an ARM Xfce session or physical-Pi appearance claim.
+    $OGUZDOWS_TEST_PROBE /usr/bin/python3 -W error::ResourceWarning -m unittest discover -s tests -p test_wallpapers.py -v
+    $OGUZDOWS_TEST_PROBE /usr/bin/python3 -W error::ResourceWarning -m unittest discover -s tests -p test_desktop_preferences.py -v
     mkdir -p /src/test-results/portable-bin
     sh scripts/build-native.sh /src/test-results/portable-bin/store
     sh scripts/build-news.sh /src/test-results/portable-bin/news
@@ -104,11 +108,15 @@ for component in ('store', 'news', 'hub', 'monitor'):
 hashes = {name: hashlib.sha256((base / name).read_bytes()).hexdigest() for name in (
     'system/usr/lib/oguzdows/workbench.py', 'system/usr/lib/oguzdows/workbench_core.py',
     'system/usr/lib/oguzdows/store_core.py', 'system/usr/lib/oguzdows/store_service.py',
+    'system/usr/lib/oguzdows/wallpapers.py', 'system/usr/lib/oguzdows/desktop_preferences.py',
+    'system/usr/lib/oguzdows/desktop_runtime.py', 'system/usr/lib/oguzdows/desktop_state.py',
+    'system/usr/lib/oguzdows/profiles.py', 'system/usr/lib/oguzdows/desktop_material.py',
     'native/store.c', 'native/news.c', 'native/hub.c', 'native/ui.c')}
 report = {'schema': 1, 'scope': 'target-user-QEMU-core-and-C-ABI-not-GUI-or-physical',
           'arch': arch, 'suite': os.environ['OGUZDOWS_TARGET_SUITE'], 'qemu_cpu_for_core_and_abi_probes': os.environ['QEMU_CPU'],
           'source_revision': os.environ['OGUZDOWS_SOURCE_REVISION'], 'pointer_bits': struct.calcsize('P') * 8,
           'core_and_bootstrap_tests_passed': True, 'native_versions': versions, 'source_hashes': hashes,
+          'appearance_fixture_tests_passed': True, 'appearance_settings_backend': 'explicitly-mocked',
           'physical_device': False, 'gpu_or_performance_benchmark': False, 'armv6_tested': False}
 (base / 'test-results/portable.json').write_text(json.dumps(report, ensure_ascii=False, indent=2) + '\n')
 print('::notice title=Portable target ABI and tools::' + json.dumps(report, ensure_ascii=False), flush=True)

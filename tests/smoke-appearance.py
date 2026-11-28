@@ -20,6 +20,7 @@ import subprocess
 import sys
 import tempfile
 import time
+from unittest.mock import patch
 
 from support import ROOT
 
@@ -180,6 +181,23 @@ def child(directory):
         app.window.hide(); pump(.2)
         until(lambda: pixel() == (160, 30, 40), 'Stale connector silently swallowed wallpaper change; ' + repr(pixel()))
         report['stale_connector_does_not_swallow_change'] = True
+        # Only the primary enumerator fails here; GDK helper / X connection,
+        # callbacks, xfconf and visible pixels remain real. This is NOT proof
+        # of a physical legacy server without the RandR extension.
+        native_run = wallpapers.run
+        def missing_randr(command):
+            if command[0] == 'xrandr':
+                return subprocess.CompletedProcess(command, 1, '', 'TEST ONLY RandR unavailable')
+            return native_run(command)
+        app.window.show(); pump(.1)
+        with patch.object(wallpapers, 'run', side_effect=missing_randr):
+            app.wallpaper_buttons[1].emit('clicked')
+            until(lambda: not app.theme_busy, 'GDK display fallback did not finish', 50)
+            assert 'seçimin kaydedildi' in app.wallpaper_status.get_text(), app.wallpaper_status.get_text()
+        app.window.hide(); pump(.2)
+        until(lambda: pixel() == (30, 60, 160), 'Real GDK metadata fallback did not change xfdesktop pixels')
+        report['randr_failure_injected'] = True
+        report['fallback_real_gdk_helper_and_pixels'] = True
         report['native_property_count'] = len(backdrop_keys())
         report['shared_revision'] = state.load()['revision']
         save_report()

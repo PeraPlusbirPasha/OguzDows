@@ -13,13 +13,14 @@ wallpapers = load("wallpapers", "system/usr/lib/oguzdows/wallpapers.py")
 
 class NativeWallpaperFixture:
     """CLI sözleşmesi taklidi; gerçek Xfce oturum kanıtı değildir."""
-    def __init__(self, properties, values=(), *, monitors=None, workspaces='4'):
+    def __init__(self, properties, values=(), *, monitors=None, workspaces='4', display_info=None):
         self.properties = properties
         self.values = dict(values)
         self.calls = []
         self.monitors = ('Screen 0: minimum 8 x 8, current 1920 x 1080, maximum 32767 x 32767\n'
                          'HDMI-1 connected primary 1920x1080+0+0 (normal)\n') if monitors is None else monitors
         self.workspaces = workspaces
+        self.display_info = display_info
 
     def __call__(self, command):
         self.calls.append(command)
@@ -27,6 +28,8 @@ class NativeWallpaperFixture:
             return subprocess.CompletedProcess(command, 0, '\n'.join(self.properties) + '\n')
         if command[0] == 'xrandr':
             return subprocess.CompletedProcess(command, 0, self.monitors)
+        if command[-1] == '--display-info':
+            return subprocess.CompletedProcess(command, int(self.display_info is None), json.dumps(self.display_info))
         if command[command.index('-c') + 1] == 'xfwm4':
             assert command[-1] == '/general/workspace_count'
             return subprocess.CompletedProcess(command, int(self.workspaces is None), (self.workspaces or '') + '\n')
@@ -117,6 +120,36 @@ class WallpaperTests(unittest.TestCase):
                     wallpapers.apply_xfce('new', [{'id': 'new', 'path': str(image)}], root / 'marker')
                 self.assertFalse(any('-s' in command or '--reset' in command for command in native.calls))
                 self.assertEqual(native.values, {stale: '/personal/keep.jpg'})
+                self.assertFalse((root / 'marker').exists())
+
+    def test_randr_unavailable_uses_real_display_metadata_not_gpu_or_guessed_monitor_zero(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary); image = root / 'new.png'; image.touch()
+            native = NativeWallpaperFixture([], monitors='', display_info={'screen': 2, 'monitors': ['0', 'Legacy-1']})
+            def run(command):
+                if command[0] == 'xrandr':
+                    raise FileNotFoundError('CI no RandR utility')
+                return native(command)
+            with patch.object(wallpapers, 'run', side_effect=run):
+                wallpapers.apply_xfce('new', [{'id': 'new', 'path': str(image)}], root / 'marker')
+            images = {key: value for key, value in native.values.items() if key.endswith('/last-image')}
+            self.assertEqual(images, {f'/backdrop/screen2/monitor{name}/workspace{workspace}/last-image': str(image)
+                                      for name in ('0', 'Legacy-1') for workspace in range(4)})
+            helper, = [command for command in native.calls if command[-1] == '--display-info']
+            self.assertEqual(helper[-3:], ['-I', str(Path(wallpapers.__file__).resolve()), '--display-info'])
+
+    def test_invalid_display_helper_reply_never_changes_native_keys(self):
+        for reply in ({}, {'screen': True, 'monitors': ['0']}, {'screen': -1, 'monitors': ['0']},
+                      {'screen': 0, 'monitors': []}, {'screen': 0, 'monitors': ['bad/monitor']},
+                      {'screen': 0, 'monitors': ['bad\nmonitor']}, {'screen': 0, 'monitors': ['bad\0monitor']},
+                      {'screen': 0, 'monitors': [1]}, {'screen': 0, 'monitors': ['a'] * 129},
+                      {'screen': 0, 'monitors': ['0'], 'extra': True}):
+            with self.subTest(reply=reply), tempfile.TemporaryDirectory() as temporary:
+                root = Path(temporary); image = root / 'new.png'; image.touch()
+                native = NativeWallpaperFixture([], monitors='', display_info=reply)
+                with patch.object(wallpapers, 'run', side_effect=native), self.assertRaisesRegex(RuntimeError, 'monitör'):
+                    wallpapers.apply_xfce('new', [{'id': 'new', 'path': str(image)}], root / 'marker')
+                self.assertEqual(native.values, {})
                 self.assertFalse((root / 'marker').exists())
 
     def test_workspace_and_target_bounds_are_checked_before_any_write(self):
