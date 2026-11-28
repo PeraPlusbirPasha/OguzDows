@@ -2,6 +2,7 @@
   "schema": 1,
   "scope": "build-time feature presence and ABI; appearance operations are checked separately, not physical-device proof",
   "appearance_runtime_schema": 1,
+  "xfconf_locale_runtime_schema": 1,
   "minimum_wallpapers": 20,
   "minimum_selected_narration": 11,
   "python_modules": [

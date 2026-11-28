@@ -141,8 +141,13 @@ def settings(identifier, appearance=None, effects='off', resources=None):
 
 
 def run(command):
+    environment = {**os.environ, 'LC_ALL': 'C.UTF-8'}
+    if Path(command[0]).name == 'xfconf-query':
+        # GNU gettext still honours LANGUAGE=tr:en under C.UTF-8. Keep the
+        # parsed CLI headers deterministic without translating the user's UI.
+        environment['LANGUAGE'] = 'C'
     return subprocess.run(command, capture_output=True, text=True, check=False, timeout=12,
-                          env={**os.environ, 'LC_ALL': 'C.UTF-8'})
+                          env=environment)
 
 
 def state_directory():

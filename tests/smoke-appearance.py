@@ -48,7 +48,8 @@ def child(directory):
               'architecture': subprocess.check_output(['dpkg', '--print-architecture'], text=True).strip(),
               'source_revision': os.environ.get('OGUZDOWS_SOURCE_REVISION', ''),
               'runtime_sha256': {name: hashlib.sha256((ROOT / 'system/usr/lib/oguzdows' / name).read_bytes()).hexdigest()
-                                 for name in ('desktop_preferences.py', 'desktop_runtime.py', 'desktop_material.py', 'wallpapers.py')},
+                                 for name in ('desktop_preferences.py', 'desktop_runtime.py', 'desktop_material.py', 'wallpapers.py', 'profiles.py')},
+              'locale_probe_sha256': hashlib.sha256((ROOT / 'scripts/pi_session_smoke.py').read_bytes()).hexdigest(),
               'synthetic_image_fixture': True, 'physical_pi': False, 'physical_gpu': False,
               'performance_measurement': False, 'settings_backend_mocked': False,
               'errors': []}
@@ -103,6 +104,10 @@ def child(directory):
             process = start(label, argv)
             pump(.5)
             assert process.poll() is None, label + ' exited'
+        sys.path.insert(0, str(ROOT / 'scripts'))
+        from pi_session_smoke import xfconf_locale_check
+        report['xfconf_locale'] = xfconf_locale_check(Path.home())
+        save_report()
         # Only the resource policy and image catalogue are fixtures. No native
         # settings/apply/callback, session guard or busy guard is stubbed.
         preferences.current_policy = lambda: policy(524288)
@@ -240,7 +245,8 @@ def main():
         # memory GSettings backend, global GTK_THEME override or a host bus.
         env = {key: value for key, value in os.environ.items() if key not in (
             'GSETTINGS_BACKEND', 'GTK_THEME', 'DBUS_SESSION_BUS_ADDRESS', 'WAYLAND_DISPLAY')}
-        env.update(HOME=str(home), XDG_CONFIG_HOME=str(home / '.config'),
+        env.update(LANG='tr_TR.UTF-8', LANGUAGE='tr:en', LC_ALL='tr_TR.UTF-8',
+                   HOME=str(home), XDG_CONFIG_HOME=str(home / '.config'),
                    XDG_STATE_HOME=str(directory / 'state'), XDG_DATA_HOME=str(directory / 'data'),
                    XDG_CACHE_HOME=str(directory / 'cache'), XDG_RUNTIME_DIR=str(directory / 'runtime'),
                    XAUTHORITY=str(authority), XDG_CURRENT_DESKTOP='XFCE', GDK_BACKEND='x11',

@@ -100,8 +100,12 @@ def installation_busy():
 
 
 def run(command):
+    environment = {**os.environ, 'LC_ALL': 'C.UTF-8'}
+    if Path(command[0]).name == 'xfconf-query':
+        # LANGUAGE overrides gettext's message language even under C.UTF-8.
+        environment['LANGUAGE'] = 'C'
     return subprocess.run(command, stdin=subprocess.DEVNULL, capture_output=True, text=True,
-                          timeout=8, check=False, env={**os.environ, 'LC_ALL': 'C.UTF-8'})
+                          timeout=8, check=False, env=environment)
 
 
 def binary(names):

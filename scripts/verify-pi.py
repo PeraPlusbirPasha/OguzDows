@@ -74,6 +74,22 @@ def validate_features(root: Path, arch: str) -> None:
                 or any(not isinstance(value, str) or not re.fullmatch('[0-9a-f]{64}', value) for value in appearance['wallpaper_pixel_sha256'])
                 or len(set(appearance['wallpaper_pixel_sha256'])) != 2):
             raise ValueError('Pi gerçek hedef tema / duvar kâğıdı görünüm işlemi kanıtı eksik veya başarısız.')
+    # arm1 contracts did not promise Turkish gettext/typed-array coverage.
+    # Require it explicitly for new builds without rewriting historical proof.
+    if 'xfconf_locale_runtime_schema' in contract:
+        appearance = session.get('appearance', {})
+        locale = appearance.get('xfconf_locale') if isinstance(appearance, dict) else None
+        if (type(contract['xfconf_locale_runtime_schema']) is not int or contract['xfconf_locale_runtime_schema'] != 1
+                or not isinstance(locale, dict) or type(locale.get('schema')) is not int or locale['schema'] != 1
+                or locale.get('environment') != {'LANG': 'tr_TR.UTF-8', 'LANGUAGE': 'tr:en', 'LC_ALL': 'tr_TR.UTF-8'}
+                or locale.get('raw_turkish_header') != 'Değer, 2 ögeden oluşan dizidir:'
+                or locale.get('runners') != ['profiles', 'desktop_runtime', 'wallpapers']
+                or locale.get('typed_arrays') != ['int-array', 'double-array']
+                or any(locale.get(key) is not True for key in ('single_item_array', 'utf8_value_roundtrip',
+                           'array_read_write_readback', 'typed_backup', 'compare_rollback', 'persistence_failure_rollback',
+                           'personal_panel_arrays_unchanged', 'persistence_failure_injected', 'unfixed_reader_error_reproduced'))
+                or locale.get('settings_backend_mocked') is not False):
+            raise ValueError('Pi Türkçe Xfconf dizi / yedek / geri alma kanıtı eksik veya başarısız.')
     if session.get('news') != {'native_process_alive': True, 'worker_exited': True, 'cached_fixture_preserved': True,
                               'network_tested': False, 'performance_measurement': False, 'window_pixels_verified': False}:
         raise ValueError('Pi C Haber / offline fixture / kısa ömürlü işçi testi eksik veya başarısız.')

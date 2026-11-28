@@ -152,7 +152,8 @@ jobs:
           apt-get install -y --no-install-recommends python3 python3-gi python3-pil python3-gi-cairo \
             python3-apt ca-certificates gir1.2-gtk-3.0 gsettings-desktop-schemas dconf-gsettings-backend \
             xfconf xfwm4 xfce4-settings xfdesktop4 x11-xserver-utils \
-            xauth xvfb dbus-x11 fonts-dejavu-core librsvg2-common adwaita-icon-theme
+            xauth xvfb dbus-x11 fonts-dejavu-core librsvg2-common adwaita-icon-theme locales
+          localedef -i tr_TR -f UTF-8 tr_TR.UTF-8
           test "$(dpkg --print-architecture)" = arm64
       - name: Ürün temalarını ve çevrimdışı üreticiyi yerleştir
         run: |
