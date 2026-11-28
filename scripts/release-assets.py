@@ -199,7 +199,7 @@ def validate_partitions(table, image_bytes):
         raise ValueError('Pi MBR/FAT/ext4 / 8 MiB hizalama / bölüm sınırları geçersiz.')
 
 
-def inspect_pi(image, arch, revision, version, work, runtime):
+def inspect_pi(image, arch, revision, version, work, runtime, *, expected_contract=None):
     # İmajdan kod çalıştırılmaz; yalnız host verifier ve salt okunur mount.
     scratch = Path(tempfile.mkdtemp(prefix=arch + '-', dir=work))
     raw, root = scratch / 'image.img', scratch / 'root'
@@ -227,6 +227,8 @@ def inspect_pi(image, arch, revision, version, work, runtime):
         mounts.append(boot)
         command('sudo', 'python3', str(ROOT / 'scripts/verify-pi.py'), '--root', str(root), '--arch', arch)
         build = read_json(root / 'usr/share/oguzdows/build-info.json')
+        if expected_contract is not None and read_json(root / 'usr/share/oguzdows/pi-contract.json') != expected_contract:
+            raise ValueError('Pi imaj sözleşmesi incelenmiş kaynak baytlarıyla birebir eşleşmiyor: ' + arch)
         validate_identity(build, (root / 'usr/lib/os-release').read_text(), arch, revision, version, pi=True)
         if (read_json(root / 'usr/share/oguzdows/pi-build-report.json') != runtime
                 or read_json(root / 'etc/oguzdows/pi-image.json') != build

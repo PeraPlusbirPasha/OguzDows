@@ -6,14 +6,14 @@ on:
       target:
         description: PC ISO, test/kanıt, release taslağı veya Raspberry Pi imajları
         type: choice
-        options: [pc, pc-tests, pc-diagnostics, pc-release, raspberrypi]
+        options: [pc, pc-tests, pc-diagnostics, pc-release, arm-release, raspberrypi]
         default: pc
       evidence_run:
         description: pc-diagnostics için tamamlanmış; pc-release için başarılı PC çalışması
         type: string
         default: ""
       pi_evidence_run:
-        description: pc-release için isteğe bağlı, aynı kaynaklı başarılı Pi armhf+arm64 çalışması
+        description: pc-release için isteğe bağlı; arm-release için zorunlu başarılı Pi armhf+arm64 çalışması
         type: string
         default: ""
       mobile_evidence_run:
@@ -52,7 +52,7 @@ concurrency:
 
 jobs:
   verify:
-    if: github.event.inputs.target != 'raspberrypi' && github.event.inputs.target != 'pc-diagnostics' && github.event.inputs.target != 'pc-release'
+    if: github.event.inputs.target != 'raspberrypi' && github.event.inputs.target != 'pc-diagnostics' && github.event.inputs.target != 'pc-release' && github.event.inputs.target != 'arm-release'
     name: Yapılandırma ve GTK · ${{ matrix.suite }}
     runs-on: ubuntu-latest
     timeout-minutes: 20
@@ -363,7 +363,7 @@ jobs:
 
   installed-boot:
     name: Firmware → GRUB · ${{ matrix.suite }}
-    if: github.event.inputs.target != 'raspberrypi' && github.event.inputs.target != 'pc-diagnostics' && github.event.inputs.target != 'pc-release'
+    if: github.event.inputs.target != 'raspberrypi' && github.event.inputs.target != 'pc-diagnostics' && github.event.inputs.target != 'pc-release' && github.event.inputs.target != 'arm-release'
     runs-on: ubuntu-latest
     timeout-minutes: 15
     strategy:
@@ -410,7 +410,7 @@ jobs:
   build:
     name: ISO · ${{ matrix.arch }}
     needs: [verify, installed-boot]
-    if: github.event_name != 'pull_request' && github.event.inputs.target != 'raspberrypi' && github.event.inputs.target != 'pc-tests' && github.event.inputs.target != 'pc-diagnostics' && github.event.inputs.target != 'pc-release'
+    if: github.event_name != 'pull_request' && github.event.inputs.target != 'raspberrypi' && github.event.inputs.target != 'pc-tests' && github.event.inputs.target != 'pc-diagnostics' && github.event.inputs.target != 'pc-release' && github.event.inputs.target != 'arm-release'
     runs-on: ubuntu-latest
     timeout-minutes: 120
     strategy:
@@ -633,6 +633,74 @@ jobs:
           if [ "$AUDIT_ONLY" = true ]; then extra+=(--audit); fi
           python3 scripts/ci-run.py --title 'Release imaj aktarımı / denetimi' -- \
             python3 scripts/release-assets.py --run "$SOURCE_RUN" --release-id "$RELEASE_ID" --tag "$RELEASE_TAG" "${extra[@]}"
+
+  arm-release:
+    name: İki yeni ARM imajı → ayrı düzeltme taslağı (derlemez)
+    if: github.event_name == 'workflow_dispatch' && inputs.target == 'arm-release' && inputs.release_audit_only != true
+    runs-on: ubuntu-24.04
+    timeout-minutes: 50
+    permissions:
+      contents: write
+      actions: read
+    concurrency:
+      group: oguzdows-release-${{ github.repository }}-${{ inputs.release_id }}
+      cancel-in-progress: false
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+          fetch-depth: 0
+      - name: Salt okunur ARM imaj inceleme araçları
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends python3-yaml xz-utils fdisk e2fsprogs udev
+      - name: Yayın aracı negatif / bütünlük regresyonları
+        run: |
+          python3 scripts/ci-run.py --title 'ARM yayın aracı regresyonu' -- \
+            python3 -W error::ResourceWarning -m unittest discover -s tests -p 'test_release*.py' -v
+      - name: Kaynak sözleşmesi / gerçek hedef görünüm / iç imaj kimliğiyle taslağa aktar
+        env:
+          GH_TOKEN: ${{ github.token }}
+          SOURCE_RUN: ${{ inputs.pi_evidence_run }}
+          RELEASE_TAG: ${{ inputs.release_tag }}
+          RELEASE_ID: ${{ inputs.release_id }}
+        run: |
+          python3 scripts/ci-run.py --title 'ARM düzeltme aktarımı' -- \
+            python3 scripts/release-arm-refresh.py --run "$SOURCE_RUN" --release-id "$RELEASE_ID" --tag "$RELEASE_TAG"
+
+  arm-release-audit:
+    name: ARM taslağı bağımsız yeniden indir / salt okunur doğrula
+    if: github.event_name == 'workflow_dispatch' && inputs.target == 'arm-release' && inputs.release_audit_only == true
+    runs-on: ubuntu-24.04
+    timeout-minutes: 50
+    permissions:
+      contents: read
+      actions: read
+    concurrency:
+      group: oguzdows-release-${{ github.repository }}-${{ inputs.release_id }}
+      cancel-in-progress: false
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+          fetch-depth: 0
+      - name: Salt okunur ARM imaj inceleme araçları
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends python3-yaml xz-utils fdisk e2fsprogs udev
+      - name: Yayın aracı negatif / bütünlük regresyonları
+        run: |
+          python3 scripts/ci-run.py --title 'ARM bağımsız denetim regresyonu' -- \
+            python3 -W error::ResourceWarning -m unittest discover -s tests -p 'test_release*.py' -v
+      - name: Tüm baytları yeniden indir / SHA-256 / iki imajı yeniden salt okunur incele
+        env:
+          GH_TOKEN: ${{ github.token }}
+          SOURCE_RUN: ${{ inputs.pi_evidence_run }}
+          RELEASE_TAG: ${{ inputs.release_tag }}
+          RELEASE_ID: ${{ inputs.release_id }}
+        run: |
+          python3 scripts/ci-run.py --title 'ARM bağımsız yeniden indirme denetimi' -- \
+            python3 scripts/release-arm-refresh.py --audit --run "$SOURCE_RUN" --release-id "$RELEASE_ID" --tag "$RELEASE_TAG"
 
   raspberrypi:
     name: Raspberry Pi
