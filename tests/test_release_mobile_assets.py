@@ -1,6 +1,7 @@
 """Synthetic fail-closed Akıncı publishing regressions; never real APK/boot evidence."""
 import contextlib
 import copy
+import gzip
 import hashlib
 import io
 import json
@@ -146,10 +147,14 @@ class MobileReleaseAssetsTests(unittest.TestCase):
             with self.subTest(name=name), tempfile.TemporaryDirectory() as tmp:
                 path = Path(tmp) / 'bad.tar.gz'
                 # Header-only giant member is enough: validator must reject before reading it.
-                with tarfile.open(path, 'w:gz') as archive:
-                    info = tarfile.TarInfo(name); info.type = kind; info.size = size
-                    if size > len(content): archive.addfile(info)
-                    else: archive.addfile(info, io.BytesIO(content))
+                info = tarfile.TarInfo(name); info.type = kind; info.size = size
+                if size > len(content):
+                    # Python 3.13 correctly refuses addfile(size>0, fileobj=None).
+                    # A deliberately truncated header fixture tests our early size gate
+                    # without allocating/writing 16 MiB or depending on the old writer bug.
+                    with gzip.open(path, 'wb') as raw: raw.write(info.tobuf())
+                else:
+                    with tarfile.open(path, 'w:gz') as archive: archive.addfile(info, io.BytesIO(content))
                 with self.assertRaises((ValueError, tarfile.ReadError)):
                     release.validate_web_bundle(path, REVISION, 'SOURCE_SHA=' + REVISION + '\nDEBUG\n')
 

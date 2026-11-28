@@ -41,7 +41,8 @@ permissions:
   contents: read
 
 concurrency:
-  group: oguzdows-pi-${{ github.ref }}-${{ inputs.architecture || 'both' }}
+  # Same-source duplicates queue; a new source never cancels or blocks an older image build.
+  group: oguzdows-pi-${{ github.ref }}-${{ github.sha }}-${{ inputs.architecture || 'both' }}
   cancel-in-progress: false
 
 jobs:
