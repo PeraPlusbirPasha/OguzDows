@@ -83,6 +83,7 @@ def validate_features(root: Path, arch: str) -> None:
                 or not isinstance(locale, dict) or type(locale.get('schema')) is not int or locale['schema'] != 1
                 or locale.get('environment') != {'LANG': 'tr_TR.UTF-8', 'LANGUAGE': 'tr:en', 'LC_ALL': 'tr_TR.UTF-8'}
                 or locale.get('raw_turkish_header') != 'Değer, 2 ögeden oluşan dizidir:'
+                or locale.get('unfixed_reader_header') != 'Değer, 4 ögeden oluşan dizidir:'
                 or locale.get('runners') != ['profiles', 'desktop_runtime', 'wallpapers']
                 or locale.get('typed_arrays') != ['int-array', 'double-array']
                 or any(locale.get(key) is not True for key in ('single_item_array', 'utf8_value_roundtrip',

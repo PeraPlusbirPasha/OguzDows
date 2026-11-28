@@ -127,7 +127,6 @@ def xfconf_locale_check(home):
                 # Control deliberately bypasses the fixed subprocess runners.
                 # It MUST be translated, otherwise this locale test has no coverage.
                 raw = subprocess.run(['xfconf-query', '-c', channel, '-p', '/array'],
-                                     env={**os.environ, 'LC_ALL': 'C.UTF-8'},
                                      check=True, capture_output=True, text=True, timeout=12)
                 if raw.stdout.splitlines()[0] != f'Değer, {len(values)} ögeden oluşan dizidir:':
                     raise ValueError('Gerçek Türkçe Xfconf katalog başlığı etkin değil: ' + repr(raw.stdout))
@@ -141,13 +140,20 @@ def xfconf_locale_check(home):
         def unfixed_runner(command):
             return subprocess.run(command, env={**os.environ, 'LC_ALL': 'C.UTF-8'},
                                   capture_output=True, text=True, check=False, timeout=12)
+        unfixed_header = unfixed_runner(['xfconf-query', '-c', channel, '-p', '/array']).stdout.splitlines()[0]
+        reproduced = False
         try:
-            profiles.read_property(channel, '/array', 'double-array', unfixed_runner)
+            previous_reader = profiles.read_property(channel, '/array', 'double-array', unfixed_runner)
         except ValueError as error:
-            if str(error) != 'Xfce dizi ayarı güvenle okunamadı: /array':
+            if str(error) != 'Xfce dizi ayarı güvenle okunamadı: /array' or unfixed_header != 'Değer, 4 ögeden oluşan dizidir:':
                 raise
+            reproduced = True
         else:
-            raise ValueError('Düzeltme öncesi gerçek Türkçe dizi hatası yeniden üretilemedi.')
+            # Newer libc/gettext may already suppress LANGUAGE for C.UTF-8.
+            # Record this honestly; Bookworm image acceptance requires the
+            # reproduced error separately, not fabricated Trixie coverage.
+            if previous_reader != ['0.125', '0.25', '0.5', '1'] or unfixed_header != 'Value is an array with 4 items:':
+                raise ValueError('Düzeltme öncesi Xfconf kontrol çıktısı beklenmiyor.')
 
         target = ['0.125', '0.25', '0.5', '1']
         if target == original:
@@ -176,7 +182,8 @@ def xfconf_locale_check(home):
         if any(profiles.read_property('xfce4-panel', key, 'int-array', profiles.run) != value for key, value in panels.items()):
             raise ValueError('Tema işlemi kişisel panel / eklenti dizilerini değiştirdi.')
         return {'schema': 1, 'environment': {key: os.environ[key] for key in ('LANG', 'LANGUAGE', 'LC_ALL')},
-                'raw_turkish_header': header, 'unfixed_reader_error_reproduced': True,
+                'raw_turkish_header': header, 'unfixed_reader_error_reproduced': reproduced,
+                'unfixed_reader_header': unfixed_header,
                 'runners': ['profiles', 'desktop_runtime', 'wallpapers'],
                 'typed_arrays': ['int-array', 'double-array'], 'single_item_array': True,
                 'utf8_value_roundtrip': True, 'array_read_write_readback': True,
