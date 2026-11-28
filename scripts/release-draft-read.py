@@ -36,7 +36,13 @@ def snapshot(release):
 
 
 def snapshot_hash(release):
-    return hashlib.sha256(json.dumps(snapshot(release), sort_keys=True, ensure_ascii=True,
+    value = snapshot(release)
+    # GitHub uses /untagged-<20hex>/ in private draft browser routes and replaces
+    # it with the real tag on publication. Bind stable API asset IDs/URLs and all
+    # hashes/sizes instead; validate_snapshot checks the browser route separately.
+    for item in value['assets']:
+        item.pop('browser_download_url')
+    return hashlib.sha256(json.dumps(value, sort_keys=True, ensure_ascii=True,
                                      separators=(',', ':')).encode()).hexdigest()
 
 
@@ -87,15 +93,24 @@ def validate_snapshot(release, *, repository, names):
             or len({item.get('id') for item in assets}) != len(names)):
         raise ValueError('Tam ve benzersiz ARM taslak dosya listesi gerekli.')
     prefix = 'https://api.github.com/repos/' + repository + '/releases/assets/'
+    browser_prefix = 'https://github.com/' + repository + '/releases/download/'
+    route_tag = re.escape(release['tag_name'])
+    if release.get('draft') is True:
+        route_tag = '(?:' + route_tag + '|untagged-[0-9a-f]{20})'
+    route_tags = set()
     for item in assets:
+        browser = item.get('browser_download_url', '')
+        pattern = re.escape(browser_prefix) + '(' + route_tag + ')/' + re.escape(item['name'])
+        match = re.fullmatch(pattern, browser)
         if (type(item.get('id')) is not int or item['id'] <= 0
                 or type(item.get('size')) is not int or item['size'] <= 0
                 or item.get('state') != 'uploaded'
                 or not re.fullmatch('sha256:[0-9a-f]{64}', item.get('digest', ''))
-                or item.get('url') != prefix + str(item['id'])
-                or item.get('browser_download_url') != 'https://github.com/' + repository
-                   + '/releases/download/' + release['tag_name'] + '/' + item['name']):
+                or item.get('url') != prefix + str(item['id']) or not match):
             raise ValueError('Taslak dosya kimliği / hash / API adresi geçersiz.')
+        route_tags.add(match.group(1))
+    if len(route_tags) != 1:
+        raise ValueError('Taslak dosyalarının tarayıcı rotası tek olmalı.')
 
 
 def create_grant(release, path, *, repository, names):

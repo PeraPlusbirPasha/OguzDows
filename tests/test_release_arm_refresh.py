@@ -265,6 +265,22 @@ class DraftReadTests(unittest.TestCase):
             with patch.object(arm.draft_read.time, 'time', return_value=self.NOW + 4000), self.assertRaises(ValueError):
                 arm.draft_read.load_grant(path, repository=REPOSITORY, names={'test.txt'})
 
+    def test_private_draft_untagged_routes_are_allowed_but_not_mistaken_for_published_tag_urls(self):
+        release = self.release()
+        published_hash = arm.draft_read.snapshot_hash(release)
+        item = release['assets'][0]
+        item['browser_download_url'] = item['browser_download_url'].replace('/v2.0-arm1/', '/untagged-8a82a6f2d62045573d67/')
+        arm.draft_read.validate_snapshot(release, repository=REPOSITORY, names={'test.txt'})
+        self.assertEqual(arm.draft_read.snapshot_hash(release), published_hash)
+        for route in ('untagged-wrong', 'v2.0', 'other-tag', 'untagged-8a82a6f2d62045573d67/escape'):
+            bad = self.release()
+            bad['assets'][0]['browser_download_url'] = item['browser_download_url'].replace('untagged-8a82a6f2d62045573d67', route)
+            with self.subTest(route=route), self.assertRaises(ValueError):
+                arm.draft_read.validate_snapshot(bad, repository=REPOSITORY, names={'test.txt'})
+        release['draft'] = False
+        with self.assertRaises(ValueError):
+            arm.draft_read.validate_snapshot(release, repository=REPOSITORY, names={'test.txt'})
+
     def test_only_github_asset_origin_read_permission_and_short_future_expiry_are_allowed(self):
         self.assertEqual(arm.draft_read.signed_url_expiry(self.url(), self.NOW), self.NOW + 1800)
         for url in (self.url(host='evil.example'), self.url(host='release-assets.githubusercontent.com.evil.example'),
