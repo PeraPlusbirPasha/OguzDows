@@ -163,11 +163,17 @@ public final class InstallReviewActivity extends Activity {
         runOnUiThread(() -> {
             busy = false; if (isDestroyed() || isFinishing()) return;
             packageName = info.packageName; version = info.getLongVersionCode(); signer = cert;
-            AlertDialog.Builder dialog = new AlertDialog.Builder(this).setTitle("APK · incelenen özel kopya").setMessage(details).setNegativeButton("Vazgeç", null);
+            // Cancelling the review is a completed user decision: return to the caller,
+            // rather than leaving an empty review Activity and requiring a second Back.
+            // Dialog Back/outside cancellation and the explicit button have the same effect.
+            AlertDialog.Builder dialog = new AlertDialog.Builder(this).setTitle("APK · incelenen özel kopya").setMessage(details)
+                .setNegativeButton("Vazgeç", (d, w) -> cancelReview())
+                .setOnCancelListener(d -> cancelReview());
             if (compatible) dialog.setPositiveButton("Sistem yükleyicisine geç", (d, w) -> install(file));
             dialog.show();
         });
     }
+    private void cancelReview() { setResult(RESULT_CANCELED); finish(); }
     private static String certificate(PackageInfo info) throws Exception {
         if (info.signingInfo == null) return "okunamadı";
         Signature[] signers = info.signingInfo.getApkContentsSigners();

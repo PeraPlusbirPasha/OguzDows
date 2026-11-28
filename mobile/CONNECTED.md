@@ -222,6 +222,27 @@ başarı kanıtı yerine geçmez. Davet/sır dosyaları raporlara alınmaz.
   üç iptal/geri dönüş/kurulmama ve son sistem yükleyicisi onayı korunur. Zaman
   aşımı tanısı artık test temizliğinden **önce** gerçek ön plan/görev/odak bilgisi
   toplar. Sonraki koşu görülmeden tam kabul veya kalıcı ANR çözümü iddia edilmez.
+- [`6584261` / 46086643269](https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/46086643269):
+  **20 JVM, 4/4 bağlı kabuk, iki bağımsız TLS makbuzu ve canlı kaynak tekrar geçti;
+  genel sonuç yine 12/15 seçim, kabul/paket yok.** [SDK](android/evidence/sdk-6584261.json)
+  · [cihaz ve temizlemeden önceki gerçek odak kaydı](android/evidence/emulator-6584261.json).
+  `NEW_TASK` kaldırılması tek başına dönüşü sağlamadı. Yeni tanı tam olarak
+  `InstallReviewActivity`, görev 23, `root=false`, `focus=true` ve inceleme diyaloğu
+  yerine temel inceleme düğmelerini gösterdi; özgün WebView önde değildi. Üç döngü
+  ve final yükleme tamamlanmadığından fixture'a bağlı launcher/projection vakaları
+  yine başarısızdı. Ürün ANR/çökmesi görülmedi, fakat PID 5632 ana iş parçacığında
+  **2187 ms `nSyncAndDrawFrame` beklemesi** örneklendi; kalıcı çözüm veya native
+  RenderThread kök nedeni kanıtı sayılmaz. Aynı kaynakta yerel bağımlılıklı Python
+  ortamıyla 727 vaka (718 başarılı / 9 ortam atlaması) ve mobil 31 sözleşme geçti;
+  sistem Python'unda eksik bağımlılıkla yapılan ilk deneme kabul sayılmadı.
+  Yeni ürün davranışı incelemeyi **Vazgeç veya görünür diyalogda sistem Geri** ile
+  iptal edince `RESULT_CANCELED` ile bitirip çağırana döner; boş inceleme sayfasında
+  ikinci bir Geri gerektirmez. Test üç zorunlu döngüde iki düğme iptalini ve bir
+  gerçek sistem Geri iptalini uygular; her seferinde eski inceleme örneğinin
+  yıkılmasını, **aynı özgün HomeActivity'nin gerçek pencere odağını** ve kurulmama
+  koşulunu ister. Test içinden `finish()`, yeniden başlatma, ikinci Geri, tekrar
+  deneme veya son yükleyici onayını atlama yoktur. Bu yeni davranış henüz tam cihaz
+  koşusuyla doğrulanmadı; yeni tek-kaynaklı 24-vaka kabulü zorunludur.
 - [`18034bb` masaüstü / 46076502634](https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/46076502634):
   Debian bookworm/trixie üzerinde **1024×768 ve 360×800: dört gerçek GTK köprü
   koşusu geçti**. Gerçek düğme/dosya/loopback TLS/GDK kareleri sınandı. Üretimin

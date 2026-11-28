@@ -275,16 +275,21 @@ public final class NativeDeviceTest {
         tap("Görüşmeyi bitir");
         waitFor("real call removal/disconnection", 15000, this::callEnded);
     }
-    private void assertPlainReviewHasNoGpuWindow() {
+    private InstallReviewActivity assertPlainReviewHasNoGpuWindow() {
+        AtomicReference<InstallReviewActivity> resumed = new AtomicReference<>();
         AtomicReference<Boolean> accelerated = new AtomicReference<>();
         instrumentation.runOnMainSync(() -> {
             for (android.app.Activity activity : androidx.test.runner.lifecycle.ActivityLifecycleMonitorRegistry.getInstance()
                 .getActivitiesInStage(androidx.test.runner.lifecycle.Stage.RESUMED)) {
-                if (activity instanceof InstallReviewActivity)
+                if (activity instanceof InstallReviewActivity) {
+                    resumed.set((InstallReviewActivity) activity);
                     accelerated.set(activity.getWindow().getDecorView().isHardwareAccelerated());
+                }
             }
         });
+        assertNotNull("a real review Activity must be resumed", resumed.get());
         assertEquals("the actual resumed review is plain 2D, not a new GPU window", Boolean.FALSE, accelerated.get());
+        return resumed.get();
     }
     @Test public void localApkReviewCancelAndSystemInstall() throws Exception {
         home(); // Start review from a visible activity, not an API-35 background-activity-launch exception.
@@ -307,17 +312,18 @@ public final class NativeDeviceTest {
                 stalls.phase("HomeActivity -> InstallReviewActivity, required cancel cycle " + (cycle + 1));
                 scenario.onActivity(a -> a.startActivity(review));
                 assertTrue("private APK review ready", device.wait(Until.hasObject(By.text(buttonText("Sistem yükleyicisine geç"))), 25000));
-                assertPlainReviewHasNoGpuWindow();
+                InstallReviewActivity cancelled = assertPlainReviewHasNoGpuWindow();
                 if (cycle == 0) screenshot("native-apk-review");
-                tap("Vazgeç");
-                try { context.getPackageManager().getPackageInfo("org.oguzdows.fixture", 0); fail("review cancellation must not install"); }
-                catch (PackageManager.NameNotFoundException expected) { }
-                stalls.phase("return from cancelled review to HomeActivity, cycle " + (cycle + 1));
-                device.pressBack(); // Finish the review only after its dialog was cancelled.
+                stalls.phase("cancel review and return to original HomeActivity, cycle " + (cycle + 1));
+                // Exercise both real user cancellations. No second Back racing a dismissing
+                // dialog, no test-side finish(), and no relaunch to manufacture HOME focus.
+                if (cycle == 1) device.pressBack(); else tap("Vazgeç");
                 waitFor("original rich UI regains actual window focus", 15000, () -> {
                     AtomicReference<Boolean> focused = new AtomicReference<>(false);
-                    scenario.onActivity(a -> focused.set(a.hasWindowFocus())); return focused.get();
+                    scenario.onActivity(a -> focused.set(cancelled.isDestroyed() && a.hasWindowFocus())); return focused.get();
                 });
+                try { context.getPackageManager().getPackageInfo("org.oguzdows.fixture", 0); fail("review cancellation must not install"); }
+                catch (PackageManager.NameNotFoundException expected) { }
             }
             stalls.phase("HomeActivity -> InstallReviewActivity, final reviewed copy");
             scenario.onActivity(a -> a.startActivity(review));

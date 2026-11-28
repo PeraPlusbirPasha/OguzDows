@@ -136,6 +136,12 @@ class NativeSourceContracts(unittest.TestCase):
         self.assertIsNotNone(review_intent)
         self.assertNotIn('FLAG_ACTIVITY_NEW_TASK', review_intent[1], 'Match the real foreground, in-task handoff')
         self.assertIn('original rich UI regains actual window focus', test)
+        self.assertIn('cancelled.isDestroyed() && a.hasWindowFocus()', test)
+        self.assertIn('if (cycle == 1) device.pressBack()', test)  # Genuine system Back cancels a visible review too.
+        self.assertIn('.setNegativeButton("Vazgeç", (d, w) -> cancelReview())', installer)
+        self.assertIn('.setOnCancelListener(d -> cancelReview())', installer)
+        self.assertIn('setResult(RESULT_CANCELED); finish();', installer)
+        self.assertNotIn('cancelled.finish()', test)  # Instrumentation must use the actual cancellation UI.
         self.assertIn('DeviceDiagnostics.INSTANCE.missing', test)
 
     def test_live_store_anchor_signature_hash_https_and_atomic_rollback_are_mandatory(self):

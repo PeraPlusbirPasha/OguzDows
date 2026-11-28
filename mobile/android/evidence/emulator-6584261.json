@@ -1,0 +1,201 @@
+{
+  "source_sha": "6584261ed92cdb2886a4ef3c7359619ac8f4b6ff",
+  "sdk": "35",
+  "abi": "x86_64",
+  "image_fingerprint": "google/sdk_gphone64_x86_64/emu64xa:15/AE3A.240806.043/12960925:userdebug/dev-keys",
+  "emulator_only": true,
+  "physical_sim_tested": false,
+  "emergency_calls_tested": false,
+  "gms_certification_tested": false,
+  "mms_rcs_supported": false,
+  "tests": [
+    {
+      "name": "NativeDeviceTest.bundledBridgeRolesValidationAndIsolation",
+      "passed": true,
+      "test_cases": 1,
+      "seconds": 23.08
+    },
+    {
+      "name": "NativeDeviceTest.paidActionsRequireFinalNativeConsent",
+      "passed": true,
+      "test_cases": 1,
+      "seconds": 15.96
+    },
+    {
+      "name": "NativeDeviceTest.systemVolumeBrightnessAndNativeThemeAreReal",
+      "passed": true,
+      "test_cases": 1,
+      "seconds": 17.31
+    },
+    {
+      "name": "NativeDeviceTest.incomingSmsUsesTheRealProviderAndRichInbox",
+      "passed": true,
+      "test_cases": 1,
+      "seconds": 13.86
+    },
+    {
+      "name": "NativeDeviceTest.outgoingSmsWaitsForActualSentCallback",
+      "passed": true,
+      "test_cases": 1,
+      "seconds": 10.42
+    },
+    {
+      "name": "NativeDeviceTest.outgoingCallUsesTelecomAndOurInCallService",
+      "passed": true,
+      "test_cases": 1,
+      "seconds": 14.52
+    },
+    {
+      "name": "NativeDeviceTest.incomingCallCanBeAnsweredMutedAndEndedInOurUi",
+      "passed": true,
+      "test_cases": 1,
+      "seconds": 10.79
+    },
+    {
+      "name": "NativeDeviceTest.localApkReviewCancelAndSystemInstall",
+      "passed": false,
+      "test_cases": 0,
+      "seconds": 26.72,
+      "failure": "INSTRUMENTATION_STATUS: stack=java.lang.AssertionError: Missing native UI: Timed out: original rich ",
+      "main_thread_stall": {
+        "process": "org.oguzdows.mobile",
+        "pid": 5632,
+        "phase": "HomeActivity -> InstallReviewActivity, required cancel cycle 1",
+        "main_delay_ms": 2187,
+        "main": "  at android.graphics.HardwareRenderer.nSyncAndDrawFrame(Native Method)\n  at android.graphics.HardwareRenderer.syncAndDrawFrame(HardwareRenderer.java:486)\n  at android.view.ThreadedRenderer.draw(ThreadedRenderer.java:816)\n  at android.view.ViewRootImpl.draw(ViewRootImpl.java:5659)\n  at android.view.ViewRootImpl.performDraw(ViewRootImpl.java:5312)\n  at android.view.ViewRootImpl.performTraversals(ViewRootImpl.java:4303)\n  at android.view.ViewRootImpl.doTraversal(ViewRootImpl.java:2917)\n  at android.view.ViewRootImpl$TraversalRunnable.run(ViewRootImpl.java:10324)\n  at android.view.Choreographer$CallbackRecord.run(Choreographer.java:1406)\n  at android.view.Choreographer$CallbackRecord.run(Choreographer.java:1415)\n  at android.view.Choreographer.doCallbacks(Choreographer.java:1015)\n  at android.view.Choreographer.doFrame(Choreographer.java:945)\n  at android.view.Choreographer$FrameDisplayEventReceiver.run(Choreographer.java:1389)\n  at android.os.Handler.handleCallback(Handler.java:959)\n  at android.os.Handler.dispatchMessage(Handler.java:100)\n  at android.os.Looper.loopOnce(Looper.java:232)\n  at android.os.Looper.loop(Looper.java:317)\n  at android.app.ActivityThread.main(ActivityThread.java:8705)\n  at java.lang.reflect.Method.invoke(Native Method)\n  at com.android.internal.os.RuntimeInit$MethodAndArgsCaller.run(RuntimeInit.java:580)\n  at com.android.internal.os.ZygoteInit.main(ZygoteInit.java:886)\n"
+      },
+      "before_cleanup_ui": {
+        "missing": "Timed out: original rich UI regains actual window focus",
+        "package": "org.oguzdows.mobile",
+        "resumed": [
+          "InstallReviewActivity:720x1600:task=23:root=false:focus=true:action=null"
+        ],
+        "labels": [
+          "12:18",
+          "Önce incele. Sonra karar ver.",
+          "Tek APK · en çok 256 MiB. Split APK/APKS/XAPK, paket deposu, root",
+          "APK dosyası seç",
+          "Seçili kopyayı yeniden incele",
+          "Geri"
+        ],
+        "resource_ids": [
+          "com.android.systemui:id/container",
+          "com.android.systemui:id/status_bar_launch_animation_container",
+          "com.android.systemui:id/status_bar_container",
+          "com.android.systemui:id/status_bar",
+          "com.android.systemui:id/status_bar_contents",
+          "com.android.systemui:id/status_bar_start_side_container",
+          "com.android.systemui:id/status_bar_start_side_content",
+          "com.android.systemui:id/status_bar_start_side_except_heads_up",
+          "com.android.systemui:id/clock",
+          "com.android.systemui:id/notification_icon_area",
+          "com.android.systemui:id/notificationIcons",
+          "com.android.systemui:id/status_bar_end_side_container",
+          "com.android.systemui:id/status_bar_end_side_content",
+          "com.android.systemui:id/system_icons",
+          "com.android.systemui:id/statusIcons",
+          "com.android.systemui:id/wifi_combo",
+          "com.android.systemui:id/wifi_group",
+          "com.android.systemui:id/wifi_signal",
+          "com.android.systemui:id/mobile_combo",
+          "com.android.systemui:id/mobile_group",
+          "com.android.systemui:id/mobile_signal",
+          "com.android.systemui:id/battery",
+          "android:id/content"
+        ]
+      }
+    },
+    {
+      "name": "LauncherDeviceTest.suite",
+      "passed": false,
+      "test_cases": 0,
+      "seconds": 91.56,
+      "failure": "INSTRUMENTATION_STATUS: stack=java.lang.AssertionError: fixture was genuinely installed by prior ins"
+    },
+    {
+      "name": "ConnectedDeviceTest.suite",
+      "passed": true,
+      "test_cases": 4,
+      "seconds": 56.24
+    },
+    {
+      "name": "BridgeDeviceTest.nativeTls",
+      "passed": true,
+      "test_cases": 1,
+      "seconds": 2.71
+    },
+    {
+      "name": "BridgeDeviceTest.pcArmInterop",
+      "passed": true,
+      "test_cases": 1,
+      "seconds": 7.2
+    },
+    {
+      "name": "BridgeDeviceTest.systemProjection",
+      "passed": false,
+      "test_cases": 0,
+      "seconds": 15.62,
+      "failure": "INSTRUMENTATION_STATUS: stack=java.lang.IllegalArgumentException: Required value was null."
+    },
+    {
+      "name": "RepositorySecurityTest.suite",
+      "passed": true,
+      "test_cases": 3,
+      "seconds": 0.46
+    },
+    {
+      "name": "LiveRepositoryTest.suite",
+      "passed": true,
+      "test_cases": 1,
+      "seconds": 17.34
+    }
+  ],
+  "display": {
+    "pixels": "720x1600",
+    "density": 280,
+    "gpu": "headless SwiftShader"
+  },
+  "preflight": {
+    "sim_state": "LOADED",
+    "default_sms_subscription_setting": 1,
+    "active_default_network": 100,
+    "ready": true
+  },
+  "device_bridge": {
+    "protocol": 1,
+    "native_host_python_client": true,
+    "python_host_native_client": true,
+    "files_verified": 4,
+    "pinned_tls": true,
+    "sha256_verified": true,
+    "transport": "QEMU virtual Ethernet + adb forward",
+    "physical_devices": false
+  },
+  "native_device_bridge": {
+    "protocol": 1,
+    "native_host_python_client": true,
+    "python_host_native_client": true,
+    "pinned_tls": true,
+    "sha256_verified": true,
+    "files_verified": 4,
+    "physical_devices": false
+  },
+  "live_repository": {
+    "apps": 5057,
+    "compatible": 5016,
+    "timestamp": 1795648445236,
+    "synced": 1795825308340,
+    "source": "https://f-droid.org/repo"
+  },
+  "live_apk_review": "APK_REVIEW com.beemdevelopment.aegis code=82 sha256=0eecec45de0da3ff1358004b51e2960d9178551643a6ed44f6496ea9ec999c19 bytes=6869856 installed=false",
+  "product_anr_detected": false,
+  "product_crash_detected": false,
+  "passed": false,
+  "acceptance_failure": "Acceptance refused: failed / empty / skipped / wrong native case count: NativeDeviceTest.localApkReviewCancelAndSystemInstall",
+  "github": {
+    "run_url": "https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/46086643269",
+    "job_id": 140797642402,
+    "job_url": "https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/46086643269/job/140797642402",
+    "scope": "12/15 selections passed: Native 7/8, Launcher 1/5 internally (failed suite reports 0), Connected 4/4, Bridge 2/3, repository security 3/3 and live repository 1/1. Removing the test-only NEW_TASK did not restore original rich-UI focus after cancellation. Pre-cleanup diagnostics now prove the plain InstallReviewActivity was still resumed, non-root in task 23 and focused, with its base controls visible and no review dialog. The required cycles/final install were incomplete, so fixture-dependent launcher/projection cases failed. The product main-thread observer also sampled a 2187ms HWUI nSyncAndDrawFrame stall; this is not a native RenderThread root-cause trace or ANR waiver. No Android product ANR/crash was detected in this run; permanent resolution is not proved. Both independent four-file TLS receipts matched. No real-capture receipt, complete 24-case acceptance or distribution package."
+  }
+}
