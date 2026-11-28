@@ -31,6 +31,17 @@ Aynı Ay Yıldız kimliği, Türkçe Xfce/X11 masaüstü, net pencere/panel dü�
 - **arm64**: ARMv8 kullanıcı alanı; resmî `v8` ve Pi 5'e özgü **`2712`** çekirdekleri. Pi 5'in özel çekirdeği/16 KiB sayfa optimizasyonu korunur; bütün kartlara tek `kernel8.img` zorlanmaz. Eski Zero / Pi 1 / erken Pi 2'de açılmaz.
 - Compute Module türevleri ve Pi 500 gibi aynı SoC ailesindeki ek modellerin firmware desteği üreticiden gelir; taşıyıcı kart, eMMC/rpiboot, ekran ve çevre birimleri ayrıca doğrulanmalıdır. Bu tabloda doğrulanmış yeni kartlar gibi sunulmazlar.
 
+### ARM'de tema / duvar kâğıdı değişmiyorsa
+
+[Yayın sonrası kaynak düzeltmesi ve kısa teşhis adımları](../docs/ARM-GORUNUM-TESHIS.md):
+eski monitör anahtarına yazıp “uygulandı” denmesine yol açan galeri hatası
+ARM64 Xfce testlerinde yeniden üretildi ve kaynakta düzeltildi. Etkin çıkış,
+gerçek ekran/çalışma alanı sayısı ve GPU gerektirmeyen GDK fallback'i ayrı
+sınanır. Tema için cihazın gerçek hata çıktısı ayrıca gerekir; ağır efektlerin
+kapalı olması, açık/koyu tema ve statik duvar kâğıdının çalışmamasını açıklamaz.
+**Bu değişiklik yayımlanmış v2.0 imajlarını veya kurulu cihazı güncellemez.**
+Fiziksel kart / ARMv6 GUI başarısı iddiası yoktur; yayın kayıtları korunur.
+
 ### “Aynı özellikler” ve donanım sınırları
 
 Ortak masaüstü/uygulama listesi iki PC imajıyla paylaşılır: LibreOffice Writer/Calc/Impress, VLC, dosya yöneticisi, ağ/Bluetooth/ses, temalar ve galeri korunur. Web başlatıcısı armhf'de NetSurf GTK, arm64'te kaynak bütçesine göre NetSurf / kurulu Türkçe Firefox ESR kullanır; armhf için Firefox zorunlu değildir. Pi'ye GPIO/I2C/SPI kitaplıkları ve kamera komut satırı araçları da eklenir. Kamera/HAT arabirimleri kullanıcı istemeden zorla etkinleştirilmez.
