@@ -3,7 +3,8 @@
 
 Paket kurmaz, sistem servisi veya uygulama motoru başlatmaz. Geçici non-root Xfce
 oturumu açıp kapatır; LightDM/PAM ve fiziksel GPU açılışını sınamaz. Ürün
-özelliklerinin varlığını/hash'ini ölçer; uygulama işlemi/performansı sayılmaz.
+özelliklerinin varlığını/hash'ini ve hedefte tema/duvar kâğıdı işlemlerini ölçer;
+genel uygulama işlemi veya performans kabulü sayılmaz.
 """
 from __future__ import annotations
 

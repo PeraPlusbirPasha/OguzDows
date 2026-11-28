@@ -431,6 +431,16 @@ class PiImageValidationTests(unittest.TestCase):
                                   'scope': 'non-root-Xfce-on-host-Xvfb', 'x11_window_manager': 'Xfwm4',
                                   'xfwm4': True, 'xfce4-panel': True, 'xfdesktop': True,
                                   'lightdm_pam': False, 'physical_boot': False, 'performance_measurement': False}
+        # Deliberately fabricated structural input, NEVER runtime evidence.
+        report['full_session']['appearance'] = {
+            'schema': 1, 'scope': 'target-user-QEMU-real-Xfce-appearance',
+            'gtk3_dark_light_reloaded': True,
+            'gtk_themes': {'dark': 'OguzDowsUser-' + 'a' * 16, 'light': 'OguzDowsLightUser-' + 'b' * 16},
+            'wallpaper_ids': ['test-only-one', 'test-only-two'],
+            'wallpaper_pixel_sha256': ['a' * 64, 'b' * 64],
+            'wallpaper_pixels_changed': True, 'settings_backend_mocked': False,
+            'packaged_wallpapers': True, 'welcome_callbacks_tested': False,
+            'gtk4_portal_tested': False, 'physical_device': False, 'performance_measurement': False}
         report['full_session']['news'] = {'native_process_alive': True, 'worker_exited': True, 'cached_fixture_preserved': True,
                                           'network_tested': False, 'performance_measurement': False, 'window_pixels_verified': False}
         if arch == 'armhf':
@@ -532,6 +542,39 @@ class PiImageValidationTests(unittest.TestCase):
                 path.write_text(json.dumps(report))
                 with self.assertRaisesRegex(ValueError, 'oturum|NetSurf'):
                     verify.validate(root, 'armhf')
+
+    def test_new_export_requires_real_target_appearance_receipt_and_rejects_inflation(self):
+        changes = ({'gtk3_dark_light_reloaded': False}, {'wallpaper_pixels_changed': False},
+                   {'settings_backend_mocked': True}, {'packaged_wallpapers': False},
+                   {'welcome_callbacks_tested': True}, {'gtk4_portal_tested': True},
+                   {'physical_device': True}, {'performance_measurement': True}, {'schema': True},
+                   {'scope': 'host-gui-only'}, {'gtk_themes': {}}, {'gtk_themes': None},
+                   {'gtk_themes': {'dark': 'same', 'light': 'same'}},
+                   {'wallpaper_ids': ['duplicate', 'duplicate']}, {'wallpaper_ids': ['one']},
+                   {'wallpaper_pixel_sha256': ['a' * 64, 'a' * 64]}, {'wallpaper_pixel_sha256': ['invalid']})
+        for arch in ('armhf', 'arm64'):
+            with self.subTest(arch=arch), tempfile.TemporaryDirectory() as directory, patch('sys.stdout', io.StringIO()):
+                root = self.fixture(directory, arch)
+                path = root / 'usr/share/oguzdows/pi-build-report.json'
+                report = json.loads(path.read_text())
+                original = report['full_session']['appearance']
+                for change in (None, [], *({**original, **change} for change in changes)):
+                    with self.subTest(change=change):
+                        report['full_session']['appearance'] = change
+                        path.write_text(json.dumps(report))
+                        with self.assertRaisesRegex(ValueError, 'görünüm işlemi'):
+                            verify.validate(root, arch)
+                report['full_session'].pop('appearance')
+                path.write_text(json.dumps(report))
+                with self.assertRaisesRegex(ValueError, 'görünüm işlemi'):
+                    verify.validate(root, arch)
+                # Historical contracts explicitly lacked this new transaction
+                # gate. Read-only audits must not falsify old publication proof.
+                contract_path = root / 'usr/share/oguzdows/pi-contract.json'
+                contract = json.loads(contract_path.read_text())
+                self.assertEqual(contract.pop('appearance_runtime_schema'), 1)
+                contract_path.write_text(json.dumps(contract))
+                verify.validate(root, arch)
 
     def test_export_rechecks_catalog_and_never_imports_the_images_python_module(self):
         with tempfile.TemporaryDirectory() as directory:

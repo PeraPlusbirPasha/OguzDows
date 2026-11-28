@@ -7,6 +7,7 @@ Yalnızca /run/oguzdows-ci.* altında özel Xauthority ve D-Bus ile çalışır.
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 import os
 import shutil
@@ -91,6 +92,124 @@ def news_fixture_check(prefix, home, log):
             process.wait(timeout=10)
 
 
+def appearance_check(home):
+    """Installed target code -> real XSettings and packaged wallpaper pixels.
+
+    No backend or resource-policy mocks. This is the temporary target ARM
+    user/QEMU session, not a physical Pi or the Welcome UI callback test.
+    """
+    private_home(home)
+    if os.geteuid() == 0 or not os.environ.get('DBUS_SESSION_BUS_ADDRESS'):
+        raise ValueError('Görünüm testi özel normal kullanıcı oturumunu gerektirir.')
+    sys.path.insert(0, '/usr/lib/oguzdows')
+    import gi
+    gi.require_version('Gtk', '3.0'); gi.require_version('Gdk', '3.0')
+    from gi.repository import Gdk, Gtk
+    import desktop_preferences as preferences
+    import desktop_state as state
+    import profiles
+    import wallpapers
+
+    def pump():
+        for _ in range(100):
+            if not Gtk.events_pending(): break
+            Gtk.main_iteration_do(False)
+        time.sleep(.04)
+
+    # First-login migration must finish; never remove its lock or race it by
+    # resetting user configuration. The native accent observer stays enabled.
+    deadline = time.monotonic() + 120
+    while any(names & {'session.sh', 'wallpapers.py', '--effects-session'}
+              for names in owned_processes(home).values()):
+        if time.monotonic() >= deadline:
+            raise ValueError('İlk giriş görünüm işçisi tamamlanmadı.')
+        pump()
+
+    def apply(changes):
+        deadline = time.monotonic() + 90
+        while True:
+            try:
+                return preferences.update_and_apply(changes)
+            except RuntimeError as error:
+                if (str(error) not in ('Başka bir masaüstü işlemi devam ediyor.', 'Başka bir görünüm işlemi devam ediyor.')
+                        or time.monotonic() >= deadline):
+                    raise
+                pump()
+
+    themes = {}
+    for mode in ('dark', 'light'):
+        apply({'appearance': mode})
+        theme = profiles.read_property('xsettings', '/Net/ThemeName', 'string', profiles.run)
+        if not theme or 'User-' not in theme or profiles.read_property('xfwm4', '/general/theme', 'string', profiles.run) != theme:
+            raise ValueError('Hedef GTK / Xfwm tema ayarı eşleşmedi.')
+        deadline = time.monotonic() + 25
+        while Gtk.Settings.get_default().get_property('gtk-theme-name') != theme:
+            if time.monotonic() >= deadline:
+                raise ValueError('Hedef GTK3 açık/koyu temayı yeniden yüklemedi.')
+            pump()
+        if state.load()['appearance'] != mode:
+            raise ValueError('Hedef tema tercihi kaydedilmedi.')
+        themes[mode] = theme
+
+    screen = Gdk.Screen.get_default()
+    root = Gdk.get_default_root_window()
+    # Choose an uncovered patch; a recoloured Welcome window is NOT evidence
+    # that xfdesktop changed. EWMH frame extents include normal decorations.
+    rectangles = [window.get_frame_extents() for window in (screen.get_window_stack() or [])
+                  if window.is_viewable() and window.get_type_hint() != Gdk.WindowTypeHint.DESKTOP]
+    point = next(((x, y) for x in range(4, screen.get_width() - 4, max(1, screen.get_width() // 32))
+                  for y in range(4, screen.get_height() - 4, max(1, screen.get_height() // 32))
+                  if not any(x + 4 > r.x and x < r.x + r.width and y + 4 > r.y and y < r.y + r.height
+                             for r in rectangles)), None)
+    if point is None:
+        raise ValueError('Duvar kâğıdı pikselleri için örtülmemiş masaüstü alanı yok.')
+
+    def signature():
+        Gdk.Display.get_default().sync()
+        # Fail rather than count a popup/notification repaint as wallpaper.
+        x, y = point
+        if any(window.is_viewable() and window.get_type_hint() != Gdk.WindowTypeHint.DESKTOP
+               and (r := window.get_frame_extents()).x < x + 4 and r.x + r.width > x
+               and r.y < y + 4 and r.y + r.height > y for window in (screen.get_window_stack() or [])):
+            raise ValueError('Test edilen masaüstü alanını başka bir pencere örttü.')
+        frame = Gdk.pixbuf_get_from_window(root, *point, 4, 4)
+        if frame is None:
+            raise ValueError('Hedef masaüstü pikselleri okunamadı.')
+        return hashlib.sha256(frame.get_pixels()).hexdigest()
+
+    entries = wallpapers.catalog()
+    if len(entries) < 2:
+        raise ValueError('En az iki gerçek paketlenmiş duvar kâğıdı gerekli.')
+    images, signatures = [], []
+    previous = signature()
+    for entry in (entries[1], entries[0]):
+        apply({'wallpaper': entry['id']})
+        deadline = time.monotonic() + 40
+        stable, last = 0, None
+        while True:
+            for _ in range(5): pump()
+            value = signature()
+            stable = stable + 1 if value != previous and value == last else 0
+            last = value
+            if stable >= 3:
+                break
+            if time.monotonic() >= deadline:
+                raise ValueError('Xfconf yazıldı ama hedef xfdesktop pikselleri değişmedi / kararlı olmadı.')
+        previous = value
+        if state.load()['wallpaper'] != entry['id']:
+            raise ValueError('Hedef duvar kâğıdı tercihi kaydedilmedi.')
+        properties = wallpapers.xfce_properties()
+        if not properties or any(profiles.read_property('xfce4-desktop', key, 'string', profiles.run) != entry['path'] for key in properties):
+            raise ValueError('Hedef duvar kâğıdı ayarları geri okunarak doğrulanamadı.')
+        images.append(entry['id']); signatures.append(value)
+    return {'schema': 1, 'scope': 'target-user-QEMU-real-Xfce-appearance',
+            'gtk3_dark_light_reloaded': True, 'gtk_themes': themes, 'wallpaper_ids': images,
+            'wallpaper_pixel_sha256': signatures, 'wallpaper_pixels_changed': True,
+            'settings_backend_mocked': False, 'packaged_wallpapers': True,
+            'welcome_callbacks_tested': False, 'gtk4_portal_tested': False,
+            'physical_device': False, 'performance_measurement': False}
+
+
 def session_child(output, cpu):
     home = private_home(os.environ.get('HOME', ''))
     if os.geteuid() == 0 or not os.environ.get('DBUS_SESSION_BUS_ADDRESS') or not os.environ.get('DISPLAY'):
@@ -143,6 +262,7 @@ def session_child(output, cpu):
             if startup.get('uid') != os.getuid():
                 raise ValueError('Ürün giriş işçisi kullanıcı kimliği uyuşmuyor.')
             report['startup_profile'] = startup['profile']
+            report['appearance'] = appearance_check(home)
             report['news'] = news_fixture_check(prefix, home, log)
             if cpu == 'arm1176':
                 # armhf imajında varsayılan başlatıcı gerçekten NetSurf'ü
@@ -210,6 +330,7 @@ def run_nonroot_session(cpu):
            'HOME': str(home), 'USER': 'nobody', 'LOGNAME': 'nobody',
            'DISPLAY': os.environ['DISPLAY'], 'XAUTHORITY': str(directory / 'Xauthority'),
            'XDG_RUNTIME_DIR': str(directory / 'runtime'),
+           'XDG_CURRENT_DESKTOP': 'XFCE', 'XDG_SESSION_TYPE': 'x11', 'GDK_BACKEND': 'x11',
            'GSETTINGS_BACKEND': 'memory', 'NO_AT_BRIDGE': '1', 'QEMU_CPU': cpu,
            'DBUS_SYSTEM_BUS_ADDRESS': 'unix:path=' + str(directory / 'no-system-bus')}
     prefix = ['/tmp/oguzdows-qemu-static', '-cpu', cpu]
@@ -218,7 +339,7 @@ def run_nonroot_session(cpu):
                '--cpu', cpu, '--output', str(directory / 'session.json')]
     try:
         with (directory / 'runner.log').open('w') as log:
-            subprocess.run(command, env=env, stdout=log, stderr=subprocess.STDOUT, check=True, timeout=240)
+            subprocess.run(command, env=env, stdout=log, stderr=subprocess.STDOUT, check=True, timeout=480)
         result = json.loads((directory / 'session.json').read_text())
         if result.get('errors') or result.get('uid') != 65534 or any(result.get(name) is not True for name in PROCESSES):
             raise ValueError('Root olmayan oturum kapısı başarısız: ' + str(result))

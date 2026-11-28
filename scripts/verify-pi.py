@@ -53,6 +53,27 @@ def validate_features(root: Path, arch: str) -> None:
             or any(session.get(name) is not True for name in ('xfwm4', 'xfce4-panel', 'xfdesktop'))
             or any(session.get(name) is not False for name in ('lightdm_pam', 'physical_boot', 'performance_measurement'))):
         raise ValueError('Pi root olmayan TAM Xfce oturum raporu eksik / başarısız; --version yeterli değildir.')
+    # Old published contracts remain readable. New ARM-refresh contracts
+    # explicitly require actual target appearance operations, not file counts.
+    if 'appearance_runtime_schema' in contract:
+        appearance = session.get('appearance', {})
+        if (type(contract['appearance_runtime_schema']) is not int or contract['appearance_runtime_schema'] != 1
+                or not isinstance(appearance, dict) or type(appearance.get('schema')) is not int or appearance['schema'] != 1
+                or appearance.get('scope') != 'target-user-QEMU-real-Xfce-appearance'
+                or any(appearance.get(key) is not True for key in ('gtk3_dark_light_reloaded', 'wallpaper_pixels_changed', 'packaged_wallpapers'))
+                or any(appearance.get(key) is not False for key in ('settings_backend_mocked', 'welcome_callbacks_tested',
+                           'gtk4_portal_tested', 'physical_device', 'performance_measurement'))
+                or not isinstance(appearance.get('gtk_themes'), dict) or set(appearance['gtk_themes']) != {'dark', 'light'}
+                or any(not isinstance(value, str) or not re.fullmatch(r'OguzDows[A-Za-z0-9]*User-[0-9a-f]{16}', value)
+                       for value in appearance['gtk_themes'].values())
+                or appearance['gtk_themes']['dark'] == appearance['gtk_themes']['light']
+                or not isinstance(appearance.get('wallpaper_ids'), list) or len(appearance['wallpaper_ids']) != 2
+                or any(not isinstance(value, str) or not re.fullmatch('[a-z0-9-]{1,80}', value) for value in appearance['wallpaper_ids'])
+                or len(set(appearance['wallpaper_ids'])) != 2
+                or not isinstance(appearance.get('wallpaper_pixel_sha256'), list) or len(appearance['wallpaper_pixel_sha256']) != 2
+                or any(not isinstance(value, str) or not re.fullmatch('[0-9a-f]{64}', value) for value in appearance['wallpaper_pixel_sha256'])
+                or len(set(appearance['wallpaper_pixel_sha256'])) != 2):
+            raise ValueError('Pi gerçek hedef tema / duvar kâğıdı görünüm işlemi kanıtı eksik veya başarısız.')
     if session.get('news') != {'native_process_alive': True, 'worker_exited': True, 'cached_fixture_preserved': True,
                               'network_tested': False, 'performance_measurement': False, 'window_pixels_verified': False}:
         raise ValueError('Pi C Haber / offline fixture / kısa ömürlü işçi testi eksik veya başarısız.')
