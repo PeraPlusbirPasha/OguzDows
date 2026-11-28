@@ -2,9 +2,9 @@
 
 ## Durum ve yayın sınırı
 
-Düzeltme, ayrı **[2.0 Akıncı · ARM düzeltmesi 1](https://github.com/PeraPlusbirPasha/OguzDows/releases/tag/v2.0-arm1)**
-armhf/arm64 imajlarında yayımlandı; imaj kaynağı **`c5063ee8b558cb6c8af8301143cf3ce02106e2aa`**.
-[Yeni ARM yayın kaydı](releases/v2.0-arm1-release.json), gerçek indirme
+Düzeltme, ayrı **[2.0 Akıncı · ARM düzeltmesi 2](https://github.com/PeraPlusbirPasha/OguzDows/releases/tag/v2.0-arm2)**
+armhf/arm64 imajlarında yayımlandı; imaj kaynağı **`6ec8f55054e8eddde7fb0e74d62c4332a2cd7e35`**.
+[Yeni ARM yayın kaydı](releases/v2.0-arm2-release.json), gerçek indirme
 boyutlarını, SHA-256’ları, kaynak koşusunu ve bağımsız denetimi bağlar.
 **Mevcut SD/USB kartlar otomatik güncellenmez; fiziksel Pi düzelmiş sayılmaz.**
 
@@ -13,7 +13,19 @@ dosyaları değiştirilmedi; bu düzeltmeler o eski dosyalarda yoktur.
 Etiket, SHA-256 listesi ve [özgün 2.0 yayın kaydı](releases/v2.0-release.json)
 korunur. PC ISO ve mobil APK da özgün 2.0’da kalır.
 
+### Doğrulanan Türkçe Xfconf dizi / tema hatası
+
+**“Tema değiştirilemedi: Xfce dizi ayarı güvenle okunamadı”** hatasının nedeni artık somut olarak doğrulandı. Pi imajı `LANG=tr_TR.UTF-8` ve `LANGUAGE=tr:en` kullanır. Bookworm GNU gettext, yalnız `LC_ALL=C.UTF-8` verilse bile `LANGUAGE` değerini izler: `xfconf-query` İngilizce `Value is an array with 4 items:` yerine **`Değer, 4 ögeden oluşan dizidir:`** döndürür. Tipli yedek güvenle okunamadığından tema işlemi yazmadan durur.
+
+Yeni kod yalnız `xfconf-query` alt süreçlerinde `LANGUAGE=C` kullanır; UTF-8 ve noktalı sayı biçimi korunur. Üst süreç ve GUI/panel komutları Türkçe kalır. Başlık/sayı/uzunluk doğrulamaları, sonlu ondalıklar, tipli ilk yedek, kilitler, geri okuma ve karşılaştırmalı geri alma **gevşetilmez**. Kişisel panel veya `.config` silmek gerekmez.
+
+[Native ARM64 Bookworm + Trixie](https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/46165804788), gerçek Türkçe oturumda üç komut yolunu, tamsayı/ondalık ve tek elemanlı dizileri, Türkçe UTF-8 değerleri, tipli yedeği ve kayıt hatası sonrası gerçek geri almayı sınar. Eski C.UTF-8 hatası Bookworm’da üretilir; Trixie’nin kontrolü zaten İngilizceyse bu ayrıca kaydedilir, olmayan hata üretilmiş sayılmaz. Gerçek Welcome düğmeleri → GTK ve duvar kâğıdı pikselleri de denetlenir. [Yeni Türkçe kanıtı](evidence/arm-xfconf-locale.json); önceki [duvar kâğıdı kanıtı](evidence/arm-appearance.json) yeniden yazılmaz.
+
+Önceki `v2.0-arm1` / `c5063ee` imajları ve özgün v2.0 dosyaları arşivdir; yeni Türkçe kod düzeltmesi onların içinde yoktur. [Önceki ARM yayın kaydı](releases/v2.0-arm1-release.json) korunur.
+
 ### Doğrulanan duvar kâğıdı hatası
+
+Bu önceki, ayrı duvar kâğıdı arızası `v2.0-arm1` içinde onarıldı ve ARM2’de korunur. O ilk testler `LANGUAGE=tr:en` zorlamadığı için yeni Türkçe dizi hatasını dışlamaz.
 
 Xfce'nin `xfce4-desktop` kanalında eski HDMI/monitör kayıtları kalabilir.
 Önceki uygulama, **herhangi bir `last-image` anahtarı bulunca** yalnız bu
@@ -73,25 +85,16 @@ Xfwm tema üretimi ve `xfdesktop` sahte değildir.
 
 Yeni kaynak için kabul koşulu, her iki ARM64 tabanda testin gerçekten geçmesi
 ve kök birim testlerinin yeşil kalmasıdır. Çalıştırma kimlikleri ve JSON
-sonuçları [görünüm test kaydında](evidence/arm-appearance.json) tutulur;
+sonuçları [Türkçe görünüm test kaydında](evidence/arm-xfconf-locale.json) tutulur;
 önceki sürümün kabul kayıtları yeniden yazılmaz.
 
 ## Yeni imajların ayrı hedef görünüm kabulü
 
-[İki mimarili gerçek derleme 46142709227](https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/46142709227)
-ve **[bağımsız yeniden indirme / iç imaj denetimi 46149729927](https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/46149729927)**
-başarıyla tamamlandı. Temiz armhf ve arm64 imajlarında **75 birebir kaynak/varlık
-hash’i**, minimum CPU/ABI ve normal kullanıcı tam Xfce kapısı zorunludur.
-Kurulu üretim kodu, taklit edilmemiş ayar arka ucu ve gerçek kaynak politikasıyla
-açık/koyu GTK3’ü yeniden yükler; iki gerçek paketlenmiş duvar kâğıdının seçim
-kaydı/xfconf geri okumasını ve örtülmemiş kararlı masaüstü piksellerinin değişmesini
-sınar. Aktarım ve ayrı salt-okunur runner bu raporu imajın gömülü raporuyla ve
-beklenen kaynak sözleşmesiyle karşılaştırdı.
+[İki mimarili gerçek derleme 46165807516](https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/46165807516) ve **[bağımsız yeniden indirme / iç imaj denetimi 46172590331](https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/46172590331)** başarıyla tamamlandı. Temiz armhf/ARM1176 ve arm64/Cortex-A53 imajlarında **75 birebir kaynak/varlık hash’i**, minimum CPU/ABI ve normal kullanıcı tam Xfce kapısı zorunludur.
 
-Bu hedef kullanıcı-QEMU + host Xvfb testidir. Yukarıdaki native ARM64
-**Welcome düğmeleri / altı profil** testinden ayrı tutulur; GTK4/portal,
-fiziksel kernel/firmware/LightDM/PAM/GPU/HDMI/SD, tüm uygulamalar veya Pi
-performansı kabulü değildir. **İlk Zero/Zero W siyah ekran bildirimi açıktır.**
+Bu kez hedef ortam açıkça **`LANG=tr_TR.UTF-8`, `LANGUAGE=tr:en`, `LC_ALL=tr_TR.UTF-8`** taşır. Gerçek Türkçe Xfconf başlığı ve eski alt süreç ortamıyla bildirilen hata üretilir; sabitlenmiş üç komut yolunda tipli diziler, UTF-8, ilk yedek, karşılaştırmalı geri alma ve kayıt-hatası geri alması sınanır. Kurulu üretim kodu ve gerçek kaynak politikasıyla açık/koyu GTK3 yeniden yüklenir; iki paketlenmiş duvar kâğıdının seçim/geri okuması ve örtülmemiş kararlı masaüstü pikselleri denetlenir. Aktarım ve ayrı salt-okunur runner bu raporu gömülü rapor ve beklenen kaynak sözleşmesiyle karşılaştırdı.
+
+Bu **hedef kullanıcı-QEMU + host Xvfb** testidir; yukarıdaki native ARM64 **Welcome düğmeleri / altı profil** testinden ayrıdır. GTK4/portal, fiziksel kernel/firmware/LightDM/PAM/GPU/HDMI/SD, tüm uygulamalar veya Pi performansı kabulü değildir. **İlk Zero/Zero W siyah ekran bildirimi açıktır.**
 
 ## Cihazında kolay ve güvenli teşhis
 
@@ -135,6 +138,17 @@ oguzdows-desktop --apply --appearance dark
 Sonuç hata verirse metni aynen, cihaz/imaj/oturum bilgileriyle bildir.
 “Başarılı” yanıtına rağmen görünüm değişmezse bunu da ayrıca belirt;
 config dosyasına yazılmış olması ekrandaki sonuç için tek başına kanıt değildir.
+
+### Eski kurulu imajda tek komutluk geçici yol
+
+Yeni imajı yazmak mevcut kartı kendiliğinden güncellemez. Kalıcı kod düzeltmesini henüz kurmadıysan, yalnız bu kesin Türkçe dizi hatası için normal grafik terminalinde şu **ayar değiştiren** tek komutu kullanabilirsin:
+
+```sh
+LANGUAGE=C oguzdows-desktop --apply --appearance dark
+# Açık görünüm için aynı komutta dark yerine light kullan.
+```
+
+Bu, yalnız o komutun çocuk süreçlerini etkiler; `export` yapmaz, sistem dilini veya kişisel dosyaları silmez. **Kurulu program dosyalarını onarmaz:** eski GUI yeniden açıldığında aynı hata dönebilir. Kalıcı onarımı yeni `v2.0-arm2` imajı içerir. Başka hata çıkarsa bu yöntemi çözüm sayma; tam hata metnini bildir.
 
 ### 3. Karşılayıcıdaki seçim ile uygulama farkı
 

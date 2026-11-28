@@ -1,8 +1,8 @@
 # OğuzDows · Teknik rehber
 
-> **Kaynak / yayın ayrımı:** güncel yayımlanmış imajların [v1.1 indirme ve kanıt kaydı](releases/v1.1.md) ayrıdır. Yeni kaynakta yerel Aero, ortak GNOME / Plasma / Xfce tercihleri ve C/GTK Başlat / canlı grafiklerin [kullanımı ve doğrulama sınırları](YEREL-MASAUSTU.md) için ayrı rehbere bakın. Aşağıdaki eski sürüm bağlantıları tarihsel kayıt olarak korunur.
+> **Güncel paketler:** [PC + APK · 2.0](https://github.com/PeraPlusbirPasha/OguzDows/releases/tag/v2.0) · [Pi · Türkçe tema/dizi düzeltmesi 2](https://github.com/PeraPlusbirPasha/OguzDows/releases/tag/v2.0-arm2). [Tüm güncel indirmeler](https://peraplusbirpasha.github.io/OguzDows/indir/) mimariye özgü doğru dosya ve checksum’a gider. Aşağıdaki 1.0/1.1 bağlantıları **tarihsel teknik kayıttır**; güncel paket sanılmamalıdır. Ortak masaüstünün [kullanım ve doğrulama sınırları](YEREL-MASAUSTU.md) ayrıca açıklanır.
 
-[← Proje vitrini](../README.md) · [İndir](https://github.com/PeraPlusbirPasha/OguzDows/releases/latest)
+[← Proje vitrini](../README.md) · [Güncel indir](https://peraplusbirpasha.github.io/OguzDows/indir/) · [ARM tema teşhisi](ARM-GORUNUM-TESHIS.md)
 
 **Köklerinden güç alır. Özgürce üretir.**
 
@@ -10,7 +10,7 @@ Türkçe, Xfce tabanlı bir canlı masaüstü ve kurulum ISO’su. Ay-yıldız a
 
 > Bu depo ISO **derleme tarifini** içerir. Yeni üretilen her imaj ayrıca sınanır; sanal makine kanıtları bütün fiziksel donanımlar için garanti değildir. Gerçek diske kurmadan önce sanal makinede deneyin ve verilerinizi yedekleyin.
 
-## İndir · OğuzDows 1.0 Ay Yıldız
+## Tarihsel indirme · OğuzDows 1.0 Ay Yıldız
 
 **[v1.0.0 yayını ve Türkçe sürüm notları](https://github.com/PeraPlusbirPasha/OguzDows/releases/tag/v1.0.0)** herkese açıktır; Actions oturumu gerekmez.
 

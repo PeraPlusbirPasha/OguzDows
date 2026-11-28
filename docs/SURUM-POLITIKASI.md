@@ -1,6 +1,6 @@
 # Yayın ve sürümleme politikası
 
-[← Proje vitrini](../README.md) · [Yayınlar](https://github.com/PeraPlusbirPasha/OguzDows/releases)
+[← Proje vitrini](../README.md) · [Güncel indirmeler](https://peraplusbirpasha.github.io/OguzDows/indir/) · [Yayın arşivi](https://github.com/PeraPlusbirPasha/OguzDows/releases)
 
 ## Ana yayın adları
 
@@ -19,7 +19,15 @@ Başarılı [PC 46092345482](https://github.com/PeraPlusbirPasha/OguzDows/action
 
 **OğuzKöprü/1**, PC/Pi/telefon arasında yalnız yerel izinli dosya ve salt ekran bağlantısıdır; uzaktan SMS/Telecom/yükleyici yetkisi veya bulut eşitleme değildir. Fiziksel PC/Pi/telefon/SIM, Pi performansı ve Zero siyah ekranı için tamamlanmamış testler tamamlanmış sayılmaz. Bulut üretken Rıfkı, ses/wake-word ve telefon ROM'u bu yayında tamamlanmadı. İlk iki reddedilmiş aktarım ve meşru test-APK manifest farkına ilişkin bağımsız teşhis [2.0 notlarında](releases/v2.0.md) saklanır; native kabul kapıları gevşetilmedi.
 
-## 2.0 Akıncı · yalnız ARM düzeltmesi 1
+## 2.0 Akıncı · güncel ARM düzeltmesi 2
+
+**[v2.0-arm2](https://github.com/PeraPlusbirPasha/OguzDows/releases/tag/v2.0-arm2)**, Türkçe oturumdaki **“Xfce dizi ayarı güvenle okunamadı”** tema hatasını gideren yeni armhf/arm64 imajlarıdır. Ürün **2.0**, imaj kaynağı/etiket hedefi **`6ec8f55054e8eddde7fb0e74d62c4332a2cd7e35`**. Yalnız `xfconf-query` alt süreçlerinin gettext çıktı dili sabitlenir; Türkçe masaüstü, kişisel paneller ve dizi/yedek/geri alma güvenliği korunur. PC/APK yeniden derlenmez; v2.0’ın Latest işareti, önceki ARM1 ve tüm tarihsel etiket/gövde/dosyalar korunur. [Notlar](releases/v2.0-arm2.md) · [Yayın kaydı](releases/v2.0-arm2-release.json).
+
+[Gerçek iki mimari derleme 46165807516](https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/46165807516), üretimdeki `LANG=tr_TR.UTF-8`, `LANGUAGE=tr:en`, `LC_ALL=tr_TR.UTF-8` ortamıyla gerçek Xfconf dizi/UTF-8/yedek/geri alma, 75 kaynak/varlık hash’i, tam Xfce ve GTK3/duvar kâğıdı piksel kapılarını zorunlu tutar. Ayrı [native ARM64 Welcome kabulü](https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/46165804788) aynı kaynağa bağlıdır. [Aktarım 46171902102](https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/46171902102) ve **[bağımsız salt-okunur denetim 46172590331](https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/46172590331)**, 11 dosyanın tüm baytlarını ve 13 JSON’u yeniden indirip denetledi; iki imajın iç kaynak/sözleşme/Türkçe runtime kanıtını tekrar karşılaştırdı. Yeni SHA-256’lar yalnız ARM2 listesine aittir; eski dosyalar yeniden paketlenmez.
+
+Site/README/Pi rehberindeki güncel indirme ve checksum’lar ARM2’ye geçer. Tarihsel sürüm notları eski kaynak ve dosyalarına sabit kalır; eski yeşil testler Türkçe kabulü diye yeniden etiketlenmez. Fiziksel Pi/LightDM/PAM/GPU/SD/performans, Zero siyahlığı ve mobil CI sorunları açık kalır; mevcut kartlara otomatik yükseltme/flash yapılmaz.
+
+## 2.0 Akıncı · tarihsel ARM düzeltmesi 1
 
 **[v2.0-arm1](https://github.com/PeraPlusbirPasha/OguzDows/releases/tag/v2.0-arm1)**, ürün sürümü **2.0** kalacak şekilde yalnız Raspberry Pi armhf/arm64 imajlarını yeniler. Etiket hedefi/imaj kaynağı **`c5063ee8b558cb6c8af8301143cf3ce02106e2aa`**; PC ISO, mobil APK, özgün v2.0’ın 26 dosyası ve eski v1.2/v1.1/v1.0.0 yayınları değişmez. `v2.0-arm1` sonraki ana sürüm değildir ve özgün v2.0’ın Latest işaretini devralmaz. [Notlar](releases/v2.0-arm1.md) · [Gerçek yayın kaydı](releases/v2.0-arm1-release.json).
 

@@ -5,7 +5,8 @@ on:
     branches: [main, arena/2d796713-o-uzdows]
     paths:
       - "website/**"
-      - "docs/releases/v2.0-arm1-release.json"
+      - "docs/releases/v2.0-arm*-release.json"
+      - "docs/evidence/arm-xfconf-locale.json"
       - "docs/index.html"
       - "docs/404.html"
       - "docs/indir/**"
@@ -21,11 +22,13 @@ on:
       - "docs/.nojekyll"
       - "README.md"
       - "tests/test_website.py"
+      - "tests/test_readme.py"
       - ".github/workflows/website.yml"
   pull_request:
     paths:
       - "website/**"
-      - "docs/releases/v2.0-arm1-release.json"
+      - "docs/releases/v2.0-arm*-release.json"
+      - "docs/evidence/arm-xfconf-locale.json"
       - "docs/index.html"
       - "docs/404.html"
       - "docs/indir/**"
@@ -41,6 +44,7 @@ on:
       - "docs/.nojekyll"
       - "README.md"
       - "tests/test_website.py"
+      - "tests/test_readme.py"
       - ".github/workflows/website.yml"
 
 permissions:

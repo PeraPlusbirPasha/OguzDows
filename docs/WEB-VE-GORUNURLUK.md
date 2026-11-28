@@ -1,6 +1,6 @@
 # OğuzDows 2.0 · Web sitesi ve ücretsiz görünürlük
 
-[← README](../README.md) · [Site](https://peraplusbirpasha.github.io/OguzDows/) · [2.0 yayını](https://github.com/PeraPlusbirPasha/OguzDows/releases/tag/v2.0)
+[← README](../README.md) · [Site](https://peraplusbirpasha.github.io/OguzDows/) · [PC/APK · 2.0](https://github.com/PeraPlusbirPasha/OguzDows/releases/tag/v2.0) · [Pi · ARM düzeltmesi 2](https://github.com/PeraPlusbirPasha/OguzDows/releases/tag/v2.0-arm2)
 
 ## Ne kuruldu?
 
@@ -82,7 +82,7 @@ python3 website/serve.py --host 0.0.0.0 --port 4174
 node --test website/tests/browser.test.mjs
 ```
 
-Görünüm metinleri `website/build.py`, stiller `website/assets/site.css` içindedir. Başlık/description/canonical üretimi ve PC/APK/web download/hash değerleri değişmez `docs/releases/v2.0-release.json` makbuzuna bağlıdır. Yeni Pi imaj/checksum/envanter bağlantıları yalnız yayımlanmış, ayrı denetimi başarılı `docs/releases/v2.0-arm1-release.json` kaydıyla değiştirilir. İki yayının toplam checksum/manifest/kanıt bağlantıları birbirinden ayrıdır; eski 2.0 kaydı yeniden yazılmaz. URL veya sürüm değişirse yalnız metin değiştirip bırakma; sitemap, metadata, link ve tarayıcı testlerini de çalıştır.
+Görünüm metinleri `website/build.py`, stiller `website/assets/site.css` içindedir. Başlık/description/canonical üretimi ve PC/APK/web download/hash değerleri değişmez `docs/releases/v2.0-release.json` makbuzuna bağlıdır. Güncel Pi imaj/checksum/envanter bağlantıları yalnız yayımlanmış, ayrı denetimi başarılı `docs/releases/v2.0-arm2-release.json` kaydıyla değiştirilir. ARM2 için gerçek Türkçe Xfconf/geri alma ve aynı kaynaklı native Welcome kanıtı da zorunludur; önceki `v2.0-arm1` imajını yeniden etiketleme reddedilir. Eski ARM1 kaydı ve sürüm notları arşiv olarak değişmez. İki yayının toplam checksum/manifest/kanıt bağlantıları birbirinden ayrıdır; eski 2.0 kaydı yeniden yazılmaz. URL veya sürüm değişirse yalnız metin değiştirip bırakma; sitemap, metadata, link ve tarayıcı testlerini de çalıştır.
 
 Marka kartını isteğe bağlı Pillow + sistem DejaVu fontuyla yeniden üretmek için `website/make-social.py` vardır. JPEG/font/kodlayıcı sürümü çıktıyı değiştirebilir; kart yayın APK/ISO bütünlük kanıtı değildir. Hero’daki Boğaz görseli önceden açıklanmış AI duvar kâğıdı, telefon görseli gerçek kabul edilmiş 2.0 emülatör thumbnail’idir.
 

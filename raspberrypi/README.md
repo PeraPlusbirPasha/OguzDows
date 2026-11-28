@@ -1,10 +1,10 @@
-> **[OğuzDows 2.0 Akıncı · ARM düzeltmesi 1](https://github.com/PeraPlusbirPasha/OguzDows/releases/tag/v2.0-arm1) yayımlandı.** Yeni armhf/arm64 imajları ve toplam 11 dosya ayrı runner’da yeniden indirilip hash’lendi; iki imajın iç sözleşmesi tekrar salt okunur incelendi. [Yeni ARM yayın kaydı](../docs/releases/v2.0-arm1-release.json).
+> **[OğuzDows 2.0 Akıncı · ARM düzeltmesi 2](https://github.com/PeraPlusbirPasha/OguzDows/releases/tag/v2.0-arm2) yayımlandı.** Türkçe “Xfce dizi ayarı güvenle okunamadı” tema hatası giderildi. Yeni armhf/arm64 imajları ve toplam 11 dosya ayrı runner’da yeniden indirilip hash’lendi; iki imajın iç sözleşmesi tekrar salt okunur incelendi. [Yeni ARM yayın kaydı](../docs/releases/v2.0-arm2-release.json).
 
 # OğuzDows · Raspberry Pi portu
 
 Akıncı 2.0 kimliği, Türkçe Xfce/X11 masaüstü, net pencere/panel düğmeleri, Plymouth animasyonu, Pi'ye özel karşılayıcı, doğal yerel Rıfkı rehberi, cihaz merkezi, yerel C/GTK mağaza ve **20 kültür duvar kâğıdı**; Pi'ye özgü çekirdek, boot firmware'i ve güvenli ilk açılış ile. Galeri 16 AI görsel ve 4 özgün çizimden oluşur; yirmi gerçek fotoğraf iddiası değildir.
 
-**[2.0 Akıncı · ARM düzeltmesi 1](https://github.com/PeraPlusbirPasha/OguzDows/releases/tag/v2.0-arm1)** iki yeni imajı içerir: **[armhf](https://github.com/PeraPlusbirPasha/OguzDows/releases/download/v2.0-arm1/OguzDows-rpi-armhf.img.xz)** · [armhf SHA-256](https://github.com/PeraPlusbirPasha/OguzDows/releases/download/v2.0-arm1/OguzDows-rpi-armhf.img.xz.sha256) · **[arm64](https://github.com/PeraPlusbirPasha/OguzDows/releases/download/v2.0-arm1/OguzDows-rpi-arm64.img.xz)** · [arm64 SHA-256](https://github.com/PeraPlusbirPasha/OguzDows/releases/download/v2.0-arm1/OguzDows-rpi-arm64.img.xz.sha256). İmaj kaynağı **`c5063ee8b558cb6c8af8301143cf3ce02106e2aa`**, iç ürün kimliği **2.0 / Akıncı**. Teknik Bookworm/12 tabanı korunur; `--configure-only` imaj değildir. **[Güncel indirme ve test sınırları](../docs/releases/v2.0-arm1.md).**
+**[2.0 Akıncı · ARM düzeltmesi 2](https://github.com/PeraPlusbirPasha/OguzDows/releases/tag/v2.0-arm2)** iki yeni imajı içerir: **[armhf](https://github.com/PeraPlusbirPasha/OguzDows/releases/download/v2.0-arm2/OguzDows-rpi-armhf.img.xz)** · [armhf SHA-256](https://github.com/PeraPlusbirPasha/OguzDows/releases/download/v2.0-arm2/OguzDows-rpi-armhf.img.xz.sha256) · **[arm64](https://github.com/PeraPlusbirPasha/OguzDows/releases/download/v2.0-arm2/OguzDows-rpi-arm64.img.xz)** · [arm64 SHA-256](https://github.com/PeraPlusbirPasha/OguzDows/releases/download/v2.0-arm2/OguzDows-rpi-arm64.img.xz.sha256). İmaj kaynağı **`6ec8f55054e8eddde7fb0e74d62c4332a2cd7e35`**, iç ürün kimliği **2.0 / Akıncı**. Teknik Bookworm/12 tabanı korunur; `--configure-only` imaj değildir. **[Güncel indirme ve test sınırları](../docs/releases/v2.0-arm2.md).**
 
 Özgün [v2.0 PC/APK ve tarihsel Pi dosyaları](https://github.com/PeraPlusbirPasha/OguzDows/releases/tag/v2.0), `5a44de0` kaynağı ve 26 dosyalı [ilk yayın kaydı](../docs/releases/v2.0-release.json) değişmez. Yeni ARM dosyaları eski etiketin üzerine yazılmadı; PC/mobil yeniden derlenmedi.
 
@@ -35,14 +35,9 @@ Akıncı 2.0 kimliği, Türkçe Xfce/X11 masaüstü, net pencere/panel düğmele
 
 ### ARM'de tema / duvar kâğıdı değişmiyorsa
 
-[Yeni ARM imajları ve kısa teşhis adımları](../docs/ARM-GORUNUM-TESHIS.md):
-eski monitör anahtarına yazıp “uygulandı” denmesine yol açan galeri hatası
-ARM64 Xfce testlerinde yeniden üretildi ve kaynakta düzeltildi. Etkin çıkış,
-gerçek ekran/çalışma alanı sayısı ve GPU gerektirmeyen GDK fallback'i ayrı
-sınanır. Tema için cihazın gerçek hata çıktısı ayrıca gerekir; ağır efektlerin
-kapalı olması, açık/koyu tema ve statik duvar kâğıdının çalışmamasını açıklamaz.
-**Düzeltme yeni `v2.0-arm1` imajlarındadır; özgün `v2.0` dosyaları ve kurulu SD kartlar değişmez.**
-Yeni armhf/arm64 hedef kullanıcı-QEMU/Xfce görünüm kapısı geçti; fiziksel kart, LightDM/PAM/GPU/SD veya Pi Zero performans kabulü değildir.
+[Güncel ARM imajları ve güvenli teşhis](../docs/ARM-GORUNUM-TESHIS.md): **“Tema değiştirilemedi: Xfce dizi ayarı güvenle okunamadı”** hatası Bookworm’un Türkçe `LANGUAGE=tr:en` oturumunda gerçekten üretildi. Yalnız `xfconf-query` alt süreçlerinde çıktı dili sabitlendi; masaüstü Türkçe kalır. Dizi uzunluk/tür, tipli yedek, geri okuma ve karşılaştırmalı geri alma kapıları korunur; `.config` veya kişisel paneller silinmez.
+
+Önceki etkin çıkış / eski monitör / GDK fallback duvar kâğıdı onarımı da korunur. **Kalıcı kod düzeltmesi yeni `v2.0-arm2` imajlarındadır; `v2.0-arm1`, özgün `v2.0` ve kurulu SD kartlar değişmez.** Türkçe oturumdaki yeni armhf/arm64 hedef kullanıcı-QEMU/Xfce kapısı ve ayrı native ARM64 Welcome testi geçti; fiziksel kart, LightDM/PAM/GPU/SD veya Pi Zero performans kabulü değildir.
 
 ### “Aynı özellikler” ve donanım sınırları
 
@@ -56,7 +51,7 @@ PC'ye özgü Calamares, BIOS/UEFI/GRUB menüsü, Intel/AMD mikro kodları ve Bro
 
 ## SD / USB'ye yazma ve ilk açılış
 
-1. Yukarıdaki v2.0-arm1 / Akıncı ARM düzeltmesi 1 yayınından kartınıza uygun `OguzDows-rpi-armhf.img.xz` veya `OguzDows-rpi-arm64.img.xz` ile SHA-256 dosyasını indirin. Release dosyası `.img.xz` biçimindedir; ayrıca Actions ZIP’i indirmeniz gerekmez.
+1. Yukarıdaki v2.0-arm2 / Akıncı ARM düzeltmesi 2 yayınından kartınıza uygun `OguzDows-rpi-armhf.img.xz` veya `OguzDows-rpi-arm64.img.xz` ile SHA-256 dosyasını indirin. Release dosyası `.img.xz` biçimindedir; ayrıca Actions ZIP’i indirmeniz gerekmez.
 2. Aynı dizinde `sha256sum -c OguzDows-rpi-armhf.img.xz.sha256` (veya arm64) çalıştırın.
 3. Raspberry Pi Imager'da **özel imaj kullan** ile `.img.xz` dosyasını seçin. Hedefin tüm verileri silinir; doğru SD/USB'yi seçtiğinizi iki kez kontrol edin. En az **16 GB**, tercihen kaliteli **32 GB A1/A2** kart kullanın. Pi 4/5'te desteklenen USB 3 SSD, SD'ye göre daha iyi uygulama deneyimi sağlayabilir.
 4. **Imager'ın kullanıcı/SSH/ileri özelleştirme seçeneklerini uygulamayın.** Bu port kendi hesap adımını kullanır. Mevcut imaj dosyası için Imager'ın kimlik özelleştirme uyumluluğu test edilmemiştir.
@@ -155,13 +150,17 @@ Resmî `RPi-Distro/pi-gen` kaynakları `pi-gen.lock.json` içinde **tam commit +
 
 ## Doğrulama ve testlerin anlamı
 
-### Güncel 2.0 Akıncı · ARM düzeltmesi 1
+### Güncel 2.0 Akıncı · ARM düzeltmesi 2
 
-[46142709227](https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/46142709227), **`c5063ee`** kaynağı: armhf/ARM1176 ve arm64/Cortex-A53 imajları başarıyla tamamlandı. Her iki temiz imajda **13 özellik grubu / 75 birebir kaynak-varlık hash’i**, gerçek hedef Python/ELF/GTK, UID65534 tam Xfce ve beş kararlı örnek, native Haber/çıkan işçi, armhf NetSurf ve özel süreç temizliği kapıları geçti.
+[46165807516](https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/46165807516), **`6ec8f55`** kaynağı: armhf/ARM1176 ve arm64/Cortex-A53 imajları başarıyla tamamlandı. Her iki temiz imajda **13 özellik grubu / 75 birebir kaynak-varlık hash’i**, gerçek hedef Python/ELF/GTK, UID65534 tam Xfce ve beş kararlı örnek, native Haber/çıkan işçi, armhf NetSurf ve özel süreç temizliği kapıları geçti.
 
-Ek zorunlu hedef testi, kurulu üretim kodu ve **taklit edilmemiş** ayar/kaynak bütçesiyle açık/koyu GTK3 canlı yüklemesini, iki gerçek paketlenmiş duvar kâğıdının seçim/xfconf geri okumasını ve örtülmemiş kararlı masaüstü piksellerinin değişmesini denetler. Bu **Welcome düğmesi, GTK4/portal veya fiziksel Pi** testi değildir. Ayrı native ARM64 Welcome/koyu-açık/piksel/stale-monitor/GDK fallback kaydı [buradadır](../docs/evidence/arm-appearance.json).
+Ek zorunlu hedef testi **üretimle aynı Türkçe ortamda** (`LANG=tr_TR.UTF-8`, `LANGUAGE=tr:en`, `LC_ALL=tr_TR.UTF-8`) gerçek Xfconf katalog/dizi/UTF-8/yedek/geri alma denetimlerini yapar. Kasıtlı kayıt hatasından sonra gerçek ayarlar geri alınır; kişisel panel/eklenti dizileri değişmez. Ardından kurulu üretim kodu ve **taklit edilmemiş** ayar/kaynak bütçesiyle açık/koyu GTK3 canlı yüklemesini, iki gerçek paketlenmiş duvar kâğıdının seçim/xfconf geri okumasını ve örtülmemiş kararlı masaüstü piksellerinin değişmesini denetler. Bu **Welcome düğmesi, GTK4/portal veya fiziksel Pi** testi değildir. Ayrı native ARM64 Welcome/koyu-açık/piksel/stale-monitor/GDK fallback kaydı [buradadır](../docs/evidence/arm-xfconf-locale.json).
 
-[Aktarım 46147922509](https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/46147922509) ve **[salt-okunur bağımsız denetim 46149729927](https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/46149729927)**, 11 yayın dosyasının tamamını / 13 JSON kanıtını hash’ledi, iki imajı tekrar salt okunur açıp kaynak/iç kimlik ve gerçek runtime sözleşmesini denetledi. [ARM SHA256SUMS](https://github.com/PeraPlusbirPasha/OguzDows/releases/download/v2.0-arm1/SHA256SUMS) · [Manifest](https://github.com/PeraPlusbirPasha/OguzDows/releases/download/v2.0-arm1/release-manifest.json) · [13 JSON ham kanıt](https://github.com/PeraPlusbirPasha/OguzDows/releases/download/v2.0-arm1/test-evidence.tar.gz) · [Yayın kaydı](../docs/releases/v2.0-arm1-release.json). **Fiziksel Pi boot/GPU/SD/performans ve Zero siyah ekranı açık kalır; mevcut kartlar otomatik yükselmez.**
+[Aktarım 46171902102](https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/46171902102) ve **[salt-okunur bağımsız denetim 46172590331](https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/46172590331)**, 11 yayın dosyasının tamamını / 13 JSON kanıtını hash’ledi, iki imajı tekrar salt okunur açıp kaynak/iç kimlik ve gerçek runtime sözleşmesini denetledi. [ARM SHA256SUMS](https://github.com/PeraPlusbirPasha/OguzDows/releases/download/v2.0-arm2/SHA256SUMS) · [Manifest](https://github.com/PeraPlusbirPasha/OguzDows/releases/download/v2.0-arm2/release-manifest.json) · [13 JSON ham kanıt](https://github.com/PeraPlusbirPasha/OguzDows/releases/download/v2.0-arm2/test-evidence.tar.gz) · [Yayın kaydı](../docs/releases/v2.0-arm2-release.json). **Fiziksel Pi boot/GPU/SD/performans ve Zero siyah ekranı açık kalır; mevcut kartlar otomatik yükselmez.**
+
+### Tarihsel ARM düzeltmesi 1 · Türkçe dizi düzeltmesi değildir
+
+Önceki **[v2.0-arm1](https://github.com/PeraPlusbirPasha/OguzDows/releases/tag/v2.0-arm1)** / `c5063ee` yayını, duvar kâğıdının eski monitör anahtarına yazılması hatasını onarır. [İlk görünüm kanıtı](../docs/evidence/arm-appearance.json), [notları](../docs/releases/v2.0-arm1.md) ve [11 dosyalı yayın kaydı](../docs/releases/v2.0-arm1-release.json) değişmeden korunur. Üretimdeki `LANGUAGE=tr:en` bu eski testte zorlanmadığından yeni Türkçe dizi kabulü olarak gösterilmez. Güncel indirmeler yukarıdaki **v2.0-arm2** dosyalarıdır.
 
 ### Tarihsel özgün 2.0 · aynı kaynaklı ilk iki imaj
 

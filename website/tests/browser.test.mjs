@@ -168,6 +168,71 @@ test(
         },
       );
       await t.test(
+        "ARM2 links and visible hashes match its public receipt; PC and APK stay on v2.0",
+        async () => {
+          const arm = JSON.parse(
+            await fs.readFile("docs/releases/v2.0-arm2-release.json", "utf8"),
+          );
+          const original = JSON.parse(
+            await fs.readFile("docs/releases/v2.0-release.json", "utf8"),
+          );
+          assert.equal(arm.published, true);
+          assert.equal(arm.tag, "v2.0-arm2");
+          assert.equal(arm.release_download_audit.conclusion, "success");
+          assert.equal(
+            arm.release_download_audit.turkish_xfconf_runtime_gate_matched,
+            true,
+          );
+          await page.goto(BASE + "indir/");
+          assert.match(
+            await page.locator(".callout").first().innerText(),
+            /Xfce dizi ayarı güvenle okunamadı/,
+          );
+          for (const name of [
+            "OguzDows-amd64.iso",
+            "OguzDows-i386.iso",
+            "OguzDows-rpi-armhf.img.xz",
+            "OguzDows-rpi-arm64.img.xz",
+            "OguzDows-Mobile-2.0-Akinci-debug.apk",
+          ]) {
+            const receipt = name.includes("rpi-") ? arm : original;
+            const card = page.locator(".download-card").filter({
+              has: page.locator(".file-name", { hasText: name }),
+            });
+            assert.equal(await card.count(), 1);
+            assert.equal(
+              await card.locator("a.button.primary").getAttribute("href"),
+              receipt.files[name].url,
+            );
+            assert.equal(
+              await card.locator("a.button.secondary").getAttribute("href"),
+              receipt.files[name + ".sha256"].url,
+            );
+            await card.locator(".checksum summary").click();
+            assert.equal(
+              await card.locator(".checksum code").innerText(),
+              receipt.files[name].sha256,
+            );
+          }
+          assert.equal(
+            await page.locator('a[href*="/releases/download/v2.0-arm1/"]').count(),
+            0,
+          );
+          await page.goto(BASE + "raspberry-pi/");
+          const software = await page
+            .locator('script[type="application/ld+json"]')
+            .textContent();
+          const application = JSON.parse(software)["@graph"].find(
+            (node) => node["@type"] === "SoftwareApplication",
+          );
+          assert.equal(
+            application.downloadUrl,
+            arm.files["OguzDows-rpi-arm64.img.xz"].url,
+          );
+          assert.match(await page.locator("main").innerText(), /Türkçe oturum/);
+        },
+      );
+      await t.test(
         "copy hash/announcement succeeds or offers an accessible manual fallback",
         async () => {
           await page.goto(BASE + "indir/");
