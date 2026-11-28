@@ -1,7 +1,7 @@
 {
-  "schema_version": 3,
+  "schema_version": 4,
   "product": "OğuzDows Mobile",
-  "phase": "native-launcher-api35-emulator-accepted",
+  "phase": "connected-shell-api35-emulator-accepted",
   "rom_built": false,
   "native_apk_built": true,
   "physical_device_tested": false,
@@ -228,8 +228,8 @@
     {
       "id": "desktop-layouts",
       "preview": "partial",
-      "mobile": "Altı masaüstü tarzının mobil düzen aileleri; web konfor/kompakt var. GNOME/Plasma/Xfce oturumları telefona kurulmaz.",
-      "native_android": "planned"
+      "mobile": "Altı gerçek masaüstü profil kimliği mobil ızgara/raf/dock ailesine uyarlandı; seçim/kalıcılık, gerçek OS HOME yeniden yaratma, Ayarlar ve tam ekran hareketler API35 emülatörde geçti. GNOME/Plasma/Xfce oturumları telefonda çalıştırılmaz.",
+      "native_android": "partial-six-mobile-layout-families-emulator-verified"
     },
     {
       "id": "imece-heybe",
@@ -252,8 +252,8 @@
     {
       "id": "files",
       "preview": "partial",
-      "mobile": "Yalnız seçilen belge; genel depolama izni yok. Web hash/fotoğraf seçimleri, native APK SAF akışı.",
-      "native_android": "partial-emulator-apk-review-verified"
+      "mobile": "Açık SAF belge seçimi ve sürükle/bırak yüzeyi; OğuzKöprü kısa ömürlü davet/kod/alıcı onaylı yerel pinned-TLS dosya aktarımı. Native/Python iki yönlü dört gerçek dosya ve hash emülatörde geçti; fiziksel PC/telefon/ARM drag-drop matrisi ayrıca gerekir. Genel dosya, uzaktan SMS/kurulum veya keyfi girdi yetkisi yok.",
+      "native_android": "partial-pinned-tls-native-python-interop-emulator-verified"
     },
     {
       "id": "updates-drivers",
@@ -298,24 +298,24 @@
     "catalog_categories": 8,
     "catalog_icons": "24 local brand SVGs plus reproducible licensed Android VectorDrawables; real installed icons preferred, bounded generated monograms for unknown packages; no icon CDN.",
     "search": "Native HOME: Turkish module/installed-app label/package filtering, accessible profiles; no automatic network search. Bundled/web global search separately covers contacts, notes (16384 chars), tasks, tools, catalog and arithmetic.",
-    "home_gestures": "Native: 2 shortcut pages + 1 widget page, horizontal swipe/pagination, search/dock opens drawer, header downward swipe opens controls. Web laboratory separately has 3 module pages and upward drawer swipe.",
+    "home_gestures": "Native: six persisted mobile layout families, 2 shortcut pages + 1 widget page, horizontal paging, downward fullscreen controls and upward fullscreen drawer; real system Settings handoff. Web laboratory remains a separate design surface.",
     "phone": "Browser: safe tel handoff only. APK: explicit dialer role, CALL_PHONE, native charge/recipient consent -> Telecom/InCallService and in-package controls; actual callback state, never inferred connection. Physical SIM/emergency unverified.",
     "messages": "Browser: draft and safe sms handoff. APK: explicit default SMS role/grants/subscription and native consent -> SmsManager, durable multipart receipts and real provider history. queued/sent/delivery distinct; MMS/RCS unsupported.",
-    "contacts": "60 manual local contacts, favorite/edit/confirmed delete; system contacts not read",
+    "contacts": "APK: explicit READ_CONTACTS, provider change observer and bounded in-memory recipients; separate WRITE_CONTACTS + final confirmation adds a real local contact, never deletes/edits existing contacts. Denied/read/write/cancel/SMS-draft paths passed API35 QEMU. Web laboratory separately stores up to 60 manual local contacts; those are not system contacts.",
     "calendar": "80 local date plans, month navigation; no system calendar, alarm or notification",
     "clock": "Timestamp-based persisted stopwatch and timer deadline; no background alarm guarantee",
     "media": "Explicit local audio up to 32 MiB; panel volume/mute drives real HTMLMediaElement; page-scoped playback, no upload",
     "photos": "6 explicitly selected temporary images up to 8 MiB each, inspect/download/remove; not permanent library",
     "browser": "Explicit safe HTTPS/external search handoff, no embedded web engine",
-    "control_center": "Top slide panel. Browser: actual preview audio/mute and UI dimmer, illustrative radios. APK: AudioManager media volume, own-window brightness, real radio/DND settings panels; no fake switch state.",
-    "native_system_delegation": "API35/4GiB QEMU 17-case acceptance: native HOME/inventory/layout/widgets/shared Phone theme and Back, offline bundled module UI and origin/main-frame-bound bridge, Telecom/SmsManager, pinned signed F-Droid and explicit system install. Separate HOME/assistant/Phone/SMS roles; no physical SIM/GMS/ROM or measured hardware-performance claim."
+    "control_center": "Fullscreen native surface with real AudioManager media volume, own-window brightness and actual system Settings/panels; app-window immersive mode, not global SystemUI replacement. Browser controls only its preview audio/dimmer.",
+    "native_system_delegation": "API35/x86_64/4GiB QEMU 24-case acceptance: preserved HOME/inventory/layout/widgets/Phone/SMS/installer/live repository plus six mobile layout families, real system Settings, fullscreen gestures, system contacts/local addition, lock companion, independent native/Python pinned-TLS transfers and fresh-consent MediaProjection. Separate HOME/assistant/Phone/SMS roles; no physical SIM/PC/ARM/GMS/ROM, global SystemUI/keyguard replacement or measured hardware-performance claim."
   },
   "native_emulator_verified": true,
   "native_evidence": {
-    "source_sha": "fb6cad5a3f56c5bf37e739388ded5ffce8e5ad13",
-    "sdk_report": "android/evidence/sdk-fb6cad5.json",
-    "emulator_report": "android/evidence/emulator-fb6cad5.json",
-    "package_report": "android/evidence/package-fb6cad5.json",
+    "source_sha": "7244164364105a00838b4a68f5815c352554a36b",
+    "sdk_report": "android/evidence/sdk-7244164.json",
+    "emulator_report": "android/evidence/emulator-7244164.json",
+    "package_report": "android/evidence/package-7244164.json",
     "historical_accepted_0_2": {
       "source_sha": "023a89c9f22bdcd27eabecf8437b05addcab03e9",
       "sdk_report": "android/evidence/sdk-023a89c.json",
@@ -331,21 +331,40 @@
       "android/evidence/emulator-d13b34e.json",
       "android/evidence/emulator-8257892.json",
       "android/evidence/emulator-2be89d7.json",
-      "android/evidence/emulator-5433564.json"
+      "android/evidence/emulator-5433564.json",
+      "android/evidence/emulator-6780523.json",
+      "android/evidence/emulator-be65149.json",
+      "android/evidence/emulator-1ff62d9.json",
+      "android/evidence/emulator-266e623.json",
+      "android/evidence/emulator-05e9dd5.json",
+      "android/evidence/emulator-c31e736.json",
+      "android/evidence/emulator-58453b5.json",
+      "android/evidence/emulator-44e8cac.json",
+      "android/evidence/emulator-6584261.json"
     ],
     "historical_partial_failed_reports": [
       "android/evidence/launcher-c174b6d.json",
-      "android/evidence/emulator-ece0f3b-partial.json"
+      "android/evidence/emulator-ece0f3b-partial.json",
+      "android/evidence/emulator-2da79b2-partial.json"
     ],
-    "emulator_acceptance": "API35/x86_64/4GiB QEMU PASSED: 17/17 cases in 11 selections, no skipped/empty acceptance. All previous 8 communications/bridge/installer + 3 repository security + 1 live catalog cases retained; 5 native launcher cases add actual HOME/inventory/launch, disk layout/corrupt-record protection, shared rendered Phone dark theme/native Back, local Rifki/real volume and AppWidgetHost binding/RemoteViews/new host/removal. No physical SIM, emergency, GMS, all-app, measured hardware performance or ROM claim."
+    "emulator_acceptance": "Same-source 7244164 API35/x86_64/4GiB QEMU PASSED: 24/24 cases in 15 selections, 20 JVM cases, no skipped/empty acceptance, matching independent four-file native/Python pinned-TLS receipts and real MediaProjection cancel/fresh consent/FGS/JPEG/stop verified by the separate CI acceptance gate. Three mandatory review cancel/destruction/original-Home-focus/noninstallation cycles plus final system install passed. No Android product ANR/crash observed in this run, but a 2060ms HWUI main-thread stall was sampled; no permanent ANR fix or hardware-performance claim. No physical SIM/PC/ARM/SystemUI/keyguard/ROM/GMS acceptance.",
+    "historical_accepted_0_3": {
+      "source_sha": "fb6cad5a3f56c5bf37e739388ded5ffce8e5ad13",
+      "sdk_report": "android/evidence/sdk-fb6cad5.json",
+      "emulator_report": "android/evidence/emulator-fb6cad5.json",
+      "package_report": "android/evidence/package-fb6cad5.json",
+      "cases": 17,
+      "selections": 11
+    },
+    "acceptance_report": "android/evidence/acceptance-7244164.json"
   },
   "android_acceptance": {
     "compile_sdk": 35,
     "min_sdk": 29,
     "java_unit_tests_observed_passed": 6,
     "lint_errors_observed": 0,
-    "instrumentation_cases_required": 17,
-    "driver_selections_required": 11,
+    "instrumentation_cases_required": 24,
+    "driver_selections_required": 15,
     "api_29_to_34_tested": false,
     "physical_sim_tested": false,
     "emergency_calls_tested": false,
@@ -354,32 +373,68 @@
     "live_repository_acceptance_observed": true,
     "production_signed_release": false,
     "universal_phone_iso": false,
-    "lint_warnings_observed": 43,
-    "instrumentation_cases_observed_passed": 17,
-    "driver_selections_observed_passed": 11,
+    "lint_warnings_observed": 47,
+    "instrumentation_cases_observed_passed": 24,
+    "driver_selections_observed_passed": 15,
     "debug_package_prepared": true,
     "artifact_download_verified_locally": false,
-    "kotlin_unit_tests_observed_passed": 7,
-    "jvm_unit_tests_observed_passed": 13
+    "kotlin_unit_tests_observed_passed": 14,
+    "jvm_unit_tests_observed_passed": 20,
+    "independent_interop_files_observed": 4,
+    "real_media_projection_acceptance_observed": true
   },
   "native_launcher": {
-    "version": "0.3.0-launcher",
+    "version": "0.4.0-connected",
     "entry_point": "LauncherActivity: MAIN/HOME/LAUNCHER, native Kotlin + Jetpack Compose; not a WebView home.",
     "emulator_verified": true,
     "launcher_cases_observed_passed": 5,
     "installed_apps": "LauncherApps/UserManager, accessible profile-qualified activities and badged icons; actual search/launch/details. At most 1000 entries, 3MiB icon LRU, background inventory and visible-lifecycle callbacks. No QUERY_ALL_PACKAGES.",
-    "layout": "12 default / 16 maximum pins across 2 shortcut pages, explicit add/remove/step-wise move, ordered private IO persistence and corruption write guard; 4 existing wallpapers. Not arbitrary drag placement.",
+    "layout": "Six persisted mobile families (oguzdows/kde/gnome/xfce/windows11/mac); 12 default / 16 maximum pins across 2 shortcut pages, explicit add/remove/step-wise move, ordered private IO and corruption write guard; 4 existing wallpapers. Not PC window managers or arbitrary pixel placement.",
     "widgets": "Third page: real AppWidgetHost, platform bind/configuration path and RemoteViews, max 2 fixed-size areas. Real fixture binding/content/new-host restoration/removal passed. All-provider/OEM/profile/process-death matrix remains open.",
     "rifki": "Local typed deterministic reaction to time/battery/charging/call, pet/head-tilt and left/right placement, explicitly confirmed UI suggestions. No cloud inference, ASR/TTS, microphone, wake word or always-listening animation.",
     "module_handoff": "Existing native Phone/SMS/Store and bundled daily modules retained. launcher.home and launcher-origin Back return to native HOME. Shared Phone dark pixels checked, not only a saved theme flag.",
     "visual_preview": "screenshots/launcher-native-emulator.jpg",
-    "visual_scope": "Actual emulator UiDevice capture, reduced to 234x520 JPEG; inspected locally from ordered annotation chunks. Full PNGs in artifact. Not browser/AI/physical-device imagery.",
+    "visual_scope": "Historical accepted 0.3 / fb6cad5 only: actual UiDevice capture reduced to 234x520 JPEG, inspected locally from complete ordered chunks. Not a current 0.4 screenshot. Full current 7244164 PNGs/JPEG are in its artifact; only four of six new thumbnail annotations survived the checks cap, so no new local native image is claimed. Not browser/AI/physical-device imagery.",
     "ram_target_gib": [
       4,
       6
     ],
     "emulator_ram_gib": 4,
     "physical_ram_fps_power_measured": false,
-    "cloud_voice_wake_word_implemented": false
+    "cloud_voice_wake_word_implemented": false,
+    "visual_preview_source_sha": "fb6cad5a3f56c5bf37e739388ded5ffce8e5ad13"
+  },
+  "native_connected": {
+    "source_sha": "7244164364105a00838b4a68f5815c352554a36b",
+    "connected_cases_observed_passed": 4,
+    "layout_ids": [
+      "oguzdows",
+      "kde",
+      "gnome",
+      "xfce",
+      "windows11",
+      "mac"
+    ],
+    "settings_and_fullscreen_gestures_emulator_verified": true,
+    "system_contacts_and_local_addition_emulator_verified": true,
+    "lock_companion_emulator_verified": true,
+    "global_systemui_replaced": false,
+    "secure_keyguard_replaced": false,
+    "native_python_file_protocol_emulator_verified": true,
+    "independent_files_verified": 4,
+    "physical_drag_drop_matrix_tested": false,
+    "media_projection": {
+      "emulator_verified": true,
+      "fresh_system_consent": true,
+      "cancel_and_stop_tested": true,
+      "frame_bytes": 11662,
+      "sha256": "1cfe029facd6d57cdae79bd00654055efe3b8dafb9934f56839fc57c949076a0",
+      "remote_input": false,
+      "audio": false,
+      "complete_frame_retrieved_locally": false
+    },
+    "known_emulator_main_thread_stall_ms": 2060,
+    "permanent_anr_resolution_proven": false,
+    "physical_pc_phone_arm_tested": false
   }
 }

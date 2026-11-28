@@ -42,7 +42,7 @@ test("all sixteen desktop tools are represented and ten really interactive", () 
   assert.match(sdk.source_sha, /^[a-f0-9]{40}$/);
   // The legacy CI field aggregates both Java and Kotlin JVM reports.
   assert.deepEqual(sdk.java_unit_tests, {
-    tests: 13,
+    tests: 20,
     failures: 0,
     errors: 0,
     skipped: 0,
@@ -53,35 +53,116 @@ test("all sixteen desktop tools are represented and ten really interactive", () 
   assert.equal(parity.physical_device_tested, false);
   assert.equal(parity.live_generative_model_tested, false);
 });
-test("native launcher claims require matching SDK, all 17 cases, genuine preview and artifact evidence", () => {
+test("connected claims require same-source 24-case acceptance, independent TLS/capture receipts and package evidence; old pixels stay historical", () => {
+  // This checks recorded evidence consistency, not a local APK/device execution.
   const read = (name) =>
     JSON.parse(fs.readFileSync(new URL(`../../${name}`, import.meta.url)));
   const parity = read("feature-parity.json");
   const sdk = read(parity.native_evidence.sdk_report);
   const emulator = read(parity.native_evidence.emulator_report);
   const pkg = read(parity.native_evidence.package_report);
+  const acceptance = read(parity.native_evidence.acceptance_report);
+  assert.equal(parity.phase, "connected-shell-api35-emulator-accepted");
   assert.equal(parity.native_emulator_verified, emulator.passed);
   assert.equal(emulator.passed, true);
   assert.equal(emulator.emulator_only, true);
-  assert.equal(emulator.source_sha, sdk.source_sha);
-  assert.equal(emulator.source_sha, pkg.source_sha);
+  for (const report of [sdk, pkg, acceptance]) {
+    assert.equal(report.source_sha, emulator.source_sha);
+    assert.equal(report.github.run_url, emulator.github.run_url);
+  }
   assert.equal(emulator.source_sha, parity.native_evidence.source_sha);
-  assert.equal(
-    emulator.tests.length,
-    parity.android_acceptance.driver_selections_required,
-  );
-  assert.equal(new Set(emulator.tests.map((t) => t.name)).size, 11);
-  assert.equal(parity.android_acceptance.driver_selections_required, 11);
-  assert.equal(parity.android_acceptance.instrumentation_cases_required, 17);
-  assert.ok(emulator.tests.every((t) => t.passed && t.test_cases > 0));
-  assert.equal(
-    emulator.tests.reduce((sum, t) => sum + t.test_cases, 0),
-    17,
-  );
+  assert.equal(emulator.source_sha, parity.native_connected.source_sha);
+  const required = {
+    ...Object.fromEntries(
+      [
+        "bundledBridgeRolesValidationAndIsolation",
+        "paidActionsRequireFinalNativeConsent",
+        "systemVolumeBrightnessAndNativeThemeAreReal",
+        "incomingSmsUsesTheRealProviderAndRichInbox",
+        "outgoingSmsWaitsForActualSentCallback",
+        "outgoingCallUsesTelecomAndOurInCallService",
+        "incomingCallCanBeAnsweredMutedAndEndedInOurUi",
+        "localApkReviewCancelAndSystemInstall",
+      ].map((name) => [`NativeDeviceTest.${name}`, 1]),
+    ),
+    "LauncherDeviceTest.suite": 5,
+    "ConnectedDeviceTest.suite": 4,
+    "BridgeDeviceTest.nativeTls": 1,
+    "BridgeDeviceTest.pcArmInterop": 1,
+    "BridgeDeviceTest.systemProjection": 1,
+    "RepositorySecurityTest.suite": 3,
+    "LiveRepositoryTest.suite": 1,
+  };
+  assert.equal(emulator.tests.length, 15);
+  assert.equal(new Set(emulator.tests.map((t) => t.name)).size, 15);
+  assert.deepEqual(
+    Object.fromEntries(emulator.tests.map((t) => [t.name, t.test_cases])),
+    required,
+  ); // No communications/installer/launcher/connected/capture coverage may disappear.
+  assert.ok(emulator.tests.every((t) => t.passed && !t.failure && !t.error));
+  assert.equal(parity.android_acceptance.driver_selections_required, 15);
+  assert.equal(parity.android_acceptance.instrumentation_cases_required, 24);
   assert.equal(
     parity.android_acceptance.instrumentation_cases_observed_passed,
-    17,
+    24,
   );
+  assert.equal(parity.android_acceptance.driver_selections_observed_passed, 15);
+  assert.equal(parity.android_acceptance.jvm_unit_tests_observed_passed, 20);
+  assert.equal(acceptance.passed, true);
+  assert.equal(acceptance.native_cases, 24);
+  assert.equal(acceptance.jvm_cases, 20);
+  assert.equal(acceptance.interop_files, 4);
+  assert.equal(acceptance.physical_devices_tested, false);
+  assert.equal(acceptance.rom_or_gms_certification, false);
+  const fileHashes = Object.fromEntries(
+    Object.entries({
+      "native-to-desktop.txt": "native-host to desktop-client fixture\n",
+      "desktop-upload.txt": "desktop-client to native-host fixture\n",
+      "desktop-to-native.txt": "desktop-host to native-client fixture\n",
+      "native-upload.txt": "native-client to desktop-host fixture\n",
+    }).map(([name, bytes]) => [
+      name,
+      createHash("sha256").update(bytes).digest("hex"),
+    ]),
+  );
+  for (const peer of [emulator.device_bridge, emulator.native_device_bridge]) {
+    assert.equal(peer.protocol, 1);
+    for (const flag of [
+      "native_host_python_client",
+      "python_host_native_client",
+      "pinned_tls",
+      "sha256_verified",
+    ])
+      assert.equal(peer[flag], true);
+    assert.equal(peer.files_verified, 4);
+    assert.deepEqual(peer.file_sha256, fileHashes);
+    assert.equal(peer.physical_devices, false);
+  }
+  for (const flag of [
+    "media_projection_consent",
+    "cancel_tested",
+    "foreground_service",
+    "fixture_only",
+    "stop_tested",
+  ])
+    assert.equal(emulator.screen_capture[flag], true);
+  assert.equal(emulator.screen_capture.remote_input, false);
+  assert.match(emulator.screen_capture.sha256, /^[a-f0-9]{64}$/);
+  assert.ok(emulator.screen_capture.frame_bytes > 0);
+  assert.ok(emulator.screen_capture.frame_bytes <= 512 * 1024);
+  assert.equal(acceptance.real_capture_sha256, emulator.screen_capture.sha256);
+  assert.equal(
+    parity.native_connected.media_projection.sha256,
+    emulator.screen_capture.sha256,
+  );
+  assert.equal(
+    parity.native_connected.media_projection.frame_bytes,
+    emulator.screen_capture.frame_bytes,
+  );
+  assert.equal(parity.native_connected.global_systemui_replaced, false);
+  assert.equal(parity.native_connected.secure_keyguard_replaced, false);
+  assert.equal(parity.native_connected.physical_pc_phone_arm_tested, false);
+  assert.equal(parity.native_connected.permanent_anr_resolution_proven, false);
   assert.equal(
     parity.android_acceptance.live_repository_acceptance_observed,
     true,
@@ -92,6 +173,7 @@ test("native launcher claims require matching SDK, all 17 cases, genuine preview
       emulator.live_repository.compatible <= emulator.live_repository.apps,
   );
   assert.match(emulator.live_apk_review, /installed=false$/);
+  assert.equal(pkg.version, "0.4.0-connected");
   assert.equal(pkg.github.workflow_conclusion, "success");
   assert.equal(pkg.github.package_and_apksigner_step_conclusion, "success");
   assert.equal(pkg.ci_apksigner_verify_passed, true);
@@ -105,41 +187,50 @@ test("native launcher claims require matching SDK, all 17 cases, genuine preview
     parity.android_acceptance.artifact_download_verified_locally,
     pkg.local_retrieval.independent_apk_hash_or_signature_verification,
   );
-  const launcher = emulator.tests.find(
-    (t) => t.name === "LauncherDeviceTest.suite",
-  );
-  assert.equal(launcher.test_cases, 5);
-  assert.deepEqual(
-    emulator.tests
-      .filter((t) => t.name.startsWith("NativeDeviceTest."))
-      .map((t) => t.name)
-      .sort(),
-    [
-      "bundledBridgeRolesValidationAndIsolation",
-      "paidActionsRequireFinalNativeConsent",
-      "systemVolumeBrightnessAndNativeThemeAreReal",
-      "incomingSmsUsesTheRealProviderAndRichInbox",
-      "outgoingSmsWaitsForActualSentCallback",
-      "outgoingCallUsesTelecomAndOurInCallService",
-      "incomingCallCanBeAnsweredMutedAndEndedInOurUi",
-      "localApkReviewCancelAndSystemInstall",
-    ]
-      .map((name) => `NativeDeviceTest.${name}`)
-      .sort(),
-  ); // Launcher migration must not silently remove communications or installer coverage.
+  assert.equal(pkg.local_retrieval.completed, false);
+  assert.equal(emulator.local_visual_retrieval.complete, false);
   assert.equal(parity.native_launcher.emulator_verified, true);
   assert.equal(parity.native_launcher.cloud_voice_wake_word_implemented, false);
   assert.equal(parity.native_launcher.physical_ram_fps_power_measured, false);
+  const review = emulator.tests.find(
+    (t) => t.name === "NativeDeviceTest.localApkReviewCancelAndSystemInstall",
+  );
+  assert.equal(
+    parity.native_connected.known_emulator_main_thread_stall_ms,
+    review.main_thread_stall.main_delay_ms,
+  );
+  assert.match(
+    review.main_thread_stall.main,
+    /HardwareRenderer.nSyncAndDrawFrame/,
+  );
+  const oldLauncher = parity.native_evidence.historical_accepted_0_3;
+  const oldEmulator = read(oldLauncher.emulator_report);
+  assert.equal(oldEmulator.source_sha, oldLauncher.source_sha);
+  assert.equal(oldEmulator.passed, true);
+  assert.equal(
+    oldEmulator.tests.reduce((sum, t) => sum + t.test_cases, 0),
+    17,
+  );
+  // Existing pixels remain valid historical 0.3 evidence, NEVER a borrowed 0.4 capture.
+  assert.equal(
+    parity.native_launcher.visual_preview_source_sha,
+    oldLauncher.source_sha,
+  );
+  assert.notEqual(
+    parity.native_launcher.visual_preview_source_sha,
+    emulator.source_sha,
+  );
+  assert.match(parity.native_launcher.visual_scope, /Historical accepted 0\.3/);
   const preview = fs.readFileSync(
     new URL(`../../${parity.native_launcher.visual_preview}`, import.meta.url),
   );
   assert.equal(
     createHash("sha256").update(preview).digest("hex"),
-    emulator.visual_preview.sha256,
+    oldEmulator.visual_preview.sha256,
   );
   assert.deepEqual([...preview.subarray(0, 3)], [0xff, 0xd8, 0xff]);
-  assert.equal(emulator.visual_preview.width, 234);
-  assert.equal(emulator.visual_preview.height, 520);
+  assert.equal(oldEmulator.visual_preview.width, 234);
+  assert.equal(oldEmulator.visual_preview.height, 520);
   const baseline = parity.native_evidence.historical_accepted_0_2;
   assert.equal(read(baseline.emulator_report).passed, true);
   assert.equal(read(baseline.emulator_report).source_sha, baseline.source_sha);
@@ -153,12 +244,16 @@ test("native launcher claims require matching SDK, all 17 cases, genuine preview
   for (const failed of [
     ...parity.native_evidence.historical_failed_emulator_reports,
     ...parity.native_evidence.historical_partial_failed_reports,
-  ]) {
-    assert.equal(read(failed).passed, false); // A later success must not rewrite failed history.
-  }
-  assert.equal(emulator.physical_sim_tested, false);
-  assert.equal(emulator.emergency_calls_tested, false);
-  assert.equal(emulator.gms_certification_tested, false);
+  ])
+    assert.equal(read(failed).passed, false); // Never rewrite failed history.
+  for (const flag of [
+    "physical_sim_tested",
+    "emergency_calls_tested",
+    "gms_certification_tested",
+    "product_anr_detected",
+    "product_crash_detected",
+  ])
+    assert.equal(emulator[flag], false);
   assert.equal(pkg.rom_built, false);
   assert.equal(pkg.production_signing, false);
 });

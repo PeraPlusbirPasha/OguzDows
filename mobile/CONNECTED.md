@@ -1,12 +1,14 @@
-# OğuzDows 0.4 · Bağlı kabuk (geliştirme dalı)
+# OğuzDows 0.4 · Bağlı native Aero kabuk
 
-**Durum:** 0.4 geliştirme dalıdır, henüz kabul edilmiş mobil paket değildir.
-Native derleme/20 JVM testi ve iki yönlü gerçek TLS dosya aktarımı geçti;
-genişletilmiş cihaz kabulü hareket/izin/seçici hataları ve bir odak kaybı ANR'ı
-buldu, paketleme durdu.
-Düzeltmeler yeniden emülatörde sınanıyor.
-Bu belge fiziksel cihaz/ARM kabulü anlamına gelmez. Önceden kabul edilmiş
-0.3 APK bağlantısı [INSTALL.md](INSTALL.md) içindedir.
+**Durum: `0.4.0-connected`, tam API35 emülatör kabulünü geçti.**
+[`7244164` / koşu 46087817657](https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/46087817657):
+aynı kaynakta **24/24 native vaka / 15 seçim, 20/20 JVM**, bağımsız iki yönlü
+TLS makbuzları ve gerçek MediaProjection kabulü geçti. Paket/imza/artifact hazır:
+[**APK’yı indir ve emülatörde dene → INSTALL.md**](INSTALL.md).
+Bu, fiziksel PC/telefon/ARM veya ROM/SystemUI/keyguard kabulü değildir.
+Emülatörde 2060 ms HWUI ana iş parçacığı beklemesi de kaydedildi; bu koşuda
+ürün ANR/çökmesi yoktu, kalıcı ANR çözümü veya fiziksel performans iddia edilmez.
+Önceki başarısız koşular ve 0.3 kabulü silinmeden korunur.
 
 ## Eklenen yollar
 
@@ -102,7 +104,37 @@ zorunludur. Eksik bildirim, eski commit, boş/atlanmış test, ürün ANR/çökm
 fiziksel başarı iddiası kabul edilmez. Kuralların sentetik rapor testleri native
 başarı kanıtı yerine geçmez. Davet/sır dosyaları raporlara alınmaz.
 
-### Gözlenmiş sonuçlar (kabul ile karıştırılmamalı)
+### Kabul edilmiş tek-kaynaklı 0.4 sonucu
+
+[`7244164` / 46087817657](https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/46087817657),
+tam kaynak `7244164364105a00838b4a68f5815c352554a36b`: **24/24 native / 15 seçim,
+20/20 JVM**, lint 0 hata / 47 uyarı / 1 bilgi. Üç zorunlu inceleme iptalinde
+(düğme → sistem Geri → düğme) inceleme örneği yıkıldı, aynı özgün HomeActivity
+odağı döndü, paket kurulmadı; ardından tek gerçek sistem kurulum onayı ve yüklü
+sürüm/imzacı kontrolü geçti. Beş launcher ve dört bağlı kabuk vakasının tamamı,
+her iki uygulamanın aynı dört gerçek dosya hash’i, gerçek Ayarlar/rehber/kilit
+ve MediaProjection iptal → taze izin → foreground service → JPEG → durdurma geçti.
+
+- [SDK](android/evidence/sdk-7244164.json) · [cihaz/makbuzlar](android/evidence/emulator-7244164.json)
+  · [ayrı kabul kapısı](android/evidence/acceptance-7244164.json) · [paket kökeni](android/evidence/package-7244164.json).
+- Gerçek fixture paylaşım JPEG’i **11.662 bayt**, SHA-256
+  `1cfe029facd6d57cdae79bd00654055efe3b8dafb9934f56839fc57c949076a0`.
+  CI kapısı cihazdan çekilmiş gerçek dosyayı ve APK hash’lerini ayrıca doğruladı;
+  bu çalışma alanında yeni JPEG/APK baytları depolama yönlendirmesi nedeniyle yoktur.
+- [**0.4 APK paketi**](https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/46087817657/artifacts/15240450965)
+  hazır; `apksigner verify` ve yükleme geçti. [Kurulum/hash kontrolü](INSTALL.md).
+- Ürün ANR/çökmesi görülmedi, ama PID5423’te **2060 ms HWUI `nSyncAndDrawFrame`**
+  Java örneği vardır. Bu bekleme gizlenmez; kalıcı çözüm/yerel RenderThread kök
+  nedeni veya gerçek cihaz performansı iddia edilmez.
+- Altı küçük görüntü parçasından dört tanesi checks kotasında kaldı. Eksik JPEG
+  birleştirilmedi; eski 0.3 resmi güncel kabulün görüntüsü diye kullanılmaz.
+  Güncel tam PNG/JPEG’ler artifact’tadır; [görsel/indirme sınırı](VERIFICATION.md).
+- Aynı kaynakta host kontrolü: 727 Python vaka (718 başarılı / 9 ortam atlaması),
+  mobil kaynak/sentetik 31, Node mantık/API 31, Chromium raporu 33 (31 akış + iki
+  kapsayıcı), gerçek loopback-TLS Python köprü 19; build/format/audit geçti.
+  Bunlar 24-vaka cihaz kabulünün yerine konmadı.
+
+### Korunan önceki koşular (başarısız/kısmi tarihçe)
 
 - [`6780523` / 46074610850](https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/46074610850):
   **20/20 JVM**, lint 0 hata/47 uyarı/1 bilgi; eski telefon/SMS/yükleyici/depo
@@ -241,8 +273,9 @@ başarı kanıtı yerine geçmez. Davet/sır dosyaları raporlara alınmaz.
   gerçek sistem Geri iptalini uygular; her seferinde eski inceleme örneğinin
   yıkılmasını, **aynı özgün HomeActivity'nin gerçek pencere odağını** ve kurulmama
   koşulunu ister. Test içinden `finish()`, yeniden başlatma, ikinci Geri, tekrar
-  deneme veya son yükleyici onayını atlama yoktur. Bu yeni davranış henüz tam cihaz
-  koşusuyla doğrulanmadı; yeni tek-kaynaklı 24-vaka kabulü zorunludur.
+  deneme veya son yükleyici onayını atlama yoktur. Bu aday, sonraki **7244164** tam
+  koşusunda üç döngü ve final kurulumla birlikte doğrulandı; 6584261’in başarısız
+  kaydı değiştirilmedi.
 - [`18034bb` masaüstü / 46076502634](https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/46076502634):
   Debian bookworm/trixie üzerinde **1024×768 ve 360×800: dört gerçek GTK köprü
   koşusu geçti**. Gerçek düğme/dosya/loopback TLS/GDK kareleri sınandı. Üretimin
@@ -262,5 +295,6 @@ başarı kanıtı yerine geçmez. Davet/sır dosyaları raporlara alınmaz.
   sentetik rapor/orkestrasyon/tanı testi); JS mantık/API **31/31**, Chromium **33/33** (31 akış ve 2
   kapsayıcı). Bunlar derlenmiş APK'nın 24 cihaz vakası yerine kullanılamaz.
 
-Sonuç ve APK ancak yeni CI raporu incelendikten sonra teslim edilir. Henüz
-ROM/ISO/OTA veya yeni public Release hazırlanmaz.
+Güncel teslim yalnız yukarıdaki **7244164 kaynaklı, kabul edilmiş debug APK**’dır.
+ROM/ISO/OTA, yeni public mobil Release veya PC/Pi imajlarının yeniden yayını yapılmadı;
+PR birleştirilmedi. Fiziksel cihaz ve açık performans/izin/ROM kapıları korunur.

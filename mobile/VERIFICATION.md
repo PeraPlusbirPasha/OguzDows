@@ -2,9 +2,27 @@
 
 Dört düzey ayrıdır: **tarayıcı**, **SDK/Java/lint**, **sanal radyo/sağlayıcı/yükleyici emülatörü**, **gerçek SIM/cihaz/ROM**. Bir düzeyin başarısı diğerine aktarılmaz. Bu kayıt, başarısız kabul koşularını da saklar; hazırlanmış test kodu geçmiş test sayılmaz.
 
-## 0.4 bağlı kabuk · güncel kabul ayrı
+## Tam 0.4 bağlı kabuk kabulü: `7244164`
 
-[CONNECTED.md](CONNECTED.md), 20 JVM / 24 native vakalık yeni kapıyı, bağımsız iki yönlü TLS dosya makbuzlarını, gerçek MediaProjection gereksinimini ve başarısız/ANR ile kesilen koşuları tutar. 0.3 ve 0.2 aşağıda tarihsel kabul olarak korunur; yeni dalın kabulü yerine kullanılamaz. Gerçek sistem rehberi ve kısa ömürlü yerel ekran paylaşımı bu yeni kapsamdır; eski “yapılmayanlar” listesi tarihsel 0.3 içindir.
+[Başarılı koşu **46087817657**](https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/46087817657) / [iş **140801439213**](https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/46087817657/job/140801439213), tam kaynak **`7244164364105a00838b4a68f5815c352554a36b`**. API35 / Google APIs / x86_64 / Pixel6 QEMU, **4 GiB konuk RAM / 256 MiB heap**, 720×1600 / 280dpi / SwiftShader; iş **9m13s**. **15/15 seçimde 24/24 native vaka**, boş/atlanmış kabul yok; **20/20 JVM** (Platform6 + Launcher7 + Connected7), lint **0 hata / 47 uyarı / 1 bilgi**. Eski 17 vaka korunur; farklı koşular birleştirilmedi.
+
+| Aynı kaynakta geçen | Vaka | Gözlenen kanıt |
+| --- | ---: | --- |
+| Telefon/SMS/roller/origin/ses/tema | 7 | Sanal modem, gerçek sağlayıcı/Telecom/InCallService, ücretli son onay/iptal; operatör teslimi uydurulmaz |
+| APK inceleme ve sistem kurulumu | 1 | Üç zorunlu iptal: düğme → sistem Geri → düğme; inceleme örneği yıkılır, özgün HomeActivity odağı döner, paket kurulmaz. Sonra ayrı sistem onayıyla etkisiz fixture’ın sürüm/imzacısı doğrulanır |
+| Native launcher | 5 | Gerçek HOME/inventory/launch, disk/bozuk kayıt, Rıfkı/ortak Telefon rengi ve gerçek widget |
+| Bağlı kabuk/rehber/kilit | 4 | Altı düzen/kalıcılık, OS HOME eski örnek DESTROYED/yeni farklı aynı-task RESUMED, gerçek Ayarlar, iki tam ekran hareket, gerçek rehber/ekle/iptal/SMS taslağı ve kilit eşlikçisi |
+| Köprü | 3 | Native TLS; iki yönde Python/native dört dosya ve iki bağımsız aynı SHA-256 makbuzu; gerçek MediaProjection iptal → taze sistem onayı → FGS → TLS JPEG → durdurma |
+| Depo güvenliği/canlı kaynak | 4 | İmza/pin/hash/rollback; 5.057 uygulama / 5.016 API-ABI uygun paket; gerçek Aegis incelemesi kurmadan iptal |
+| **Toplam** | **24** | **Tümü tek kaynakta geçti** |
+
+- [SDK](android/evidence/sdk-7244164.json) · [native sonuçlar ve iki bağımsız dosya makbuzu](android/evidence/emulator-7244164.json) · [ayrı `acceptance.py` sonucu](android/evidence/acceptance-7244164.json) · [paket kökeni](android/evidence/package-7244164.json).
+- Gerçek fixture ekranı: **11.662 bayt JPEG**, SHA-256 `1cfe029facd6d57cdae79bd00654055efe3b8dafb9934f56839fc57c949076a0`. CI kapısı çekilmiş dosyanın gerçek boyut/hash’ini ve üç değişmemiş APK’yı ayrıca doğruladı; taze izin/iptal/FGS/durdurma zorunluydu. Salt görüntü, ses/uzaktan girdi yoktur.
+- [**0.4 APK/test/rapor artifact’ı**](https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/46087817657/artifacts/15240450965): **14.984.290 bayt**, ZIP digest `sha256:75ce7463de1cedaa8cdbc47821e35a5ccc0157ec4f6af26cfe3d6eb3c76f06f4`, 14 gün. `apksigner verify` geçti. Ana APK **24.418.460 bayt**, SHA-256 `7213f4a94782d8a01c96af9d4aef0ab2e493cb80df4edc8b002c559b54cbe95d`; [kurulum](INSTALL.md).
+- **Sağlık/performans sınırı:** bu koşuda Android ürün ANR/çökmesi görülmedi, fakat gözlemci PID5423’te **2060 ms `nSyncAndDrawFrame` beklemesi** yakaladı. Bu Java örneği korunur; native RenderThread kök nedeni veya aralıklı ANR’ın kalıcı giderildiği iddia edilmez. Fiziksel GPU/RAM/FPS/pil/gerçek SIM ve PC/telefon/ARM matrisi açık.
+- **Yerel indirme/görsel sınırı:** yeni artifact ve iş logu indirmesi depolama yönlendirmesinde `EOF` verdi. APK ve tam JPEG burada yok; bağımsız yerel binary/hash/imza veya yeni ekranın görsel incelemesi yapılmadı. Altı yeni thumbnail parçasından dört tanesi checks kotasına sığdı; eksik JPEG üretilmedi. Aşağıdaki native JPEG açıkça tarihsel **0.3** olarak kalır, 0.4 kanıtı yerine geçirilmez. Tam güncel PNG/JPEG artifact’tadır.
+
+[CONNECTED.md](CONNECTED.md) protokol/izin/sınırları ve başarısız/ANR ile kesilen eski koşuları tutar. 0.3 ve 0.2 aşağıda tarihsel kabul olarak korunur; yeni kabul yerine kullanılmadı. Yeni 24-vaka kabulü SystemUI/keyguard değişimi, ROM, GMS veya fiziksel ürün kabulü değildir.
 
 ## Son yerel kontrol ve sınırı
 
@@ -22,7 +40,7 @@ Dört düzey ayrıdır: **tarayıcı**, **SDK/Java/lint**, **sanal radyo/sağlay
 | Mağaza simgeleri       | **24 / 24 yerel SVG**         | Tarayıcıda her birinin gerçek yüklenmesi, manifest SHA-256/lisans kontrolü  |
 | Önceki çalışma         | **633 dosyanın içeriği aynı** | Mobil işe başlamadan kaydedilen SHA-256 tabanı; PC/Pi yayını değiştirilmedi |
 
-Gzip ölçümü Node `zlib.gzipSync` ile varsayılan sıkıştırmada alındı. Son tarayıcı tekrarında **tam TAP raporu 33/33** tamamlandı (~121.9 s); araç çağrısının 120 s sınırı önce döndü, ardından tamamlanmış rapor ve bitmiş süreç ayrıca kontrol edildi. Bu orkestrasyon sınırı test atlaması değildir.
+Gzip ölçümü Node `zlib.gzipSync` ile varsayılan sıkıştırmada alındı. Kaynak **7244164** üzerinde son temiz yerel tekrar: **33/33 Chromium TAP** (~112.7 s), **31/31 Node**, **31/31 mobil kaynak/sentetik**, build/format/audit ve **19/19 Python loopback-TLS** geçti. Aynı kaynakta bağımlılıkları kurulu `.venv/bin/python -W error::ResourceWarning -m unittest discover -s tests -q`: **727 koştu / 718 başarılı / 9 ortam atlaması**, 0 hata/başarısızlık. Sistem Python’undaki ilk bağımlılıksız deneme hata verdi ve kabul sayılmadı. Bunlar JVM/cihaz/fiziksel kanıtı değildir; üstteki 24-vaka CI kabulü ayrıdır.
 
 Ortam: Node 22.22.3, npm 10.9.8, Python 3.11.2, sabitlenen Sparticuz Chromium 133 / Playwright Core. Chromium bir test koşucusudur, telefon emülatörü değildir. Tarayıcının web güvenliği/CORS denetimi kapatılmadı; CI için `--no-sandbox` gerekir. NSS destek kitaplıkları yalnız test önbelleğine açılır.
 

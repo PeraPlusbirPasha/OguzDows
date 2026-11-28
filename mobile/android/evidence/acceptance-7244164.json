@@ -1,0 +1,16 @@
+{
+  "source_sha": "7244164364105a00838b4a68f5815c352554a36b",
+  "passed": true,
+  "native_cases": 24,
+  "jvm_cases": 20,
+  "interop_files": 4,
+  "real_capture_sha256": "1cfe029facd6d57cdae79bd00654055efe3b8dafb9934f56839fc57c949076a0",
+  "physical_devices_tested": false,
+  "rom_or_gms_certification": false,
+  "github": {
+    "run_url": "https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/46087817657",
+    "job_id": 140801439213,
+    "job_url": "https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/46087817657/job/140801439213",
+    "scope": "Observed CI acceptance.py result after verifying the actual on-runner JPEG hash/size and all three unchanged APK files. The complete JPEG/APK bytes could not be retrieved into this sandbox; no independent local binary verification is claimed."
+  }
+}

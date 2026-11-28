@@ -1,0 +1,185 @@
+{
+  "source_sha": "7244164364105a00838b4a68f5815c352554a36b",
+  "sdk": "35",
+  "abi": "x86_64",
+  "image_fingerprint": "google/sdk_gphone64_x86_64/emu64xa:15/AE3A.240806.043/12960925:userdebug/dev-keys",
+  "emulator_only": true,
+  "physical_sim_tested": false,
+  "emergency_calls_tested": false,
+  "gms_certification_tested": false,
+  "mms_rcs_supported": false,
+  "tests": [
+    {
+      "name": "NativeDeviceTest.bundledBridgeRolesValidationAndIsolation",
+      "passed": true,
+      "test_cases": 1,
+      "seconds": 25.12
+    },
+    {
+      "name": "NativeDeviceTest.paidActionsRequireFinalNativeConsent",
+      "passed": true,
+      "test_cases": 1,
+      "seconds": 16.88
+    },
+    {
+      "name": "NativeDeviceTest.systemVolumeBrightnessAndNativeThemeAreReal",
+      "passed": true,
+      "test_cases": 1,
+      "seconds": 15.8
+    },
+    {
+      "name": "NativeDeviceTest.incomingSmsUsesTheRealProviderAndRichInbox",
+      "passed": true,
+      "test_cases": 1,
+      "seconds": 13.17
+    },
+    {
+      "name": "NativeDeviceTest.outgoingSmsWaitsForActualSentCallback",
+      "passed": true,
+      "test_cases": 1,
+      "seconds": 10.45
+    },
+    {
+      "name": "NativeDeviceTest.outgoingCallUsesTelecomAndOurInCallService",
+      "passed": true,
+      "test_cases": 1,
+      "seconds": 14.27
+    },
+    {
+      "name": "NativeDeviceTest.incomingCallCanBeAnsweredMutedAndEndedInOurUi",
+      "passed": true,
+      "test_cases": 1,
+      "seconds": 7.4
+    },
+    {
+      "name": "NativeDeviceTest.localApkReviewCancelAndSystemInstall",
+      "passed": true,
+      "test_cases": 1,
+      "seconds": 20.88,
+      "main_thread_stall": {
+        "process": "org.oguzdows.mobile",
+        "pid": 5423,
+        "phase": "HomeActivity -> InstallReviewActivity, required cancel cycle 1",
+        "main_delay_ms": 2060,
+        "main": "  at android.graphics.HardwareRenderer.nSyncAndDrawFrame(Native Method)\n  at android.graphics.HardwareRenderer.syncAndDrawFrame(HardwareRenderer.java:486)\n  at android.view.ThreadedRenderer.draw(ThreadedRenderer.java:816)\n  at android.view.ViewRootImpl.draw(ViewRootImpl.java:5659)\n  at android.view.ViewRootImpl.performDraw(ViewRootImpl.java:5312)\n  at android.view.ViewRootImpl.performTraversals(ViewRootImpl.java:4303)\n  at android.view.ViewRootImpl.doTraversal(ViewRootImpl.java:2917)\n  at android.view.ViewRootImpl$TraversalRunnable.run(ViewRootImpl.java:10324)\n  at android.view.Choreographer$CallbackRecord.run(Choreographer.java:1406)\n  at android.view.Choreographer$CallbackRecord.run(Choreographer.java:1415)\n  at android.view.Choreographer.doCallbacks(Choreographer.java:1015)\n  at android.view.Choreographer.doFrame(Choreographer.java:945)\n  at android.view.Choreographer$FrameDisplayEventReceiver.run(Choreographer.java:1389)\n  at android.os.Handler.handleCallback(Handler.java:959)\n  at android.os.Handler.dispatchMessage(Handler.java:100)\n  at android.os.Looper.loopOnce(Looper.java:232)\n  at android.os.Looper.loop(Looper.java:317)\n  at android.app.ActivityThread.main(ActivityThread.java:8705)\n  at java.lang.reflect.Method.invoke(Native Method)\n  at com.android.internal.os.RuntimeInit$MethodAndArgsCaller.run(RuntimeInit.java:580)\n  at com.android.internal.os.ZygoteInit.main(ZygoteInit.java:886)\n"
+      }
+    },
+    {
+      "name": "LauncherDeviceTest.suite",
+      "passed": true,
+      "test_cases": 5,
+      "seconds": 69.64
+    },
+    {
+      "name": "ConnectedDeviceTest.suite",
+      "passed": true,
+      "test_cases": 4,
+      "seconds": 53.97
+    },
+    {
+      "name": "BridgeDeviceTest.nativeTls",
+      "passed": true,
+      "test_cases": 1,
+      "seconds": 1.75
+    },
+    {
+      "name": "BridgeDeviceTest.pcArmInterop",
+      "passed": true,
+      "test_cases": 1,
+      "seconds": 6.34
+    },
+    {
+      "name": "BridgeDeviceTest.systemProjection",
+      "passed": true,
+      "test_cases": 1,
+      "seconds": 16.52
+    },
+    {
+      "name": "RepositorySecurityTest.suite",
+      "passed": true,
+      "test_cases": 3,
+      "seconds": 0.57
+    },
+    {
+      "name": "LiveRepositoryTest.suite",
+      "passed": true,
+      "test_cases": 1,
+      "seconds": 13.41
+    }
+  ],
+  "display": {
+    "pixels": "720x1600",
+    "density": 280,
+    "gpu": "headless SwiftShader"
+  },
+  "preflight": {
+    "sim_state": "LOADED",
+    "default_sms_subscription_setting": 1,
+    "active_default_network": 100,
+    "ready": true
+  },
+  "device_bridge": {
+    "protocol": 1,
+    "native_host_python_client": true,
+    "python_host_native_client": true,
+    "files_verified": 4,
+    "pinned_tls": true,
+    "sha256_verified": true,
+    "file_sha256": {
+      "native-to-desktop.txt": "c2743e81b8bd3ddfedd38da55dcc6afef4c2d9c54b36312f48a82a9911232b24",
+      "desktop-upload.txt": "cebff615107908970303b57c61d791ef236fd1eb07fbbed88684770ce36742a4",
+      "desktop-to-native.txt": "627cb1d79773668746e6deaa21767b42f6f271d110da55706b31468e5e5df4f4",
+      "native-upload.txt": "1e5694ab01903b1de93f650f49971180bbad69294784a96635d28d8c18e0d749"
+    },
+    "transport": "QEMU virtual Ethernet + adb forward",
+    "physical_devices": false
+  },
+  "native_device_bridge": {
+    "protocol": 1,
+    "native_host_python_client": true,
+    "python_host_native_client": true,
+    "pinned_tls": true,
+    "sha256_verified": true,
+    "files_verified": 4,
+    "file_sha256": {
+      "native-to-desktop.txt": "c2743e81b8bd3ddfedd38da55dcc6afef4c2d9c54b36312f48a82a9911232b24",
+      "desktop-upload.txt": "cebff615107908970303b57c61d791ef236fd1eb07fbbed88684770ce36742a4",
+      "desktop-to-native.txt": "627cb1d79773668746e6deaa21767b42f6f271d110da55706b31468e5e5df4f4",
+      "native-upload.txt": "1e5694ab01903b1de93f650f49971180bbad69294784a96635d28d8c18e0d749"
+    },
+    "physical_devices": false
+  },
+  "screen_capture": {
+    "stop_tested": true,
+    "media_projection_consent": true,
+    "cancel_tested": true,
+    "foreground_service": true,
+    "frame_bytes": 11662,
+    "sha256": "1cfe029facd6d57cdae79bd00654055efe3b8dafb9934f56839fc57c949076a0",
+    "fixture_only": true,
+    "remote_input": false
+  },
+  "live_repository": {
+    "apps": 5057,
+    "compatible": 5016,
+    "timestamp": 1795648445236,
+    "synced": 1795826060191,
+    "source": "https://f-droid.org/repo"
+  },
+  "live_apk_review": "APK_REVIEW com.beemdevelopment.aegis code=82 sha256=0eecec45de0da3ff1358004b51e2960d9178551643a6ed44f6496ea9ec999c19 bytes=6869856 installed=false",
+  "product_anr_detected": false,
+  "product_crash_detected": false,
+  "passed": true,
+  "local_visual_retrieval": {
+    "complete": false,
+    "observed_preview_chunks": 4,
+    "required_preview_chunks": 6,
+    "reason": "The emulator step emitted six genuine preview chunks, but the per-step checks annotation cap retained only four. Artifact/log redirects are outside this sandbox outbound allowlist. No incomplete JPEG was reconstructed or presented as a current native screenshot; full PNGs and the genuine MediaProjection JPEG are in the artifact."
+  },
+  "github": {
+    "run_url": "https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/46087817657",
+    "job_id": 140801439213,
+    "job_url": "https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/46087817657/job/140801439213",
+    "scope": "15/15 selections / 24/24 native cases passed on this one source, plus matching independent four-file TLS receipts and genuine MediaProjection cancel/fresh-consent/foreground-service/JPEG/stop. Three mandatory review cancellation/destruction/original-Home-focus/noninstallation cycles (button, system Back, button) and one final real system install with installed signer/version verification passed. Product ANR/crash not detected in this run; the emulator-only observer nevertheless sampled a 2060ms HWUI nSyncAndDrawFrame stall, so no permanent ANR fix or measured hardware-performance claim. API35 x86_64 QEMU only, not physical PC/phone/ARM, actual SIM, SystemUI/keyguard replacement or ROM/GMS acceptance."
+  }
+}
