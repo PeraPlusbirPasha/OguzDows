@@ -1,4 +1,4 @@
-> **2.0 yayın taslağı hazırlanıyor:** aşağıdaki yeni bağlantılar bağımsız dosya denetimi ve kamuya açma tamamlandığında çalışır. [Şu an yayımlanmış önceki v1.2](https://github.com/PeraPlusbirPasha/OguzDows/releases/tag/v1.2).
+> **[OğuzDows 2.0 · Akıncı yayımlandı](https://github.com/PeraPlusbirPasha/OguzDows/releases/tag/v2.0).** armhf/arm64 imajları ve diğer 24 dosya ayrı runner’da yeniden indirilip doğrulandı; herkese açık indirme uçları kontrol edildi. [Yayın kaydı](../docs/releases/v2.0-release.json).
 
 # OğuzDows · Raspberry Pi portu
 

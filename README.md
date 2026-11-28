@@ -1,4 +1,4 @@
-> **2.0 yayın taslağı hazırlanıyor:** aşağıdaki yeni bağlantılar bağımsız dosya denetimi ve kamuya açma tamamlandığında çalışır. [Şu an yayımlanmış önceki v1.2](https://github.com/PeraPlusbirPasha/OguzDows/releases/tag/v1.2).
+> **[OğuzDows 2.0 · Akıncı yayımlandı](https://github.com/PeraPlusbirPasha/OguzDows/releases/tag/v2.0).** 26 dosya ayrı runner’da yeniden indirilip doğrulandı; herkese açık son sürüm/etiket/indirme uçları kontrol edildi. [Yayın kaydı](docs/releases/v2.0-release.json).
 
 <p align="center">
   <img src="docs/assets/oguzdows-banner.svg" width="100%" alt="OğuzDows · Ay Yıldız — Köklerinden güç alır. Özgürce üretir.">
@@ -37,7 +37,7 @@
 
 **Telefon:** Kotlin/Compose HOME, gerçek uygulama arama/başlatma, kalıcı kısayollar ve gerçek widget; altı dokunmatik düzen, Ayarlar, medya sesi/paneller, sistem rehberi, Telefon/SMS/Mağaza ve hareketli yerel Rıfkı. [**Launcher APK’sı ve boş emülatöre kurulum →**](mobile/INSTALL.md) · [Gerçek yeni native ekran →](docs/assets/oguzdows-mobile-v2.jpg). Bulut AI/ses/wake-word etkin değildir; SystemUI/güvenli kilit cihaz genelinde değişmez.
 
-[PC](https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/46092345482), [Pi](https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/46092347693) ve [mobil](https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/46092350348) kabulü aynı kaynakta geçti: **24/24 native +20/20 JVM**, gerçek çift yönlü dört-dosya TLS/MediaProjection; ayrıca **16 başarılı host/ABI işi**. Kamuya açılmadan önce 26 yayın dosyası ayrı runner’da yeniden indirilir/hash’lenir. **[Sürüm notları, ölçümler ve açık sınırlar →](docs/releases/v2.0.md)**
+[PC](https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/46092345482), [Pi](https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/46092347693) ve [mobil](https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/46092350348) kabulü aynı kaynakta geçti: **24/24 native +20/20 JVM**, gerçek çift yönlü dört-dosya TLS/MediaProjection; ayrıca **16 başarılı host/ABI işi**. Kamuya açılmadan önce [ayrı salt-okunur denetim](https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/46100003996) 26 yayın dosyasını yeniden indirip hash’ledi, APK sürüm/imzalarını ve 27 ham kanıt dosyasını doğruladı. **[Sürüm notları, ölçümler ve açık sınırlar →](docs/releases/v2.0.md)**
 
 > **Pi portları deneyseldir. Zero/Zero W hesap sonrası siyah ekran bildirimi hâlâ açıktır.** Mobil kabulde ANR/çökme yok, fakat **2205 ms HWUI beklemesi** ve aynı kaynaklı başka koşuda launcher otomasyon hatası kaydı vardır; kalıcı çözüm veya fiziksel pil/FPS/kararlılık iddia edilmez. [Pi teşhis](docs/PI-ZERO-OTURUM.md) · [Mobil geçmiş](mobile/VERIFICATION.md).
 
