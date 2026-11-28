@@ -52,7 +52,8 @@ object DeviceDiagnostics {
             val activities = JSONArray()
             instrumentation.runOnMainSync {
                 ActivityLifecycleMonitorRegistry.getInstance().getActivitiesInStage(Stage.RESUMED).forEach {
-                    activities.put(it.javaClass.simpleName + ":" + it.window.decorView.width + "x" + it.window.decorView.height)
+                    activities.put(it.javaClass.simpleName + ":" + it.window.decorView.width + "x" + it.window.decorView.height
+                        + ":task=" + it.taskId + ":root=" + it.isTaskRoot + ":focus=" + it.hasWindowFocus() + ":action=" + it.intent?.action)
                 }
             }
             report.put("resumed", activities)

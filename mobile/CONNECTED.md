@@ -207,6 +207,21 @@ başarı kanıtı yerine geçmez. Davet/sır dosyaları raporlara alınmaz.
   herhangi biri başarısızsa tüm vaka başarısızdır. Henüz bu değişikliğe cihaz
   başarısı yazılmaz. Gerçek HOME yeniden oluşturma ve sonraki vakalara bu koşuda
   ulaşılamadı; yeni tam 24-vaka koşusu hâlâ zorunludur.
+- [`44e8cac` / 46085559560](https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/46085559560):
+  **20 JVM, 4/4 bağlı kabuk, iki ayrı dört-dosya TLS makbuzu ve canlı kaynak geçti.**
+  Gerçek OS HOME'un eski örneği yıkılıp aynı görevde farklı örneği resumed oldu;
+  altı düzen seçimi, kalıcılık, gerçek Ayarlar ve iki tam ekran hareketi ilk kez
+  birlikte geçti. Ürün ANR/çökmesi görülmedi. [SDK](android/evidence/sdk-44e8cac.json)
+  · [kapsamı sınırlı başarısız genel koşu](android/evidence/emulator-44e8cac.json).
+  Sade inceleme penceresinin gerçek 2D çizimi görüldü, fakat zorunlu iptalden sonra
+  özgün WebView odağına dönüş beklentisi geçmedi; üç döngü/final yükleme tamamlanmadı.
+  Etkisiz fixture kurulmadığı için 4 launcher vakası ve projection fixture açılışı
+  da başarısızdı. Bunlar atlanmaz veya başarı sayılmaz; **12/15 seçim, paket yok**.
+  Testin inceleme intent'inde kalan `NEW_TASK`, gerçek HomeActivity/Mağaza'nın
+  görev-içi geçişinde yoktur. Yeni test gerçek görünür-Activity geçişiyle eşleşir;
+  üç iptal/geri dönüş/kurulmama ve son sistem yükleyicisi onayı korunur. Zaman
+  aşımı tanısı artık test temizliğinden **önce** gerçek ön plan/görev/odak bilgisi
+  toplar. Sonraki koşu görülmeden tam kabul veya kalıcı ANR çözümü iddia edilmez.
 - [`18034bb` masaüstü / 46076502634](https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/46076502634):
   Debian bookworm/trixie üzerinde **1024×768 ve 360×800: dört gerçek GTK köprü
   koşusu geçti**. Gerçek düğme/dosya/loopback TLS/GDK kareleri sınandı. Üretimin

@@ -52,6 +52,8 @@ public final class NativeDeviceTest {
     private void waitFor(String description, long timeout, Check condition) throws Exception {
         long end = SystemClock.elapsedRealtime() + timeout;
         do { if (condition.yes()) return; SystemClock.sleep(200); } while (SystemClock.elapsedRealtime() < end);
+        // Observe the actual foreground BEFORE @After closes ActivityScenario.
+        DeviceDiagnostics.INSTANCE.missing(device, "Timed out: " + description, false);
         fail("Timed out: " + description);
     }
     private void home() throws Exception {
@@ -295,7 +297,10 @@ public final class NativeDeviceTest {
             byte[] buffer = new byte[16384]; int n; while ((n = in.read(buffer)) != -1) out.write(buffer, 0, n);
         }
         try (UiStallWatch stalls = new UiStallWatch(instrumentation)) {
-            Intent review = new Intent(context, InstallReviewActivity.class).putExtra("privateApk", file.getAbsolutePath()).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            // Match HomeActivity / SourceStoreActivity's real in-task handoff. The
+            // foreground Activity supplies launch authority; NEW_TASK would test a
+            // different back stack rather than the user's review/cancel/return path.
+            Intent review = new Intent(context, InstallReviewActivity.class).putExtra("privateApk", file.getAbsolutePath());
             // Three required cancel/reopen cycles, not retries: every transition and
             // non-installation assertion must pass before the one real final installation.
             for (int cycle = 0; cycle < 3; cycle++) {

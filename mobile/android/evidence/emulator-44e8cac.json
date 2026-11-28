@@ -1,0 +1,166 @@
+{
+  "source_sha": "44e8cac5412f1562c9a20f56088bf87e5e201dad",
+  "sdk": "35",
+  "abi": "x86_64",
+  "image_fingerprint": "google/sdk_gphone64_x86_64/emu64xa:15/AE3A.240806.043/12960925:userdebug/dev-keys",
+  "emulator_only": true,
+  "physical_sim_tested": false,
+  "emergency_calls_tested": false,
+  "gms_certification_tested": false,
+  "mms_rcs_supported": false,
+  "tests": [
+    {
+      "name": "NativeDeviceTest.bundledBridgeRolesValidationAndIsolation",
+      "passed": true,
+      "test_cases": 1,
+      "seconds": 21.97
+    },
+    {
+      "name": "NativeDeviceTest.paidActionsRequireFinalNativeConsent",
+      "passed": true,
+      "test_cases": 1,
+      "seconds": 13.54
+    },
+    {
+      "name": "NativeDeviceTest.systemVolumeBrightnessAndNativeThemeAreReal",
+      "passed": true,
+      "test_cases": 1,
+      "seconds": 12.56
+    },
+    {
+      "name": "NativeDeviceTest.incomingSmsUsesTheRealProviderAndRichInbox",
+      "passed": true,
+      "test_cases": 1,
+      "seconds": 13.04
+    },
+    {
+      "name": "NativeDeviceTest.outgoingSmsWaitsForActualSentCallback",
+      "passed": true,
+      "test_cases": 1,
+      "seconds": 10.16
+    },
+    {
+      "name": "NativeDeviceTest.outgoingCallUsesTelecomAndOurInCallService",
+      "passed": true,
+      "test_cases": 1,
+      "seconds": 12.7
+    },
+    {
+      "name": "NativeDeviceTest.incomingCallCanBeAnsweredMutedAndEndedInOurUi",
+      "passed": true,
+      "test_cases": 1,
+      "seconds": 8.38
+    },
+    {
+      "name": "NativeDeviceTest.localApkReviewCancelAndSystemInstall",
+      "passed": false,
+      "test_cases": 0,
+      "seconds": 26.42,
+      "failure": "INSTRUMENTATION_STATUS: stack=java.lang.AssertionError: Timed out: original rich UI regains actual w"
+    },
+    {
+      "name": "LauncherDeviceTest.suite",
+      "passed": false,
+      "test_cases": 0,
+      "seconds": 89.78,
+      "failure": "INSTRUMENTATION_STATUS: stack=java.lang.AssertionError: fixture was genuinely installed by prior ins"
+    },
+    {
+      "name": "ConnectedDeviceTest.suite",
+      "passed": true,
+      "test_cases": 4,
+      "seconds": 55.12
+    },
+    {
+      "name": "BridgeDeviceTest.nativeTls",
+      "passed": true,
+      "test_cases": 1,
+      "seconds": 1.68
+    },
+    {
+      "name": "BridgeDeviceTest.pcArmInterop",
+      "passed": true,
+      "test_cases": 1,
+      "seconds": 4.89
+    },
+    {
+      "name": "BridgeDeviceTest.systemProjection",
+      "passed": false,
+      "test_cases": 0,
+      "seconds": 15.54,
+      "failure": "INSTRUMENTATION_STATUS: stack=java.lang.IllegalArgumentException: Required value was null."
+    },
+    {
+      "name": "RepositorySecurityTest.suite",
+      "passed": true,
+      "test_cases": 3,
+      "seconds": 0.48
+    },
+    {
+      "name": "LiveRepositoryTest.suite",
+      "passed": true,
+      "test_cases": 1,
+      "seconds": 15.58
+    }
+  ],
+  "display": {
+    "pixels": "720x1600",
+    "density": 280,
+    "gpu": "headless SwiftShader"
+  },
+  "preflight": {
+    "sim_state": "LOADED",
+    "default_sms_subscription_setting": 1,
+    "active_default_network": 100,
+    "ready": true
+  },
+  "device_bridge": {
+    "protocol": 1,
+    "native_host_python_client": true,
+    "python_host_native_client": true,
+    "files_verified": 4,
+    "pinned_tls": true,
+    "sha256_verified": true,
+    "file_sha256": {
+      "native-to-desktop.txt": "c2743e81b8bd3ddfedd38da55dcc6afef4c2d9c54b36312f48a82a9911232b24",
+      "desktop-upload.txt": "cebff615107908970303b57c61d791ef236fd1eb07fbbed88684770ce36742a4",
+      "desktop-to-native.txt": "627cb1d79773668746e6deaa21767b42f6f271d110da55706b31468e5e5df4f4",
+      "native-upload.txt": "1e5694ab01903b1de93f650f49971180bbad69294784a96635d28d8c18e0d749"
+    },
+    "transport": "QEMU virtual Ethernet + adb forward",
+    "physical_devices": false
+  },
+  "native_device_bridge": {
+    "protocol": 1,
+    "native_host_python_client": true,
+    "python_host_native_client": true,
+    "pinned_tls": true,
+    "sha256_verified": true,
+    "files_verified": 4,
+    "file_sha256": {
+      "native-to-desktop.txt": "c2743e81b8bd3ddfedd38da55dcc6afef4c2d9c54b36312f48a82a9911232b24",
+      "desktop-upload.txt": "cebff615107908970303b57c61d791ef236fd1eb07fbbed88684770ce36742a4",
+      "desktop-to-native.txt": "627cb1d79773668746e6deaa21767b42f6f271d110da55706b31468e5e5df4f4",
+      "native-upload.txt": "1e5694ab01903b1de93f650f49971180bbad69294784a96635d28d8c18e0d749"
+    },
+    "physical_devices": false
+  },
+  "live_repository": {
+    "apps": 5057,
+    "compatible": 5016,
+    "timestamp": 1795648445236,
+    "synced": 1795824562627,
+    "source": "https://f-droid.org/repo"
+  },
+  "live_apk_review": "APK_REVIEW com.beemdevelopment.aegis code=82 sha256=0eecec45de0da3ff1358004b51e2960d9178551643a6ed44f6496ea9ec999c19 bytes=6869856 installed=false",
+  "product_anr_detected": false,
+  "product_crash_detected": false,
+  "passed": false,
+  "acceptance_failure": "Acceptance refused: failed / empty / skipped / wrong native case count: NativeDeviceTest.localApkReviewCancelAndSystemInstall",
+  "github": {
+    "run_url": "https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/46085559560",
+    "job_id": 140794187914,
+    "job_url": "https://github.com/PeraPlusbirPasha/OguzDows/actions/runs/46085559560/job/140794187914",
+    "scope": "12/15 selections passed; Native 7/8, Launcher 1/5 (failed suite reports 0), Connected 4/4, Bridge 2/3, RepositorySecurity 3/3, LiveRepository 1/1. Actual real-HOME destroy/distinct-resume recreation, all six layout settings, fullscreen gestures, system Settings, contacts and lock passed. Both independent four-file TLS receipts matched. Product ANR/crash not observed; plain software-review window was reached, but its required cancel/return focus assertion failed before completing three cycles or the final install. Fixture was therefore absent: four launcher cases and the projection fixture launch also failed; none are waived or counted as passes. No capture receipt or complete 24-case acceptance/package. The test-only NEW_TASK flag differed from the real HomeActivity/SourceStoreActivity handoff; a matching in-task intent is the next candidate, not a verified result."
+  }
+}

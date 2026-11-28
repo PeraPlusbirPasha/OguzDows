@@ -132,6 +132,11 @@ class NativeSourceContracts(unittest.TestCase):
         self.assertIn('getDecorView().isHardwareAccelerated()', test)
         self.assertIn('for (int cycle = 0; cycle < 3; cycle++)', test)
         self.assertIn('review cancellation must not install', test)
+        review_intent = re.search(r'Intent review = ([^;]+);', test)
+        self.assertIsNotNone(review_intent)
+        self.assertNotIn('FLAG_ACTIVITY_NEW_TASK', review_intent[1], 'Match the real foreground, in-task handoff')
+        self.assertIn('original rich UI regains actual window focus', test)
+        self.assertIn('DeviceDiagnostics.INSTANCE.missing', test)
 
     def test_live_store_anchor_signature_hash_https_and_atomic_rollback_are_mandatory(self):
         trust = json.loads((ROOT / 'android/store-trust.json').read_text())
