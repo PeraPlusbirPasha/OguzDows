@@ -1,14 +1,15 @@
-> **[OğuzDows 2.0 · Akıncı yayımlandı](https://github.com/PeraPlusbirPasha/OguzDows/releases/tag/v2.0).** 26 dosya ayrı runner’da yeniden indirilip doğrulandı; herkese açık son sürüm/etiket/indirme uçları kontrol edildi. [Yayın kaydı](docs/releases/v2.0-release.json).
+> **OğuzDows 2.0 “Akıncı” yayında.** PC, Raspberry Pi ve native launcher, aynı kimlikte. **[Web sitesi →](https://peraplusbirpasha.github.io/OguzDows/)** · **[Ücretsiz indir →](https://peraplusbirpasha.github.io/OguzDows/indir/)** · [Sürüm notları ve 26 dosyalı yayın](https://github.com/PeraPlusbirPasha/OguzDows/releases/tag/v2.0) · [Doğrulanmış yayın kaydı](docs/releases/v2.0-release.json).
 
 <p align="center">
-  <img src="docs/assets/oguzdows-banner.svg" width="100%" alt="OğuzDows · Ay Yıldız — Köklerinden güç alır. Özgürce üretir.">
+  <img src="docs/assets/oguzdows-banner.svg" width="100%" alt="OğuzDows 2.0 · Akıncı — PC, Raspberry Pi ve native launcher. Köklerinden güç alır. Özgürce üretir.">
 </p>
 
-<h1 align="center">Türkçe. Hafif. Sana ait.</h1>
+<h1 align="center">OğuzDows 2.0 · Akıncı</h1>
 
 <p align="center">
-  PC’de ve Pi’de hafif Xfce; telefonda native Aero launcher.<br>
-  OğuzDows 2.0 · Akıncı — aynı kimlik, onaylı yerel bağlantı, kendine özgü bir dünya.
+  <b>Türkçe. Hafif. Birbirine bağlı.</b><br>
+  PC’de ve Raspberry Pi’de Debian tabanlı Xfce; telefonda ayrı native Aero launcher.<br>
+  Kendine özgü bir masaüstü, hareketli yerel Rıfkı ve onaylı OğuzKöprü bağlantısı.
 </p>
 
 <p align="center">
@@ -17,6 +18,7 @@
 </p>
 
 <p align="center">
+  <a href="https://peraplusbirpasha.github.io/OguzDows/"><b>Web sitesi ↗</b></a> &nbsp; · &nbsp;
   <a href="#indir"><b>↓ İndir</b></a> &nbsp; · &nbsp;
   <a href="#ozellikler">Neler var?</a> &nbsp; · &nbsp;
   <a href="#manzaralar">Manzaralar</a> &nbsp; · &nbsp;
@@ -216,6 +218,7 @@ Tam ISO derlemesi root, ağ ve yeterli disk alanı gerektirir. Hazırlık adıml
 
 | Yol gösterici | İçerik |
 | :--- | :--- |
+| [Web sitesi ve ücretsiz görünürlük](docs/WEB-VE-GORUNURLUK.md) | GitHub Pages, sayfa/SEO altyapısı, Search Console adımları ve ücretsiz tanıtım planı. |
 | [Teknik rehber](docs/TEKNIK-REHBER.md) | Derleme, kurulum güvenliği, eski sürücüler, Rıfkı ve geliştirici testleri. |
 | [Masaüstü ve bakım](docs/MASAUSTU-VE-BAKIM.md) | Mağaza, güncelleyici, tarzlar, kültür araçları ve depo güveni. |
 | [2.0 Akıncı indirme ve test kanıtı](docs/releases/v2.0.md) | Aynı kaynaklı dört imaj + native APK/web, onaylı bağlantı, düşük RAM/ABI ve 26 dosyalı yayın denetimi. |

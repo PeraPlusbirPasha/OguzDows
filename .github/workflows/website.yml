@@ -1,0 +1,88 @@
+name: OğuzDows · ücretsiz web sitesi
+
+on:
+  push:
+    branches: [main, arena/2d796713-o-uzdows]
+    paths:
+      - "website/**"
+      - "docs/index.html"
+      - "docs/404.html"
+      - "docs/indir/**"
+      - "docs/pc/**"
+      - "docs/raspberry-pi/**"
+      - "docs/telefon/**"
+      - "docs/oguzkopru/**"
+      - "docs/sss/**"
+      - "docs/web/**"
+      - "docs/assets/**"
+      - "docs/robots.txt"
+      - "docs/sitemap.xml"
+      - "docs/.nojekyll"
+      - "README.md"
+      - "tests/test_website.py"
+      - ".github/workflows/website.yml"
+  pull_request:
+    paths:
+      - "website/**"
+      - "docs/index.html"
+      - "docs/404.html"
+      - "docs/indir/**"
+      - "docs/pc/**"
+      - "docs/raspberry-pi/**"
+      - "docs/telefon/**"
+      - "docs/oguzkopru/**"
+      - "docs/sss/**"
+      - "docs/web/**"
+      - "docs/assets/**"
+      - "docs/robots.txt"
+      - "docs/sitemap.xml"
+      - "docs/.nojekyll"
+      - "README.md"
+      - "tests/test_website.py"
+      - ".github/workflows/website.yml"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: oguzdows-website-check-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  check:
+    name: Statik HTML / SEO / Chromium / erişilebilirlik
+    runs-on: ubuntu-24.04
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+      - name: Küçük test bağımlılığı (site derlemesi Python stdlib)
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends python3-pil
+      - name: Tekrarlanabilir statik çıktı / gerçek yayın linkleri / SEO kontratları
+        run: |
+          python3 website/build.py --check
+          /usr/bin/python3 -W error::ResourceWarning -m unittest discover -s tests -p 'test_website.py' -v
+          /usr/bin/python3 -W error::ResourceWarning -m unittest discover -s tests -p 'test_readme.py' -v
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: mobile/preview/package-lock.json
+      - name: Mevcut kilitli tarayıcı araçları (APK / mobil UI derlenmez)
+        run: npm ci --ignore-scripts --prefix mobile/preview
+      - name: Gerçek Chromium · 7 sayfa / 4 genişlik / axe / JavaScript kapalı
+        run: |
+          python3 website/serve.py --host 0.0.0.0 --port 4176 > /tmp/oguzdows-website-test.log 2>&1 &
+          server=$!
+          trap 'kill "$server" 2>/dev/null || true' EXIT
+          WEBSITE_BASE_URL=http://127.0.0.1:4176/OguzDows/ node --test website/tests/browser.test.mjs
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        if: failure()
+        with:
+          name: oguzdows-website-diagnostics
+          path: .cache/website/
+          retention-days: 7
+          if-no-files-found: ignore

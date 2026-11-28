@@ -71,6 +71,9 @@ class ReadmeTests(unittest.TestCase):
             'SHA256SUMS', 'release-manifest.json', 'test-evidence.tar.gz')})
         self.assertIn('mobile/INSTALL.md', text)
         self.assertIn('docs/AKINCI-BAGLANTI.md', text)
+        self.assertIn('<h1 align="center">OğuzDows 2.0 · Akıncı</h1>', text)
+        self.assertIn('https://peraplusbirpasha.github.io/OguzDows/', text[:2200])
+        self.assertIn('https://peraplusbirpasha.github.io/OguzDows/indir/', text[:2200])
         self.assertIn('debug uygulamasıdır, ROM/OTA/GSI değildir', text)
         self.assertIn('releases/tag/v1.0.0', text)
         self.assertIn('docs/releases/v1.1.md', text)
@@ -125,6 +128,10 @@ class ReadmeTests(unittest.TestCase):
         root = ET.parse(banner).getroot()
         self.assertEqual(root.attrib['viewBox'], '0 0 1600 560')
         self.assertLess(banner.stat().st_size, 20_000)
+        banner_text = ' '.join(root.itertext())
+        self.assertIn('OğuzDows 2.0 · Akıncı', banner_text)
+        self.assertIn('AKINCI · 2.0', banner_text)
+        self.assertNotIn('AY YILDIZ · 1.0', banner_text)
         for element in root.iter():
             self.assertNotIn(element.tag.rsplit('}', 1)[-1], ('script', 'foreignObject', 'image'))
             for name, value in element.attrib.items():

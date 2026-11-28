@@ -1,0 +1,4 @@
+# Project Pages: crawler directives apply only when this file is at the origin root.
+User-agent: *
+Allow: /
+Sitemap: https://peraplusbirpasha.github.io/OguzDows/sitemap.xml
